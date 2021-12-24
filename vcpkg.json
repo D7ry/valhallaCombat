@@ -1,0 +1,14 @@
+{
+    "name":  "valhallacombat",
+    "version-string":  "0.0.2",
+    "description":  "",
+    "license":  "MIT",
+    "dependencies":  [
+                         "spdlog"
+                     ],
+    "features":  {
+                     "mo2-install":  {
+                                         "description":  "valhallaCombat"
+                                     }
+                 }
+}
