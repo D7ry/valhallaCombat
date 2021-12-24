@@ -6,8 +6,6 @@ using namespace Utils;
 namespace avHandler
 {
 
-
-
 	/*causes 1h weapon stamina damage to actor A*/
 	inline void damageStamina(RE::Actor* a) {
 		if (a->GetEquippedObject(false)->IsWeapon()) {
