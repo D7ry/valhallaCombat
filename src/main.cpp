@@ -1,4 +1,5 @@
 #include "loadGame.h"
+#include "dataHandler.h"
 #if ANNIVERSARY_EDITION
 
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
@@ -65,7 +66,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	}
 
 	g_message->RegisterListener(loadGame::EventCallBACK);
-
+	dataHandler::setupData();
 
 	return true;
 }

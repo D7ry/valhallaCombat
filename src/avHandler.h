@@ -1,12 +1,11 @@
 #pragma once
 #include "Utils.h"
+#include "dataHandler.h"
+using namespace dataHandler;
 using namespace Utils;
 namespace avHandler
 {
 
-	inline float meleeCost1h = 20;
-	inline float meleeCost2h = 35;
-	inline float meleeHitStaminaRecover = 50; //stamina recovered from hitting an enemy with a light attack.
 
 
 	/*causes 1h weapon stamina damage to actor A*/
@@ -30,6 +29,7 @@ namespace avHandler
 		restoreav(a, RE::ActorValue::kStamina, meleeHitStaminaRecover);
 	}
 
+	inline boolean canAttack = true;
 
 
 

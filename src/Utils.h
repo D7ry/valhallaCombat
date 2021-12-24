@@ -17,6 +17,16 @@ namespace Utils
 		}
 	}
 
+	/*multiplies stamina regen of every single race by MULT.*/
+	inline void multStaminaRegen(int mult) {
+		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
+			if (race && race->GetPlayable()) {
+				DEBUG("setting regen value for race {} from {} to {}.", race->GetName(), race->data.staminaRegen, race->data.staminaRegen*mult);
+				race->data.staminaRegen *= mult;
+			}
+		}
+	}
+
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
 		a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
@@ -26,5 +36,6 @@ namespace Utils
 	{
 		a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
 	}
+
 };
 
