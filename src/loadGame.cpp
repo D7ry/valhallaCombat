@@ -2,6 +2,7 @@
 #include "loadGame.h"
 #include "avHandler.h"
 #include "dataHandler.h"
+#include "debuffHandler.h"
 using namespace Utils;
 namespace loadGame {
 	boolean setup = false;
@@ -23,6 +24,7 @@ namespace loadGame {
 				onHitEventHandler::Register();
 			}
 			animEventHandler::RegisterSink(pc);
+			debuffHandler::rmDebuffPerk();
 			//actionEventHandler::RegisterSink(); 
 			DEBUG("initialization complete!");
 		}

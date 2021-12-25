@@ -13,10 +13,15 @@ public:
 	float staminaRegenMult_;
 	float combatStaminaRegenMult_;
 	float staminaRegenDelay_;
+
 	static dataHandler* GetSingleton()
 	{
 		static dataHandler singleton;
 		return  std::addressof(singleton);
+	}
+
+	void updateMCMchanges() {
+
 	}
 };
 

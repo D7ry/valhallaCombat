@@ -11,7 +11,7 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 	DEBUG("Hit flag is{}, source is {:x}", a_event->flags.get(), a_event->source);
 	if (shouldHitRestoreStamina(a_event)) {avHandler::restoreStamina(RE::PlayerCharacter::GetSingleton()); }
 	return EventResult::kContinue;
-}//FIXME:: this method is super problematic
+}
 boolean onHitEventHandler::shouldHitRestoreStamina(const RE::TESHitEvent* a_event) {
 	if (a_event->cause 
 		&&a_event->cause->IsPlayerRef()) {
