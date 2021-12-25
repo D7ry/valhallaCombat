@@ -1,6 +1,25 @@
 #pragma once
 #include "Utils.h"
+#include "SimpleIni.h"
 using namespace Utils;
+
+class dataHandler
+{
+public:
+	dataHandler();
+	float meleeCost1h;
+	float meleeCost2h;
+	float meleeHitStaminaRecover; //stamina recovered from hitting an enemy with a light attack.
+	float staminaRegenMult_;
+	float combatStaminaRegenMult_;
+	float staminaRegenDelay_;
+	static dataHandler* GetSingleton()
+	{
+		static dataHandler singleton;
+		return  std::addressof(singleton);
+	}
+};
+
 namespace gameSettings {
 	inline const char* powerAtkStaminaCostMultiplier = "fPowerAttackStaminaPenalty";
 	inline const char* staminaRegenDelay = "fDamagedStaminaRegenDelay";
@@ -14,30 +33,11 @@ namespace gameSettings {
 	inline void tweakGameSetting() {
 		DEBUG("tweaking game setting");
 		setGameSettingf(gameSettings::powerAtkStaminaCostMultiplier, 1);
-		setGameSettingf(gameSettings::staminaRegenDelay, 3);
+		setGameSettingf(gameSettings::staminaRegenDelay, dataHandler::GetSingleton()->staminaRegenDelay_);
 		setGameSettingf(gameSettings::atkStaminaCostMult, 0);
 		setGameSettingf(gameSettings::atkStaminaCostBase, 20);
-		setGameSettingf(gameSettings::combatStaminaRegenMult, 1);
-		multStaminaRegen(5);
+		setGameSettingf(gameSettings::combatStaminaRegenMult, dataHandler::GetSingleton()->combatStaminaRegenMult_);
+		multStaminaRegen(dataHandler::GetSingleton()->staminaRegenMult_);
 	}
 }
-namespace dataHandler
-{
-
-	inline float meleeCost1h = 20;
-	inline float meleeCost2h = 35;
-	inline float meleeHitStaminaRecover = 50; //stamina recovered from hitting an enemy with a light attack.
-
-	inline void refreshData() {
-		meleeCost1h = 20;
-		meleeCost2h = 35;
-	}
-
-	inline void setupData() {
-		refreshData();
-		gameSettings::tweakGameSetting();
-	}
-
-};
-
 

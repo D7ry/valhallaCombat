@@ -4,7 +4,7 @@
 #include "dataHandler.h"
 using namespace Utils;
 namespace loadGame {
-	boolean dataSetup = false;
+	boolean setup = false;
 	void EventCallBACK(SKSE::MessagingInterface::Message* msg)
 	{
 		if (msg->type == SKSE::MessagingInterface::kPostLoadGame) {
@@ -16,15 +16,14 @@ namespace loadGame {
 				DEBUG("add weapon swing sink!");
 			}
 			*/
-			//TODO:switch to SKSE action event sink
-			animEventHandler::RegisterSink(pc);
-			onHitEventHandler::Register();
-			if (!dataSetup) {
-				dataHandler::setupData();
-				dataSetup = true;
-			} else {
-				DEBUG("data already setup!");
+			//TODO:get SKSE action event sink working
+			if (!setup) {
+				dataHandler* handler = dataHandler::GetSingleton();
+				gameSettings::tweakGameSetting();
+				onHitEventHandler::Register();
 			}
+			animEventHandler::RegisterSink(pc);
+			//actionEventHandler::RegisterSink(); 
 			DEBUG("initialization complete!");
 		}
 	}

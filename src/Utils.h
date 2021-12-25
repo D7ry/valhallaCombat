@@ -18,7 +18,7 @@ namespace Utils
 	}
 
 	/*multiplies stamina regen of every single race by MULT.*/
-	inline void multStaminaRegen(int mult) {
+	inline void multStaminaRegen(float mult) {
 		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
 			if (race && race->GetPlayable()) {
 				DEBUG("setting regen value for race {} from {} to {}.", race->GetName(), race->data.staminaRegen, race->data.staminaRegen*mult);
@@ -35,6 +35,19 @@ namespace Utils
 	inline void restoreav(RE::Actor* a, RE::ActorValue av, float val)
 	{
 		a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
+	}
+
+	inline boolean wieldingOneHanded(RE::Actor* a) {
+		if (!a->GetEquippedObject(false)) {
+			return true;
+		}
+		RE::WEAPON_TYPE wpnType = a->GetEquippedObject(false)->As<RE::TESObjectWEAP>()->GetWeaponType();
+		if (wpnType >= RE::WEAPON_TYPE::kHandToHandMelee && wpnType <= RE::WEAPON_TYPE::kOneHandMace) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 };

@@ -1,5 +1,6 @@
 #include "loadGame.h"
 #include "dataHandler.h"
+#include "SimpleIni.h"
 #if ANNIVERSARY_EDITION
 
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
