@@ -1,6 +1,7 @@
 #pragma once
 #include "Utils.h"
 #include "SimpleIni.h"
+#include "debuffHandler.h"
 using namespace Utils;
 
 class dataHandler
@@ -9,7 +10,8 @@ public:
 	dataHandler();
 	float meleeCost1h;
 	float meleeCost2h;
-	float meleeHitStaminaRecover; //stamina recovered from hitting an enemy with a light attack.
+	float meleeHitStaminaRecover1h; 
+	float meleeHitStaminaRecover2h;
 	float staminaRegenMult_;
 	float combatStaminaRegenMult_;
 	float staminaRegenDelay_;
@@ -27,7 +29,7 @@ public:
 
 namespace gameSettings {
 	inline const char* powerAtkStaminaCostMultiplier = "fPowerAttackStaminaPenalty";
-	inline const char* staminaRegenDelay = "fStaminaRegenDelayMax";
+	inline const char* staminaRegenDelay = "fDamagedStaminaRegenDelay";
 	inline const char* atkStaminaCostBase = "fStaminaAttackWeaponBase";
 	inline const char* atkStaminaCostMult = "fStaminaAttackWeaponMult";
 	inline const char* combatStaminaRegenMult = "fCombatStaminaRegenRateMult";

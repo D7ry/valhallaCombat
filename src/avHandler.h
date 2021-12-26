@@ -22,10 +22,10 @@ namespace avHandler
 	/*restores stamina for actor A*/
 	inline void restoreStamina(RE::Actor* a) {
 		if (!wieldingOneHanded(a)) {
-			restoreav(a, RE::ActorValue::kStamina, dataHandler::GetSingleton()->meleeHitStaminaRecover + dataHandler::GetSingleton()->meleeCost2h);
+			restoreav(a, RE::ActorValue::kStamina, dataHandler::GetSingleton()->meleeHitStaminaRecover1h);
 		}
 		else {
-			restoreav(a, RE::ActorValue::kStamina, dataHandler::GetSingleton()->meleeHitStaminaRecover + dataHandler::GetSingleton()->meleeCost1h);
+			restoreav(a, RE::ActorValue::kStamina, dataHandler::GetSingleton()->meleeHitStaminaRecover2h);
 		}
 	}
 

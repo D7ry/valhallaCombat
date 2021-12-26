@@ -2,9 +2,13 @@
 #include <thread>
 #include <iostream>
 #include <chrono>
-
+#include "spdlog/async_logger.h"
 namespace debuffHandler
 {
+	inline bool staminaBlink = false;
+
+	inline std::atomic<bool> isPlayerExhausted = false;
+
 	inline RE::GFxMovieView* Hud = nullptr;
 
 	inline bool AcquireHud() noexcept {
@@ -24,13 +28,8 @@ namespace debuffHandler
 
 	inline void startStaminaBlinking() noexcept {
 		if (Hud) {
-			DEBUG("blink");
 			Hud->InvokeNoReturn("_level0.HUDMovieBaseInstance.StartStaminaBlinking", nullptr, 0);
 		}
-		else {
-			ERROR("hud not found");
-		}
-		
 	}
 
 	inline auto getDebuffPerk() {
@@ -44,7 +43,14 @@ namespace debuffHandler
 
 	inline std::jthread t1;
 
-	inline std::atomic<bool> isPlayerExhausted = false;
+	inline std::jthread t2; //testing
+
+	inline void staminaDebuffBlink() {
+		while (!isPlayerExhausted && Hud) {
+			startStaminaBlinking();
+			std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+		}
+	}
 
 	static inline void addDebuffPerk() {
 		auto debuffPerk = getDebuffPerk();
@@ -68,19 +74,15 @@ namespace debuffHandler
 
 	static inline void staminaDebuffCheck() {
 		auto pc = RE::PlayerCharacter::GetSingleton();
-		while (isPlayerExhausted) {
+		while (isPlayerExhausted && pc && pc->GetActorValue(RE::ActorValue::kStamina) && pc->GetPermanentActorValue(RE::ActorValue::kStamina)) {
 			if (pc->GetActorValue(RE::ActorValue::kStamina) == pc->GetPermanentActorValue(RE::ActorValue::kStamina)) {
-				DEBUG("player has recovered!");
 				rmDebuffPerk();
 				isPlayerExhausted = false;
 				break;
 			} else {
-				//startStaminaBlinking();
-				DEBUG(pc->GetActorValue(RE::ActorValue::kStamina));
 				std::this_thread::sleep_for(std::chrono::milliseconds(800));
 			}
 		}
-		return;
 	}
 
 	static inline void initStaminaDebuff() {
@@ -88,11 +90,17 @@ namespace debuffHandler
 			DEBUG("player already exhausted!");
 		}
 		else {
-			DEBUG("delegating thread");
 			addDebuffPerk();
 			isPlayerExhausted = true;
+			DEBUG("delegating threads");
 			t1 = std::jthread(staminaDebuffCheck);
 			t1.detach();
+			if (staminaBlink) {
+				DEBUG("setup stamina blink");
+				t2 = std::jthread(staminaDebuffBlink);
+				t2.detach();
+			}
+			DEBUG("threads detached");
 		}
 	}
 

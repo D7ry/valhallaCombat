@@ -1,7 +1,7 @@
 #pragma once
-#include "animEventHandler.h"
-#include "onHitEventHandler.h"
-#include "actionEventHandler.h"
+#include "events/animEventHandler.h"
+#include "events/onHitEventHandler.h"
+#include "events/actionEventHandler.h"
 #include "Utils.h"
 
 
