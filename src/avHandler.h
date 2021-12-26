@@ -29,7 +29,7 @@ namespace avHandler
 		}
 	}
 
-	inline boolean canAttack = true;
+	inline bool canAttack = true;
 
 };
 

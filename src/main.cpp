@@ -1,3 +1,6 @@
+/*bring AC Valhalla's stamina system into Skyrim.
+@author TY
+*/
 #include "loadGame.h"
 #include "dataHandler.h"
 #include "SimpleIni.h"

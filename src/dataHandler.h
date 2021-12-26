@@ -27,7 +27,7 @@ public:
 
 namespace gameSettings {
 	inline const char* powerAtkStaminaCostMultiplier = "fPowerAttackStaminaPenalty";
-	inline const char* staminaRegenDelay = "fDamagedStaminaRegenDelay";
+	inline const char* staminaRegenDelay = "fStaminaRegenDelayMax";
 	inline const char* atkStaminaCostBase = "fStaminaAttackWeaponBase";
 	inline const char* atkStaminaCostMult = "fStaminaAttackWeaponMult";
 	inline const char* combatStaminaRegenMult = "fCombatStaminaRegenRateMult";

@@ -10,7 +10,7 @@ public:
 		static actionEventHandler g_eventhandler;
 		if (SKSE::GetActionEventSource()) {
 			SKSE::GetActionEventSource()->AddEventSink(&g_eventhandler);
-			DEBUG("Register action Event Handler");
+			DEBUG("Registered action Event Handler");
 			return true;
 		} else {
 			DEBUG("failed to register action event handler");

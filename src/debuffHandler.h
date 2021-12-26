@@ -2,16 +2,52 @@
 #include <thread>
 #include <iostream>
 #include <chrono>
-using namespace std;
 
 namespace debuffHandler
 {
-	inline thread t1;
+	inline RE::GFxMovieView* Hud = nullptr;
 
-	inline boolean isPlayerExhausted = false;
+	inline bool AcquireHud() noexcept {
+		const auto* ui = RE::UI::GetSingleton();
+		if (!ui) {
+			return false;
+		}
+		const auto& map = ui->menuMap;
+		for (auto& [name, entry] : map) {
+			if (name == RE::HUDMenu::MENU_NAME) {
+				Hud = entry.menu->uiMovie.get();
+					Hud->AddRef();
+			}
+		}
+		return Hud;
+	}
+
+	inline void startStaminaBlinking() noexcept {
+		if (Hud) {
+			DEBUG("blink");
+			Hud->InvokeNoReturn("_level0.HUDMovieBaseInstance.StartStaminaBlinking", nullptr, 0);
+		}
+		else {
+			ERROR("hud not found");
+		}
+		
+	}
+
+	inline auto getDebuffPerk() {
+		auto perk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x00000d63, "ValhallaCombat.esp");
+		if (perk) {
+			return perk;
+		} else {
+			ERROR("debuff perk not found. Make sure you have ValhallaCombat.esp enabled");
+		}
+	}
+
+	inline std::jthread t1;
+
+	inline std::atomic<bool> isPlayerExhausted = false;
 
 	static inline void addDebuffPerk() {
-		auto debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x00000d63, "ValhallaCombat.esp");
+		auto debuffPerk = getDebuffPerk();
 		auto pc = RE::PlayerCharacter::GetSingleton();
 		DEBUG("adding {}", debuffPerk->GetName());
 		if (debuffPerk && !pc->HasPerk(debuffPerk)) {
@@ -21,7 +57,7 @@ namespace debuffHandler
 	}
 
 	static inline void rmDebuffPerk() {
-		auto debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x00000d63, "ValhallaCombat.esp");
+		auto debuffPerk = getDebuffPerk();
 		auto pc = RE::PlayerCharacter::GetSingleton();
 		DEBUG("removing {}", debuffPerk->GetName());
 		if (debuffPerk && pc->HasPerk(debuffPerk)) {
@@ -33,16 +69,18 @@ namespace debuffHandler
 	static inline void staminaDebuffCheck() {
 		auto pc = RE::PlayerCharacter::GetSingleton();
 		while (isPlayerExhausted) {
-			this_thread::sleep_for(chrono::milliseconds(400));
 			if (pc->GetActorValue(RE::ActorValue::kStamina) == pc->GetPermanentActorValue(RE::ActorValue::kStamina)) {
 				DEBUG("player has recovered!");
-				isPlayerExhausted = false;
 				rmDebuffPerk();
+				isPlayerExhausted = false;
+				break;
 			} else {
+				//startStaminaBlinking();
 				DEBUG(pc->GetActorValue(RE::ActorValue::kStamina));
+				std::this_thread::sleep_for(std::chrono::milliseconds(800));
 			}
 		}
-		t1.detach();
+		return;
 	}
 
 	static inline void initStaminaDebuff() {
@@ -50,10 +88,11 @@ namespace debuffHandler
 			DEBUG("player already exhausted!");
 		}
 		else {
-			addDebuffPerk();
 			DEBUG("delegating thread");
+			addDebuffPerk();
 			isPlayerExhausted = true;
-			t1 = thread(staminaDebuffCheck);
+			t1 = std::jthread(staminaDebuffCheck);
+			t1.detach();
 		}
 	}
 

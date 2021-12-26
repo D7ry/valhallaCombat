@@ -5,33 +5,36 @@
 #include "debuffHandler.h"
 using namespace Utils;
 namespace loadGame {
-	boolean setup = false;
+	bool setup = false;
 	void EventCallBACK(SKSE::MessagingInterface::Message* msg)
 	{
 		if (msg->type == SKSE::MessagingInterface::kPostLoadGame) {
 			DEBUG("data loaded, initializing...");
-			RE::Actor* pc = RE::PlayerCharacter::GetSingleton();
-			/*
-			if (SKSE::GetActionEventSource()) {
+			/*if (SKSE::GetActionEventSource()) {
 				SKSE::GetActionEventSource()->AddEventSink(SKSE::ActionEvent);
 				DEBUG("add weapon swing sink!");
 			}
 			*/
-			//TODO:get SKSE action event sink working
 			if (!setup) {
 				dataHandler* handler = dataHandler::GetSingleton();
 				gameSettings::tweakGameSetting();
 				onHitEventHandler::Register();
+				debuffHandler::AcquireHud();
+				//debuffHandler::AcquireHud();
+				setup = true;
 			}
+			RE::Actor* pc = RE::PlayerCharacter::GetSingleton();
 			animEventHandler::RegisterSink(pc);
 			debuffHandler::rmDebuffPerk();
+			//FIXME::stop using animEventHandler and start using your own hooks chump
 			//actionEventHandler::RegisterSink(); 
 			DEBUG("initialization complete!");
+
+
 		}
 	}
 
 
-
-}
+};
 
 

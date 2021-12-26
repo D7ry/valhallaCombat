@@ -3,7 +3,7 @@ using EventResult = RE::BSEventNotifyControl;
 class onHitEventHandler : public RE::BSTEventSink<RE::TESHitEvent>
 {
 public:
-	boolean shouldHitRestoreStamina(const RE::TESHitEvent* a_event);
+	bool shouldHitRestoreStamina(const RE::TESHitEvent* a_event);
 	virtual EventResult ProcessEvent(const RE::TESHitEvent* a_event, RE::BSTEventSource<RE::TESHitEvent>* a_eventSource);
 
 	static bool Register()

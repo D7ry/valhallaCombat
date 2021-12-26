@@ -12,7 +12,7 @@ namespace Utils
 			INFO("invalid setting: {}", settingStr);
 		}
 		else {
-			INFO("setting {} to {}", settingStr, val);
+			INFO("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
 			setting->data.f = val;
 		}
 	}
@@ -21,7 +21,7 @@ namespace Utils
 	inline void multStaminaRegen(float mult) {
 		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
 			if (race && race->GetPlayable()) {
-				DEBUG("setting regen value for race {} from {} to {}.", race->GetName(), race->data.staminaRegen, race->data.staminaRegen*mult);
+				INFO("setting regen value for race {} from {} to {}.", race->GetName(), race->data.staminaRegen, race->data.staminaRegen*mult);
 				race->data.staminaRegen *= mult;
 			}
 		}
@@ -37,15 +37,17 @@ namespace Utils
 		a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
 	}
 
-	inline boolean wieldingOneHanded(RE::Actor* a) {
+	inline bool wieldingOneHanded(RE::Actor* a) {
 		if (!a->GetEquippedObject(false)) {
 			return true;
 		}
 		RE::WEAPON_TYPE wpnType = a->GetEquippedObject(false)->As<RE::TESObjectWEAP>()->GetWeaponType();
 		if (wpnType >= RE::WEAPON_TYPE::kHandToHandMelee && wpnType <= RE::WEAPON_TYPE::kOneHandMace) {
+			DEBUG("player wielding one handed weapon!");
 			return true;
 		}
 		else {
+			DEBUG("player wielding two handed weapon!");
 			return false;
 		}
 	}

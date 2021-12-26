@@ -12,6 +12,8 @@ public:
 
 		if (actor) {
 			actor->GetAnimationGraphManager(graphManager);
+		} else {
+			ERROR("Actor not found!");
 		}
 
 		if (!graphManager || !graphManager->graphs.cbegin()) {
