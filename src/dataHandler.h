@@ -8,10 +8,10 @@ class dataHandler
 {
 public:
 	dataHandler();
-	float meleeCost1h;
-	float meleeCost2h;
-	float meleeHitStaminaRecover1h; 
-	float meleeHitStaminaRecover2h;
+	float meleeCostLight; //one and only not in percent
+	float meleeCostHeavy;
+	float meleeHitStaminaRecoverLight;
+	float meleeHitStaminaCostHeavy;
 	float staminaRegenMult_;
 	float combatStaminaRegenMult_;
 	float staminaRegenDelay_;
