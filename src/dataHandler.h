@@ -39,10 +39,10 @@ namespace gameSettings {
 
 	inline void tweakGameSetting() {
 		DEBUG("tweaking game setting");
-		setGameSettingf(gameSettings::powerAtkStaminaCostMultiplier, 1);
+		setGameSettingf(gameSettings::powerAtkStaminaCostMultiplier, 0);
 		setGameSettingf(gameSettings::staminaRegenDelay, dataHandler::GetSingleton()->staminaRegenDelay_);
 		setGameSettingf(gameSettings::atkStaminaCostMult, 0);
-		setGameSettingf(gameSettings::atkStaminaCostBase, 20);
+		setGameSettingf(gameSettings::atkStaminaCostBase, 0);
 		setGameSettingf(gameSettings::combatStaminaRegenMult, dataHandler::GetSingleton()->combatStaminaRegenMult_);
 		multStaminaRegen(dataHandler::GetSingleton()->staminaRegenMult_);
 	}

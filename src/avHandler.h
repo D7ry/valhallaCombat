@@ -5,7 +5,7 @@
 using namespace Utils;
 namespace avHandler
 {
-	/*causes 1h weapon stamina damage to actor A*/
+	/*causes weapon stamina damage to actor A*/
 	inline void damageStamina(RE::Actor* a) {
 		if (!wieldingOneHanded(a)) {
 			DEBUG("damaging {} stamina", dataHandler::GetSingleton()->meleeCost2h);

@@ -8,16 +8,20 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 		return EventResult::kContinue;
 	}
 	DEBUG("onhit event triggers!");
-	if (shouldHitRestoreStamina(a_event)) {avHandler::restoreStamina(RE::PlayerCharacter::GetSingleton()); }
+	DEBUG("finished calling register hit");
+	if (hitLivingTarget(a_event)) {
+		attackHandler::registerHit();
+	}
 	return EventResult::kContinue;
 }
-bool onHitEventHandler::shouldHitRestoreStamina(const RE::TESHitEvent* a_event) {
+bool onHitEventHandler::hitLivingTarget(const RE::TESHitEvent* a_event) {
 	if (!a_event->projectile
 		&&a_event->cause 
 		&&a_event->cause->IsPlayerRef()) {
 		DEBUG("player hit");
 		if (a_event->target) {
 			auto _target = a_event->target->As<RE::Actor>();
+			//FIXME: fix thie trash isdeadh formula
 			if (_target 
 				&& _target->GetActorValue(RE::ActorValue::kHealth) 
 				&& _target->GetActorValue(RE::ActorValue::kHealth) > 0) {

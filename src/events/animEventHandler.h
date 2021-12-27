@@ -1,5 +1,6 @@
 #pragma once
 #include "avHandler.h"
+#include "attackHandler.h"
 using EventResult = RE::BSEventNotifyControl;
 class animEventHandler : public RE::BSTEventSink<RE::BSAnimationGraphEvent>
 {

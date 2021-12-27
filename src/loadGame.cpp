@@ -19,7 +19,6 @@ namespace loadGame {
 			RE::Actor* pc = RE::PlayerCharacter::GetSingleton();
 			animEventHandler::RegisterSink(pc);
 			debuffHandler::GetSingleton()->rmDebuffPerk();
-			//FIXME::stop using animEventHandler and start using your own hooks chump
 			//actionEventHandler::RegisterSink(); 
 			DEBUG("initialization complete!");
 		}
