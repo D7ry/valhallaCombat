@@ -7,8 +7,7 @@ EventResult animEventHandler::ProcessEvent(const RE::BSAnimationGraphEvent* a_ev
 		ERROR("Event Source not found");
 		return EventResult::kContinue;
 	}
-	RE::BSFixedString event = a_event->tag;
-	if (event == "HitFrame") {
+	if (a_event->tag != nullptr && a_event->tag == "HitFrame") {
 		DEBUG("player hitframe trigger!");
 		RE::PlayerCharacter* pc = RE::PlayerCharacter::GetSingleton();
 		avHandler::damageStamina(pc);

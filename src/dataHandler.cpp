@@ -11,5 +11,7 @@ dataHandler::dataHandler() {
 	staminaRegenMult_ = ini.GetLongValue("gameSetting", "staminaRegenMult", 5);
 	combatStaminaRegenMult_ = ini.GetLongValue("gameSetting", "combatStaminaRegenMult", 1);
 	staminaRegenDelay_ = ini.GetLongValue("gameSetting", "staminaRegenDelay", 3);
-	debuffHandler::staminaBlink = ini.GetBoolValue("UI", "StaminaBarBlink", true);
+
+
+	debuffHandler::GetSingleton()->staminaBlink = ini.GetBoolValue("UI", "StaminaBarBlink", false);
 }

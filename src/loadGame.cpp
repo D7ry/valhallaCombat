@@ -10,27 +10,18 @@ namespace loadGame {
 	{
 		if (msg->type == SKSE::MessagingInterface::kPostLoadGame) {
 			DEBUG("data loaded, initializing...");
-			/*if (SKSE::GetActionEventSource()) {
-				SKSE::GetActionEventSource()->AddEventSink(SKSE::ActionEvent);
-				DEBUG("add weapon swing sink!");
-			}
-			*/
 			if (!setup) {
 				dataHandler* handler = dataHandler::GetSingleton();
 				gameSettings::tweakGameSetting();
 				onHitEventHandler::Register();
-				debuffHandler::AcquireHud();
-				//debuffHandler::AcquireHud();
 				setup = true;
 			}
 			RE::Actor* pc = RE::PlayerCharacter::GetSingleton();
 			animEventHandler::RegisterSink(pc);
-			debuffHandler::rmDebuffPerk();
+			debuffHandler::GetSingleton()->rmDebuffPerk();
 			//FIXME::stop using animEventHandler and start using your own hooks chump
 			//actionEventHandler::RegisterSink(); 
 			DEBUG("initialization complete!");
-
-
 		}
 	}
 
