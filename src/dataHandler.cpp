@@ -4,10 +4,10 @@ dataHandler::dataHandler() {
 	CSimpleIniA ini;
 	#define SETTINGFILE_PATH "Data\\SKSE\\Plugins\\valHallaCombat.ini"
 	ini.LoadFile(SETTINGFILE_PATH);
-	meleeCostLight = ini.GetLongValue("Stamina", "meleeCostLight", 30);
-	meleeCostHeavy = ini.GetLongValue("Stamina", "meleeCostHeavy", 0.33); //in percent
-	meleeHitStaminaCostHeavy = ini.GetLongValue("Stamina", "meleeHitStaminaCost_Heavy", 0.2);
-	meleeHitStaminaRecoverLight = ini.GetLongValue("Stamina", "meleeHitStaminaRecover_Light", 0.33);
+	meleeCost1h = ini.GetLongValue("Consumption", "meleeCost1h", 20);
+	meleeCost2h = ini.GetLongValue("Consumption", "meleeCost2h", 35);
+	meleeHitStaminaRecover2h = ini.GetLongValue("Consumption", "meleeHitStaminaRecover2h", 50);
+	meleeHitStaminaRecover1h = ini.GetLongValue("Consumption", "meleeHitStaminaRecover1h", 40);
 	staminaRegenMult_ = ini.GetLongValue("gameSetting", "staminaRegenMult", 5);
 	combatStaminaRegenMult_ = ini.GetLongValue("gameSetting", "combatStaminaRegenMult", 1);
 	staminaRegenDelay_ = ini.GetLongValue("gameSetting", "staminaRegenDelay", 3);

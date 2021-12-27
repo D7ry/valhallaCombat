@@ -11,13 +11,6 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 	DEBUG("finished calling register hit");
 	if (hitLivingTarget(a_event)) {
 		attackHandler::registerHit();
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (a_event->flags.any(HitFlag::kPowerAttack)) {
-			avHandler::staminaHeavyHit(pc);
-		}
-		else {
-			avHandler::staminaLightHit(pc);
-		}
 	}
 	return EventResult::kContinue;
 }
@@ -34,6 +27,7 @@ bool onHitEventHandler::hitLivingTarget(const RE::TESHitEvent* a_event) {
 				&& _target->GetActorValue(RE::ActorValue::kHealth) > 0) {
 				DEBUG("hit living target");
 				if (!a_event->flags.any(HitFlag::kBashAttack)
+					&& !a_event->flags.any(HitFlag::kPowerAttack)
 					&& !a_event->flags.any(HitFlag::kHitBlocked)) {
 					DEBUG("Correct hit flag");
 					return true;
