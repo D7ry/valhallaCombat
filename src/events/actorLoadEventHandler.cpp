@@ -9,10 +9,11 @@ EventResult actorLoadEventHandler::ProcessEvent(const RE::TESObjectLoadedEvent* 
 		INFO("=======================player loaded=============================");
 		auto pc = RE::PlayerCharacter::GetSingleton();
 		if (!animEventHandler::RegisterSink(pc)) {
-			DEBUG("in race menu, postponing registration");
+			INFO("in race menu, postponing registration");
 			menuEventHandler::Register();
 		}
 		else {
+			INFO("Animation handler registered");
 			debuffHandler::GetSingleton()->rmDebuffPerk();
 		}
 	}
