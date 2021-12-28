@@ -12,7 +12,7 @@ public:
 		auto ScriptEventSource = RE::ScriptEventSourceHolder::GetSingleton();
 
 		if (!ScriptEventSource) {
-			INFO("Script event source not found");
+			ERROR("Script event source not found");
 			return false;
 		}
 
