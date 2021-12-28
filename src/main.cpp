@@ -4,6 +4,7 @@
 #include "loadGame.h"
 #include "dataHandler.h"
 #include "SimpleIni.h"
+#include "events/actorLoadEventHandler.h"
 #if ANNIVERSARY_EDITION
 
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
@@ -68,8 +69,9 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		ERROR("Messaging Interface Not Found!");
 		return false;
 	}
-
+	
 	g_message->RegisterListener(loadGame::EventCallBACK);
-
+	actorLoadEventHandler::Register();
+	//cellLoadedEventHandler::Register();
 	return true;
 }

@@ -7,7 +7,7 @@ EventResult actionEventHandler::ProcessEvent(const SKSE::ActionEvent* a_event,
 		if (a_event->actor->IsPlayerRef()) {
 			DEBUG("player swing action event triggers");
 			auto pc = RE::PlayerCharacter::GetSingleton();
-			avHandler::damageStamina(pc);
+			//avHandler::damageStamina(pc);
 		}
 		else {
 			DEBUG("not player swing!");

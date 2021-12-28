@@ -8,13 +8,13 @@ class dataHandler
 {
 public:
 	dataHandler();
-	float meleeCost1h;
-	float meleeCost2h;
-	float meleeHitStaminaRecover1h; 
-	float meleeHitStaminaRecover2h;
 	float staminaRegenMult_;
 	float combatStaminaRegenMult_;
 	float staminaRegenDelay_;
+	float meleeCostLightMiss;
+	float meleeCostHeavyMiss;
+	float meleeCostHeavyHit;
+	float meleeRecovLightHit;
 
 	static dataHandler* GetSingleton()
 	{
@@ -47,4 +47,5 @@ namespace gameSettings {
 		multStaminaRegen(dataHandler::GetSingleton()->staminaRegenMult_);
 	}
 }
+
 

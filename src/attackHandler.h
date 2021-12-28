@@ -1,5 +1,6 @@
 #pragma once
 #include "avHandler.h"
+#include "staminaHandler.h"
 namespace attackHandler
 {
 	/* whether player's stamina should be damaged at the moment of checking out.*/
@@ -8,19 +9,7 @@ namespace attackHandler
 	/* when a player has already had a hitframe in player's current attacking animation. */
 	inline bool attackFired = false;
 
-	inline void alterPcStamina(bool damage) {
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (pc) {
-			if (damage) {
-				avHandler::damageStamina(pc);
-			}
-			else {
-				avHandler::restoreStamina(pc);
-			}
-		}
-	}
-	
-
+	inline bool isLightAtk = true;
 
 	/* decide whether the hitframe counts as an attack.
 	also checks whether the hitframe is fired when player is not attacking. If not,
@@ -29,8 +18,22 @@ namespace attackHandler
 	inline void registerAtk() {
 		if (!attackFired) {
 			DEBUG("first attack in the animation, registering attack");
-			shouldDamageStamina = true;
-			attackFired = true;
+			DEBUG("Fetching attack data");
+			auto attackData = RE::PlayerCharacter::GetSingleton()->currentProcess->high->attackData;
+			if (!attackData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
+				if (attackData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
+					INFO("power attack registered");
+					isLightAtk = false;
+				}
+				else {
+					DEBUG("light attack registered");
+				}
+				shouldDamageStamina = true;
+				attackFired = true;
+			}
+			else {
+				DEBUG("bash attack does not count");
+			}
 		}
 	}
 
@@ -38,7 +41,6 @@ namespace attackHandler
 	inline void registerHit() {
 		DEBUG("registering a successful hit");
 		shouldDamageStamina = false;
-		alterPcStamina(false);
 		DEBUG("pc gained stamina, and should not receive stamina damage for the following checkout!");
 	}
 
@@ -51,10 +53,19 @@ namespace attackHandler
 		DEBUG("checking out attack");
 		if (shouldDamageStamina) {
 			DEBUG("attack failed to hit anyone, damaging playe stamina!");
-			alterPcStamina(true);
+			auto pc = RE::PlayerCharacter::GetSingleton();
+			if (pc) {
+			if (isLightAtk) {
+					staminaHandler::staminaLightMiss(pc);
+				}
+				else {
+					staminaHandler::staminaHeavyMiss(pc);
+				}
+			}
 		}
 		attackFired = false;
 		shouldDamageStamina = false;
+		isLightAtk = true;
 	}
 
 	/*proceed does two things:

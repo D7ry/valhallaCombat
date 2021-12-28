@@ -2,6 +2,7 @@
 #include "events/animEventHandler.h"
 #include "events/onHitEventHandler.h"
 #include "events/actionEventHandler.h"
+#include "events/actorLoadEventHandler.h"
 #include "Utils.h"
 
 

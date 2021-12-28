@@ -1,17 +1,22 @@
 #include "C:/Users/Ty/Documents/SKSEPlugins/Build/Plugins/valhallaCombat/CMakeFiles/valhallaCombat.dir/Debug/cmake_pch.hxx"
 #include "dataHandler.h"
 dataHandler::dataHandler() {
+	DEBUG("initializing data handler");
+	DEBUG("loading ini settings");
 	CSimpleIniA ini;
 	#define SETTINGFILE_PATH "Data\\SKSE\\Plugins\\valHallaCombat.ini"
 	ini.LoadFile(SETTINGFILE_PATH);
-	meleeCost1h = ini.GetLongValue("Consumption", "meleeCost1h", 20);
-	meleeCost2h = ini.GetLongValue("Consumption", "meleeCost2h", 35);
-	meleeHitStaminaRecover2h = ini.GetLongValue("Consumption", "meleeHitStaminaRecover2h", 50);
-	meleeHitStaminaRecover1h = ini.GetLongValue("Consumption", "meleeHitStaminaRecover1h", 40);
-	staminaRegenMult_ = ini.GetLongValue("gameSetting", "staminaRegenMult", 5);
-	combatStaminaRegenMult_ = ini.GetLongValue("gameSetting", "combatStaminaRegenMult", 1);
-	staminaRegenDelay_ = ini.GetLongValue("gameSetting", "staminaRegenDelay", 3);
 
+	staminaRegenMult_ = ini.GetDoubleValue("Stamina", "staminaRegenMult", 5);
+	combatStaminaRegenMult_ = ini.GetDoubleValue("Stamina", "combatStaminaRegenMult", 1);
+	staminaRegenDelay_ = ini.GetDoubleValue("Stamina", "staminaRegenDelay", 3);
 
-	debuffHandler::GetSingleton()->staminaBlink = ini.GetBoolValue("UI", "StaminaBarBlink", false);
+	meleeCostLightMiss = ini.GetDoubleValue("Stamina", "meleeCostLightMiss", 30); //one and only not in percent
+	meleeCostHeavyMiss = ini.GetDoubleValue("Stamina", "meleeCostHeavyMiss_percent", 0.33);
+	meleeCostHeavyHit = ini.GetDoubleValue("Stamina", "meleeCostHeavyHit_percent", 0.19);
+	meleeRecovLightHit = ini.GetDoubleValue("Stamina", "meleeRecovLightHit_percent", 0.3);
+
+	DEBUG("ini settings loaded");
+	//debuffHandler::GetSingleton()->staminaBlink = ini.GetBoolValue("UI", "StaminaBarBlink", false);
+	DEBUG("ini settings loaded2");
 }

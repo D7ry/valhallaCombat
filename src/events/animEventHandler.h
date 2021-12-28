@@ -17,8 +17,13 @@ public:
 			ERROR("Actor not found!");
 		}
 
-		if (!graphManager || !graphManager->graphs.cbegin()) {
-			ERROR("animation graph not found!");
+		if (!graphManager) {
+			INFO("eRROR: animation graph not found!");
+			return false;
+		}
+
+		if (!graphManager->graphs.cbegin()) {
+			INFO("eRROR: animation graph.cbegin() not found!");
 			return false;
 		}
 
