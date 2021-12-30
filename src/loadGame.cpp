@@ -13,6 +13,7 @@ namespace loadGame {
 			dataHandler* handler = dataHandler::GetSingleton();
 			gameSettings::tweakGameSetting();
 			onHitEventHandler::Register();
+			((AnimationGraphEventWatcher*)((uintptr_t)RE::PlayerCharacter::GetSingleton() + 0x30))->HookSink();
 			//actionEventHandler::RegisterSink(); 
 			INFO("initialization complete!");
 		}

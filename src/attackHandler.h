@@ -11,15 +11,22 @@ namespace attackHandler
 
 	inline bool isLightAtk = true;
 
+	inline bool nextIsLightAtk = true;
+
 	/* decide whether the hitframe counts as an attack.
 	also checks whether the hitframe is fired when player is not attacking. If not,
 	attack won't be registered.*/
-	//TODO:iff player is not attacking, the attack does not count.
 	inline void registerAtk() {
 		if (!attackFired) {
 			DEBUG("first attack in the animation, registering attack");
 			DEBUG("Fetching attack data");
-			auto attackData = RE::PlayerCharacter::GetSingleton()->currentProcess->high->attackData;
+			auto pc = RE::PlayerCharacter::GetSingleton();
+			RE::NiPointer<RE::BGSAttackData> attackData;
+			if (!pc->currentProcess || !pc->currentProcess->high || !pc->currentProcess->high->attackData) {
+				DEBUG("failed to fetch attack data! detaching fetcher thread");
+			} else {
+				attackData = RE::PlayerCharacter::GetSingleton()->currentProcess->high->attackData;
+			}
 			if (!attackData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
 				if (attackData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
 					INFO("power attack registered");

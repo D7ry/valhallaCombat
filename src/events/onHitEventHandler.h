@@ -5,6 +5,7 @@ class onHitEventHandler : public RE::BSTEventSink<RE::TESHitEvent>
 {
 public:
 	bool hitLivingTarget(const RE::TESHitEvent* a_event);
+	bool isAlive(RE::Actor* a_target);
 	virtual EventResult ProcessEvent(const RE::TESHitEvent* a_event, RE::BSTEventSource<RE::TESHitEvent>* a_eventSource);
 
 	static bool Register()

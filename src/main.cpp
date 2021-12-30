@@ -5,6 +5,7 @@
 #include "dataHandler.h"
 #include "SimpleIni.h"
 #include "events/actorLoadEventHandler.h"
+#include "Hooks.h"
 #if ANNIVERSARY_EDITION
 
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
@@ -48,6 +49,22 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 #endif
 
 
+namespace debug {
+	int prevState = 0;
+	void printAttackState() {
+		while (true) {
+			auto pc = RE::PlayerCharacter::GetSingleton();
+			if (pc && !RE::UI::GetSingleton()->GameIsPaused()) {
+				int state = (int)pc->GetAttackState();
+				if (state != prevState) {
+					DEBUG(state);
+					prevState = state;
+				}
+				//std::this_thread::sleep_for(std::chrono::milliseconds(5));
+			}
+		}
+	}
+}
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 #if ANNIVERSARY_EDITION
@@ -69,9 +86,9 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		ERROR("Messaging Interface Not Found!");
 		return false;
 	}
-	
 	g_message->RegisterListener(loadGame::EventCallBACK);
-	actorLoadEventHandler::Register();
+	//actorLoadEventHandler::Register();
 	//cellLoadedEventHandler::Register();
+	StaminaHook::InstallHook();
 	return true;
 }

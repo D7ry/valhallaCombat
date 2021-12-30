@@ -7,43 +7,50 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 		ERROR("Event Source not found");
 		return EventResult::kContinue;
 	}
-	DEBUG("onhit event triggers!");
-	DEBUG("finished calling register hit");
-	if (hitLivingTarget(a_event)) {
-		attackHandler::registerHit();
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (pc) {
-			if (a_event->flags.any(HitFlag::kPowerAttack)) {
-				staminaHandler::staminaHeavyHit(pc);
-			}
-			else {
-				staminaHandler::staminaLightHit(pc);
-			}
-		}
 
+	DEBUG("onhit event triggers!");
+	if (a_event->projectile || !a_event->cause || !a_event->cause->IsPlayerRef()) {
+		return EventResult::kContinue;
 	}
+
+	DEBUG("player melee hit!");
+	auto target = a_event->target.get()->As<RE::Actor>();
+
+	if (!isAlive(target)) {
+		return EventResult::kContinue;
+	}
+	DEBUG("target is alive!");
+	auto pc = RE::PlayerCharacter::GetSingleton();
+	if (pc) {
+		if (a_event->flags.any(HitFlag::kPowerAttack)) {
+			staminaHandler::staminaHeavyHit(pc);
+		}
+		else {
+			staminaHandler::staminaLightHit(pc);
+		}
+	}
+	attackHandler::registerHit();
 	return EventResult::kContinue;
 }
-bool onHitEventHandler::hitLivingTarget(const RE::TESHitEvent* a_event) {
-	if (!a_event->projectile
-		&&a_event->cause 
-		&&a_event->cause->IsPlayerRef()) {
-		DEBUG("player hit");
-		if (a_event->target) {
-			auto _target = a_event->target->As<RE::Actor>();
-			//FIXME: fix thie trash isdeadh formula
-			if (_target 
-				&& _target->GetActorValue(RE::ActorValue::kHealth) 
-				&& _target->GetActorValue(RE::ActorValue::kHealth) > 0) {
-				DEBUG("hit living target");
-				if (!a_event->flags.any(HitFlag::kBashAttack)
-					&& !a_event->flags.any(HitFlag::kHitBlocked)) {
-					DEBUG("Correct hit flag");
-					return true;
-				}
-			}
-		}
+bool onHitEventHandler::isAlive(RE::Actor* a_target) {				//stolen from Maxsu's OHAF
+	if (!a_target) {
+		DEBUG("Target Actor Not Found!");
+		return false;
 	}
-	return false;
+	if (a_target->formType != RE::FormType::ActorCharacter) {
+		DEBUG("Target Actor Not Actor!");
+		return false;
+	}
+	if (a_target->IsDead()) {
+		DEBUG("Target Actor is Dead!");
+		return false;
+	}
+	if (a_target->IsInKillMove()) {
+		DEBUG("Target Actor Is in Kill Move!");
+		return false;
+	}
+	return true;
 }
+
+
 

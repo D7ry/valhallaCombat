@@ -27,13 +27,13 @@ public:
 	bool staminaBlink = false;
 	RE::BGSPerk* debuffPerk;
 	std::atomic<bool> isPlayerExhausted = false;
-	RE::GFxMovieView* Hud = nullptr;
+	//RE::GFxMovieView* Hud = nullptr;
 
 
-	void staminaBlinkOnce() noexcept;
+	//void staminaBlinkOnce() noexcept;
 
 private:
-	bool AcquireHud() noexcept;
+	//bool AcquireHud() noexcept;
 
 
 
@@ -75,11 +75,11 @@ namespace debuffOps {
 		}
 	}
 
-	inline void staminaDebuffBlink() {
+	/*inline void staminaDebuffBlink() {
 		auto _debuffHandler = debuffHandler::GetSingleton();
 		while (_debuffHandler->isPlayerExhausted) {
 			_debuffHandler->staminaBlinkOnce();
 			std::this_thread::sleep_for(std::chrono::milliseconds(800));
 		}
-	}
+	}*/
 }

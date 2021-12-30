@@ -1,8 +1,9 @@
 #include "debuffHandler.h"
 debuffHandler::debuffHandler() {
-	AcquireHud();
+	//AcquireHud();
 	debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x00000d63, "ValhallaCombat.esp");
 }
+
 
 void debuffHandler::initStaminaDebuff() {
 	if (isPlayerExhausted) {
@@ -15,17 +16,20 @@ void debuffHandler::initStaminaDebuff() {
 		DEBUG("Setup stamina check");
 		debuffThread::t1 = std::jthread(debuffOps::staminaDebuffCheck);
 		debuffThread::t1.detach();
-		if (staminaBlink) {
-			DEBUG("Setup stamina blink");
-			debuffThread::t2= std::jthread(debuffOps::staminaDebuffBlink);
-			debuffThread::t2.detach();
-		}
-		DEBUG("threads detached");
+		//debuffThread::t2 = std::jthread(debug::printAttackState);
+		//debuffThread::t2.detach();
+		//if (staminaBlink) {
+			//DEBUG("Setup stamina blink");
+			//debuffThread::t2= std::jthread(debuffOps::staminaDebuffBlink);
+			//debuffThread::t2.detach();
+		//}
+		DEBUG("thread detached");
 	}
 }
 
 
-bool debuffHandler::AcquireHud() noexcept {
+
+/*bool debuffHandler::AcquireHud() noexcept {
 	const auto* ui = RE::UI::GetSingleton();
 	if (!ui) {
 		return false;
@@ -44,4 +48,4 @@ void debuffHandler::staminaBlinkOnce() noexcept {
 	if (Hud) {
 		Hud->InvokeNoReturn("_level0.HUDMovieBaseInstance.StartStaminaBlinking", nullptr, 0);
 	}
-}
+}*/

@@ -6,14 +6,14 @@ EventResult menuEventHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a_event
 		return EventResult::kContinue;
 	}
 	DEBUG("menu event triggeres!!");
-	DEBUG("+++++++++++++++++++++menu event triggeres!+++++++++++++++++++++");
+	INFO("+++++++++++++++++++++menu event triggeres!+++++++++++++++++++++");
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	animEventHandler::RegisterSink(pc);
 	debuffHandler::GetSingleton()->rmDebuffPerk();
 	const auto task = SKSE::GetTaskInterface();
 	if (task != nullptr) {
 		task->AddTask(unRegister);
-		DEBUG("tasked unretering menu");
+		INFO("tasked unregistration menu");
 	}
 	return EventResult::kStop;
 }

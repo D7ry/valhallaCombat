@@ -29,7 +29,7 @@ public:
 
 		graphManager->graphs.cbegin()->get()->AddEventSink(&g_eventhandler);
 
-		DEBUG("Register Animation Event Handler onto {}", actor->GetName());
+		INFO("Register Animation Event Handler onto {}", actor->GetName());
 
 		return true;
 	}
