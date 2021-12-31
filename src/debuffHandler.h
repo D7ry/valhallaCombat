@@ -26,6 +26,7 @@ public:
 
 	bool staminaBlink = false;
 	RE::BGSPerk* debuffPerk;
+	RE::BGSPerk* staminaLimitPerk;
 	std::atomic<bool> isPlayerExhausted = false;
 	//RE::GFxMovieView* Hud = nullptr;
 
@@ -49,8 +50,20 @@ public:
 
 	void rmDebuffPerk() {
 		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (debuffPerk && pc->HasPerk(debuffPerk)) {
-			pc->RemovePerk(debuffPerk);
+		if (!pc) {
+			if (debuffPerk && pc->HasPerk(debuffPerk)) {
+				pc->RemovePerk(debuffPerk);
+			}
+		}
+	}
+
+	void addStaminaLimitPerk() {
+		auto pc = RE::PlayerCharacter::GetSingleton();
+		if (!pc) {
+			ERROR("pc not found!");
+		}
+		if (staminaLimitPerk && !pc->HasPerk(staminaLimitPerk)) {
+			pc->AddPerk(staminaLimitPerk);
 		}
 	}
 

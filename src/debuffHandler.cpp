@@ -2,6 +2,7 @@
 debuffHandler::debuffHandler() {
 	//AcquireHud();
 	debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x00000d63, "ValhallaCombat.esp");
+	staminaLimitPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x00003877, "ValhallaCombat.esp");
 }
 
 

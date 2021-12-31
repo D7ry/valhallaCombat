@@ -15,6 +15,7 @@ public:
 	float meleeCostHeavyMiss;
 	float meleeCostHeavyHit;
 	float meleeRecovLightHit;
+	bool shieldCountAsHit;
 
 	static dataHandler* GetSingleton()
 	{
@@ -22,9 +23,8 @@ public:
 		return  std::addressof(singleton);
 	}
 
-	void updateMCMchanges() {
+	void updateMCMchanges();
 
-	}
 };
 
 namespace gameSettings {
@@ -39,13 +39,15 @@ namespace gameSettings {
 
 	inline void tweakGameSetting() {
 		DEBUG("tweaking game setting");
+		//negating vanilla power attack formula
 		setGameSettingf(gameSettings::powerAtkStaminaCostMultiplier, 0);
-		setGameSettingf(gameSettings::staminaRegenDelay, dataHandler::GetSingleton()->staminaRegenDelay_);
 		setGameSettingf(gameSettings::atkStaminaCostMult, 0);
 		setGameSettingf(gameSettings::atkStaminaCostBase, 0);
+		setGameSettingf(gameSettings::staminaRegenDelay, dataHandler::GetSingleton()->staminaRegenDelay_);
 		setGameSettingf(gameSettings::combatStaminaRegenMult, dataHandler::GetSingleton()->combatStaminaRegenMult_);
 		multStaminaRegen(dataHandler::GetSingleton()->staminaRegenMult_);
 	}
 }
+
 
 

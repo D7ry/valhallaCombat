@@ -20,15 +20,19 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 		return EventResult::kContinue;
 	}
 	DEBUG("target is alive!");
-	auto pc = RE::PlayerCharacter::GetSingleton();
-	if (pc) {
-		if (a_event->flags.any(HitFlag::kPowerAttack)) {
-			staminaHandler::staminaHeavyHit(pc);
-		}
-		else {
-			staminaHandler::staminaLightHit(pc);
+
+	if (!a_event->flags || a_event->flags.any(RE::TESHitEvent::Flag::kBashAttack)) {
+		return EventResult::kContinue;
+	}
+
+	if (a_event->flags.any(RE::TESHitEvent::Flag::kHitBlocked)) {
+		if (!dataHandler::GetSingleton()->shieldCountAsHit) {
+			DEBUG("hit blocked, no stamina recovery!");
+			return EventResult::kContinue;
 		}
 	}
+
+	DEBUG("correct hit flag, registering hit!");
 	attackHandler::registerHit();
 	return EventResult::kContinue;
 }

@@ -5,7 +5,6 @@ namespace attackHandler
 {
 	/* whether player's stamina should be damaged at the moment of checking out.*/
 	inline bool shouldDamageStamina = false; 
-
 	/* when a player has already had a hitframe in player's current attacking animation. */
 	inline bool attackFired = false;
 
@@ -13,42 +12,43 @@ namespace attackHandler
 
 	inline bool nextIsLightAtk = true;
 
+	inline bool nextIsBashing = false;
+
 	/* decide whether the hitframe counts as an attack.
 	also checks whether the hitframe is fired when player is not attacking. If not,
 	attack won't be registered.*/
 	inline void registerAtk() {
+		if (nextIsBashing) {
+			DEBUG("bashing attack");
+			nextIsBashing = false;
+			return;
+		}
 		if (!attackFired) {
 			DEBUG("first attack in the animation, registering attack");
-			DEBUG("Fetching attack data");
-			auto pc = RE::PlayerCharacter::GetSingleton();
-			RE::NiPointer<RE::BGSAttackData> attackData;
-			if (!pc->currentProcess || !pc->currentProcess->high || !pc->currentProcess->high->attackData) {
-				DEBUG("failed to fetch attack data! detaching fetcher thread");
-			} else {
-				attackData = RE::PlayerCharacter::GetSingleton()->currentProcess->high->attackData;
-			}
-			if (!attackData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
-				if (attackData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
-					INFO("power attack registered");
-					isLightAtk = false;
-				}
-				else {
-					DEBUG("light attack registered");
-				}
-				shouldDamageStamina = true;
-				attackFired = true;
+			if (!nextIsLightAtk) {
+				DEBUG("power attack registered");
+				isLightAtk = false;
+				nextIsLightAtk = true;
 			}
 			else {
-				DEBUG("bash attack does not count");
+				DEBUG("light attack registered");
 			}
+			shouldDamageStamina = true;
+			attackFired = true;
 		}
 	}
 
 	/* when player hits a living enemy, a hit is registered.*/
 	inline void registerHit() {
-		DEBUG("registering a successful hit");
+		auto pc = RE::PlayerCharacter::GetSingleton();
+		INFO("registering a successful hit");
+		if (isLightAtk) {
+			staminaHandler::staminaLightHit(pc);
+		}
+		else if (shouldDamageStamina) {
+			staminaHandler::staminaHeavyHit(pc); //heavy attack's second hit should damage more stamina
+		}
 		shouldDamageStamina = false;
-		DEBUG("pc gained stamina, and should not receive stamina damage for the following checkout!");
 	}
 
 	/* attack is checked out when the attack is either:
@@ -58,11 +58,11 @@ namespace attackHandler
 	*/
 	inline void checkout() {
 		DEBUG("checking out attack");
-		if (shouldDamageStamina) {
-			DEBUG("attack failed to hit anyone, damaging playe stamina!");
-			auto pc = RE::PlayerCharacter::GetSingleton();
-			if (pc) {
-			if (isLightAtk) {
+		auto pc = RE::PlayerCharacter::GetSingleton();
+		if (pc) {
+			if (shouldDamageStamina) {
+				DEBUG("attack failed to hit anyone, damaging player stamina!");
+				if (isLightAtk) {
 					staminaHandler::staminaLightMiss(pc);
 				}
 				else {

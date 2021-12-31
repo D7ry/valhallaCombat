@@ -8,12 +8,16 @@ namespace loadGame {
 	bool setup = false;
 	void EventCallBACK(SKSE::MessagingInterface::Message* msg)
 	{
-		if (msg->type == SKSE::MessagingInterface::kDataLoaded) {
+		if (msg->type == SKSE::MessagingInterface::kPostLoadGame) {
 			INFO("data loaded, initializing...");
-			dataHandler* handler = dataHandler::GetSingleton();
-			gameSettings::tweakGameSetting();
-			onHitEventHandler::Register();
-			((AnimationGraphEventWatcher*)((uintptr_t)RE::PlayerCharacter::GetSingleton() + 0x30))->HookSink();
+			if (!setup) {
+				dataHandler* handler = dataHandler::GetSingleton();
+				gameSettings::tweakGameSetting();
+				((AnimationGraphEventWatcher*)((uintptr_t)RE::PlayerCharacter::GetSingleton() + 0x30))->HookSink();
+				onHitEventHandler::Register();
+			}
+			debuffHandler::GetSingleton()->rmDebuffPerk();
+			attackHandler::checkout();
 			//actionEventHandler::RegisterSink(); 
 			INFO("initialization complete!");
 		}

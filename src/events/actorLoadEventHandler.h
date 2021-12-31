@@ -21,5 +21,20 @@ public:
 		INFO("Register {}.", typeid(singleton).name());
 		return true;
 	}
+
+	static bool unRegister() {
+		static actorLoadEventHandler singleton;
+		
+		auto ScriptEventSource = RE::ScriptEventSourceHolder::GetSingleton();
+
+		if (!ScriptEventSource) {
+			ERROR("Script event source not found");
+			return false;
+		}
+
+		ScriptEventSource->RemoveEventSink(&singleton);
+		INFO("Unregistered {}.", typeid(singleton).name());
+		return true;
+	}
 };
 

@@ -13,9 +13,11 @@ void StaminaHook::readFromAttackData(RE::Actor* a_actor, RE::BGSAttackData* atkD
 	REL::Relocation<func_t> func{ REL::ID(25863) };
 	if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
 		DEBUG("is power attack!");
+		attackHandler::nextIsLightAtk = false;
 	}
 	if (atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
 		DEBUG("is bash attack!");
+		attackHandler::nextIsBashing = true;
 	}
 	func(a_actor, atkData);
 }

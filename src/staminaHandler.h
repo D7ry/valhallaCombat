@@ -18,8 +18,8 @@ namespace staminaHandler
 
 	
 	inline void staminaLightHit(RE::Actor* a) {
-		DEBUG("stamina light hit");
-		DEBUG("restoring {} of stamina", dataHandler::GetSingleton()->meleeRecovLightHit);
+		INFO("stamina light hit");
+		INFO("restoring {} of stamina", dataHandler::GetSingleton()->meleeRecovLightHit);
 		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
 		Utils::restoreav(a, RE::ActorValue::kStamina, maxStamina * dataHandler::GetSingleton()->meleeRecovLightHit);
 		checkStamina(a);
@@ -34,8 +34,8 @@ namespace staminaHandler
 	}
 
 	inline void staminaHeavyHit(RE::Actor* a) {
-		DEBUG("stamina heavy hit");
-		DEBUG("damaging {} of stamina", dataHandler::GetSingleton()->meleeCostHeavyHit);
+		INFO("stamina heavy hit");
+		INFO("damaging {} of stamina", dataHandler::GetSingleton()->meleeCostHeavyHit);
 		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
 		Utils::damageav(a, RE::ActorValue::kStamina, maxStamina * dataHandler::GetSingleton()->meleeCostHeavyHit);
 		checkStamina(a);

@@ -8,15 +8,25 @@ EventResult actorLoadEventHandler::ProcessEvent(const RE::TESObjectLoadedEvent* 
 	if (a_event->formID == 0x14) {
 		INFO("=======================player loaded=============================");
 		auto pc = RE::PlayerCharacter::GetSingleton();
-		INFO("registering anim event");
-		if (!animEventHandler::RegisterSink(pc)) {
+		if (pc) {
+			debuffHandler::GetSingleton()->rmDebuffPerk();
+		}
+		else {
+			ERROR("failed to load player character");
+		}
+		const auto task = SKSE::GetTaskInterface();
+		if (task != nullptr) {
+			task->AddTask(unRegister);
+			INFO("tasked unregistration menu");
+		}
+		/*if (!animEventHandler::RegisterSink(pc)) {
 			INFO("in race menu, postponing registration");
 			menuEventHandler::Register();
 		}
 		else {
 			INFO("registered anim event");
 			debuffHandler::GetSingleton()->rmDebuffPerk();
-		}
+		}*/
 	}
 	return EventResult::kContinue;
 }

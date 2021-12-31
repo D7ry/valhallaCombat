@@ -12,7 +12,7 @@ endif()
 # info
 project(
 	valhallaCombat
-	VERSION 0.2.0
+	VERSION 0.7.0
 	LANGUAGES CXX
 )
 
