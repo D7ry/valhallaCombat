@@ -34,6 +34,7 @@ namespace gameSettings {
 	inline const char* atkStaminaCostBase = "fStaminaAttackWeaponBase";
 	inline const char* atkStaminaCostMult = "fStaminaAttackWeaponMult";
 	inline const char* combatStaminaRegenMult = "fCombatStaminaRegenRateMult";
+	inline const char* powerAtkDamageBonus = "fPowerAttackDefaultBonus";
 	/*power atk stamina formula:
 	(wpn weight * fStaminaAttackWeaponMult + 1 * fStaminaAttackWeaponBase ) * fPowerAttackStaminaPenalty
 	*/
@@ -41,6 +42,7 @@ namespace gameSettings {
 	inline void tweakGameSetting() {
 		DEBUG("tweaking game setting");
 		//negating vanilla power attack formula
+		setGameSettingf(gameSettings::powerAtkDamageBonus, 0.5);
 		setGameSettingf(gameSettings::powerAtkStaminaCostMultiplier, 0);
 		setGameSettingf(gameSettings::atkStaminaCostMult, 0);
 		setGameSettingf(gameSettings::atkStaminaCostBase, 0);

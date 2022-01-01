@@ -11,7 +11,6 @@ namespace staminaHandler
 	inline void staminaLightMiss(RE::Actor* a) {
 		DEBUG("stamina light miss");
 		DEBUG("damaging {} stamina", dataHandler::GetSingleton()->meleeCostLightMiss);
-		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
 		Utils::damageav(a, RE::ActorValue::kStamina, dataHandler::GetSingleton()->meleeCostLightMiss);
 		checkStamina(a);
 	}
