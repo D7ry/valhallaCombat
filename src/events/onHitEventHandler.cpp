@@ -21,14 +21,20 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 	}
 	DEBUG("target is alive!");
 
-	if (!a_event->flags || a_event->flags.any(RE::TESHitEvent::Flag::kBashAttack)) {
+
+	if (a_event->flags.any(RE::TESHitEvent::Flag::kBashAttack)) {
+		DEBUG("bash attack, nope!");
 		return EventResult::kContinue;
 	}
+	
 
 	if (a_event->flags.any(RE::TESHitEvent::Flag::kHitBlocked)) {
 		if (!dataHandler::GetSingleton()->shieldCountAsHit) {
 			DEBUG("hit blocked, no stamina recovery!");
 			return EventResult::kContinue;
+		}
+		else {
+			DEBUG("stamina recovery for blocked hit!");
 		}
 	}
 

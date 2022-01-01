@@ -1,5 +1,6 @@
 #include "AnimEventWatcher.h"
 #include "attackHandler.h"
+#include "blockHandler.h"
 //all credits to Bingle
 namespace anno
 {
@@ -7,6 +8,8 @@ namespace anno
 	const char* hitFrame_anno = "HitFrame";
 	const char* preHitFrame_anno = "preHitFrame";
 	const char* atkWin_Skysa_Anno = "SkySA_AttackWinStart";
+	const char* block_start_anno = "blockStartOut";
+	const char* block_stop_anno = "blockStop";
 }
 
 RE::BSEventNotifyControl AnimationGraphEventWatcher::HookedProcessEvent(RE::BSAnimationGraphEvent& a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* src) {
@@ -22,6 +25,14 @@ RE::BSEventNotifyControl AnimationGraphEventWatcher::HookedProcessEvent(RE::BSAn
 		else if (_event == attackStop_anno) {
 			DEBUG("==========attackstop==========");
 			attackHandler::checkout();
+		}
+		else if (_event == block_start_anno) {
+			DEBUG("==========blockStart==========");
+
+		}
+		else if (_event == block_stop_anno) {
+			DEBUG("==========blockStop==========");
+
 		}
 	}
     return fn ? (this->*fn)(a_event, src) : RE::BSEventNotifyControl::kContinue;

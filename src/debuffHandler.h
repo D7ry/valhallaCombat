@@ -30,14 +30,10 @@ public:
 	std::atomic<bool> isPlayerExhausted = false;
 	//RE::GFxMovieView* Hud = nullptr;
 
-
 	//void staminaBlinkOnce() noexcept;
 
 private:
 	//bool AcquireHud() noexcept;
-
-
-
 
 
 public:
