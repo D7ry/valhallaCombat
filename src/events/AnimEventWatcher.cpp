@@ -28,11 +28,11 @@ RE::BSEventNotifyControl AnimationGraphEventWatcher::HookedProcessEvent(RE::BSAn
 		}
 		else if (_event == block_start_anno) {
 			DEBUG("==========blockStart==========");
-
+			blockHandler::GetSingleton()->raiseShield();
 		}
 		else if (_event == block_stop_anno) {
 			DEBUG("==========blockStop==========");
-
+			blockHandler::GetSingleton()->unRaiseShield();
 		}
 	}
     return fn ? (this->*fn)(a_event, src) : RE::BSEventNotifyControl::kContinue;

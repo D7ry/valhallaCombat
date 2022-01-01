@@ -4,7 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include "spdlog/async_logger.h"
-
+#include "Utils.h"
 namespace debuffThread {
 	inline std::jthread t1;
 
@@ -38,29 +38,15 @@ private:
 
 public:
 	void addDebuffPerk() {
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (debuffPerk && !pc->HasPerk(debuffPerk)) {
-			RE::PlayerCharacter::GetSingleton()->AddPerk(debuffPerk);
-		}
+		Utils::addPerkToPc(debuffPerk);
 	}
 
 	void rmDebuffPerk() {
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (!pc) {
-			if (debuffPerk && pc->HasPerk(debuffPerk)) {
-				pc->RemovePerk(debuffPerk);
-			}
-		}
+		Utils::rmPerkFromPc(debuffPerk);
 	}
 
 	void addStaminaLimitPerk() {
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (!pc) {
-			ERROR("pc not found!");
-		}
-		if (staminaLimitPerk && !pc->HasPerk(staminaLimitPerk)) {
-			pc->AddPerk(staminaLimitPerk);
-		}
+		Utils::addPerkToPc(staminaLimitPerk);
 	}
 
 

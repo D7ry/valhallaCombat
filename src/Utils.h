@@ -52,5 +52,35 @@ namespace Utils
 		}
 	}
 
+	inline void addPerkToPc(RE::BGSPerk* perk) {
+		DEBUG("adding perk to pc");
+		auto pc = RE::PlayerCharacter::GetSingleton();
+		if (!perk) {
+			DEBUG("perk does not exist!");
+			return;
+		}
+		if (pc->HasPerk(perk)) {
+			DEBUG("pc already has {}!", perk->GetFullName());
+			return;
+		}
+		pc->AddPerk(perk);
+		DEBUG("successfully added {} to pc", perk->GetFullName());
+	}
+
+	inline void rmPerkFromPc(RE::BGSPerk* perk) {
+		DEBUG("removing perk from pc");
+		auto pc = RE::PlayerCharacter::GetSingleton();
+		if (!perk) {
+			DEBUG("perk does not exist!");
+			return;
+		}
+		if (!pc->HasPerk(perk)) {
+			DEBUG("pc does not have {}!", perk->GetFullName());
+			return;
+		}
+		pc->RemovePerk(perk);
+		DEBUG("successfully removed {} from pc", perk->GetFullName());
+	}
+
 };
 

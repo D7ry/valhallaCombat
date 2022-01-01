@@ -1,13 +1,13 @@
-#include "avHandler.h"
 #include "attackHandler.h"
+#include "blockHandler.h"
 #include "dataHandler.h"
 using EventResult = RE::BSEventNotifyControl;
 class onHitEventHandler : public RE::BSTEventSink<RE::TESHitEvent>
 {
 public:
-	bool hitLivingTarget(const RE::TESHitEvent* a_event);
-	bool isAlive(RE::Actor* a_target);
+
 	virtual EventResult ProcessEvent(const RE::TESHitEvent* a_event, RE::BSTEventSource<RE::TESHitEvent>* a_eventSource);
+
 
 	static bool Register()
 	{
@@ -27,6 +27,13 @@ public:
 	}
 
 private:
+	void playerHit(const RE::TESHitEvent* a_event);
+
+	void playerGottenHit(const RE::TESHitEvent* a_event);
+
+	bool hitLivingTarget(const RE::TESHitEvent* a_event);
+	bool isAlive(RE::Actor* a_target);
+
 	onHitEventHandler() = default;
 	~onHitEventHandler() = default;
 	onHitEventHandler(const onHitEventHandler&) = delete;

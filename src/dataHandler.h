@@ -16,7 +16,8 @@ public:
 	float meleeCostHeavyHit;
 	float meleeRecovLightHit;
 	bool shieldCountAsHit;
-
+	bool timedBlocking;
+	float timedBlockingLength;
 	static dataHandler* GetSingleton()
 	{
 		static dataHandler singleton;

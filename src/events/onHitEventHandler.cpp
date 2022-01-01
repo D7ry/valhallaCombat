@@ -9,29 +9,38 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 	}
 
 	DEBUG("onhit event triggers!");
-	if (a_event->projectile || !a_event->cause || !a_event->cause->IsPlayerRef()) {
+	if (a_event->projectile || !a_event->cause || !a_event->target) {
+		DEBUG("invalid hit event!");
 		return EventResult::kContinue;
 	}
 
-	DEBUG("player melee hit!");
-	auto target = a_event->target.get()->As<RE::Actor>();
-
-	if (!isAlive(target)) {
-		return EventResult::kContinue;
+	if (a_event->cause->IsPlayerRef()) {
+		playerHit(a_event);
 	}
-	DEBUG("target is alive!");
 
-
-	if (a_event->flags.any(RE::TESHitEvent::Flag::kBashAttack)) {
-		DEBUG("bash attack, nope!");
-		return EventResult::kContinue;
+	if (dataHandler::GetSingleton()->timedBlocking && a_event->target->IsPlayerRef()) {
+		playerGottenHit(a_event);
 	}
 	
+	return EventResult::kContinue;
+}
+
+void onHitEventHandler::playerHit(const RE::TESHitEvent* a_event) {
+	DEBUG("player melee hit!");
+	auto target = a_event->target.get()->As<RE::Actor>();
+	if (!isAlive(target)) {
+		return;
+	}
+	DEBUG("target is alive!");
+	if (a_event->flags.any(RE::TESHitEvent::Flag::kBashAttack)) {
+		DEBUG("bash attack, nope!");
+		return;
+	}
 
 	if (a_event->flags.any(RE::TESHitEvent::Flag::kHitBlocked)) {
 		if (!dataHandler::GetSingleton()->shieldCountAsHit) {
 			DEBUG("hit blocked, no stamina recovery!");
-			return EventResult::kContinue;
+			return;
 		}
 		else {
 			DEBUG("stamina recovery for blocked hit!");
@@ -40,8 +49,24 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 
 	DEBUG("correct hit flag, registering hit!");
 	attackHandler::registerHit();
-	return EventResult::kContinue;
 }
+
+void onHitEventHandler::playerGottenHit(const RE::TESHitEvent* a_event) {
+	DEBUG("player gotten hit!");
+	if (!a_event->flags.any(RE::TESHitEvent::Flag::kHitBlocked)) {
+		DEBUG("player failed to block hit!");
+		return;
+	}
+	auto cause = a_event->cause.get()->As<RE::Actor>();
+	if (!isAlive(cause)) {
+		DEBUG("cause is dead!");
+		return;
+	}
+	DEBUG("cause is alive!");
+	blockHandler::GetSingleton()->blockAttack();
+
+}
+
 bool onHitEventHandler::isAlive(RE::Actor* a_target) {				//stolen from Maxsu's OHAF
 	if (!a_target) {
 		DEBUG("Target Actor Not Found!");

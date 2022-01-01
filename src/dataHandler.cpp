@@ -20,6 +20,8 @@ dataHandler::dataHandler() {
 	meleeRecovLightHit = ini.GetDoubleValue("Stamina", "meleeRecoverLightHit_percent", 0.3);
 
 	shieldCountAsHit = ini.GetBoolValue("General", "shieldCountAsHit", false);
+	timedBlocking = ini.GetBoolValue("General", "timedBlocking", false);
+	timedBlockingLength = ini.GetDoubleValue("General", "timedBlockingLength", 0.25);
 
 	DEBUG("ini settings loaded");
 	//debuffHandler::GetSingleton()->staminaBlink = ini.GetBoolValue("UI", "StaminaBarBlink", false);

@@ -1,6 +1,5 @@
 #pragma once
 #include "Utils.h"
-#include "avHandler.h"
 using EventResult = RE::BSEventNotifyControl;
 class actionEventHandler : public RE::BSTEventSink<SKSE::ActionEvent>
 {

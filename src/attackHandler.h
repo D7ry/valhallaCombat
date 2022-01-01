@@ -1,5 +1,4 @@
 #pragma once
-#include "avHandler.h"
 #include "staminaHandler.h"
 namespace attackHandler
 {
@@ -13,6 +12,8 @@ namespace attackHandler
 	inline bool nextIsLightAtk = true;
 
 	inline bool nextIsBashing = false;
+
+	inline float pcStaminaRate = 0;
 
 	/* decide whether the hitframe counts as an attack.
 	also checks whether the hitframe is fired when player is not attacking. If not,
@@ -32,6 +33,11 @@ namespace attackHandler
 			}
 			else {
 				DEBUG("light attack registered");
+			}
+			auto pc = RE::PlayerCharacter::GetSingleton();
+			if (pc) {
+				pc->SetActorValue(RE::ActorValue::KStaminaRate, 0);
+				DEBUG("pc stamina rate set to 0");
 			}
 			shouldDamageStamina = true;
 			attackFired = true;
@@ -69,6 +75,8 @@ namespace attackHandler
 					staminaHandler::staminaHeavyMiss(pc);
 				}
 			}
+			DEBUG("resetting pc stamina rate to normal");
+			pc->SetActorValue(RE::ActorValue::KStaminaRate, pcStaminaRate);
 		}
 		attackFired = false;
 		shouldDamageStamina = false;
@@ -85,6 +93,13 @@ namespace attackHandler
 		}
 		registerAtk();
 	}
+
+	/*updates the original stamina rate of pc*/
+	inline void updatePcStaminaRate() {
+		pcStaminaRate = RE::PlayerCharacter::GetSingleton()->GetActorValue(RE::ActorValue::KStaminaRate);
+		DEBUG("player's stamina rate has been updated to {}", pcStaminaRate);
+	}
+
 
 };
 
