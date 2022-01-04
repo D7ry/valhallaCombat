@@ -34,7 +34,7 @@ public:
 
 private:
 	//bool AcquireHud() noexcept;
-
+	void staminaDebuffCheck();
 
 public:
 	void addDebuffPerk() {
@@ -49,32 +49,7 @@ public:
 		Utils::addPerkToPc(staminaLimitPerk);
 	}
 
-
 	void initStaminaDebuff();
 };
 
-namespace debuffOps {
-	inline void staminaDebuffCheck() {
-		auto _debuffHandler = debuffHandler::GetSingleton();
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		while (_debuffHandler->isPlayerExhausted && pc != nullptr) {
-			if (pc->GetActorValue(RE::ActorValue::kStamina) == pc->GetPermanentActorValue(RE::ActorValue::kStamina)) {
-				_debuffHandler->rmDebuffPerk();
-				_debuffHandler->isPlayerExhausted = false;
-				debuffThread::t2.request_stop();
-				break;
-			}
-			else {
-				std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			}
-		}
-	}
 
-	/*inline void staminaDebuffBlink() {
-		auto _debuffHandler = debuffHandler::GetSingleton();
-		while (_debuffHandler->isPlayerExhausted) {
-			_debuffHandler->staminaBlinkOnce();
-			std::this_thread::sleep_for(std::chrono::milliseconds(800));
-		}
-	}*/
-}

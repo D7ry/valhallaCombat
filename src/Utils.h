@@ -82,5 +82,8 @@ namespace Utils
 		DEBUG("successfully removed {} from pc", perk->GetFullName());
 	}
 
+	typedef void(_fastcall* tFlashHUDMenuMeter)(RE::ActorValue a_actorValue);
+	static REL::Relocation<tFlashHUDMenuMeter> FlashHUDMenuMeter{ REL::ID(51907) };
+
 };
 

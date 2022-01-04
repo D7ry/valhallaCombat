@@ -42,7 +42,7 @@ namespace gameSettings {
 	inline void tweakGameSetting() {
 		DEBUG("tweaking game setting");
 		//negating vanilla power attack formula
-		setGameSettingf(gameSettings::powerAtkDamageBonus, 0.5);
+		setGameSettingf(gameSettings::powerAtkDamageBonus, 0);
 		setGameSettingf(gameSettings::powerAtkStaminaCostMultiplier, 0);
 		setGameSettingf(gameSettings::atkStaminaCostMult, 0);
 		setGameSettingf(gameSettings::atkStaminaCostBase, 0);

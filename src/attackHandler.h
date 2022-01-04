@@ -34,11 +34,12 @@ namespace attackHandler
 			else {
 				DEBUG("light attack registered");
 			}
-			auto pc = RE::PlayerCharacter::GetSingleton();
+			/*auto pc = RE::PlayerCharacter::GetSingleton();
 			if (pc) {
 				pc->SetActorValue(RE::ActorValue::KStaminaRate, 0);
 				DEBUG("pc stamina rate set to 0");
-			}
+				DEBUG("actual pc stamina is now {}", pc->GetActorValue(RE::ActorValue::KStaminaRate));
+			}*/
 			shouldDamageStamina = true;
 			attackFired = true;
 		}
@@ -92,12 +93,6 @@ namespace attackHandler
 			checkout();
 		}
 		registerAtk();
-	}
-
-	/*updates the original stamina rate of pc*/
-	inline void updatePcStaminaRate() {
-		pcStaminaRate = RE::PlayerCharacter::GetSingleton()->GetActorValue(RE::ActorValue::KStaminaRate);
-		DEBUG("player's stamina rate has been updated to {}", pcStaminaRate);
 	}
 
 
