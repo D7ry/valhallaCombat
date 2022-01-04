@@ -6,51 +6,33 @@ using namespace Utils;
 
 class dataHandler
 {
+
 public:
-	dataHandler();
-	float staminaRegenMult_;
-	float combatStaminaRegenMult_;
-	float staminaRegenDelay_;
-	float meleeCostLightMiss;
-	float meleeCostHeavyMiss;
-	float meleeCostHeavyHit;
-	float meleeRecovLightHit;
-	bool shieldCountAsHit;
-	bool timedBlocking;
-	float timedBlockingLength;
+
+	void readSettings();
+
+
 	static dataHandler* GetSingleton()
 	{
 		static dataHandler singleton;
 		return  std::addressof(singleton);
 	}
 
-	void updateMCMchanges();
+
+	float staminaRegenMult_ = 1;
+	float combatStaminaRegenMult_ = 5;
+	float staminaRegenDelay_ = 3;
+	float meleeCostLightMiss = 30;
+	float meleeCostHeavyMiss = 0.333;
+	float meleeCostHeavyHit = 0.199;
+	float meleeRecovLightHit = 0.3;
+	bool blockedHitRegenStamina = true;
+	bool staminaMeterBlink = true;
+
+	void cancelVanillaPowerStamina();
+private:
+	void ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, bool& a_setting);
+	void ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting);
 
 };
-
-namespace gameSettings {
-	inline const char* powerAtkStaminaCostMultiplier = "fPowerAttackStaminaPenalty";
-	inline const char* staminaRegenDelay = "fDamagedStaminaRegenDelay";
-	inline const char* atkStaminaCostBase = "fStaminaAttackWeaponBase";
-	inline const char* atkStaminaCostMult = "fStaminaAttackWeaponMult";
-	inline const char* combatStaminaRegenMult = "fCombatStaminaRegenRateMult";
-	inline const char* powerAtkDamageBonus = "fPowerAttackDefaultBonus";
-	/*power atk stamina formula:
-	(wpn weight * fStaminaAttackWeaponMult + 1 * fStaminaAttackWeaponBase ) * fPowerAttackStaminaPenalty
-	*/
-
-	inline void tweakGameSetting() {
-		DEBUG("tweaking game setting");
-		//negating vanilla power attack formula
-		setGameSettingf(gameSettings::powerAtkDamageBonus, 0);
-		setGameSettingf(gameSettings::powerAtkStaminaCostMultiplier, 0);
-		setGameSettingf(gameSettings::atkStaminaCostMult, 0);
-		setGameSettingf(gameSettings::atkStaminaCostBase, 0);
-		setGameSettingf(gameSettings::staminaRegenDelay, dataHandler::GetSingleton()->staminaRegenDelay_);
-		setGameSettingf(gameSettings::combatStaminaRegenMult, dataHandler::GetSingleton()->combatStaminaRegenMult_);
-		multStaminaRegen(dataHandler::GetSingleton()->staminaRegenMult_);
-	}
-}
-
-
 

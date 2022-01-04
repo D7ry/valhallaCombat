@@ -7,14 +7,12 @@
 #include "Utils.h"
 namespace debuffThread {
 	inline std::jthread t1;
-
-	inline std::jthread t2;
-
 }
-
 class debuffHandler
 {
-	debuffHandler();
+	debuffHandler() {
+		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x000012C5, "Valhamina.esp");
+	}
 
 
 public:
@@ -23,20 +21,6 @@ public:
 		static debuffHandler singleton;
 		return  std::addressof(singleton);
 	}
-
-	bool staminaBlink = false;
-	RE::BGSPerk* debuffPerk;
-	RE::BGSPerk* staminaLimitPerk;
-	std::atomic<bool> isPlayerExhausted = false;
-	//RE::GFxMovieView* Hud = nullptr;
-
-	//void staminaBlinkOnce() noexcept;
-
-private:
-	//bool AcquireHud() noexcept;
-	void staminaDebuffCheck();
-
-public:
 	void addDebuffPerk() {
 		Utils::addPerkToPc(debuffPerk);
 	}
@@ -45,11 +29,23 @@ public:
 		Utils::rmPerkFromPc(debuffPerk);
 	}
 
-	void addStaminaLimitPerk() {
-		Utils::addPerkToPc(staminaLimitPerk);
+	void initStaminaDebuff();
+
+	/*reset debuff state on game load*/
+	void refresh() {
+		isPlayerExhausted = false;
+		rmDebuffPerk();
 	}
 
-	void initStaminaDebuff();
+
+private:
+	void staminaDebuffOp();
+
+
+	RE::BGSPerk* debuffPerk;
+	std::atomic<bool> isPlayerExhausted = false;
+
+
 };
 
 

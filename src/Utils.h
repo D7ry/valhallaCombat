@@ -17,15 +17,27 @@ namespace Utils
 		}
 	}
 
+	inline static std::unordered_map<std::string, float> staminaRegenMap;
+
 	/*multiplies stamina regen of every single race by MULT.*/
 	inline void multStaminaRegen(float mult) {
 		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
 			if (race && race->GetPlayable()) {
-				INFO("setting regen value for race {} from {} to {}.", race->GetName(), race->data.staminaRegen, race->data.staminaRegen*mult);
-				race->data.staminaRegen *= mult;
+				std::string raceName = race->GetName();
+				if (staminaRegenMap.find(raceName) == staminaRegenMap.end()) {
+					DEBUG("recording race default stamina for {}!", raceName);
+					staminaRegenMap[raceName] = race->data.staminaRegen;
+					race->data.staminaRegen *= mult;
+				}
+				else {
+					race->data.staminaRegen = mult * staminaRegenMap.at(raceName);
+				}
+				INFO("setting regen value for race {} to {}.", race->GetName(), race->data.staminaRegen);
 			}
 		}
 	}
+
+
 
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{

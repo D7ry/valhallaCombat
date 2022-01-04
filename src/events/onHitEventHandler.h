@@ -1,5 +1,4 @@
 #include "attackHandler.h"
-#include "blockHandler.h"
 #include "dataHandler.h"
 using EventResult = RE::BSEventNotifyControl;
 class onHitEventHandler : public RE::BSTEventSink<RE::TESHitEvent>

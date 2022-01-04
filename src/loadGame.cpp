@@ -11,15 +11,14 @@ namespace loadGame {
 		if (msg->type == SKSE::MessagingInterface::kPostLoadGame) {
 			INFO("data loaded, initializing...");
 			if (!setup) {
-				dataHandler* handler = dataHandler::GetSingleton();
-				gameSettings::tweakGameSetting();
 				((AnimationGraphEventWatcher*)((uintptr_t)RE::PlayerCharacter::GetSingleton() + 0x30))->HookSink();
 				onHitEventHandler::Register();
+				dataHandler* data = dataHandler::GetSingleton();
+				data->readSettings(); data->cancelVanillaPowerStamina();
 				setup = true;
 			}
-			debuffHandler::GetSingleton()->rmDebuffPerk();
+			debuffHandler::GetSingleton()->refresh();
 			attackHandler::checkout();
-			//actionEventHandler::RegisterSink(); 
 			INFO("initialization complete!");
 		}
 	}

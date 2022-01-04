@@ -9,7 +9,7 @@ EventResult raceSwitchEventHandler::ProcessEvent(const RE::TESSwitchRaceComplete
 	DEBUG("{} has switched race!", a_event->subject.get()->GetName());
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	if (pc) {
-		attackHandler::updatePcStaminaRate();
+		//attackHandler::updatePcStaminaRate();
 	}
 	return EventResult::kContinue;
 }

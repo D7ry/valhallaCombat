@@ -6,6 +6,7 @@
 #include "SimpleIni.h"
 #include "events/actorLoadEventHandler.h"
 #include "Hooks.h"
+#include "Papyrus.h"
 #if ANNIVERSARY_EDITION
 
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
@@ -73,5 +74,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	g_message->RegisterListener(loadGame::EventCallBACK);
 	AttackDataHook::InstallHook();
 	StaminaRegenHook::InstallHook();
+	Papyrus::Register();
 	return true;
 }

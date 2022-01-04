@@ -13,7 +13,6 @@ namespace attackHandler
 
 	inline bool nextIsBashing = false;
 
-	inline float pcStaminaRate = 0;
 
 	/* decide whether the hitframe counts as an attack.
 	also checks whether the hitframe is fired when player is not attacking. If not,
@@ -76,8 +75,6 @@ namespace attackHandler
 					staminaHandler::staminaHeavyMiss(pc);
 				}
 			}
-			DEBUG("resetting pc stamina rate to normal");
-			pc->SetActorValue(RE::ActorValue::KStaminaRate, pcStaminaRate);
 		}
 		attackFired = false;
 		shouldDamageStamina = false;

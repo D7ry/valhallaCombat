@@ -1,6 +1,5 @@
 #include "AnimEventWatcher.h"
 #include "attackHandler.h"
-#include "blockHandler.h"
 //all credits to Bingle
 namespace anno
 {
@@ -27,14 +26,14 @@ RE::BSEventNotifyControl AnimationGraphEventWatcher::HookedProcessEvent(RE::BSAn
 			DEBUG("==========attackstop==========");
 			attackHandler::checkout();
 		}
-		else if (_event == block_start_anno) {
+		/*else if (_event == block_start_anno) {
 			DEBUG("==========blockStart==========");
 			blockHandler::GetSingleton()->raiseShield();
 		}
 		else if (_event == block_stop_anno) {
 			DEBUG("==========blockStop==========");
 			blockHandler::GetSingleton()->unRaiseShield();
-		}
+		}*/
 	}
     return fn ? (this->*fn)(a_event, src) : RE::BSEventNotifyControl::kContinue;
 }

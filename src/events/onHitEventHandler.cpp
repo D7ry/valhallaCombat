@@ -18,10 +18,6 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 		playerHit(a_event);
 	}
 
-	if (dataHandler::GetSingleton()->timedBlocking && a_event->target->IsPlayerRef()) {
-		playerGottenHit(a_event);
-	}
-	
 	return EventResult::kContinue;
 }
 
@@ -38,7 +34,7 @@ void onHitEventHandler::playerHit(const RE::TESHitEvent* a_event) {
 	}
 
 	if (a_event->flags.any(RE::TESHitEvent::Flag::kHitBlocked)) {
-		if (!dataHandler::GetSingleton()->shieldCountAsHit) {
+		if (!dataHandler::GetSingleton()->blockedHitRegenStamina) {
 			DEBUG("hit blocked, no stamina recovery!");
 			return;
 		}
@@ -51,21 +47,6 @@ void onHitEventHandler::playerHit(const RE::TESHitEvent* a_event) {
 	attackHandler::registerHit();
 }
 
-void onHitEventHandler::playerGottenHit(const RE::TESHitEvent* a_event) {
-	DEBUG("player gotten hit!");
-	if (!a_event->flags.any(RE::TESHitEvent::Flag::kHitBlocked)) {
-		DEBUG("player failed to block hit!");
-		return;
-	}
-	auto cause = a_event->cause.get()->As<RE::Actor>();
-	if (!isAlive(cause)) {
-		DEBUG("cause is dead!");
-		return;
-	}
-	DEBUG("cause is alive!");
-	blockHandler::GetSingleton()->blockAttack();
-
-}
 
 bool onHitEventHandler::isAlive(RE::Actor* a_target) {				//stolen from Maxsu's OHAF
 	if (!a_target) {
