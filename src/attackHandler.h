@@ -13,6 +13,8 @@ namespace attackHandler
 
 	inline bool nextIsBashing = false;
 
+	inline static bool meleeHitRegen = false;
+
 
 	/* decide whether the hitframe counts as an attack.
 	also checks whether the hitframe is fired when player is not attacking. If not,
@@ -49,7 +51,9 @@ namespace attackHandler
 		auto pc = RE::PlayerCharacter::GetSingleton();
 		INFO("registering a successful hit");
 		if (isLightAtk) {
+			meleeHitRegen = true;
 			staminaHandler::staminaLightHit(pc);
+			meleeHitRegen = false;
 		}
 		else if (shouldDamageStamina) {
 			staminaHandler::staminaHeavyHit(pc); //heavy attack's second hit should damage more stamina

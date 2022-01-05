@@ -19,13 +19,13 @@ public:
 	}
 
 
-	float staminaRegenMult_ = 1;
-	float combatStaminaRegenMult_ = 5;
+	float staminaRegenMult_ = 5;
+	float combatStaminaRegenMult_ = 1;
 	float staminaRegenDelay_ = 3;
 	float meleeCostLightMiss = 30;
-	float meleeCostHeavyMiss = 0.333;
-	float meleeCostHeavyHit = 0.199;
-	float meleeRecovLightHit = 0.3;
+	float meleeCostHeavyMiss = 33.3;
+	float meleeCostHeavyHit = 19.9;
+	float meleeRecovLightHit = 30;
 	bool blockedHitRegenStamina = true;
 	bool staminaMeterBlink = true;
 

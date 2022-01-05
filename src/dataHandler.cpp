@@ -21,9 +21,9 @@ void dataHandler::readSettings() {
 
 	//read melee cost
 	ReadFloatSetting(ini, "Stamina", "fmeleeCostLightMiss", meleeCostLightMiss); //this doesn't need to be divided by 100 since it's constnat.
-	ReadFloatSetting(ini, "Stamina", "fmeleeCostHeavyMiss_percent", meleeCostHeavyMiss); meleeCostHeavyMiss /= 100;
-	ReadFloatSetting(ini, "Stamina", "fmeleeCostHeavyHit_percent", meleeCostHeavyHit); meleeCostHeavyHit /= 100;
-	ReadFloatSetting(ini, "Stamina", "fmeleeRecoverLightHit_percent", meleeRecovLightHit); meleeRecovLightHit /= 100;
+	ReadFloatSetting(ini, "Stamina", "fmeleeCostHeavyMiss_percent", meleeCostHeavyMiss);
+	ReadFloatSetting(ini, "Stamina", "fmeleeCostHeavyHit_percent", meleeCostHeavyHit);
+	ReadFloatSetting(ini, "Stamina", "fmeleeRecoverLightHit_percent", meleeRecovLightHit);
 
 	DEBUG("ini settings loaded");
 
@@ -46,12 +46,14 @@ void dataHandler::cancelVanillaPowerStamina() {
 
 void dataHandler::ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting)
 {
-	DEBUG("reading float setting!");
 	const char* bFound = nullptr;
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound) {
-		DEBUG("found {} with value {}", a_sectionName, bFound);
+		INFO("found {} with value {}", a_settingName, bFound);
 		a_setting = static_cast<float>(a_ini.GetDoubleValue(a_sectionName, a_settingName));
+	}
+	else {
+		INFO("failed to find {}, using default value", a_settingName);
 	}
 }
 
