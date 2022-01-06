@@ -42,7 +42,7 @@ bool StaminaRegenHook::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 	if (!bResult && !attackHandler::meleeHitRegen) {
 		RE::Actor* actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, -0xB8);
 		auto attackState = actor->GetAttackState();
-		bResult = attackState > RE::ATTACK_STATE_ENUM::kNone && attackState < RE::ATTACK_STATE_ENUM::kBowDraw; // if not sprinting, check if is attacking
+		bResult = (attackState > RE::ATTACK_STATE_ENUM::kNone && attackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) || actor->IsBlocking(); // if not sprinting, check if is attacking/drawing a bow
 	}
 
 	return bResult;
