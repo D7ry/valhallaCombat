@@ -42,7 +42,7 @@ function Resolve-Files {
                 if (!$env:RebuildInvoke) {
                     Write-Host "`t<$a_parent/$directory>"
                     foreach ($file in $_generated) {
-                        Write-Host "`t`t<$file>"
+                        Write-Host "$file"
                     }
                 }
             }
@@ -99,13 +99,15 @@ if ($Mode -eq 'COPY') {
 
     [System.Windows.Forms.Application]::EnableVisualStyles()
     $MsgBox = New-Object System.Windows.Forms.Form -Property @{
+        TopLevel = $true
+        TopMost = $true
         ClientSize = '350, 250'
         Text = $Project
         StartPosition = 'CenterScreen'
         FormBorderStyle = 'FixedDialog'
         MaximizeBox = $false
         MinimizeBox = $false
-        Font = New-Object System.Drawing.Font('Segoe UI', 12, [System.Drawing.FontStyle]::Regular)
+        Font = New-Object System.Drawing.Font('Segoe UI', 10, [System.Drawing.FontStyle]::Regular)
     }
     
     $Message = New-Object System.Windows.Forms.Label -Property @{
@@ -126,7 +128,10 @@ if ($Mode -eq 'COPY') {
             $Message.Text += "`nBinary file copied!"
 
             # configs
-            Get-ChildItem $PSScriptRoot -Recurse | Where-Object {($_.Extension -in '.toml', '.json', '.ini') -and ($_.Name -ne 'vcpkg.json')} | ForEach-Object {
+            Get-ChildItem $PSScriptRoot -Recurse | Where-Object {
+                ($_.Extension -in '.toml', '.json', '.ini') -and 
+                ($_.Name -ne 'vcpkg.json')
+            } | ForEach-Object {
                 Copy-Item $_.FullName "$Destination/SKSE/Plugins/$($_.Name)" -Force
                 $Message.Text += "`n$($_.Name) copied!"
             }
@@ -210,7 +215,7 @@ if ($Mode -eq 'COPY') {
                 [IO.File]::WriteAllText("$PSScriptRoot/CMakeLists.txt", $CMakeLists)
 
                 $vcpkg.'version-string' = $OutputVersion
-                $vcpkg = $vcpkg | ConvertTo-Json
+                $vcpkg = $vcpkg | ConvertTo-Json -Depth 9
                 [IO.File]::WriteAllText("$PSScriptRoot/vcpkg.json", $vcpkg)
                 
                 $Message.Text += "`n$Project has been changed from $($OriginalVersion) to $($OutputVersion)`n`nThis update will be in effect after next successful build!"
@@ -261,12 +266,13 @@ if ($Mode -eq 'SOURCEGEN') {
     }
     $vcpkg.PsObject.Properties.Remove('install-name')
 
+    # inversed version control
     if (Test-Path "$Path/version.rc" -PathType Leaf) {
         $VersionResource = [IO.File]::ReadAllText("$Path/version.rc") -replace "`"FileDescription`",\s`"$Folder`"",  "`"FileDescription`", `"$($vcpkg.'description')`""
         [IO.File]::WriteAllText("$Path/version.rc", $VersionResource)
     }
 
-    $vcpkg = $vcpkg | ConvertTo-Json
+    $vcpkg = $vcpkg | ConvertTo-Json -Depth 9
     [IO.File]::WriteAllText("$PSScriptRoot/vcpkg.json", $vcpkg)
 }
 
@@ -285,8 +291,8 @@ if ($Mode -eq 'DISTRIBUTE') { # update script to every project
 # SIG # Begin signature block
 # MIIR2wYJKoZIhvcNAQcCoIIRzDCCEcgCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUPqkf1xrSDIOmAivSPnj0Texl
-# I4eggg1BMIIDBjCCAe6gAwIBAgIQV1bI9hFtibxLuv7jpq+icTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUo4IETWy/XGwRCnxvB1YN/MJ5
+# ng2ggg1BMIIDBjCCAe6gAwIBAgIQV1bI9hFtibxLuv7jpq+icTANBgkqhkiG9w0B
 # AQsFADAbMRkwFwYDVQQDDBBES1NjcmlwdFNlbGZDZXJ0MB4XDTIxMTIxNzAxNTg0
 # M1oXDTIyMTIxNzAyMTg0M1owGzEZMBcGA1UEAwwQREtTY3JpcHRTZWxmQ2VydDCC
 # ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANQWNd4o4p2MhRPwLWC8oxvq
@@ -360,23 +366,23 @@ if ($Mode -eq 'DISTRIBUTE') { # update script to every project
 # AQEwLzAbMRkwFwYDVQQDDBBES1NjcmlwdFNlbGZDZXJ0AhBXVsj2EW2JvEu6/uOm
 # r6JxMAkGBSsOAwIaBQCgeDAYBgorBgEEAYI3AgEMMQowCKACgAChAoAAMBkGCSqG
 # SIb3DQEJAzEMBgorBgEEAYI3AgEEMBwGCisGAQQBgjcCAQsxDjAMBgorBgEEAYI3
-# AgEVMCMGCSqGSIb3DQEJBDEWBBTdUK6OGC+8mGxJJHciBl/Z1BNjcTANBgkqhkiG
-# 9w0BAQEFAASCAQCwRbYXycPXYf8hiyX0K9m1doL3v1HQ3ZKIIFdRgu5rbsXsFx7X
-# NLYQfoWQfcm+EQbnq41KYOpdt2u59ZnQDg8WYGtk4ApFOekoRPdBu3YiD8f507yW
-# 3C3K+/Kf8ASUxH4FKc7ni9ZvoFFvag8hXHBUIjefMjT7Ryu4tPN5M0f4dYJ2H8Zs
-# I1D4Mz85HcwwUtu5Jqu/6003WiwYfMDBeNHZwzYTRXGcqjOwIIAXhxdH9lQJGGKn
-# 2B9UKD3boMv06HizjHkH2b02qFkVaDPIkTUlIVKeeLmdH3+vnnl8Zmkn3Q/OvEK2
-# fD+ji88GAm16Iofoa42mykqCO/jsl6DwDokHoYICMDCCAiwGCSqGSIb3DQEJBjGC
+# AgEVMCMGCSqGSIb3DQEJBDEWBBTnxvHIpxrLHfs/KqVXlLgmRgg9PjANBgkqhkiG
+# 9w0BAQEFAASCAQCKisgeMX0GuMRf/tbYdyJ88LSVA5lW6p1qUbxSevTxO6fuzsWF
+# rEZorWNlE3FNotjpGDhyHsaRmKLhqvxjOJklMp5L/DEb6dtgFcE9TPrYm2BtV1Zq
+# C9siv4lgapzgetzpvEXWmsPrrUloN+u3rnDsJw1+NSy5giEDjcaqzA2CVC4F77TH
+# r+8bnGy4yd6HFK1/mT4h+RxPMVnYlzwJChRMQS26hYNszN8KLSKEIUMWXgHFpopD
+# shtLMEGOBmNC0Jb/Mjy6jCM3HhKApVs+Ofpc2L0GiIH4jAbuyWfl8q8VbMWyCBe2
+# Y+BxE8NJvoh1Qc88KMiUWrX7Q3UBhqo1JIZ5oYICMDCCAiwGCSqGSIb3DQEJBjGC
 # Ah0wggIZAgEBMIGGMHIxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJ
 # bmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xMTAvBgNVBAMTKERpZ2lDZXJ0
 # IFNIQTIgQXNzdXJlZCBJRCBUaW1lc3RhbXBpbmcgQ0ECEA1CSuC+Ooj/YEAhzhQA
 # 8N0wDQYJYIZIAWUDBAIBBQCgaTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwG
-# CSqGSIb3DQEJBTEPFw0yMTEyMjEwMTI5MTdaMC8GCSqGSIb3DQEJBDEiBCDzuIw8
-# tQ135b6FGemMix+0EmF+SGCAHJIjpEgdl5SIdjANBgkqhkiG9w0BAQEFAASCAQAR
-# pAo3GNELkqW/9+1wJY6BW8tD0/thZv/Eyyk4GPO03uIeBYBD9+0lJ+h59ZuU3kGR
-# ZyzqivBq1B53Ozb2HUnYD1YDBHDJYJ0g2lK5m1/OcZ+8mIQEJyBLeTi//qdkT9NZ
-# 8quxEdazo3+WI2pPlJ+e/KRmgN41vwyzhB0kaKRVmOYonz372We//NwC1B92GvVw
-# O+sUeGfdg/rU/mxKqaqnmsInPSrX4wU0SqHS4B42OCnVgtiIHpUMBKZnpbIwUlqE
-# J6HL0eu56Fl3DRvYJd0GMVdnAT0z1lEqplCdNSHF9WBspVg4bfVvAEMqAmoVrOuE
-# PWIMeODWcZ3qY5ZImp5o
+# CSqGSIb3DQEJBTEPFw0yMjAxMDUxODE3MTJaMC8GCSqGSIb3DQEJBDEiBCBnFNwC
+# eVeRaLQ0d8kCLXba2RjzgU2y3NceOetOQ4l2szANBgkqhkiG9w0BAQEFAASCAQAM
+# Cwx5hBHVddWxUizG6EvPFgAFQL4gTtLYacTJSQtHWHwg8Nfd1JWKONP85DfiCGIh
+# 97qejG3HNCfHo7XHFnVgKV6N5GlmqLuwzKJDzNZRddc/OoEd2NHAkUBHnpjRGP0O
+# XdG6Hp549xFtWqVYPicfH2tglNv6eHH7DJXfZle61zfJnYC9XR5xFL/m3JenajGT
+# klr0RJ2Rbg+c9iW7ZXd67OfqYWaN/1AZd5azN0DIv75QiysLrmixqIvJvsgErQNn
+# tTmocdVxCyTd57pjisj1m7YVwmn+lnfhmLQ3WUADIUb/jaWCngIpZ7T+QqUtO0f2
+# pE+46T9MXSUI+QJ/ull+
 # SIG # End signature block

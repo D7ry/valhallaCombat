@@ -1,4 +1,3 @@
-#include "C:/Users/Ty/Documents/SKSEPlugins/Build/Plugins/valhallaCombat/CMakeFiles/valhallaCombat.dir/Debug/cmake_pch.hxx"
 #include "loadGame.h"
 #include "dataHandler.h"
 #include "debuffHandler.h"
@@ -18,7 +17,6 @@ namespace loadGame {
 				setup = true;
 			}
 			debuffHandler::GetSingleton()->refresh();
-			attackHandler::checkout();
 			INFO("initialization complete!");
 		}
 	}

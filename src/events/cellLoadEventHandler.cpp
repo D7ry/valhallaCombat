@@ -1,4 +1,3 @@
-#include "C:/Users/Ty/Documents/SKSEPlugins/Build/Plugins/valhallaCombat/CMakeFiles/valhallaCombat.dir/Debug/cmake_pch.hxx"
 #include "cellLoadEventHandler.h"
 
 

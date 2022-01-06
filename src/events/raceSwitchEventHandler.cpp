@@ -1,4 +1,3 @@
-#include "C:/Users/Ty/Documents/SKSEPlugins/Build/Plugins/valhallaCombat/CMakeFiles/valhallaCombat.dir/Debug/cmake_pch.hxx"
 #include "raceSwitchEventHandler.h"
 #include "attackHandler.h"
 EventResult raceSwitchEventHandler::ProcessEvent(const RE::TESSwitchRaceCompleteEvent* a_event, RE::BSTEventSource<RE::TESSwitchRaceCompleteEvent>* a_eventSource) {

@@ -1,4 +1,3 @@
-#include "C:/Users/Ty/Documents/SKSEPlugins/Build/Plugins/valhallaCombat/CMakeFiles/valhallaCombat.dir/Debug/cmake_pch.hxx"
 #include "actionEventHandler.h"
 EventResult actionEventHandler::ProcessEvent(const SKSE::ActionEvent* a_event,
 	RE::BSTEventSource<SKSE::ActionEvent>* a_eventSource) {
