@@ -20,7 +20,7 @@ void debuffHandler::staminaDebuffOp() {
 	auto _debuffHandler = debuffHandler::GetSingleton();
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	while (_debuffHandler->isPlayerExhausted && pc) {
-		if (pc->GetActorValue(RE::ActorValue::kStamina) == pc->GetPermanentActorValue(RE::ActorValue::kStamina)) {
+		if (pc->GetActorValue(RE::ActorValue::kStamina) >= pc->GetPermanentActorValue(RE::ActorValue::kStamina)) {
 			_debuffHandler->rmDebuffPerk();
 			_debuffHandler->isPlayerExhausted = false;
 			break;

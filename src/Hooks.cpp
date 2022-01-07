@@ -1,9 +1,12 @@
 #include "Hooks.h"
-REL::Relocation<uintptr_t> ptr_attackOverride{ REL::ID(38047), 0XBB };
+
+#pragma region attackDataHook
 void AttackDataHook::InstallHook() {
+	REL::Relocation<uintptr_t> ptr_attackOverride{ REL::ID(38047), 0XBB };
 	SKSE::AllocTrampoline(1 << 4);
 	auto& trampoline = SKSE::GetTrampoline();
 	trampoline.write_call<5>(ptr_attackOverride.address(), &readFromAttackData);
+	INFO("attack data hook installed");
 }
 
 void AttackDataHook::readFromAttackData(uintptr_t avOwner, RE::BGSAttackData* atkData)
@@ -25,12 +28,17 @@ void AttackDataHook::readFromAttackData(uintptr_t avOwner, RE::BGSAttackData* at
 	}
 	func(avOwner, atkData);
 }
-void StaminaRegenHook::InstallHook() 
+#pragma endregion
+
+
+#pragma region StaminaRegenHook
+void StaminaRegenHook::InstallHook()
 {
 	REL::Relocation<uintptr_t> hook{ REL::ID(37510) };  // 620690 - a function that regenerates stamina
 	SKSE::AllocTrampoline(1 << 4);
 	auto& trampoline = SKSE::GetTrampoline();
 	_HasFlags1 = trampoline.write_call<5>(hook.address() + 0x62, HasFlags1);
+	INFO("stamina regen hook installed");
 }
 
 /*Ersh's stuff*/
@@ -47,4 +55,23 @@ bool StaminaRegenHook::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 
 	return bResult;
 }
+#pragma endregion
 
+
+#pragma region hitEventHook
+void hitEventHook::InstallHook() {
+	REL::Relocation<uintptr_t> hook{ REL::ID(37673) };
+	SKSE::AllocTrampoline(1 << 4);
+	auto& trampoline = SKSE::GetTrampoline();
+	_ProcessHit = trampoline.write_call<5>(hook.address() + 0x3C0, processHit);
+	DEBUG("hit event hook installed!");
+};
+
+void hitEventHook::processHit(RE::Actor* a_actor, RE::HitData& hitData) {
+	DEBUG("hooked hit event! actor is {}", a_actor->GetName());
+	if (hitData.flags == RE::HitData::Flag::kBlocked && hitData.flags != RE::HitData::Flag::kBlockWithWeapon) {
+		DEBUG("")
+	}
+	_ProcessHit(a_actor, hitData);
+};
+#pragma endregion

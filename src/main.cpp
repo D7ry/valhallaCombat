@@ -74,6 +74,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	g_message->RegisterListener(loadGame::EventCallBACK);
 	AttackDataHook::InstallHook();
 	StaminaRegenHook::InstallHook();
+	hitEventHook::InstallHook();
 	Papyrus::Register();
 	return true;
 }

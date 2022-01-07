@@ -23,9 +23,9 @@ public:
 	float combatStaminaRegenMult_ = 1;
 	float staminaRegenDelay_ = 3;
 	float meleeCostLightMiss = 30;
+	float meleeRecovLightHit = 20;
 	float meleeCostHeavyMiss = 33.3;
 	float meleeCostHeavyHit = 19.9;
-	float meleeRecovLightHit = 30;
 	bool blockedHitRegenStamina = true;
 	bool staminaMeterBlink = true;
 

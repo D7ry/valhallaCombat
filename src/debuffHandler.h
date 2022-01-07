@@ -22,10 +22,6 @@ public:
 		return  std::addressof(singleton);
 	}
 	void addDebuffPerk() {
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (pc) {
-			pc->SetActorValue(RE::ActorValue::damage)
-		}
 		Utils::addPerkToPc(debuffPerk);
 	}
 

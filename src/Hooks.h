@@ -17,3 +17,11 @@ private:
     static inline REL::Relocation<decltype(HasFlags1)> _HasFlags1;
 };
 
+class hitEventHook
+{
+public:
+    static void InstallHook();
+private:
+    static void processHit(RE::Actor* a_actor, RE::HitData& hitData);
+    static inline REL::Relocation<decltype(processHit)> _ProcessHit;
+};
