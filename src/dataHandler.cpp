@@ -32,7 +32,7 @@ void dataHandler::readSettings() {
 
 
 	DEBUG("ini settings loaded");
-
+	setGameSettingf("fSprintStaminaDrainMult", 0);
 	setGameSettingf("fDamagedStaminaRegenDelay", staminaRegenDelay_);
 	setGameSettingf("fCombatStaminaRegenRateMult", combatStaminaRegenMult_);
 	multStaminaRegen(staminaRegenMult_);
