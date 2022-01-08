@@ -1,6 +1,5 @@
 #pragma once
 #include "animEventHandler.h"
-#include "menuEventHandler.h"
 using EventResult = RE::BSEventNotifyControl;
 
 class actorLoadEventHandler : public RE::BSTEventSink<RE::TESObjectLoadedEvent>{

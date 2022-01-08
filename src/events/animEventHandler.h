@@ -1,59 +1,50 @@
 #pragma once
-#include "attackHandler.h"
-using EventResult = RE::BSEventNotifyControl;
-class animEventHandler : public RE::BSTEventSink<RE::BSAnimationGraphEvent>
-{
+class animEventHandler {
 public:
-	virtual EventResult ProcessEvent(const RE::BSAnimationGraphEvent* a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* a_eventSource);
-	static bool RegisterSink(RE::Actor* actor) {
-		static animEventHandler g_eventhandler;
+    template<class Ty>
+    Ty SafeWrite64Function(uintptr_t addr, Ty data) {
+        DWORD oldProtect;
+        void* _d[2];
+        memcpy(_d, &data, sizeof(data));
+        size_t len = sizeof(_d[0]);
 
-		RE::BSAnimationGraphManagerPtr graphManager;
+        VirtualProtect((void*)addr, len, PAGE_EXECUTE_READWRITE, &oldProtect);
+        Ty olddata;
+        memset(&olddata, 0, sizeof(Ty));
+        memcpy(&olddata, (void*)addr, len);
+        memcpy((void*)addr, &_d[0], len);
+        VirtualProtect((void*)addr, len, oldProtect, &oldProtect);
+        return olddata;
+    }
 
-		if (actor) {
-			actor->GetAnimationGraphManager(graphManager);
-		} else {
-			ERROR("Actor not found!");
-		}
+    typedef RE::BSEventNotifyControl(animEventHandler::* FnProcessEvent)(RE::BSAnimationGraphEvent& a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* dispatcher);
 
-		if (!graphManager) {
-			INFO("eRROR: animation graph not found!");
-			return false;
-		}
+    RE::BSEventNotifyControl HookedProcessEvent(RE::BSAnimationGraphEvent& a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* src);
 
-		if (!graphManager->graphs.cbegin()) {
-			INFO("eRROR: animation graph.cbegin() not found!");
-			return false;
-		}
+    void HookSink() {
+        uint64_t vtable = *(uint64_t*)this;
+        auto it = fnHash.find(vtable);
+        if (it == fnHash.end()) {
+            FnProcessEvent fn = SafeWrite64Function(vtable + 0x8, &animEventHandler::HookedProcessEvent);
+            fnHash.insert(std::pair<uint64_t, FnProcessEvent>(vtable, fn));
+        }
+    }
 
-		graphManager->graphs.cbegin()->get()->AddEventSink(&g_eventhandler);
+    void UnHookSink() {
+        uint64_t vtable = *(uint64_t*)this;
+        auto it = fnHash.find(vtable);
+        if (it == fnHash.end())
+            return;
+        SafeWrite64Function(vtable + 0x8, it->second);
+        fnHash.erase(it);
+    }
 
-		INFO("Register Animation Event Handler onto {}", actor->GetName());
+    static animEventHandler* GetSingleton()
+    {
+        static animEventHandler singleton;
+        return  std::addressof(singleton);
+    }
 
-		return true;
-	}
-	static bool unRegisterSink(RE::Actor* actor) {
-		static animEventHandler g_eventhandler;
-
-		RE::BSAnimationGraphManagerPtr graphManager;
-
-		if (actor) {
-			actor->GetAnimationGraphManager(graphManager);
-		}
-
-		if (!graphManager || !graphManager->graphs.cbegin()) {
-			ERROR("animation graph not found!");
-			return false;
-		}
-
-		graphManager->graphs.cbegin()->get()->RemoveEventSink(&g_eventhandler);
-
-		DEBUG("Unregister Animation Event Handler from {}!", actor->GetName());
-
-		return true;
-	}
-private:
-	animEventHandler() = default;
-	~animEventHandler() = default;
+protected:
+    static std::unordered_map<uint64_t, FnProcessEvent> fnHash;
 };
-

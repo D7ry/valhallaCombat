@@ -18,7 +18,7 @@ public:
 		return  std::addressof(singleton);
 	}
 
-
+	//attacking
 	float staminaRegenMult_ = 5;
 	float combatStaminaRegenMult_ = 1;
 	float staminaRegenDelay_ = 3;
@@ -29,6 +29,12 @@ public:
 	bool blockedHitRegenStamina = true;
 	bool staminaMeterBlink = true;
 
+	//blocking
+	bool bckToggle = true;
+	float bckShdStaminaPenaltyMult = 1; 
+	float bckWpnStaminaPenaltyMult = 1; 
+
+	//cancels vanilla power stamina. 
 	void cancelVanillaPowerStamina();
 private:
 	void ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, bool& a_setting);

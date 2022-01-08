@@ -1,21 +1,40 @@
 #include "animEventHandler.h"
-
-namespace attackCounter
+#include "attackHandler.h"
+//all credits to Bingle
+namespace anno
 {
-	inline bool attackHit = false;
-	inline int swing_Ct = 0;
+	const char* attackStop_anno = "attackStop";
+	const char* hitFrame_anno = "HitFrame";
+	const char* preHitFrame_anno = "preHitFrame";
+	const char* atkWin_Skysa_Anno = "SkySA_AttackWinStart";
+	const char* block_start_anno = "blockStartOut";
+	const char* block_stop_anno = "blockStop";
 }
 
-
-EventResult animEventHandler::ProcessEvent(const RE::BSAnimationGraphEvent* a_event,
-	RE::BSTEventSource<RE::BSAnimationGraphEvent>* a_eventSource) {
-	if (!a_event || !a_eventSource) {
-		ERROR("Event Source not found");
-		return EventResult::kContinue;
+RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGraphEvent& a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* src) {
+    
+	using namespace anno;
+    FnProcessEvent fn = fnHash.at(*(uint64_t*)this);
+	if (a_event.tag != NULL) {
+		RE::BSFixedString _event = a_event.tag;
+		if (_event == preHitFrame_anno) {
+			DEBUG("==========prehitFrame==========");
+			attackHandler::proceed();
+		}
+		else if (_event == attackStop_anno) {
+			DEBUG("==========attackstop==========");
+			attackHandler::checkout();
+		}
+		/*else if (_event == block_start_anno) {
+			DEBUG("==========blockStart==========");
+			blockHandler::GetSingleton()->raiseShield();
+		}
+		else if (_event == block_stop_anno) {
+			DEBUG("==========blockStop==========");
+			blockHandler::GetSingleton()->unRaiseShield();
+		}*/
 	}
-	if (a_event->tag != nullptr) {
-		RE::BSFixedString _event = a_event->tag;
-	}
-	return EventResult::kContinue;
+    return fn ? (this->*fn)(a_event, src) : RE::BSEventNotifyControl::kContinue;
 }
 
+std::unordered_map<uint64_t, animEventHandler::FnProcessEvent> animEventHandler::fnHash;

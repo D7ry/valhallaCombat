@@ -11,8 +11,6 @@ EventResult cellLoadEventHandler::ProcessEvent(const RE::TESCellFullyLoadedEvent
 	DEBUG("cell load event triggers!");
 	DEBUG("+++++++++++++++++++++cell loaded+++++++++++++++++++++");
 	auto pc = RE::PlayerCharacter::GetSingleton();
-	animEventHandler::RegisterSink(pc);
-	debuffHandler::GetSingleton()->rmDebuffPerk();
 	const auto task = SKSE::GetTaskInterface();
 	if (task != nullptr) {
 		task->AddTask(unRegister);

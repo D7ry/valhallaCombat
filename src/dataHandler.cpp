@@ -23,6 +23,13 @@ void dataHandler::readSettings() {
 	ReadFloatSetting(ini, "Stamina", "fmeleeCostHeavyMiss_percent", meleeCostHeavyMiss);
 	ReadFloatSetting(ini, "Stamina", "fmeleeCostHeavyHit_percent", meleeCostHeavyHit);
 	ReadFloatSetting(ini, "Stamina", "fmeleeRecoverLightHit_percent", meleeRecovLightHit);
+	
+
+	//read shield stamina cost
+	ReadBoolSetting(ini, "Blocking", "bToggleStaminaBlock", bckToggle);
+	ReadFloatSetting(ini, "Blocking", "fbckWpnStaminaPenaltyMult", bckWpnStaminaPenaltyMult);
+	ReadFloatSetting(ini, "Blocking", "fbckShdStaminaPenaltyMult", bckShdStaminaPenaltyMult);
+
 
 	DEBUG("ini settings loaded");
 

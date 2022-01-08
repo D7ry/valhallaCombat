@@ -1,3 +1,4 @@
+#pragma once
 #include "attackHandler.h"
 class AttackDataHook
 {
