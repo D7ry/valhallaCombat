@@ -7,6 +7,7 @@ void dataHandler::readSettings() {
 	CSimpleIniA ini;
 #define SETTINGFILE_PATH "Data\\MCM\\Settings\\Valhamina.ini"
 	ini.LoadFile(SETTINGFILE_PATH);
+	using namespace settings;
 
 	//values with "_" at the end need to be updated into game to take effect
 	ReadFloatSetting(ini, "gameSetting", "fstaminaRegenMult", staminaRegenMult_);
@@ -69,6 +70,7 @@ void dataHandler::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName,
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound)
 	{
+		DEBUG("found {} with value {}", a_settingName, bFound);
 		a_setting = a_ini.GetBoolValue(a_sectionName, a_settingName);
 	}
 }

@@ -18,22 +18,6 @@ public:
 		return  std::addressof(singleton);
 	}
 
-	//attacking
-	float staminaRegenMult_ = 5;
-	float combatStaminaRegenMult_ = 1;
-	float staminaRegenDelay_ = 3;
-	float meleeCostLightMiss = 30;
-	float meleeRecovLightHit = 20;
-	float meleeCostHeavyMiss = 33.3;
-	float meleeCostHeavyHit = 19.9;
-	bool blockedHitRegenStamina = true;
-	bool staminaMeterBlink = true;
-
-	//blocking
-	bool bckToggle = true;
-	float bckShdStaminaPenaltyMult = 1; 
-	float bckWpnStaminaPenaltyMult = 1; 
-
 	//cancels vanilla power stamina. 
 	void cancelVanillaPowerStamina();
 private:
@@ -42,3 +26,20 @@ private:
 
 };
 
+namespace settings {
+	//attacking
+	static float staminaRegenMult_ = 5;
+	static float combatStaminaRegenMult_ = 1;
+	static float staminaRegenDelay_ = 3;
+	static float meleeCostLightMiss = 30;
+	static float meleeRecovLightHit = 20;
+	static float meleeCostHeavyMiss = 33.3;
+	static float meleeCostHeavyHit = 19.9;
+	static bool blockedHitRegenStamina = true;
+	static bool staminaMeterBlink = true;
+
+	//blocking
+	static bool bckToggle = true;
+	static float bckShdStaminaPenaltyMult = 1;
+	static float bckWpnStaminaPenaltyMult = 1;
+};
