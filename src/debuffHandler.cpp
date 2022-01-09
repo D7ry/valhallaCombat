@@ -5,7 +5,7 @@ void debuffHandler::initStaminaDebuff() {
 		DEBUG("player already exhausted!");
 	}
 	else {
-		this->addDebuffPerk();
+		//this->addDebuffPerk();
 		this->isPlayerExhausted = true;
 		DEBUG("Delegating threads");
 		DEBUG("Setup stamina check");
@@ -21,7 +21,7 @@ void debuffHandler::staminaDebuffOp() {
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	while (_debuffHandler->isPlayerExhausted && pc) {
 		if (pc->GetActorValue(RE::ActorValue::kStamina) >= pc->GetPermanentActorValue(RE::ActorValue::kStamina)) {
-			_debuffHandler->rmDebuffPerk();
+			//_debuffHandler->rmDebuffPerk();
 			_debuffHandler->isPlayerExhausted = false;
 			break;
 		}

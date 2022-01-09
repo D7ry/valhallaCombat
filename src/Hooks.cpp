@@ -1,5 +1,6 @@
 #include "Hooks.h"
 #include "Utils.h"
+#include "hitDataProcessor.h"
 #pragma region attackDataHook
 void AttackDataHook::InstallHook() {
 	REL::Relocation<uintptr_t> ptr_attackOverride{ REL::ID(38047), 0XBB };
@@ -72,43 +73,7 @@ void hitEventHook::InstallHook() {
 
 /*stamina blocking*/
 void hitEventHook::processHit(RE::Actor* a_actor, RE::HitData& hitData) {
-	/*DEBUG("hooked hit event! actor is {}", a_actor->GetName());
-	DEBUG("physical damage is {}", hitData.physicalDamage);
-	DEBUG("reflected damage is {}", hitData.reflectedDamage);
-	DEBUG("resisted physical damage is {}", hitData.resistedPhysicalDamage);
-	DEBUG("total damage is {}", hitData.totalDamage);
-	DEBUG("health damage is {}", hitData.healthDamage);
-	DEBUG("block modifier: {}", a_actor->GetPermanentActorValue(RE::ActorValue::kBlockModifier));
-	DEBUG("block power modifier: {}", a_actor->GetPermanentActorValue(RE::ActorValue::kBlockPowerModifier));
-	DEBUG((int)hitData.flags);*/
-
-	if (dataHandler::GetSingleton()->bckToggle) {
-		if ((int)hitData.flags & (int)RE::HitData::Flag::kBlocked) {
-			if ((int)hitData.flags & (int)RE::HitData::Flag::kBlockWithWeapon) {
-				DEBUG("hit blocked with weapon");
-				Utils::damageav(a_actor, RE::ActorValue::kStamina,
-					(hitData.physicalDamage - hitData.totalDamage) * dataHandler::GetSingleton()->bckWpnStaminaPenaltyMult);
-			}
-			else {
-				DEBUG("hit blocked with shield"); //only for shield block
-				Utils::damageav(a_actor, RE::ActorValue::kStamina,
-					(hitData.physicalDamage - hitData.totalDamage) * dataHandler::GetSingleton()->bckShdStaminaPenaltyMult);
-			}
-			if (a_actor->GetActorValue(RE::ActorValue::kStamina) <= 0) {		//checks iff damage can be successfully blocked
-				DEBUG("{} out of stamina, sending stagger event!", a_actor->GetName());
-				a_actor->NotifyAnimationGraph("staggerStart");
-			}
-			else {
-				hitData.totalDamage = 0;
-			}
-		}
-	}
-	if (a_actor->IsPlayerRef()) {
-		DEBUG("player got hit!");
-	}
-
-
-
+	hitDataProcessor::processHit(a_actor, hitData);
 	_ProcessHit(a_actor, hitData);
 };
 #pragma endregion
