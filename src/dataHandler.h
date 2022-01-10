@@ -28,18 +28,26 @@ private:
 
 namespace settings {
 	//attacking
-	static float staminaRegenMult_ = 5;
-	static float combatStaminaRegenMult_ = 1;
-	static float staminaRegenDelay_ = 3;
-	static float meleeCostLightMiss = 30;
-	static float meleeRecovLightHit = 20;
-	static float meleeCostHeavyMiss = 33.3;
-	static float meleeCostHeavyHit = 19.9;
-	static bool blockedHitRegenStamina = true;
-	static bool staminaMeterBlink = true;
+	extern float staminaRegenMult_;
+	extern float combatStaminaRegenMult_;
+	extern float staminaRegenDelay_;
+	extern float meleeCostLightMiss;
+	extern float meleeRecovLightHit;
+	extern float meleeCostHeavyMiss;
+	extern float meleeCostHeavyHit;
+	extern bool blockedHitRegenStamina;
+	extern bool staminaMeterBlink;
 
 	//blocking
-	static bool bckToggle = true;
-	static float bckShdStaminaPenaltyMult = 1;
-	static float bckWpnStaminaPenaltyMult = 1;
+	extern bool bckToggle;
+	extern bool guardBreak;
+	extern float bckShdStaminaPenaltyMult;
+	extern float bckWpnStaminaPenaltyMult;
+
+	//stun
+	extern float stunBaseMult; //base stun multiplier. base stun damage = melee damage * stunMult.
+	extern float stunLightMult;	//stun mult for light attack
+	extern float stunHvyMult; //stun mult for heavy attack
+	extern float stunBashMult; //stun mult for bash attack
+	extern float stunExecutionDamageMult; //mult for execution of stunned enemy
 };
