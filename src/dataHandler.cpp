@@ -1,6 +1,23 @@
 #include "dataHandler.h"
 
+namespace settings {
+	//attacking
+	float staminaRegenMult_ = 5;
+	float combatStaminaRegenMult_ = 1;
+	float staminaRegenDelay_ = 3;
+	float meleeCostLightMiss = 30;
+	float meleeRecovLightHit = 20;
+	float meleeCostHeavyMiss = 33.3;
+	float meleeCostHeavyHit = 19.9;
+	bool blockedHitRegenStamina = true;
+	bool staminaMeterBlink = true;
 
+	//blocking
+	bool bckToggle = true;
+	bool guardBreak = true;
+	float bckShdStaminaPenaltyMult = 1;
+	float bckWpnStaminaPenaltyMult = 1;
+}
 /*read settings from ini, and update them into game settings.*/
 void dataHandler::readSettings() {
 	DEBUG("loading ini settings");
@@ -72,5 +89,8 @@ void dataHandler::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName,
 	{
 		DEBUG("found {} with value {}", a_settingName, bFound);
 		a_setting = a_ini.GetBoolValue(a_sectionName, a_settingName);
+	}
+	else {
+		INFO("failed to find {}, using default value", a_settingName);
 	}
 }
