@@ -57,7 +57,7 @@ void onHitEventHandler::playerHit(const RE::TESHitEvent* a_event) {
 	}
 
 	DEBUG("correct hit flag, registering hit!");
-	attackHandler::registerHit();
+	//attackHandler::registerHit();
 }
 
 
