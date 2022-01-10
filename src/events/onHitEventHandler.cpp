@@ -9,10 +9,23 @@ EventResult onHitEventHandler::ProcessEvent(const RE::TESHitEvent* a_event, RE::
 	}
 
 	DEBUG("onhit event triggers!");
-	if (a_event->projectile || !a_event->cause || !a_event->target) {
+	if (!a_event->cause || !a_event->target || !a_event->source) {
 		DEBUG("invalid hit event!");
 		return EventResult::kContinue;
 	}
+
+	auto hitsource = RE::TESForm::LookupByID<RE::TESObjectWEAP>(a_event->source);
+
+	if (!hitsource) {
+		DEBUG("Weapon Hit Source Not Found!");
+		return EventResult::kContinue;
+	}
+
+	if (hitsource->formType != RE::FormType::Weapon || !hitsource->IsMelee()) {
+		DEBUG("Hit Source Is Not melee Weapon!");
+		return EventResult::kContinue;
+	}
+	
 
 	if (a_event->cause->IsPlayerRef()) {
 		playerHit(a_event);
@@ -34,7 +47,7 @@ void onHitEventHandler::playerHit(const RE::TESHitEvent* a_event) {
 	}
 
 	if (a_event->flags.any(RE::TESHitEvent::Flag::kHitBlocked)) {
-		if (!dataHandler::GetSingleton()->blockedHitRegenStamina) {
+		if (!settings::blockedHitRegenStamina) {
 			DEBUG("hit blocked, no stamina recovery!");
 			return;
 		}
