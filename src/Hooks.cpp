@@ -54,7 +54,9 @@ bool StaminaRegenHook::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 	if (!bResult && !attackHandler::meleeHitRegen) {
 		RE::Actor* actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, -0xB8);
 		auto attackState = actor->GetAttackState();
-		bResult = (attackState > RE::ATTACK_STATE_ENUM::kNone && attackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) || actor->IsBlocking(); // if not sprinting, check if is attacking/drawing a bow
+		bResult = (attackState > RE::ATTACK_STATE_ENUM::kNone && attackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) // if not sprinting, check if is attacking/drawing a bow
+			|| actor->IsBlocking() //check if blocking
+			|| (!actor->IsPlayerRef() && actor->IsInCombat()); //disable NPC combat regen, use NPC stamina as stun meter
 	}
 
 	return bResult;
@@ -73,7 +75,7 @@ void hitEventHook::InstallHook() {
 
 /*stamina blocking*/
 void hitEventHook::processHit(RE::Actor* a_actor, RE::HitData& hitData) {
-	hitDataProcessor::processHit(a_actor, hitData);
+	hitDataProcessor::processHitData(hitData);
 	_ProcessHit(a_actor, hitData);
 };
 #pragma endregion
