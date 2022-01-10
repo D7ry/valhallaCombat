@@ -13,10 +13,14 @@ public:
 		DEBUG("processing hit.");
 		//checks completeness of hitData
 		if (hitData.aggressor && hitData.target) {
-			target = hitData.aggressor.get();
+			target = hitData.target.get();
 			aggressor = hitData.aggressor.get();
 			if (target && aggressor) {
 				DEBUG("hit flag is {}", hitFlag);
+				if (!weapon) {
+					DEBUG("weapon not found!");	//weird bug, sometimes weapon is not found for the hitData.
+					return;
+				}
 				DEBUG("WEAPON  is{}", weapon->GetName());
 				DEBUG("target is {}", target->GetName());
 				DEBUG("aggressor is {}", aggressor->GetName());
@@ -30,6 +34,15 @@ public:
 			DEBUG("missing hit data");
 			return;
 		}
+		DEBUG("total damage is {}", hitData.totalDamage);
+		DEBUG("health damage is {}", hitData.healthDamage);
+		DEBUG("physical damage is {}", hitData.physicalDamage);
+		DEBUG("resisted physical damage is {}", hitData.resistedPhysicalDamage);
+		DEBUG("reflected damage is {}", hitData.reflectedDamage);
+		DEBUG("resisted type damage is {}", hitData.resistedTypedDamage);
+		DEBUG("bonus health damage mult is {}", hitData.bonusHealthDamageMult);
+		DEBUG("critical damage mult is {}", hitData.criticalDamageMult);
+		DEBUG("targeted limb damage is {}", hitData.targetedLimbDamage);
 		//perform fitting operations
 		if (aggressor->IsPlayerRef()) {
 			DEBUG("processing player hit!");

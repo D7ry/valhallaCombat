@@ -39,6 +39,7 @@ void hitDataProcessor::processStaminaDamage(RE::ActorPtr target, RE::HitData& hi
 			target->NotifyAnimationGraph("staggerStart");
 		}
 		hitData.totalDamage = hitData.totalDamage - (currStamina / staminaDamageMult);
+		DEBUG("failed to block {} damage", hitData.totalDamage);
 	}
 	else {
 		hitData.totalDamage = 0;
