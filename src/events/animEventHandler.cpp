@@ -16,7 +16,6 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	using namespace anno;
     FnProcessEvent fn = fnHash.at(*(uint64_t*)this);
 	if (a_event.tag != NULL) {
-		DEBUG(a_event.tag);
 		RE::BSFixedString _event = a_event.tag;
 		if (_event == preHitFrame_anno) {
 			DEBUG("==========prehitFrame==========");

@@ -6,12 +6,10 @@ void debuffHandler::initStaminaDebuff() {
 	}
 	else {
 		//this->addDebuffPerk();
+		DEBUG("player exhausted!");
 		this->isPlayerExhausted = true;
-		DEBUG("Delegating threads");
-		DEBUG("Setup stamina check");
 		debuffThread::t1 = std::jthread(&debuffHandler::staminaDebuffOp, this);
 		debuffThread::t1.detach();
-		DEBUG("thread detached");
 	}
 }
 
@@ -25,7 +23,7 @@ void debuffHandler::staminaDebuffOp() {
 			_debuffHandler->isPlayerExhausted = false;
 			break;
 		}
-		if (dataHandler::GetSingleton()->staminaMeterBlink) {
+		if (settings::staminaMeterBlink) {
 			Utils::FlashHUDMenuMeter(RE::ActorValue::kStamina);
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
