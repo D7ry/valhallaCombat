@@ -41,7 +41,9 @@ namespace Utils
 
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
-		a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
+		if (a) {
+			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
+		}
 		/*DEBUG("{}'s {} damaged to {}",
 			a->GetName(), 
 			av, 
@@ -50,7 +52,9 @@ namespace Utils
 
 	inline void restoreav(RE::Actor* a, RE::ActorValue av, float val)
 	{
-		a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
+		if (a) {
+			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
+		}
 	}
 
 	inline bool wieldingOneHanded(RE::Actor* a) {
