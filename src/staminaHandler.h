@@ -10,33 +10,33 @@ namespace staminaHandler
 	}
 	inline void staminaLightMiss(RE::Actor* a) {
 		DEBUG("stamina light miss");
-		DEBUG("damaging {} point stamina", dataHandler::GetSingleton()->meleeCostLightMiss);
-		Utils::damageav(a, RE::ActorValue::kStamina, dataHandler::GetSingleton()->meleeCostLightMiss);
+		DEBUG("damaging {} point stamina", settings::meleeCostLightMiss);
+		Utils::damageav(a, RE::ActorValue::kStamina, settings::meleeCostLightMiss);
 		checkStamina(a);
 	}
 
 	
 	inline void staminaLightHit(RE::Actor* a) {
 		DEBUG("stamina light hit");
-		DEBUG("restoring {} percent of stamina", dataHandler::GetSingleton()->meleeRecovLightHit);
+		DEBUG("restoring {} percent of stamina", settings::meleeRecovLightHit);
 		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
-		Utils::restoreav(a, RE::ActorValue::kStamina, maxStamina * dataHandler::GetSingleton()->meleeRecovLightHit / 100);
+		Utils::restoreav(a, RE::ActorValue::kStamina, maxStamina * settings::meleeRecovLightHit / 100);
 		checkStamina(a);
 	}
 
 	inline void staminaHeavyMiss(RE::Actor* a) {
 		DEBUG("stamina heavy miss");
-		DEBUG("damaging {} percent of stamina", dataHandler::GetSingleton()->meleeCostHeavyMiss);
+		DEBUG("damaging {} percent of stamina", settings::meleeCostHeavyMiss);
 		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
-		Utils::damageav(a, RE::ActorValue::kStamina, maxStamina * dataHandler::GetSingleton()->meleeCostHeavyMiss / 100);
+		Utils::damageav(a, RE::ActorValue::kStamina, maxStamina * settings::meleeCostHeavyMiss / 100);
 		checkStamina(a);
 	}
 
 	inline void staminaHeavyHit(RE::Actor* a) {
 		DEBUG("stamina heavy hit");
-		DEBUG("damaging {} percent of stamina", dataHandler::GetSingleton()->meleeCostHeavyHit);
+		DEBUG("damaging {} percent of stamina", settings::meleeCostHeavyHit);
 		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
-		Utils::damageav(a, RE::ActorValue::kStamina, maxStamina * dataHandler::GetSingleton()->meleeCostHeavyHit / 100);
+		Utils::damageav(a, RE::ActorValue::kStamina, maxStamina * settings::meleeCostHeavyHit / 100);
 		checkStamina(a);
 	} 
 	
