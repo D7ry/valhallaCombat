@@ -41,13 +41,26 @@ namespace settings {
 	//blocking
 	extern bool bckToggle;
 	extern bool guardBreak;
-	extern float bckShdStaminaPenaltyMult;
-	extern float bckWpnStaminaPenaltyMult;
+	extern float bckShdStaminaPenaltyMultPlayer;
+	extern float bckWpnStaminaPenaltyMultPlayer;
+	extern float bckShdStaminaPenaltyMultNPC;
+	extern float bckWpnStaminaPenaltyMultNPC;
 
 	//stun
-	extern float stunBaseMult; //base stun multiplier. base stun damage = melee damage * stunMult.
-	extern float stunLightMult;	//stun mult for light attack
+	extern float stunBaseMult; //base stun multiplier. base stun damage = melee damage * stunMult. Also serves to balance difficulty.
 	extern float stunHvyMult; //stun mult for heavy attack
-	extern float stunBashMult; //stun mult for bash attack
+
+	extern float stunUnarmedMult;
+	extern float stunDaggerMult;
+	extern float stunSwordMult;
+	extern float stunAxeMult;
+	extern float stunMaceMult;
+	extern float stunGreatSwordMult;
+	extern float stun2hwMult;
+
+	extern float stunBowMult;
+	extern float stunCrossBowMult;
+
 	extern float stunExecutionDamageMult; //mult for execution of stunned enemy
+
 };

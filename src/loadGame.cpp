@@ -17,7 +17,6 @@ namespace loadGame {
 			//onHitEventHandler::Register();
 			dataHandler* data = dataHandler::GetSingleton();
 			data->readSettings(); data->cancelVanillaPowerStamina();
-			
 			INFO("initialization complete!");
 		}
 	}

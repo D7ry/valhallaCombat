@@ -72,9 +72,11 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		return false;
 	}
 	g_message->RegisterListener(loadGame::EventCallBACK);
-	AttackDataHook::InstallHook();
+	CalcStaminaHook::InstallHook();
 	StaminaRegenHook::InstallHook();
 	hitEventHook::InstallHook();
 	Papyrus::Register();
 	return true;
 }
+
+//TODO: 1. Add bashing hook to cancel NPC bashing stamina cost OR!! 2.make stun entirely separate.

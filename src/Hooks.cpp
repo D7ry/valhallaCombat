@@ -2,22 +2,23 @@
 #include "Utils.h"
 #include "hitDataProcessor.h"
 #pragma region attackDataHook
-void AttackDataHook::InstallHook() {
+void CalcStaminaHook::InstallHook() {
 	REL::Relocation<uintptr_t> ptr_attackOverride{ REL::ID(38047), 0XBB };
 	SKSE::AllocTrampoline(1 << 4);
 	auto& trampoline = SKSE::GetTrampoline();
-	trampoline.write_call<5>(ptr_attackOverride.address(), &readFromAttackData);
+	trampoline.write_call<5>(ptr_attackOverride.address(), &calcStamina);
 	INFO("attack data hook installed");
 }
 
 /*this function fires before every attack. Reading from this allows me to 
 decide the attack's light/power therefore calculate its staina consumption accordingly. */
-void AttackDataHook::readFromAttackData(uintptr_t avOwner, RE::BGSAttackData* atkData)
+void CalcStaminaHook::calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData)
 {
 	DEBUG("hooked attack data!");
 	typedef void (*func_t)(uintptr_t avOwner, RE::BGSAttackData* atkData);
 	REL::Relocation<func_t> func{ REL::ID(25863) };
 	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
+
 	if (a_actor->IsPlayerRef()) {
 		DEBUG("player attack!");
 		if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
@@ -32,6 +33,7 @@ void AttackDataHook::readFromAttackData(uintptr_t avOwner, RE::BGSAttackData* at
 	func(avOwner, atkData);
 }
 #pragma endregion
+
 
 
 #pragma region StaminaRegenHook

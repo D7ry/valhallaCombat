@@ -1,5 +1,7 @@
 #include "hitDataProcessor.h"
 #include "attackHandler.h"
+#include "stunHandler.h"
+/*handles hit detection. Iff hit, reward player stamina. Also nerfs damage on exhaustion.*/
 void hitDataProcessor::processPlayerHit(RE::TESObjectWEAP* weapon, int hitFlag){
 	if ((hitFlag & (int)HITFLAG::kBlocked)) {//blocked hit doesn't regen stamina
 		DEBUG("HIT BLOCKED!");
@@ -16,18 +18,28 @@ void hitDataProcessor::processPlayerHit(RE::TESObjectWEAP* weapon, int hitFlag){
 	}
 
 }
-void hitDataProcessor::processStaminaDamage(RE::ActorPtr target, RE::HitData& hitData, int hitFlag) {
+void hitDataProcessor::processStaminaDamage(RE::ActorPtr target, RE::HitData& hitData, int hitFlag, bool isPlayerTarget) {
 	float staminaDamageBase = hitData.totalDamage;
 	float staminaDamageMult;
 	float staminaDamage;
 	DEBUG("base stamina damage is {}", staminaDamageBase);
 	if (hitFlag & (int)HITFLAG::kBlockWithWeapon) {
 		DEBUG("hit blocked with weapon");
-		staminaDamageMult = settings::bckWpnStaminaPenaltyMult;
+		if (isPlayerTarget) {
+			staminaDamageMult = settings::bckWpnStaminaPenaltyMultPlayer;
+		}
+		else {
+			staminaDamageMult = settings::bckWpnStaminaPenaltyMultNPC;
+		}
 	}
 	else {
 		DEBUG("hit blocked with shield");
-		staminaDamageMult = settings::bckShdStaminaPenaltyMult;
+		if (isPlayerTarget) {
+			staminaDamageMult = settings::bckShdStaminaPenaltyMultPlayer;
+		}
+		else {
+			staminaDamageMult = settings::bckShdStaminaPenaltyMultNPC;
+		}
 	}
 	staminaDamage = staminaDamageBase * staminaDamageMult;
 	DEBUG("stamina damage is {}", staminaDamage);
@@ -48,20 +60,14 @@ void hitDataProcessor::processStaminaDamage(RE::ActorPtr target, RE::HitData& hi
 		staminaDamage);
 }
 
-void hitDataProcessor::processStunDamage(RE::ActorPtr target, RE::TESObjectWEAP* weapon, RE::HitData& hitData, int hitFlag) {
+/*deals stun damage to the receiver. By the end of dealing stun, if the receiver has less than 0 stun meter, execute
+the receiver.*/
+void hitDataProcessor::processStunDamage(RE::ActorPtr aggressor, RE::ActorPtr target, RE::TESObjectWEAP* weapon, RE::HitData& hitData, int hitFlag) {
 	DEBUG("processing stun damage");
-	if (!hitData.weapon->IsMelee()) {
-		DEBUG("ranged attack!");
-		
-	}
-	else if (hitFlag & (int)HITFLAG::kPowerAttack) {
-		DEBUG("power attack!");
-	} 
-	else if (hitFlag & (int)HITFLAG::kBash) {
-		DEBUG("bash attack!");
-	}
-	else {
-		DEBUG("normal attack!");
+	stunHandler::stunActor(hitData.totalDamage, target, weapon, (hitFlag & (int)HITFLAG::kPowerAttack));
+	if (stunHandler::isStunMeterEmpty(target) && weapon->IsMelee()) {
+		DEBUG("target has empety stun bar, executing target!");
+		stunHandler::execute(aggressor, target);
 
 	}
 }

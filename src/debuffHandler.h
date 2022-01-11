@@ -21,6 +21,7 @@ public:
 		static debuffHandler singleton;
 		return  std::addressof(singleton);
 	}
+
 	void addDebuffPerk() {
 		Utils::addPerkToPc(debuffPerk);
 	}
@@ -33,9 +34,11 @@ public:
 
 	/*reset debuff state on game load*/
 	void refresh() {
-		isPlayerExhausted = false;
+		//isPlayerExhausted = false;
 		rmDebuffPerk();
 	}
+	
+	
 
 
 private:
@@ -43,8 +46,8 @@ private:
 
 
 	RE::BGSPerk* debuffPerk;
-	std::atomic<bool> isPlayerExhausted = false;
 
+	std::atomic<bool> isPlayerExhausted = false;
 
 };
 

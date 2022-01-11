@@ -15,8 +15,30 @@ namespace settings {
 	//blocking
 	bool bckToggle = true;
 	bool guardBreak = true;
-	float bckShdStaminaPenaltyMult = 1;
-	float bckWpnStaminaPenaltyMult = 1;
+
+	float bckShdStaminaPenaltyMultPlayer = 1;
+	float bckWpnStaminaPenaltyMultPlayer = 1;
+
+	float bckShdStaminaPenaltyMultNPC = 1;
+	float bckWpnStaminaPenaltyMultNPC = 1;
+
+	//stun
+	float stunBaseMult = 1; //base stun multiplier. base stun damage = melee damage * stunMult.;	//stun mult for light attack
+	float stunHvyMult = 1; //stun mult for heavy attack
+
+	float stunUnarmedMult = 1;
+	float stunDaggerMult = 1;
+	float stunSwordMult = 1;
+	float stunAxeMult = 1;
+	float stunMaceMult = 1;
+	float stunGreatSwordMult = 1;
+	float stun2hwMult = 1;
+	float stunBowMult = 1;
+	float stunCrossBowMult = 1;
+
+	float stunExecutionDamageMult = 1; //mult for execution of stunned enemy
+
+
 }
 /*read settings from ini, and update them into game settings.*/
 void dataHandler::readSettings() {
@@ -45,12 +67,17 @@ void dataHandler::readSettings() {
 
 	//read shield stamina cost
 	ReadBoolSetting(ini, "Blocking", "bToggleStaminaBlock", bckToggle);
-	ReadFloatSetting(ini, "Blocking", "fbckWpnStaminaPenaltyMult", bckWpnStaminaPenaltyMult);
-	ReadFloatSetting(ini, "Blocking", "fbckShdStaminaPenaltyMult", bckShdStaminaPenaltyMult);
+	ReadBoolSetting(ini, "Blocking", "bToggleGuardBreak", guardBreak);
+	ReadFloatSetting(ini, "Blocking", "fbckWpnStaminaPenaltyMultPlayer", bckWpnStaminaPenaltyMultPlayer);
+	ReadFloatSetting(ini, "Blocking", "fbckShdStaminaPenaltyMultPlayer", bckShdStaminaPenaltyMultPlayer);
+	ReadFloatSetting(ini, "Blocking", "fbckWpnStaminaPenaltyMultNPC", bckWpnStaminaPenaltyMultNPC);
+	ReadFloatSetting(ini, "Blocking", "fbckShdStaminaPenaltyMultNPC", bckShdStaminaPenaltyMultNPC);
 
 
 	DEBUG("ini settings loaded");
 	setGameSettingf("fSprintStaminaDrainMult", 0);
+	//setGameSettingf("fStaminaBashBase", 0);
+	setGameSettingf("fStaminaPowerBashBase", 0);
 	setGameSettingf("fDamagedStaminaRegenDelay", staminaRegenDelay_);
 	setGameSettingf("fCombatStaminaRegenRateMult", combatStaminaRegenMult_);
 	multStaminaRegen(staminaRegenMult_);

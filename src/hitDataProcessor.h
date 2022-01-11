@@ -46,24 +46,33 @@ public:
 		//perform fitting operations
 		if (aggressor->IsPlayerRef()) {
 			DEBUG("processing player hit!");
-			processPlayerHit(weapon, hitFlag);
+			processPlayerHit(weapon, hitFlag); //for player stamina calculation
+			DEBUG("notifying animation graph!");
+			target->NotifyAnimationGraph("KillMoveB");
+			aggressor->NotifyAnimationGraph("PA_KillMoveB");
+			DEBUG("finished grappling!");
 		}
+		bool isPlayerTarget = target->IsPlayerRef();
 		if (hitFlag & (int)HITFLAG::kBlocked) {
 			DEBUG("hit blocked");
 			if (settings::bckToggle) {
-				processStaminaDamage(target, hitData, hitFlag);
+				processStaminaDamage(target, hitData, hitFlag, isPlayerTarget);
 			}
 			return;					//blocked hit, no need to process stun separately.
 		}
-		if (!target->IsPlayerRef()) {	//player doesn't take stun damage.
-			processStunDamage(target, weapon, hitData, hitFlag);
+		if (!isPlayerTarget) {	//player doesn't take stun damage.
+			processStunDamage(aggressor, target, weapon, hitData, hitFlag);
 		}
 	}
 private:
 	//reliable blocking
-	static void processStaminaDamage(RE::ActorPtr target, RE::HitData& hitData, int hitFlag);
+	static void processStaminaDamage(RE::ActorPtr target, RE::HitData& hitData, int hitFlag, bool isPlayerTarget);
 
-	static void processStunDamage(RE::ActorPtr target, RE::TESObjectWEAP* weapon, RE::HitData& hitData, int hitFlag);
+	static void damageStaminaPlayer();
+
+	static void damageStaminaNPC();
+
+	static void processStunDamage(RE::ActorPtr aggressor, RE::ActorPtr target, RE::TESObjectWEAP* weapon, RE::HitData& hitData, int hitFlag);
 
 	static void processPlayerHit(RE::TESObjectWEAP* weapon, int hitFlag); //processes player hit and regenerates stamina for player.
 };
