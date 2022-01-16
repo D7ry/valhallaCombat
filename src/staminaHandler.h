@@ -4,9 +4,11 @@
 namespace staminaHandler
 {
 	inline void checkStamina(RE::Actor* a) {
+		DEBUG("checking stamina");
 		if (a->GetActorValue(RE::ActorValue::kStamina) <= 0) {
 			debuffHandler::GetSingleton()->initStaminaDebuff();
 		}
+		DEBUG("stamina checked");
 	}
 	inline void staminaLightMiss(RE::Actor* a) {
 		DEBUG("stamina light miss");
@@ -21,6 +23,7 @@ namespace staminaHandler
 		DEBUG("restoring {} percent of stamina", settings::meleeRecovLightHit);
 		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
 		Utils::restoreav(a, RE::ActorValue::kStamina, maxStamina * settings::meleeRecovLightHit / 100);
+		DEBUG("stamina restored");
 		checkStamina(a);
 	}
 

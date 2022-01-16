@@ -1,5 +1,7 @@
 #pragma once
 #include "attackHandler.h"
+#include "SKSE/Trampoline.h"
+#include <xbyak\xbyak.h>
 class CalcStaminaHook
 {
 public:
@@ -36,21 +38,3 @@ private:
 
 
 
-
-
-
-
-//stole from Fenix, ty Fenix if you're reading it!!
-template <int ID>
-void apply_func(std::uintptr_t func)
-{
-	struct Code : Xbyak::CodeGenerator
-	{
-		Code(uintptr_t jump_addr)
-		{
-			mov(rax, jump_addr);
-			jmp(rax);
-		}
-	} xbyakCode{ func };
-	add_trampoline<6, ID>(&xbyakCode);
-}

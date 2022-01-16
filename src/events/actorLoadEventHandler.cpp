@@ -10,7 +10,7 @@ EventResult actorLoadEventHandler::ProcessEvent(const RE::TESObjectLoadedEvent* 
 		DEBUG("=======================player loaded=============================");
 		auto pc = RE::PlayerCharacter::GetSingleton();
 		if (pc) {
-			debuffHandler::GetSingleton()->rmDebuffPerk();
+			//debuffHandler::GetSingleton()->rmDebuffPerk();
 			//attackHandler::updatePcStaminaRate();
 		}
 		else {

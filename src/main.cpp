@@ -1,12 +1,15 @@
 /*bring AC Valhalla's stamina system into Skyrim.
 @author TY
 */
-#include "loadGame.h"
 #include "dataHandler.h"
 #include "SimpleIni.h"
-#include "events/actorLoadEventHandler.h"
 #include "Hooks.h"
 #include "Papyrus.h"
+#include "dataHandler.h"
+#include "debuffHandler.h"
+#include "events/animEventHandler.h"
+#include "events/onHitEventHandler.h"
+#include "Utils.h"
 #if ANNIVERSARY_EDITION
 
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
@@ -49,7 +52,25 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 #endif
 
-
+void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
+{
+	switch (a_msg->type) {
+	case SKSE::MessagingInterface::kDataLoaded:
+		INFO("data loaded, initializing...");
+		((animEventHandler*)((uintptr_t)RE::PlayerCharacter::GetSingleton() + 0x30))->HookSink();
+		{
+		dataHandler* data = dataHandler::GetSingleton(); 		
+		data->readSettings();
+		data->cancelVanillaPowerStamina(); //makes vanilla power attack costs 0 stamina.
+		}
+		INFO("initialization complete!");
+		break;
+	case SKSE::MessagingInterface::kPostLoadGame:
+		INFO("game post load, clearing remaining debuff...");
+		debuffHandler::GetSingleton()->refresh();
+		INFO("debuff cleared");
+	}
+}
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 #if ANNIVERSARY_EDITION
@@ -66,12 +87,10 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	INFO("{} v{} loaded", Version::PROJECT, Version::NAME);
 
 	SKSE::Init(a_skse);
-	auto g_message = SKSE::GetMessagingInterface();
-	if (!g_message) {
-		ERROR("Messaging Interface Not Found!");
+	auto messaging = SKSE::GetMessagingInterface();
+	if (!messaging->RegisterListener("SKSE", MessageHandler)) {
 		return false;
 	}
-	g_message->RegisterListener(loadGame::EventCallBACK);
 	CalcStaminaHook::InstallHook();
 	StaminaRegenHook::InstallHook();
 	hitEventHook::InstallHook();

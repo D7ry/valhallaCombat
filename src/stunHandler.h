@@ -1,5 +1,22 @@
 #pragma once
 #include "dataHandler.h"
+
+namespace stunUtils {
+	//RE::Offset::SCRIPT_FUNCTION::FirstConsoleCommand
+	
+	static inline void ExecuteCommand(std::string a_command)
+	{
+		const auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>();
+		const auto script = scriptFactory ? scriptFactory->Create() : nullptr;
+		if (script) {
+			const auto selectedRef = RE::Console::GetSelectedRef();
+			script->SetCommand(a_command);
+			script->CompileAndRun(selectedRef.get());
+			delete script;
+		}
+	}
+	
+}
 /*handling enemy stun meter, damaging stun, as well as execution.*/
 class stunHandler {
 public:
@@ -36,7 +53,8 @@ public:
 
 	static void execute(RE::ActorPtr aggressor, RE::ActorPtr target) {
 		DEBUG("{} has executed {}!", aggressor->GetName(), target->GetName());
-		
+		//target->push
+		//Utils::push::pushActor(aggressor, target, std::to_string(3));
 		reFillStun(target);
 	}
 

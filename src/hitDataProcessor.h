@@ -47,10 +47,11 @@ public:
 		if (aggressor->IsPlayerRef()) {
 			DEBUG("processing player hit!");
 			processPlayerHit(weapon, hitFlag); //for player stamina calculation
-			DEBUG("notifying animation graph!");
-			target->NotifyAnimationGraph("KillMoveB");
-			aggressor->NotifyAnimationGraph("PA_KillMoveB");
-			DEBUG("finished grappling!");
+			DEBUG("player hit processed");
+			//DEBUG("notifying animation graph!");
+			//target->NotifyAnimationGraph("KillMoveB");
+			//aggressor->NotifyAnimationGraph("PA_KillMoveB");
+			//DEBUG("finished grappling!");
 		}
 		bool isPlayerTarget = target->IsPlayerRef();
 		if (hitFlag & (int)HITFLAG::kBlocked) {

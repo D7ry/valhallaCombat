@@ -102,8 +102,43 @@ namespace Utils
 		DEBUG("successfully removed {} from pc", perk->GetFullName());
 	}
 
+	inline void applySpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
+		if (a_actor && a_spell) {
+			a_actor->AddSpell(a_spell);
+			DEBUG("spell {} applied to {}.", a_spell->GetName(), a_actor->GetName());
+		}
+	}
+
+	inline void removeSpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
+		if (a_actor && a_spell) {
+			a_actor->RemoveSpell(a_spell);
+			DEBUG("spell {} removed from {}.", a_spell->GetName(), a_actor->GetName());
+		}
+	}
+
 	typedef void(_fastcall* tFlashHUDMenuMeter)(RE::ActorValue a_actorValue);
 	static REL::Relocation<tFlashHUDMenuMeter> FlashHUDMenuMeter{ REL::ID(51907) };
 
+	namespace push {
+		static inline void ExecuteCommand(std::string a_command)
+		{
+			DEBUG("executing command");
+			const auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>();
+			const auto script = scriptFactory ? scriptFactory->Create() : nullptr;
+			if (script) {
+				const auto selectedRef = RE::Console::GetSelectedRef();
+				script->SetCommand(a_command);
+				script->CompileAndRun(selectedRef.get());
+				delete script;
+			}
+
+			DEBUG("executed command {}", a_command);
+		}
+		
+	}
+
+
+
 };
+
 
