@@ -4,23 +4,23 @@
 
 namespace Papyrus
 {
-	void Valhamina_MCM::OnConfigClose(RE::TESQuest*)
+	void ValhallaCombat_MCM::OnConfigClose(RE::TESQuest*)
 	{
 		dataHandler::GetSingleton()->readSettings();
 	}
 
-	bool Valhamina_MCM::Register(RE::BSScript::IVirtualMachine* a_vm)
+	bool ValhallaCombat_MCM::Register(RE::BSScript::IVirtualMachine* a_vm)
 	{
-		a_vm->RegisterFunction("OnConfigClose", "Valhamina_MCM", OnConfigClose);
+		a_vm->RegisterFunction("OnConfigClose", "ValhallaCombat_MCM", OnConfigClose);
 
-		INFO("Registered Valhamina MCM class");
+		INFO("Registered ValhallaCombat MCM class");
 		return true;
 	}
 
 	void Register()
 	{
 		auto papyrus = SKSE::GetPapyrusInterface();
-		papyrus->Register(Valhamina_MCM::Register);
+		papyrus->Register(ValhallaCombat_MCM::Register);
 		INFO("Registered papyrus functions");
 	}
 }

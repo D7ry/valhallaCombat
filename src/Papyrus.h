@@ -1,7 +1,7 @@
 #pragma once
 namespace Papyrus
 {
-	class Valhamina_MCM
+	class ValhallaCombat_MCM
 	{
 	public:
 		static void OnConfigClose(RE::TESQuest*);
