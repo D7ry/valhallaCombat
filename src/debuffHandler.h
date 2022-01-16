@@ -11,7 +11,7 @@ namespace debuffThread {
 class debuffHandler
 {
 	debuffHandler() {
-		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x000012C5, "Valhamina.esp");
+		debuffSpell = RE::TESDataHandler::GetSingleton()->LookupForm<RE::SpellItem>(0x00001827, "ValhallaCombat.esp");
 	}
 
 
@@ -22,30 +22,36 @@ public:
 		return  std::addressof(singleton);
 	}
 
-	void addDebuffPerk() {
-		Utils::addPerkToPc(debuffPerk);
-	}
 
-	void rmDebuffPerk() {
-		Utils::rmPerkFromPc(debuffPerk);
-	}
 
 	void initStaminaDebuff();
 
 	/*reset debuff state on game load*/
 	void refresh() {
 		//isPlayerExhausted = false;
-		rmDebuffPerk();
+		rmDebuffSpell();
 	}
 	
 	
 
 
 private:
+
 	void staminaDebuffOp();
+
+	void addDebuffSpell() {
+		Utils::applySpell(debuffSpell, RE::PlayerCharacter::GetSingleton());
+	}
+
+	void rmDebuffSpell() {
+		Utils::removeSpell(debuffSpell, RE::PlayerCharacter::GetSingleton());
+	}
+
 
 
 	RE::BGSPerk* debuffPerk;
+
+	RE::SpellItem* debuffSpell;
 
 	std::atomic<bool> isPlayerExhausted = false;
 

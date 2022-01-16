@@ -35,8 +35,10 @@ namespace settings {
 	extern float meleeRecovLightHit;
 	extern float meleeCostHeavyMiss;
 	extern float meleeCostHeavyHit;
+
 	extern bool blockedHitRegenStamina;
 	extern bool staminaMeterBlink;
+	extern bool NonCombatStaminaDebuff;
 
 	//blocking
 	extern bool bckToggle;

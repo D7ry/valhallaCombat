@@ -9,9 +9,9 @@ namespace settings {
 	float meleeRecovLightHit = 20;
 	float meleeCostHeavyMiss = 33.3;
 	float meleeCostHeavyHit = 19.9;
-	bool blockedHitRegenStamina = true;
+	bool blockedHitRegenStamina = false;
 	bool staminaMeterBlink = true;
-
+	bool NonCombatStaminaDebuff = true;
 	//blocking
 	bool bckToggle = true;
 	bool guardBreak = true;
@@ -44,7 +44,7 @@ namespace settings {
 void dataHandler::readSettings() {
 	DEBUG("loading ini settings");
 	CSimpleIniA ini;
-#define SETTINGFILE_PATH "Data\\MCM\\Settings\\Valhamina.ini"
+#define SETTINGFILE_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
 	ini.LoadFile(SETTINGFILE_PATH);
 	using namespace settings;
 
@@ -57,6 +57,7 @@ void dataHandler::readSettings() {
 	//read the 2 bools
 	ReadBoolSetting(ini, "General", "bshieldCountAsHit", blockedHitRegenStamina);
 	ReadBoolSetting(ini, "General", "bStaminaBarBlink", staminaMeterBlink);
+	ReadBoolSetting(ini, "General", "bNonCombatStaminaDebuff", NonCombatStaminaDebuff);
 
 	//read melee cost
 	ReadFloatSetting(ini, "Stamina", "fmeleeCostLightMiss", meleeCostLightMiss); //this doesn't need to be divided by 100 since it's constnat.
