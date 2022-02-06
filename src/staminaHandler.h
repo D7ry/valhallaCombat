@@ -1,5 +1,5 @@
 #pragma once
-#include "dataHandler.h"
+#include "data.h"
 #include "debuffHandler.h"
 namespace staminaHandler
 {
@@ -12,34 +12,30 @@ namespace staminaHandler
 	}
 	inline void staminaLightMiss(RE::Actor* a) {
 		DEBUG("stamina light miss");
-		DEBUG("damaging {} point stamina", settings::meleeCostLightMiss);
-		Utils::damageav(a, RE::ActorValue::kStamina, settings::meleeCostLightMiss);
+		Utils::damageav(a, RE::ActorValue::kStamina, settings::fMeleeCostLightMiss_Point);
 		checkStamina(a);
 	}
 
 	
 	inline void staminaLightHit(RE::Actor* a) {
 		DEBUG("stamina light hit");
-		DEBUG("restoring {} percent of stamina", settings::meleeRecovLightHit);
 		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
-		Utils::restoreav(a, RE::ActorValue::kStamina, maxStamina * settings::meleeRecovLightHit / 100);
+		Utils::restoreav(a, RE::ActorValue::kStamina, maxStamina * settings::fMeleeRewardLightHit_Percent);
 		DEBUG("stamina restored");
 		checkStamina(a);
 	}
 
 	inline void staminaHeavyMiss(RE::Actor* a) {
 		DEBUG("stamina heavy miss");
-		DEBUG("damaging {} percent of stamina", settings::meleeCostHeavyMiss);
 		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
-		Utils::damageav(a, RE::ActorValue::kStamina, maxStamina * settings::meleeCostHeavyMiss / 100);
+		Utils::damageav(a, RE::ActorValue::kStamina, maxStamina * settings::fMeleeCostHeavyMiss_Percent);
 		checkStamina(a);
 	}
 
 	inline void staminaHeavyHit(RE::Actor* a) {
 		DEBUG("stamina heavy hit");
-		DEBUG("damaging {} percent of stamina", settings::meleeCostHeavyHit);
 		float maxStamina = a->GetPermanentActorValue(RE::ActorValue::kStamina);
-		Utils::damageav(a, RE::ActorValue::kStamina, maxStamina * settings::meleeCostHeavyHit / 100);
+		Utils::damageav(a, RE::ActorValue::kStamina, maxStamina * settings::fMeleeCostHeavyHit_Percent);
 		checkStamina(a);
 	} 
 	

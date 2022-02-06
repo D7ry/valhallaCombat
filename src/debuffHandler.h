@@ -5,6 +5,7 @@
 #include <chrono>
 #include "spdlog/async_logger.h"
 #include "Utils.h"
+#include "TrueHUDAPI.h"
 namespace debuffThread {
 	inline std::jthread t1;
 }
@@ -23,7 +24,6 @@ public:
 	}
 
 
-
 	void initStaminaDebuff();
 
 	/*reset debuff state on game load*/
@@ -31,29 +31,26 @@ public:
 		//isPlayerExhausted = false;
 		rmDebuffSpell();
 	}
-	
-	
 
+	static inline std::atomic<bool> isPlayerExhausted = false;
+	static inline TRUEHUD_API::IVTrueHUD1* g_trueHUD = nullptr;
 
 private:
 
 	void staminaDebuffOp();
 
 	void addDebuffSpell() {
-		Utils::applySpell(debuffSpell, RE::PlayerCharacter::GetSingleton());
+		Utils::safeApplySpell(debuffSpell, RE::PlayerCharacter::GetSingleton());
 	}
 
 	void rmDebuffSpell() {
-		Utils::removeSpell(debuffSpell, RE::PlayerCharacter::GetSingleton());
+		Utils::safeRemoveSpell(debuffSpell, RE::PlayerCharacter::GetSingleton());
 	}
-
-
 
 	RE::BGSPerk* debuffPerk;
 
 	RE::SpellItem* debuffSpell;
 
-	std::atomic<bool> isPlayerExhausted = false;
 
 };
 

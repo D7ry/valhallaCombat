@@ -1,12 +1,12 @@
 #include "Papyrus.h"
 
-#include "dataHandler.h"
+#include "data.h"
 
 namespace Papyrus
 {
 	void ValhallaCombat_MCM::OnConfigClose(RE::TESQuest*)
 	{
-		dataHandler::GetSingleton()->readSettings();
+		settings::readSettings();
 	}
 
 	bool ValhallaCombat_MCM::Register(RE::BSScript::IVirtualMachine* a_vm)

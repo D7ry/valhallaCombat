@@ -1,8 +1,8 @@
 #pragma once
-#include "dataHandler.h"
+#include "data.h"
 #include "attackHandler.h"
 using HITFLAG = RE::HitData::Flag;
-
+/*
 class hitDataProcessor {
 public:
 	static void processHitData(RE::HitData& hitData) {
@@ -44,7 +44,7 @@ public:
 		DEBUG("critical damage mult is {}", hitData.criticalDamageMult);
 		DEBUG("targeted limb damage is {}", hitData.targetedLimbDamage);
 		//perform fitting operations
-		if (aggressor->IsPlayerRef()) {
+		if (aggressor->IsPlayerRef() && !target->IsDead()) {
 			DEBUG("processing player hit!");
 			processPlayerHit(weapon, hitFlag); //for player stamina calculation
 			DEBUG("player hit processed");
@@ -77,3 +77,4 @@ private:
 
 	static void processPlayerHit(RE::TESObjectWEAP* weapon, int hitFlag); //processes player hit and regenerates stamina for player.
 };
+*/

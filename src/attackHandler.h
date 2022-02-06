@@ -1,62 +1,85 @@
 #pragma once
 #include "staminaHandler.h"
-namespace attackHandler
+
+class attackHandler
 {
-	/* whether player's stamina should be damaged at the moment of checking out.*/
-	inline bool shouldDamageStamina = false; 
-	/* when a player has already had a hitframe in player's current attacking animation. */
-	inline bool attackFired = false;
 
-	inline bool isLightAtk = true;
+public:
+	enum ATTACKTYPE 
+	{
+		light = 0,
+		power
+	};
+	static inline enum ATTACKTYPE attackType = ATTACKTYPE::light;
 
-	inline bool nextIsLightAtk = true;
+	static inline bool shouldDamageStamina = false;
 
-	inline bool nextIsBashing = false;
+	static inline bool attackFired = false;
 
-	inline static bool meleeHitRegen = false;
+	static inline bool nextIsLightAtk = true;
+	static inline bool nextIsBashAtk = false;
+
+	static inline bool meleeHitRegen = false;
+
+	static inline bool attackPreSwing = true; //whether the player is in "pre-swing" stage
 
 
-	/* decide whether the hitframe counts as an attack.
-	also checks whether the hitframe is fired when player is not attacking. If not,
-	attack won't be registered.*/
-	inline void registerAtk() {
-		if (nextIsBashing) {
-			DEBUG("bashing attack");
-			nextIsBashing = false;
+	/* registers a light/heavy attack.
+	    checks iff there is a previous attack not checked out, if so,
+		check out the attack.*/
+	static void registerAtk() {
+		if (attackFired) {
+			checkout();
+		}
+		if (nextIsBashAtk) {
+			DEBUG("bash attack won't get registered");
+			nextIsBashAtk = false;
 			return;
 		}
-		if (!attackFired) {
-			DEBUG("first attack in the animation, registering attack");
-			if (!nextIsLightAtk) {
-				DEBUG("power attack registered");
-				isLightAtk = false;
-				nextIsLightAtk = true;
-			}
-			else {
-				DEBUG("light attack registered");
-			}
-			/*auto pc = RE::PlayerCharacter::GetSingleton();
-			if (pc) {
-				pc->SetActorValue(RE::ActorValue::KStaminaRate, 0);
-				DEBUG("pc stamina rate set to 0");
-				DEBUG("actual pc stamina is now {}", pc->GetActorValue(RE::ActorValue::KStaminaRate));
-			}*/
-			shouldDamageStamina = true;
-			attackFired = true;
+		DEBUG("registering attack");
+		auto pc = RE::PlayerCharacter::GetSingleton();
+		if (!pc || !pc->currentProcess) {
+			ERROR("PC PROCESS NOT FOUND!");
+			return;
 		}
+		auto highProcess = pc->currentProcess->high;
+		while (!highProcess) {
+			DEBUG("high process not found, trying again");
+			highProcess = pc->currentProcess->high;
+		}
+		auto atkData = highProcess->attackData;
+		if (!atkData) {
+			DEBUG("atk data not found, trying again!");
+			atkData = highProcess->attackData;
+		}
+		if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
+			DEBUG("attack data detected power attack!");
+			nextIsLightAtk = false;
+		}
+		if (nextIsLightAtk) {
+			DEBUG("registered light attack!");
+			attackType = ATTACKTYPE::light;
+		}
+		else {
+			DEBUG("registered power attack!");
+			attackType = ATTACKTYPE::power;
+			nextIsLightAtk = true;
+		}
+		shouldDamageStamina = true;
+		attackFired = true;
 	}
 
 	/* when player hits a living enemy, a hit is registered.*/
-	inline void registerHit() {
+	static void registerHit() {
 		auto pc = RE::PlayerCharacter::GetSingleton();
 		INFO("registering a successful hit");
-		if (isLightAtk) {
+		if (attackType == ATTACKTYPE::light) {
 			meleeHitRegen = true;
 			staminaHandler::staminaLightHit(pc);
 			meleeHitRegen = false;
 		}
 		else if (shouldDamageStamina) {
-			staminaHandler::staminaHeavyHit(pc); //heavy attack's second hit should damage more stamina
+			staminaHandler::staminaHeavyHit(pc); //heavy attack's second hit should not damage more stamina
 		}
 		shouldDamageStamina = false;
 	}
@@ -66,13 +89,13 @@ namespace attackHandler
 	* 2. finished -> when attackStop event is called
 	* 3. transitioning into next attack - when Skysa_AttackWin is called.
 	*/
-	inline void checkout() {
+	static void checkout() {
 		DEBUG("checking out attack");
 		auto pc = RE::PlayerCharacter::GetSingleton();
 		if (pc) {
 			if (shouldDamageStamina) {
 				DEBUG("attack failed to hit anyone, damaging player stamina!");
-				if (isLightAtk) {
+				if (attackType == ATTACKTYPE::light) {
 					staminaHandler::staminaLightMiss(pc);
 				}
 				else {
@@ -82,18 +105,7 @@ namespace attackHandler
 		}
 		attackFired = false;
 		shouldDamageStamina = false;
-		isLightAtk = true;
-	}
-
-	/*proceed does two things:
-	* 1. iff there's an attack not checked out, it'll be checked out.
-	* 2. register a new attack.
-	*/
-	inline void proceed() {
-		if (attackFired) {
-			checkout();
-		}
-		registerAtk();
+		attackPreSwing = true;
 	}
 
 

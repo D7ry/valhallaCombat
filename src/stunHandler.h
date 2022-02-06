@@ -1,6 +1,6 @@
 #pragma once
-#include "dataHandler.h"
-
+#include "data.h"
+/*
 namespace stunUtils {
 	//RE::Offset::SCRIPT_FUNCTION::FirstConsoleCommand
 	
@@ -18,6 +18,7 @@ namespace stunUtils {
 	
 }
 /*handling enemy stun meter, damaging stun, as well as execution.*/
+
 class stunHandler {
 public:
 	/*currently stun meter uses stamina*/
@@ -26,6 +27,7 @@ public:
 	@param baseDamage the total health damage applied onto actor, used as a base for calculation
 	@param a_actor actor whose stun meter is to be damaged.
 	@param isPowerAtk whether the attack is a power attack. Be ware, power attack itself already has more damage.*/
+	/*
 	static bool stunActor(float baseDamage, RE::ActorPtr a_actor, RE::TESObjectWEAP* weapon, bool isPowerAtk) {
 		baseDamage *= settings::stunBaseMult;
 		if (isPowerAtk) {
@@ -58,9 +60,10 @@ public:
 		reFillStun(target);
 	}
 
-	/*refills actor's stun meter*/
+	/*refills actor's stun meter
 	static void reFillStun(RE::ActorPtr a_actor) {
 		Utils::restoreav(a_actor.get(), RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina));
 		DEBUG("{}'s stun refilled.", a_actor->GetName());
-	}
-};
+	}*/
+}; 
+

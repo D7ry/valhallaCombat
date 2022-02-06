@@ -1,11 +1,13 @@
 #include "hitDataProcessor.h"
 #include "attackHandler.h"
 #include "stunHandler.h"
+
 /*handles hit detection. Iff hit, reward player stamina. Also nerfs damage on exhaustion.*/
+/*
 void hitDataProcessor::processPlayerHit(RE::TESObjectWEAP* weapon, int hitFlag){
 	if ((hitFlag & (int)HITFLAG::kBlocked)) {//blocked hit doesn't regen stamina
 		DEBUG("HIT BLOCKED!");
-		if (!settings::blockedHitRegenStamina) {
+		if (!settings::bBlockedHitRegenStamina) {
 			DEBUG("blocked hit don't regen stamina!");
 			return;
 		}
@@ -59,9 +61,9 @@ void hitDataProcessor::processStaminaDamage(RE::ActorPtr target, RE::HitData& hi
 	Utils::damageav(target.get(), RE::ActorValue::kStamina,
 		staminaDamage);
 }
-
+*/
 /*deals stun damage to the receiver. By the end of dealing stun, if the receiver has less than 0 stun meter, execute
-the receiver.*/
+the receiver.
 void hitDataProcessor::processStunDamage(RE::ActorPtr aggressor, RE::ActorPtr target, RE::TESObjectWEAP* weapon, RE::HitData& hitData, int hitFlag) {
 	DEBUG("processing stun damage");
 	stunHandler::stunActor(hitData.totalDamage, target, weapon, (hitFlag & (int)HITFLAG::kPowerAttack));
@@ -70,4 +72,4 @@ void hitDataProcessor::processStunDamage(RE::ActorPtr aggressor, RE::ActorPtr ta
 		stunHandler::execute(aggressor, target);
 
 	}
-}
+}*/

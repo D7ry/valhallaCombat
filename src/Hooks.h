@@ -2,16 +2,18 @@
 #include "attackHandler.h"
 #include "SKSE/Trampoline.h"
 #include <xbyak\xbyak.h>
+
+
 class CalcStaminaHook
 {
 public:
 	static void InstallHook();
 private:
-	static void calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData);
+	static float calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData);
 };
 
 
-class StaminaRegenHook
+class StaminaRegenHook //block stamina regen during weapon swing
 {
 public:
     static void InstallHook();
@@ -33,8 +35,13 @@ private:
 
 
 
-
-
-
-
+class Hooks {
+public:
+	static void install() {
+		SKSE::AllocTrampoline(1 << 6);
+		CalcStaminaHook::InstallHook();
+		StaminaRegenHook::InstallHook();
+		hitEventHook::InstallHook();
+	}
+};
 

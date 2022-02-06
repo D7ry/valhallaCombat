@@ -47,7 +47,7 @@ void onHitEventHandler::playerHit(const RE::TESHitEvent* a_event) {
 	}
 
 	if (a_event->flags.any(RE::TESHitEvent::Flag::kHitBlocked)) {
-		if (!settings::blockedHitRegenStamina) {
+		if (!settings::bBlockedHitRegenStamina) {
 			DEBUG("hit blocked, no stamina recovery!");
 			return;
 		}

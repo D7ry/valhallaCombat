@@ -16,13 +16,13 @@ namespace Utils
 			setting->data.f = val;
 		}
 	}
-
+	/*a map of all game races' original stamina regen, in case player wants to tweak the stamina regen values again*/
 	inline static std::unordered_map<std::string, float> staminaRegenMap;
 
 	/*multiplies stamina regen of every single race by MULT.*/
 	inline void multStaminaRegen(float mult) {
 		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
-			if (race && race->GetPlayable()) {
+			if (race) {
 				std::string raceName = race->GetName();
 				if (staminaRegenMap.find(raceName) == staminaRegenMap.end()) {
 					DEBUG("recording race default stamina for {}!", raceName);
@@ -32,22 +32,16 @@ namespace Utils
 				else {
 					race->data.staminaRegen = mult * staminaRegenMap.at(raceName);
 				}
-				INFO("setting regen value for race {} to {}.", race->GetName(), race->data.staminaRegen);
+				INFO("setting stamina regen rate for race {} to {}.", race->GetName(), race->data.staminaRegen);
 			}
 		}
 	}
-
-
 
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
 		if (a) {
 			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
 		}
-		/*DEBUG("{}'s {} damaged to {}",
-			a->GetName(), 
-			av, 
-			a->GetActorValue(av));*/
 	}
 
 	inline void restoreav(RE::Actor* a, RE::ActorValue av, float val)
@@ -102,14 +96,14 @@ namespace Utils
 		DEBUG("successfully removed {} from pc", perk->GetFullName());
 	}
 
-	inline void applySpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
+	inline void safeApplySpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
 		if (a_actor && a_spell) {
 			a_actor->AddSpell(a_spell);
 			DEBUG("spell {} applied to {}.", a_spell->GetName(), a_actor->GetName());
 		}
 	}
 
-	inline void removeSpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
+	inline void safeRemoveSpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
 		if (a_actor && a_spell) {
 			a_actor->RemoveSpell(a_spell);
 			DEBUG("spell {} removed from {}.", a_spell->GetName(), a_actor->GetName());
@@ -118,24 +112,6 @@ namespace Utils
 
 	typedef void(_fastcall* tFlashHUDMenuMeter)(RE::ActorValue a_actorValue);
 	static REL::Relocation<tFlashHUDMenuMeter> FlashHUDMenuMeter{ REL::ID(51907) };
-
-	namespace push {
-		static inline void ExecuteCommand(std::string a_command)
-		{
-			DEBUG("executing command");
-			const auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>();
-			const auto script = scriptFactory ? scriptFactory->Create() : nullptr;
-			if (script) {
-				const auto selectedRef = RE::Console::GetSelectedRef();
-				script->SetCommand(a_command);
-				script->CompileAndRun(selectedRef.get());
-				delete script;
-			}
-
-			DEBUG("executed command {}", a_command);
-		}
-		
-	}
 
 
 

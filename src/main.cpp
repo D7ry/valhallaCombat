@@ -1,15 +1,62 @@
 /*bring AC Valhalla's stamina system into Skyrim.
 @author TY
 */
-#include "dataHandler.h"
 #include "SimpleIni.h"
 #include "Hooks.h"
 #include "Papyrus.h"
-#include "dataHandler.h"
+#include "data.h"
 #include "debuffHandler.h"
 #include "events/animEventHandler.h"
 #include "events/onHitEventHandler.h"
 #include "Utils.h"
+#include "TrueHUDAPI.h"
+
+void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
+{
+	switch (a_msg->type) {
+	case SKSE::MessagingInterface::kDataLoaded:
+		INFO("data loaded, reading settings...");
+		((animEventHandler*)((uintptr_t)RE::PlayerCharacter::GetSingleton() + 0x30))->HookSink();
+		{
+			settings::readSettings();
+		}
+		INFO("settings read");
+		break;
+	case SKSE::MessagingInterface::kPostLoad:
+		INFO("post load");
+		if (!TRUEHUD_API::RegisterInterfaceLoaderCallback(
+			SKSE::GetMessagingInterface(),
+			[](void* interfaceInstance, TRUEHUD_API::InterfaceVersion interfaceVersion) {
+				if (interfaceVersion == TRUEHUD_API::InterfaceVersion::V1) {
+					INFO("obtaining truehud API");
+					debuffHandler::g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD1*>(interfaceInstance);
+					INFO("Obtained TrueHUD API");
+				}
+				else
+					INFO("Unable to acquire requested TrueHUD API interface version");
+			}))
+			INFO("TRUEHUD_API::RegisterInterfaceLoaderCallback reported an error");
+
+			break;
+	case SKSE::MessagingInterface::kPostLoadGame:
+		INFO("post load game");
+		INFO("clearing stamina debuff");
+		//debuffHandler::GetSingleton()->refresh();
+		INFO("debuff cleared");
+		break;
+	case SKSE::MessagingInterface::kPostPostLoad:
+		INFO("post post load");
+		if (!TRUEHUD_API::RequestInterface(
+			SKSE::GetMessagingInterface(),
+			TRUEHUD_API::InterfaceVersion::V1)) {
+			INFO("TrueHUD API::RequestInterface reported an error");
+		}
+		else {
+			INFO("TrueHUD API interface request success");
+		}
+		break;
+	}
+}
 #if ANNIVERSARY_EDITION
 
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
@@ -52,25 +99,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 #endif
 
-void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
-{
-	switch (a_msg->type) {
-	case SKSE::MessagingInterface::kDataLoaded:
-		INFO("data loaded, initializing...");
-		((animEventHandler*)((uintptr_t)RE::PlayerCharacter::GetSingleton() + 0x30))->HookSink();
-		{
-		dataHandler* data = dataHandler::GetSingleton(); 		
-		data->readSettings();
-		data->cancelVanillaPowerStamina(); //makes vanilla power attack costs 0 stamina.
-		}
-		INFO("initialization complete!");
-		break;
-	case SKSE::MessagingInterface::kPostLoadGame:
-		INFO("game post load, clearing remaining debuff...");
-		debuffHandler::GetSingleton()->refresh();
-		INFO("debuff cleared");
-	}
-}
+
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 #if ANNIVERSARY_EDITION
@@ -91,9 +120,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	if (!messaging->RegisterListener("SKSE", MessageHandler)) {
 		return false;
 	}
-	CalcStaminaHook::InstallHook();
-	StaminaRegenHook::InstallHook();
-	hitEventHook::InstallHook();
+	Hooks::install();
 	Papyrus::Register();
 	return true;
 }
