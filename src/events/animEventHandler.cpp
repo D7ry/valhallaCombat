@@ -21,24 +21,11 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		//DEBUG(_event);
 		if (_event == preHitFrame_anno) {
 			DEBUG("==========prehitFrame==========");
-			if (debuffHandler::isPlayerExhausted) {
-				DEBUG("player is exhausted, init attack speed debuff");
-				//a_event.holder->SetGraphVariableFloat("SkySA_weaponSpeedMult", 0.5);
-			}
-			if (debuffHandler::isPlayerExhausted && attackHandler::attackPreSwing) {
-				DEBUG("player is exhausted, init attack speed debuff");
-				a_event.holder->SetGraphVariableFloat("SkySA_weaponSpeedMult", 0.5);
-			}
-			attackHandler::registerAtk();
-		}
-		else if (_event == weaponSwing_anno) {
-			DEBUG("=======weaponSwing========");
-			a_event.holder->SetGraphVariableFloat("SkySA_weaponSpeedMult", 1);
-			attackHandler::attackPreSwing = false;
+			attackHandler::registerAtk(a_event.holder->As<RE::Actor>());
 		}
 		else if (_event == attackStop_anno) {
 			DEBUG("==========attackstop==========");
-			attackHandler::checkout();
+			attackHandler::checkout(a_event.holder->As<RE::Actor>());
 		}
 		/*else if (_event == block_start_anno) {
 			DEBUG("==========blockStart==========");

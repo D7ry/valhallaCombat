@@ -15,20 +15,16 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
-		INFO("data loaded, reading settings...");
-		((animEventHandler*)((uintptr_t)RE::PlayerCharacter::GetSingleton() + 0x30))->HookSink();
-		{
-			settings::readSettings();
-		}
-		INFO("settings read");
+		INFO("Data loaded");
+		settings::readSettings();
+		animEventHandler::hookAllActors();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
-		INFO("post load");
+		INFO("Post load");
 		if (!TRUEHUD_API::RegisterInterfaceLoaderCallback(
 			SKSE::GetMessagingInterface(),
 			[](void* interfaceInstance, TRUEHUD_API::InterfaceVersion interfaceVersion) {
 				if (interfaceVersion == TRUEHUD_API::InterfaceVersion::V1) {
-					INFO("obtaining truehud API");
 					debuffHandler::g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD1*>(interfaceInstance);
 					INFO("Obtained TrueHUD API");
 				}
@@ -36,16 +32,15 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 					INFO("Unable to acquire requested TrueHUD API interface version");
 			}))
 			INFO("TRUEHUD_API::RegisterInterfaceLoaderCallback reported an error");
-
 			break;
 	case SKSE::MessagingInterface::kPostLoadGame:
-		INFO("post load game");
+		INFO("Post load game");
 		INFO("clearing stamina debuff");
 		//debuffHandler::GetSingleton()->refresh();
 		INFO("debuff cleared");
 		break;
 	case SKSE::MessagingInterface::kPostPostLoad:
-		INFO("post post load");
+		INFO("Post post load");
 		if (!TRUEHUD_API::RequestInterface(
 			SKSE::GetMessagingInterface(),
 			TRUEHUD_API::InterfaceVersion::V1)) {

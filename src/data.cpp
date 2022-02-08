@@ -2,7 +2,7 @@
 
 /*read settings from ini, and update them into game settings.*/
 void settings::readSettings() {
-	DEBUG("loading ini settings");
+	INFO("Reading ini settings...");
 	CSimpleIniA ini;
 #define SETTINGFILE_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
 	ini.LoadFile(SETTINGFILE_PATH);
@@ -35,11 +35,11 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "Blocking", "fBckWpnStaminaMult_PC_Block_NPC", fBckWpnStaminaMult_PC_Block_NPC);
 
 
-	INFO("ini settings loaded");
+	INFO("Ini settings read.");
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
 	multStaminaRegen(fStaminaRegenMult);
-	INFO("game settings applied");
+	INFO("Game settings applied.");
 }
 
 
@@ -63,7 +63,7 @@ void settings::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, co
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound)
 	{
-		DEBUG("found {} with value {}", a_settingName, bFound);
+		INFO("found {} with value {}", a_settingName, bFound);
 		a_setting = a_ini.GetBoolValue(a_sectionName, a_settingName);
 	}
 	else {

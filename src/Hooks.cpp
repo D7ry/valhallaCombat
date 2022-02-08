@@ -38,9 +38,6 @@ float CalcStaminaHook::calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData
 
 	if (atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) { //bash attack
 		DEBUG("is bash attack!");
-		if (a_actor->IsPlayerRef()) {
-			attackHandler::nextIsBashAtk = true;
-		}
 		if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) { //power bash
 			DEBUG("power bash!");
 			return a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * 0.5; //TODO: a bashing formula
@@ -49,30 +46,6 @@ float CalcStaminaHook::calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData
 			return a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * 0.33; 
 		}
 	} 
-	else if (atkData->data.flags.all(RE::AttackData::AttackFlag::kPowerAttack)) { //power attack
-
-		DEBUG("is power attack!");
-		if (a_actor->IsPlayerRef()) {
-				DEBUG("next is light == false");
-				//attackHandler::nextIsLightAtk = false;
-		}
-		else {
-			return a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyMiss_Percent;
-		}
-	}
-	else {																			//has to be light attack
-		DEBUG("is light attack!");
-		if (a_actor->IsPlayerRef()) {
-			//if (!attackHandler::attackFired) {
-				//attackHandler::nextIsLightAtk = true;
-			//}
-
-		}
-		else {
-			return a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostLightMiss_Point;
-		}
-	}
-
 	return 0;
 }
 #pragma endregion
@@ -92,16 +65,14 @@ void StaminaRegenHook::InstallHook()
 used to block stamina regen in certain situations.*/
 bool StaminaRegenHook::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 {
-	//iff bResult is true, prevents regen.
+	//if bResult is true, prevents regen.
 	bool bResult = _HasFlags1(a_this, a_flags); // is sprinting?
 
 	if (!bResult) {
 		RE::Actor* actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, -0xB8);
 		auto attackState = actor->GetAttackState();
-		if (actor->IsPlayerRef() && attackHandler::meleeHitRegen) { 
-			//iff melee hit regen is needed, no need to disable regen.
-		}
-		else {
+		if (actor != attackHandler::actorToRegenStamina) {
+			//if melee hit regen is needed, no need to disable regen.
 			bResult = (attackState > RE::ATTACK_STATE_ENUM::kNone && attackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) || actor->IsBlocking(); //when attacking or blocking, doens't regen stmaina.
 		}
 	}
@@ -110,7 +81,6 @@ bool StaminaRegenHook::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 #pragma endregion
 
 
-#pragma region hitEventHook
 void hitEventHook::InstallHook() {
 	REL::Relocation<uintptr_t> hook{ REL::ID(37673) };
 	auto& trampoline = SKSE::GetTrampoline();
@@ -123,27 +93,25 @@ void hitEventHook::processHit(RE::Actor* a_actor, RE::HitData& hitData) {
 	//hitDataProcessor::processHitData(hitData);
 	int hitFlag = (int)hitData.flags;
 	using HITFLAG = RE::HitData::Flag;
-
+#pragma region StaminaBlocking
 	//nullPtr check in case Skyrim fucks up
 	auto aggressor = hitData.aggressor.get();
 	if (!a_actor || !aggressor) {
 		_ProcessHit(a_actor, hitData);
 		return;
 	}
-	bool isPlayerAggressor = aggressor->IsPlayerRef();
-	if (hitFlag & (int)HITFLAG::kBlocked && settings::bStaminaBlocking) {		//shield of stamina
+	if (hitFlag & (int)HITFLAG::kBlocked && settings::bStaminaBlocking) {
 		DEBUG("process stamina blocking!");
-		bool isPlayerTarget = a_actor->IsPlayerRef();
 		float staminaDamageBase = hitData.totalDamage;
 		float staminaDamageMult;
 		DEBUG("base stamina damage is {}", staminaDamageBase);
 		if (hitFlag & (int)HITFLAG::kBlockWithWeapon) {
 			DEBUG("hit blocked with weapon");
-			if (isPlayerTarget) {
+			if (a_actor->IsPlayerRef()) {
 				staminaDamageMult = settings::fBckWpnStaminaMult_PC_Block_NPC;
 			}
 			else {
-				if (isPlayerAggressor) {
+				if (aggressor->IsPlayerRef()) {
 					staminaDamageMult = settings::fBckWpnStaminaMult_NPC_Block_PC;
 				}
 				else {
@@ -153,11 +121,11 @@ void hitEventHook::processHit(RE::Actor* a_actor, RE::HitData& hitData) {
 		}
 		else {
 			DEBUG("hit blocked with shield");
-			if (isPlayerTarget) {
+			if (a_actor->IsPlayerRef()) {
 				staminaDamageMult = settings::fBckShdStaminaMult_PC_Block_NPC;
 			}
 			else {
-				if (isPlayerAggressor) {
+				if (aggressor->IsPlayerRef()) {
 					staminaDamageMult = settings::fBckShdStaminaMult_NPC_Block_PC;
 				}
 				else {
@@ -186,16 +154,13 @@ void hitEventHook::processHit(RE::Actor* a_actor, RE::HitData& hitData) {
 				staminaDamage);
 		}
 	}
-	
-	if (isPlayerAggressor) {
-		//iff is player
-		if (!(hitFlag & (int)HITFLAG::kBash)  //bash hit doesn't regen stamina
-			&& (!(hitFlag & (int)HITFLAG::kBlocked) || settings::bBlockedHitRegenStamina)//blocked hit doesn't regen stamina unless set so
-			&& !a_actor->IsDead()) { //dead actor doesn't regen stamina
-			attackHandler::registerHit();
-		}
+#pragma endregion
+#pragma region AttackRegistration
+	if (!(hitFlag & (int)HITFLAG::kBash)  //bash hit doesn't regen stamina
+		&& (!(hitFlag & (int)HITFLAG::kBlocked) || settings::bBlockedHitRegenStamina)//blocked hit doesn't regen stamina unless set so
+		&& !a_actor->IsDead()) { //dead actor doesn't regen stamina
+		attackHandler::registerHit(a_actor);
 	}
-
+#pragma endregion
 	_ProcessHit(a_actor, hitData);
 };
-#pragma endregion
