@@ -5,7 +5,8 @@
     "license":  "MIT",
     "dependencies":  [
                          "spdlog",
-                         "boost-unordered"
+                         "boost-unordered",
+                         "boost-container"
                      ],
     "features":  {
                      "mo2-install":  {

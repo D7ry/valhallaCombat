@@ -21,11 +21,11 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		//DEBUG(_event);
 		if (_event == preHitFrame_anno) {
 			DEBUG("==========prehitFrame==========");
-			attackHandler::registerAtk(a_event.holder->As<RE::Actor>());
+			attackHandler::GetSingleton()->registerAtk(a_event.holder->As<RE::Actor>());
 		}
 		else if (_event == attackStop_anno) {
 			DEBUG("==========attackstop==========");
-			attackHandler::checkout(a_event.holder->As<RE::Actor>());
+			attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
 		}
 		/*else if (_event == block_start_anno) {
 			DEBUG("==========blockStart==========");
