@@ -7,7 +7,6 @@
 #include "data.h"
 #include "debuffHandler.h"
 #include "events/animEventHandler.h"
-#include "events/onHitEventHandler.h"
 #include "Utils.h"
 #include "TrueHUDAPI.h"
 
@@ -24,8 +23,8 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		if (!TRUEHUD_API::RegisterInterfaceLoaderCallback(
 			SKSE::GetMessagingInterface(),
 			[](void* interfaceInstance, TRUEHUD_API::InterfaceVersion interfaceVersion) {
-				if (interfaceVersion == TRUEHUD_API::InterfaceVersion::V1) {
-					debuffHandler::g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD1*>(interfaceInstance);
+				if (interfaceVersion == TRUEHUD_API::InterfaceVersion::V2) {
+					debuffHandler::g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD2*>(interfaceInstance);
 					INFO("Obtained TrueHUD API");
 				}
 				else
@@ -36,6 +35,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	case SKSE::MessagingInterface::kPostLoadGame:
 		INFO("Post load game");
 		INFO("clearing stamina debuff");
+		debuffHandler::GetSingleton();
 		//debuffHandler::GetSingleton()->refresh();
 		INFO("debuff cleared");
 		break;
@@ -43,7 +43,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Post post load");
 		if (!TRUEHUD_API::RequestInterface(
 			SKSE::GetMessagingInterface(),
-			TRUEHUD_API::InterfaceVersion::V1)) {
+			TRUEHUD_API::InterfaceVersion::V2)) {
 			INFO("TrueHUD API::RequestInterface reported an error");
 		}
 		else {
