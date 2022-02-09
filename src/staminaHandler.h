@@ -3,10 +3,10 @@
 #include "debuffHandler.h"
 namespace staminaHandler
 {
-	inline void checkStamina(RE::Actor* a) {
+	inline void checkStamina(RE::Actor* actor) {
 		DEBUG("checking stamina");
-		if (a->GetActorValue(RE::ActorValue::kStamina) <= 0) {
-			debuffHandler::GetSingleton()->initStaminaDebuff();
+		if (actor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
+			debuffHandler::GetSingleton()->initStaminaDebuff(actor);
 		}
 		DEBUG("stamina checked");
 	}
