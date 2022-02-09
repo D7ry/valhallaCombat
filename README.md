@@ -1,2 +1,3 @@
 # valhallaCombat
- dll plugin to make Skyrim's combat AC-valhalla-ish
+ WIP dll plugin to make Skyrim's combat AC-valhalla-ish
+ 
