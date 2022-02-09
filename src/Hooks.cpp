@@ -71,7 +71,7 @@ bool StaminaRegenHook::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 	if (!bResult) {
 		RE::Actor* actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, -0xB8);
 		auto attackState = actor->GetAttackState();
-		if (actor != attackHandler::actorToRegenStamina) {
+		if (actor != attackHandler::GetSingleton()->actorToRegenStamina) {
 			//if melee hit regen is needed, no need to disable regen.
 			bResult = (attackState > RE::ATTACK_STATE_ENUM::kNone && attackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) || actor->IsBlocking(); //when attacking or blocking, doens't regen stmaina.
 		}
@@ -159,8 +159,13 @@ void hitEventHook::processHit(RE::Actor* a_actor, RE::HitData& hitData) {
 	if (!(hitFlag & (int)HITFLAG::kBash)  //bash hit doesn't regen stamina
 		&& (!(hitFlag & (int)HITFLAG::kBlocked) || settings::bBlockedHitRegenStamina)//blocked hit doesn't regen stamina unless set so
 		&& !a_actor->IsDead()) { //dead actor doesn't regen stamina
-		attackHandler::registerHit(a_actor);
+		attackHandler::GetSingleton()->registerHit(aggressor.get());
 	}
 #pragma endregion
 	_ProcessHit(a_actor, hitData);
 };
+
+void MainUpdateHook::Update(RE::Main* a_this, float a2) {
+	debuffHandler::GetSingleton()->update();
+	_Update(a_this, a2);
+}

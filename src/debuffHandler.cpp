@@ -1,51 +1,52 @@
 #include "debuffHandler.h"
 #include "data.h"
-void debuffHandler::initStaminaDebuff() {
-	DEBUG("initializing stamina debuff!");
-	if (isPlayerExhausted) {
-		DEBUG("player already exhausted!");
+/*Initialize a stmaina debuff for actor, giving them exhaustion perk, and putting them into the debuff map.
+If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
+@param actor actor who will receive debuff.*/
+void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
+	DEBUG("Init stamina debuff for {}", actor->GetName());
+	if (!actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+		DEBUG("{} is not in combat, no stamina debuff will be applied.", actor->GetName());
 		return;
 	}
-	if (!RE::PlayerCharacter::GetSingleton()->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
-		DEBUG("out of combat, no stamina debuff");
+	if (actorsInDebuff.contains(actor)) {
+		DEBUG("{} is already in debuff", actor->GetName());
 		return;
 	}
-	DEBUG("initializing player exhaustion!");
-	this->isPlayerExhausted = true;
+	actorsInDebuff.emplace(actor); 
 	//addDebuffSpell();
 	//TODO:add back debuff perk
-	if (g_trueHUD->RequestPlayerWidgetBarColorsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-		DEBUG("greying out stamina bar!");
-		//g_trueHUD->OverridePlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::PlayerWidgetBarColorType::BarColor, 0x333333);
-		//g_trueHUD->OverridePlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::PlayerWidgetBarColorType::BackgroundColor, 0x111111);
+	//TODO:use truehud API to grey out corresponding meters.
+	if (g_trueHUD->OverridePlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::BarColorType::BackgroundColor, 0x111111) == TRUEHUD_API::APIResult::OK) {
+		DEBUG("greyed out player stmaina background!");
 	}
 	else {
-		DEBUG("true hud doesn't lemme control!");
+		DEBUG("wtf ersh");
 	}
-	debuffThread::t1 = std::jthread(&debuffHandler::staminaDebuffOp, this);
-	debuffThread::t1.detach();
-}
-
-
-void debuffHandler::staminaDebuffOp() {
-	auto _debuffHandler = debuffHandler::GetSingleton();
-	auto pc = RE::PlayerCharacter::GetSingleton();
-	while (_debuffHandler->isPlayerExhausted && pc) {
-		if (pc->GetActorValue(RE::ActorValue::kStamina) >= pc->GetPermanentActorValue(RE::ActorValue::kStamina)) {
-			//_debuffHandler->rmDebuffPerk();
-			_debuffHandler->isPlayerExhausted = false;
-			rmDebuffSpell();
-			if (g_trueHUD->RequestPlayerWidgetBarColorsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-				DEBUG("reverting stamina bar color!");
-				//g_trueHUD->RevertPlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::PlayerWidgetBarColorType::BarColor);
-				//g_trueHUD->RevertPlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::PlayerWidgetBarColorType::BackgroundColor);
-			}
-			break;
-		}
-		if (settings::bUIAlert) {
-			Utils::FlashHUDMenuMeter(RE::ActorValue::kStamina);
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	if (g_trueHUD->OverridePlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::BarColorType::BarColor, 0x333333) == TRUEHUD_API::APIResult::OK) {
+		DEBUG("greyed out player stmaina bar!");
+	}
+	else {
+		DEBUG("wtf ersh");
 	}
 }
+
+void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
+	DEBUG("Stopping stamina debuff for {}", actor->GetName());
+	//rmDebuffSpell();
+	//TODO:truehud STuff
+	if (g_trueHUD->RevertPlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::BarColorType::BackgroundColor) == TRUEHUD_API::APIResult::OK) {
+		DEBUG("reverted player stamina background!");
+	}
+	else {
+		DEBUG("wtf ersh");
+	}
+	if (g_trueHUD->RevertPlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::BarColorType::BarColor) == TRUEHUD_API::APIResult::OK) {
+		DEBUG("reverted player stamina bar!");
+	}
+	else {
+		DEBUG("wtf ersh");
+	}
+}
+
 
