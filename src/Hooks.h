@@ -32,7 +32,23 @@ private:
     static inline REL::Relocation<decltype(processHit)> _ProcessHit;
 };
 
+class MainUpdateHook
+{
+public:
+	static void InstallHook()
+	{
+		auto& trampoline = SKSE::GetTrampoline();
 
+		REL::Relocation<uintptr_t> hook{ REL::ID(35551) };  // 5AF3D0, main loop
+
+		_Update = trampoline.write_call<5>(hook.address() + 0x11F, Update);
+	}
+
+private:
+	static void Update(RE::Main* a_this, float a2);
+	static inline REL::Relocation<decltype(Update)> _Update;
+
+};
 
 
 class Hooks {
@@ -42,6 +58,7 @@ public:
 		CalcStaminaHook::InstallHook();
 		StaminaRegenHook::InstallHook();
 		hitEventHook::InstallHook();
+		MainUpdateHook::InstallHook();
 	}
 };
 
