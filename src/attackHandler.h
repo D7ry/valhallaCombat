@@ -70,9 +70,11 @@ public:
 	void registerHit(RE::Actor* actor) {
 		DEBUG("registering successful hit for {}", actor->GetName());
 		ATTACKTYPE atkType;
-		if (getAtkType(actor, atkType)) {
+		if (!getAtkType(actor, atkType)) {
 			return;
 		}
+		DEBUG("attack type is: ");
+		DEBUG(atkType);
 		if (atkType == ATTACKTYPE::light) { //register light hit
 			actorToRegenStamina = actor;
 			staminaHandler::staminaLightHit(actor);
@@ -81,7 +83,9 @@ public:
 		else { //register power hit
 			staminaHandler::staminaHeavyHit(actor);
 		}
+		DEBUG("erasing {} from attaker heap");
 		attackerHeap.erase(actor); //erase the actor from heap i.e. checking out the attack without damaging stamina.
+		DEBUG("current attacker heap size: {}", attackerHeap.size());
 	}
 
 	/* attack is checked out when the attack is either:
@@ -112,10 +116,14 @@ private:
 	@param actor actor whose info to obtain.
 	@param atkType address to store attack type*/
 	bool getAtkType(RE::Actor* actor, ATTACKTYPE& atkType) {
+		DEBUG("Getting {}'s attack from attack heap", actor->GetName());
 		boost::unordered::iterator_detail::iterator atkTypeItr = attackerHeap.find(actor); //check if the actor's attack is registered
 		if (atkTypeItr == attackerHeap.end()) {
 			DEBUG("{} not found in attackState map", actor->GetName());
 			return false;
+		}
+		else {
+			DEBUG("found attack type!");
 		}
 		atkType = atkTypeItr->second;
 		return true;

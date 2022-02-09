@@ -20,6 +20,7 @@ public:
 	static inline bool bBlockedHitRegenStamina = true;
 	static inline bool bUIAlert = true;
 	static inline bool bNonCombatStaminaDebuff = true;
+	static inline float fMeterFlashTimeDifference = 0.5; //time difference between two meter flash, if UI alter is active.
 
 	//blocking
 	static inline bool bStaminaBlocking = true;

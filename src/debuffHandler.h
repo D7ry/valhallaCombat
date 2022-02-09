@@ -4,10 +4,12 @@
 #include <iostream>
 #include <chrono>
 #include <boost/container/set.hpp>
+#include <boost/unordered_map.hpp>
 #include <boost/foreach.hpp>
 #include "spdlog/async_logger.h"
 #include "Utils.h"
 #include "TrueHUDAPI.h"
+#include "data.h"
 //TODO:threading no longer works for NPC as there might be more NPCs to count debuff than threads. Need another workaround.
 #define foreach_         BOOST_FOREACH
 namespace debuffThread {
@@ -17,14 +19,20 @@ class debuffHandler
 {
 
 	debuffHandler() {
-		debuffSpell = RE::TESDataHandler::GetSingleton()->LookupForm<RE::SpellItem>(0x00001827, "ValhallaCombat.esp");
+		//debuffSpell = RE::TESDataHandler::GetSingleton()->LookupForm<RE::SpellItem>(0x00001827, "ValhallaCombat.esp");
 		//debuffPerk = 
+		playerMeterFlashTimer = 0;
+		playerInDebuff = false;
 	}
 
 
 public:
 	/*Set of actors experiencing debuff.*/
+	//boost::unordered_map<RE::Actor*, float> actorsInDebuff;
 	boost::container::set<RE::Actor*> actorsInDebuff;
+	/*special bool to check if player is in debuff. If so, flash the player's meter*/
+	bool playerInDebuff;
+	float playerMeterFlashTimer;
 
 	static debuffHandler* GetSingleton()
 	{
@@ -48,8 +56,19 @@ public:
 				++it;
 			}
 		}
+		/*check iff player is in debuff state, if so, flash the stamina meter*/
+		if (playerInDebuff) {
+			if (playerMeterFlashTimer <= 0) {
+				Utils::FlashHUDMenuMeter(RE::ActorValue::kStamina);
+				playerMeterFlashTimer = 0.5; //FIXME:fix this
+			}
+			else {
+				playerMeterFlashTimer -= *Utils::g_deltaTimeRealTime;
+			}
+		}
 	}
-
+	void greyOutStaminaMeter(RE::Actor* actor);
+	void revertStaminaMeter(RE::Actor* actor);
 	void initStaminaDebuff(RE::Actor* actor);
 	void stopStaminaDebuff(RE::Actor* actor);
 	/*reset debuff state on game load*/
@@ -59,7 +78,7 @@ public:
 	}
 
 	static inline std::atomic<bool> isPlayerExhausted = false;
-	static inline TRUEHUD_API::IVTrueHUD1* g_trueHUD = nullptr;
+	static inline TRUEHUD_API::IVTrueHUD2* g_trueHUD = nullptr;
 
 private:
 
@@ -75,7 +94,6 @@ private:
 	RE::BGSPerk* debuffPerk;
 
 	RE::SpellItem* debuffSpell;
-
 
 };
 

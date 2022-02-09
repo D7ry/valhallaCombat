@@ -113,6 +113,8 @@ namespace Utils
 	typedef void(_fastcall* tFlashHUDMenuMeter)(RE::ActorValue a_actorValue);
 	static REL::Relocation<tFlashHUDMenuMeter> FlashHUDMenuMeter{ REL::ID(51907) };
 
+	static float* g_deltaTime = (float*)REL::ID(523660).address();                            // 2F6B948
+	static float* g_deltaTimeRealTime = (float*)REL::ID(523661).address();                  // 2F6B94C
 
 
 };
