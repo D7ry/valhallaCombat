@@ -83,7 +83,7 @@ public:
 		else { //register power hit
 			staminaHandler::staminaHeavyHit(actor);
 		}
-		DEBUG("erasing {} from attaker heap");
+		DEBUG("erasing {} from attaker heap", actor->GetName());
 		attackerHeap.erase(actor); //erase the actor from heap i.e. checking out the attack without damaging stamina.
 		DEBUG("current attacker heap size: {}", attackerHeap.size());
 	}

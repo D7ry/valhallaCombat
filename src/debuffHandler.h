@@ -30,6 +30,7 @@ public:
 	/*Set of actors experiencing debuff.*/
 	//boost::unordered_map<RE::Actor*, float> actorsInDebuff;
 	boost::container::set<RE::Actor*> actorsInDebuff;
+
 	/*special bool to check if player is in debuff. If so, flash the player's meter*/
 	bool playerInDebuff;
 	float playerMeterFlashTimer;
@@ -46,8 +47,9 @@ public:
 		checking their stamina.*/
 		auto it = actorsInDebuff.begin();
 		while (it != actorsInDebuff.end()) {
-			if ((*it)->GetActorValue(RE::ActorValue::kStamina) >= (*it)->GetPermanentActorValue(RE::ActorValue::kStamina)) {
-				DEBUG("{}'s stamina has fully recovered", (*it)->GetName());
+			if (!(*it) //actor is no longer loaded.
+				|| ((*it)->GetActorValue(RE::ActorValue::kStamina) >= (*it)->GetPermanentActorValue(RE::ActorValue::kStamina))) {
+				DEBUG("{}'s stamina has fully recovered, or they're no longer loaded", (*it)->GetName());
 				debuffHandler::stopStaminaDebuff((*it));
 				it = actorsInDebuff.erase(it); //erase actor from debuff set.
 				DEBUG("actor erased from debuff set");

@@ -25,51 +25,21 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 	DEBUG("Stopping stamina debuff for {}", actor->GetName());
 	//rmDebuffSpell();
-	revertStaminaMeter(actor);
-	if (actor->IsPlayerRef()) {
-		playerInDebuff = false;
+	if (actor) {
+		revertStaminaMeter(actor);
+		if (actor->IsPlayerRef()) {
+			playerInDebuff = false;
+		}
 	}
 }
-
 void debuffHandler::greyOutStaminaMeter(RE::Actor* actor) {
-	if (actor->IsPlayerRef()) {
-		if (g_trueHUD->OverridePlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::BarColorType::BackgroundColor, 0x111111) == TRUEHUD_API::APIResult::OK) {
-			DEBUG("greyed out player stmaina background!");
-		}
-		else {
-			DEBUG("wtf ersh");
-		}
-		if (g_trueHUD->OverridePlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::BarColorType::BarColor, 0x333333) == TRUEHUD_API::APIResult::OK) {
-			DEBUG("greyed out player stmaina bar!");
-		}
-		else {
-			DEBUG("wtf ersh");
-		}
-	}
-	else {
-		g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BackgroundColor, 0x111111);
-		g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor, 0x333333);
-
-	}
+	g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
+	g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
+	g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
 }
 
 void debuffHandler::revertStaminaMeter(RE::Actor* actor) {
-	if (actor->IsPlayerRef()) {
-		if (g_trueHUD->RevertPlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::BarColorType::BackgroundColor) == TRUEHUD_API::APIResult::OK) {
-			DEBUG("reverted player stamina background!");
-		}
-		else {
-			DEBUG("wtf ersh");
-		}
-		if (g_trueHUD->RevertPlayerWidgetBarColor(SKSE::GetPluginHandle(), TRUEHUD_API::PlayerWidgetBarType::StaminaBar, TRUEHUD_API::BarColorType::BarColor) == TRUEHUD_API::APIResult::OK) {
-			DEBUG("reverted player stamina bar!");
-		}
-		else {
-			DEBUG("wtf ersh");
-		}
-	}
-	else {
-		g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BackgroundColor);
-		g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor);
-	}
+	g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor);
+	g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor);
+	g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor);
 }
