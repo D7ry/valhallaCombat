@@ -147,6 +147,7 @@ void hitEventHook::processHit(RE::Actor* a_actor, RE::HitData& hitData) {
 			Utils::damageav(a_actor, RE::ActorValue::kStamina,
 				targetStamina);
 			DEBUG("failed to block {} damage", hitData.totalDamage);
+			debuffHandler::GetSingleton()->initStaminaDebuff(a_actor); //initialize debuff for the failed blocking attempt
 		}
 		else {
 			hitData.totalDamage = 0;

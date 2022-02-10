@@ -41,6 +41,7 @@ namespace Utils
 	{
 		if (a) {
 			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
+			DEBUG("{}'s {} damaged for {} points", a->GetName(), av, val);
 		}
 	}
 
@@ -48,6 +49,7 @@ namespace Utils
 	{
 		if (a) {
 			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
+			DEBUG("{}'s {} restored for {} points", a->GetName(), av, val);
 		}
 	}
 
