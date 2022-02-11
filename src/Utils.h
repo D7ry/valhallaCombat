@@ -19,20 +19,29 @@ namespace Utils
 	/*a map of all game races' original stamina regen, in case player wants to tweak the stamina regen values again*/
 	inline static std::unordered_map<std::string, float> staminaRegenMap;
 
-	/*multiplies stamina regen of every single race by MULT.*/
-	inline void multStaminaRegen(float mult) {
+	/*multiplies stamina regen of every single race by MULT.
+	@param mult multiplier for stamina regen.
+	@param upperLimit upper limit for stamina regen.*/
+	inline void multStaminaRegen(float mult, float upperLimit) {
 		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
 			if (race) {
 				std::string raceName = race->GetName();
+				float staminaRegen;
 				if (staminaRegenMap.find(raceName) == staminaRegenMap.end()) {
 					DEBUG("recording race default stamina for {}!", raceName);
 					staminaRegenMap[raceName] = race->data.staminaRegen;
-					race->data.staminaRegen *= mult;
+					staminaRegen = race->data.staminaRegen * mult;
 				}
 				else {
-					race->data.staminaRegen = mult * staminaRegenMap.at(raceName);
+					staminaRegen = mult * staminaRegenMap.at(raceName);
 				}
-				INFO("setting stamina regen rate for race {} to {}.", race->GetName(), race->data.staminaRegen);
+				if (staminaRegen <= upperLimit) {
+					race->data.staminaRegen = staminaRegen;
+				}
+				else {
+					race->data.staminaRegen = upperLimit;
+				}
+				INFO("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
 			}
 		}
 	}

@@ -9,6 +9,7 @@ void settings::readSettings() {
 
 	//values with "_" at the end need to be updated into game to take effect
 	ReadFloatSetting(ini, "gameSetting", "fStaminaRegenMult", fStaminaRegenMult);
+	ReadFloatSetting(ini, "gameSettings", "fStaminaRegenLimit", fStaminaRegenLimit);
 	ReadFloatSetting(ini, "gameSetting", "fCombatStaminaRegenMult", fCombatStaminaRegenMult);
 	ReadFloatSetting(ini, "gameSetting", "fStaminaRegenDelay", fStaminaRegenDelay);
 

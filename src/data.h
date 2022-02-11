@@ -10,6 +10,7 @@ public:
 	
 	//attacking
 	static inline float fStaminaRegenMult = 5;
+	static inline float fStaminaRegenLimit = 50;
 	static inline float fCombatStaminaRegenMult = 1;
 	static inline float fStaminaRegenDelay = 2;
 	static inline float fMeleeCostLightMiss_Point = 30;
@@ -37,7 +38,11 @@ public:
 
 	static void readSettings();
 
-
+	//dodge framework compatibility
+	static inline bool bTKDodgeCompatibility = false;
+	static inline bool bDMCOCompatibility = true;
+	static inline float fDodgeStaminaRoll_Percent = 0.5;
+	static inline float fDodgeStaminaStep_Point = 30;
 private:
 	static void ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, bool& a_setting);
 	static void ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting);
