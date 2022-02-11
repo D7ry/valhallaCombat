@@ -36,6 +36,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Post load game");
 		INFO("clearing stamina debuff");
 		debuffHandler::GetSingleton();
+		//FIXME:clear debuff states for every load
 		//debuffHandler::GetSingleton()->refresh();
 		INFO("debuff cleared");
 		break;

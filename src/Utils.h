@@ -35,12 +35,10 @@ namespace Utils
 				else {
 					staminaRegen = mult * staminaRegenMap.at(raceName);
 				}
-				if (staminaRegen <= upperLimit) {
-					race->data.staminaRegen = staminaRegen;
+				if (staminaRegen > upperLimit) {
+					staminaRegen = upperLimit;
 				}
-				else {
-					race->data.staminaRegen = upperLimit;
-				}
+				race->data.staminaRegen = staminaRegen;
 				INFO("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
 			}
 		}
@@ -118,6 +116,20 @@ namespace Utils
 		if (a_actor && a_spell) {
 			a_actor->RemoveSpell(a_spell);
 			DEBUG("spell {} removed from {}.", a_spell->GetName(), a_actor->GetName());
+		}
+	}
+
+	inline void safeApplyPerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
+		if (a_actor && a_perk && !a_actor->HasPerk(a_perk)) {
+			a_actor->AddPerk(a_perk);
+			DEBUG("perk {} added to {}", a_perk->GetName(), a_actor->GetName());
+		}
+	}
+
+	inline void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
+		if (a_actor && a_perk && a_actor->HasPerk(a_perk)) {
+			a_actor->RemovePerk(a_perk);
+			DEBUG("perk {} removed from {}", a_perk->GetName(), a_actor->GetName());
 		}
 	}
 

@@ -1,5 +1,35 @@
 #include "debuffHandler.h"
 #include "data.h"
+
+void debuffHandler::update() {
+	/*Iterate through the set of actors debuffing,
+	checking their stamina.*/
+	auto it = actorsInDebuff.begin();
+	while (it != actorsInDebuff.end()) {
+		if (!(*it) //actor is no longer loaded.
+			|| ((*it)->GetActorValue(RE::ActorValue::kStamina) >= (*it)->GetPermanentActorValue(RE::ActorValue::kStamina))) {
+			DEBUG("{}'s stamina has fully recovered, or they're no longer loaded", (*it)->GetName());
+			debuffHandler::stopStaminaDebuff((*it));
+			it = actorsInDebuff.erase(it); //erase actor from debuff set.
+			DEBUG("actor erased from debuff set");
+		}
+		else {
+			++it;
+		}
+	}
+	/*check iff player is in debuff state, if so, flash the stamina meter*/
+	if (playerInDebuff && settings::bUIAlert) {
+		if (playerMeterFlashTimer <= 0) {
+			Utils::FlashHUDMenuMeter(RE::ActorValue::kStamina);
+			playerMeterFlashTimer = 0.5;
+		}
+		else {
+			playerMeterFlashTimer -= *Utils::g_deltaTimeRealTime;
+		}
+	}
+	
+}
+
 /*Initialize a stmaina debuff for actor, giving them exhaustion perk, and putting them into the debuff map.
 If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
 @param actor actor who will receive debuff.*/
@@ -13,10 +43,11 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 		DEBUG("{} is already in debuff", actor->GetName());
 		return;
 	}
+	addDebuffPerk(actor);
 	actorsInDebuff.emplace(actor); 
-	addDebuffSpell();
-	//TODO:debuffPerk
-	greyOutStaminaMeter(actor);
+	if (settings::bUIAlert) {
+		greyOutStaminaMeter(actor);
+	}
 	if (actor->IsPlayerRef()) {
 		playerInDebuff = true;
 	}
@@ -26,9 +57,12 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 	DEBUG("Stopping stamina debuff for {}", actor->GetName());
 	//rmDebuffSpell();
 	if (actor) {
-		revertStaminaMeter(actor);
+		removeDebuffPerk(actor);
 		if (actor->IsPlayerRef()) {
 			playerInDebuff = false;
+		}
+		if (settings::bUIAlert) {
+			revertStaminaMeter(actor);
 		}
 	}
 }

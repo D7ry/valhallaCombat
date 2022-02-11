@@ -7,22 +7,21 @@ using namespace Utils;
 class settings
 {
 public:
-	
-	/*Attacking*/
+	/*General*/
 	static inline float fStaminaRegenMult = 5;
 	static inline float fStaminaRegenLimit = 50;
 	static inline float fCombatStaminaRegenMult = 1;
 	static inline float fStaminaRegenDelay = 2;
+	/*Attacking*/
+	static inline bool bBlockedHitRegenStamina = true;
 	static inline float fMeleeCostLightMiss_Point = 30;
 	static inline float fMeleeRewardLightHit_Percent = 0.2;
 	static inline float fMeleeCostHeavyMiss_Percent = 0.333;
 	static inline float fMeleeCostHeavyHit_Percent = 0.199;
 
 	/*UI*/
-	static inline bool bBlockedHitRegenStamina = true;
 	static inline bool bUIAlert = true;
 	static inline bool bNonCombatStaminaDebuff = true;
-	static inline float fMeterFlashTimeDifference = 0.5; //time difference between two meter flash, if UI alter is active.
 
 	/*Blocking*/
 	static inline bool bStaminaBlocking = true;
@@ -37,14 +36,18 @@ public:
 	static inline float fBckWpnStaminaMult_NPC_Block_NPC = 2;
 
 
-	static void readSettings();
-
 	/*Compatibility for dodge framework*/
 	static inline bool bTKDodgeCompatibility = false;
-	static inline bool bDMCOCompatibility = true;
+	static inline bool bDMCOCompatibility = false;
+	static inline bool bCGOCompatibility = false;
+	static inline bool bTUDMCompatibility = false;
 	/*additional stamina*/
-	static inline float fDodgeStaminaRoll = 20; //additional stamina cost for doing a dodge roll, only works for DMCO.
-	static inline float fDodgeStaminaStep = 30;
+	static inline float fDodgeStaminaLong = 20; //additional stamina cost for doing a dodge roll, only works for DMCO.
+	static inline float fDodgeStaminaShort = 30;
+
+
+	static void readSettings();
+
 private:
 	static void ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, bool& a_setting);
 	static void ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting);

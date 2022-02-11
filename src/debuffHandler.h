@@ -23,6 +23,7 @@ class debuffHandler
 		//debuffPerk = 
 		playerMeterFlashTimer = 0;
 		playerInDebuff = false;
+		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
 	}
 
 
@@ -42,55 +43,22 @@ public:
 	}
 
 	/*called along with the main update hook.*/
-	void update() {
-		/*Iterate through the set of actors debuffing,
-		checking their stamina.*/
-		auto it = actorsInDebuff.begin();
-		while (it != actorsInDebuff.end()) {
-			if (!(*it) //actor is no longer loaded.
-				|| ((*it)->GetActorValue(RE::ActorValue::kStamina) >= (*it)->GetPermanentActorValue(RE::ActorValue::kStamina))) {
-				DEBUG("{}'s stamina has fully recovered, or they're no longer loaded", (*it)->GetName());
-				debuffHandler::stopStaminaDebuff((*it));
-				it = actorsInDebuff.erase(it); //erase actor from debuff set.
-				DEBUG("actor erased from debuff set");
-			}
-			else {
-				++it;
-			}
-		}
-		/*check iff player is in debuff state, if so, flash the stamina meter*/
-		if (playerInDebuff) {
-			if (playerMeterFlashTimer <= 0) {
-				Utils::FlashHUDMenuMeter(RE::ActorValue::kStamina);
-				playerMeterFlashTimer = 0.5; //FIXME:fix this
-			}
-			else {
-				playerMeterFlashTimer -= *Utils::g_deltaTimeRealTime;
-			}
-		}
-	}
+	void update();
 	void greyOutStaminaMeter(RE::Actor* actor);
 	void revertStaminaMeter(RE::Actor* actor);
 	void initStaminaDebuff(RE::Actor* actor);
 	void stopStaminaDebuff(RE::Actor* actor);
-	/*reset debuff state on game load*/
-	void refresh() {
-		//isPlayerExhausted = false;
-		rmDebuffSpell();
-	}
 
-	static inline std::atomic<bool> isPlayerExhausted = false;
 	static inline TRUEHUD_API::IVTrueHUD2* g_trueHUD = nullptr;
 
 private:
 
-
-	void addDebuffSpell() {
-		Utils::safeApplySpell(debuffSpell, RE::PlayerCharacter::GetSingleton());
+	void addDebuffPerk(RE::Actor* a_actor) {
+		Utils::safeApplyPerk(debuffPerk, a_actor);
 	}
 
-	void rmDebuffSpell() {
-		Utils::safeRemoveSpell(debuffSpell, RE::PlayerCharacter::GetSingleton());
+	void removeDebuffPerk(RE::Actor* a_actor) {
+		Utils::safeRemovePerk(debuffPerk, a_actor);
 	}
 
 	RE::BGSPerk* debuffPerk;
