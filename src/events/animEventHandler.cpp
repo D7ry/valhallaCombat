@@ -3,38 +3,51 @@
 //all credits to Bingle
 namespace anno
 {
-	const char* attackStop_anno = "attackStop";
-	const char* hitFrame_anno = "HitFrame";
-	const char* preHitFrame_anno = "preHitFrame";
-	const char* atkWin_Skysa_Anno = "SkySA_AttackWinStart";
-	const char* block_start_anno = "blockStartOut";
-	const char* block_stop_anno = "blockStop";
-	const char* weaponSwing_anno = "weaponSwing";
+	const char* attackStop = "attackStop";
+	const char* hitFrame = "HitFrame";
+	const char* preHitFrame = "preHitFrame";
+	const char* atkWin_Skysa = "SkySA_AttackWinStart";
+	const char* block_start = "blockStartOut";
+	const char* block_stop = "blockStop";
+	const char* weaponSwing = "weaponSwing";
+	const char* tkDodge = "";
+	const char* dmcoStep = "";
+	const char* dmcoRoll = "";
+}
+constexpr uint32_t hash(const char* data, size_t const size) noexcept
+{
+	uint32_t hash = 5381;
+
+	for (const char* c = data; c < data + size; ++c) {
+		hash = ((hash << 5) + hash) + (unsigned char)*c;
+	}
+
+	return hash;
+}
+
+constexpr uint32_t operator"" _h(const char* str, size_t size) noexcept
+{
+	return hash(str, size);
 }
 
 RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGraphEvent& a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* src) {
-    
-	using namespace anno;
     FnProcessEvent fn = fnHash.at(*(uint64_t*)this);
-	if (a_event.tag != NULL) {
-		RE::BSFixedString _event = a_event.tag;
-		//DEBUG(_event);
-		if (_event == preHitFrame_anno) {
-			DEBUG("==========prehitFrame==========");
-			attackHandler::GetSingleton()->registerAtk(a_event.holder->As<RE::Actor>());
+	std::string_view eventTag = a_event.tag.data();
+	switch (hash(eventTag.data(), eventTag.size())) {
+	case "preHitFrame"_h:
+		DEBUG("==========prehitFrame==========");
+		attackHandler::GetSingleton()->registerAtk(a_event.holder->As<RE::Actor>());
+		break;
+	case "attackStop"_h:
+		DEBUG("==========attackstop==========");
+		attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
+		break;
+	case "TKDR_DodgeStart"_h:
+		DEBUG("==========TK DODGE============");
+		if (settings::bTKDodgeCompatibility) {
+			staminaHandler::staminaDodgeStep(a_event.holder->As<RE::Actor>());
 		}
-		else if (_event == attackStop_anno) {
-			DEBUG("==========attackstop==========");
-			attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
-		}
-		/*else if (_event == block_start_anno) {
-			DEBUG("==========blockStart==========");
-			blockHandler::GetSingleton()->raiseShield();
-		}
-		else if (_event == block_stop_anno) {
-			DEBUG("==========blockStop==========");
-			blockHandler::GetSingleton()->unRaiseShield();
-		}*/
+		break;
 	}
     return fn ? (this->*fn)(a_event, src) : RE::BSEventNotifyControl::kContinue;
 }

@@ -9,7 +9,7 @@ void settings::readSettings() {
 
 	//values with "_" at the end need to be updated into game to take effect
 	ReadFloatSetting(ini, "gameSetting", "fStaminaRegenMult", fStaminaRegenMult);
-	ReadFloatSetting(ini, "gameSettings", "fStaminaRegenLimit", fStaminaRegenLimit);
+	ReadFloatSetting(ini, "gameSettings", "fStaminaRegenLimit", fStaminaRegenLimit); //FIXME:add MCM config
 	ReadFloatSetting(ini, "gameSetting", "fCombatStaminaRegenMult", fCombatStaminaRegenMult);
 	ReadFloatSetting(ini, "gameSetting", "fStaminaRegenDelay", fStaminaRegenDelay);
 
@@ -39,7 +39,7 @@ void settings::readSettings() {
 	INFO("Ini settings read.");
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
-	multStaminaRegen(fStaminaRegenMult);
+	multStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
 	INFO("Game settings applied.");
 }
 
