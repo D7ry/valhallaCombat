@@ -76,35 +76,6 @@ namespace Utils
 		}
 	}
 
-	inline void addPerkToPc(RE::BGSPerk* perk) {
-		DEBUG("adding perk to pc");
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (!perk) {
-			DEBUG("perk does not exist!");
-			return;
-		}
-		if (pc->HasPerk(perk)) {
-			DEBUG("pc already has {}!", perk->GetFullName());
-			return;
-		}
-		pc->AddPerk(perk);
-		DEBUG("successfully added {} to pc", perk->GetFullName());
-	}
-
-	inline void rmPerkFromPc(RE::BGSPerk* perk) {
-		DEBUG("removing perk from pc");
-		auto pc = RE::PlayerCharacter::GetSingleton();
-		if (!perk) {
-			DEBUG("perk does not exist!");
-			return;
-		}
-		if (!pc->HasPerk(perk)) {
-			DEBUG("pc does not have {}!", perk->GetFullName());
-			return;
-		}
-		pc->RemovePerk(perk);
-		DEBUG("successfully removed {} from pc", perk->GetFullName());
-	}
 
 	inline void safeApplySpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
 		if (a_actor && a_spell) {
@@ -135,16 +106,29 @@ namespace Utils
 	}
 	/*flash this actor's stmaina meter once.*/
 	inline void flashStaminaMeter(RE::Actor* actor) {
-		DEBUG("Blinking {}'s stamina", actor->GetName());
+		//DEBUG("Blinking {}'s stamina", actor->GetName());
 		ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
 	}
+
+	inline void ExecuteCommand(std::string a_command)
+	{
+		const auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>();
+		const auto script = scriptFactory ? scriptFactory->Create() : nullptr;
+		if (script) {
+			const auto selectedRef = RE::Console::GetSelectedRef();
+			script->SetCommand(a_command);
+			script->CompileAndRun(selectedRef.get());
+			delete script;
+		}
+	}
+	typedef void(_fastcall* _shakeCamera)(float strength, RE::NiPoint3 source, float duration);
+	static REL::Relocation<_shakeCamera> shakeCamera{ REL::ID(32275) };
 
 	typedef void(_fastcall* tFlashHUDMenuMeter)(RE::ActorValue a_actorValue);
 	static REL::Relocation<tFlashHUDMenuMeter> FlashHUDMenuMeter{ REL::ID(51907) };
 
 	static float* g_deltaTime = (float*)REL::ID(523660).address();                            // 2F6B948
 	static float* g_deltaTimeRealTime = (float*)REL::ID(523661).address();                  // 2F6B94C
-
 
 };
 

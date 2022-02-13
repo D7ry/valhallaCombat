@@ -9,17 +9,11 @@ class debuffHandler
 {
 
 	debuffHandler() {
-		//debuffSpell = RE::TESDataHandler::GetSingleton()->LookupForm<RE::SpellItem>(0x00001827, "ValhallaCombat.esp");
-		//debuffPerk = 
 		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
 	}
 
 
 public:
-	/*Set of actors experiencing debuff.*/
-	//boost::unordered_map<RE::Actor*, float> actorsInDebuff;
-	//boost::container::set<RE::Actor*> actorsInDebuff;
-
 	/*Mapping of a set of actors currently in stamina debuff to their stamina blinking timer.*/
 	boost::unordered_map<RE::Actor*, float> actorsInDebuff;
 

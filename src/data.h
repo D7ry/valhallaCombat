@@ -43,15 +43,23 @@ public:
 	static inline bool bDMCOCompatibility = false;
 	static inline bool bCGOCompatibility = false;
 	static inline bool bTUDMCompatibility = false;
-	/*additional stamina*/
-	static inline float fDodgeStaminaLong = 20; //additional stamina cost for doing a dodge roll, only works for DMCO.
-	static inline float fDodgeStaminaShort = 30;
+	/*additional stamina override. This override does not limit dodging.*/
+	static inline float fDodgeStaminaLong = 0; //additional stamina cost for doing a dodge roll, only works for DMCO.
+	static inline float fDodgeStaminaShort = 0;
 
 
 
-	//perfect blocking 
+	//perfect blocking
 	//FIXME: add MCM helper
 
+	//TODO:Settings to add to MCM and readSettings()
+	static inline bool bPoiseCompatibility = false;
+	static inline bool bPerfectBlocking = true;
+	static inline bool bPerfectBlockingScreenShake = true;
+	static inline bool bPerfectBlockingSFX = true;
+	static inline bool bPerfectBlockingVFX = true;
+	static inline float fPerfectBlockTime = 0.5;
+	static inline float fPerfectBlockCoolDownTime = 1;
 
 	static void readSettings();
 

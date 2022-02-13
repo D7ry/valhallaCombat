@@ -1,6 +1,7 @@
 #pragma once
 #include "debuffHandler.h"
-#include "TrueHUDAPI.h"
+#include "blockHandler.h"
+#include "include/TrueHUDAPI.h"
 /*Combat tweaks to make Skyrim's melee combat feel like AC:Valhalla.*/
 class ValhallaCombat
 {
@@ -17,7 +18,7 @@ public:
 	/*Runs every frame*/
 	void update() {
 		debuffHandler::GetSingleton()->update();
-
+		blockHandler::GetSingleton()->update();
 	}
 
 };

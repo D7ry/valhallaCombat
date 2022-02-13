@@ -4,7 +4,7 @@
 #include "data.h"
 #include "debuffHandler.h"
 #include "events/animEventHandler.h"
-#include "TrueHUDAPI.h"
+#include "include/TrueHUDAPI.h"
 #include "ValhallaCombat.hpp"
 
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)

@@ -3,35 +3,33 @@
 #include "data.h"
 #include "valhallaCombat.hpp"
 
-
+/*Called every frame.
+Iterate through the set of actors debuffing.
+Check the actors' stamina. If the actor's stamina has fully recovered, remove the actor from the set.
+Check the actor's UI counter, if the counter is less than 0, flash the actor's UI.*/
 void debuffHandler::update() {
-	/*Iterate through the set of actors debuffing,
-	Check the actors' stamina. If the actor's stamina has fully recovered, remove the actor from the set.
-	Check the actor's UI counter, if the counter is less than 0, flash the actor's UI.*/
 	auto it = actorsInDebuff.begin();
 	while (it != actorsInDebuff.end()) {
 		auto actor = it->first;
 		if (!actor) {//actor no longer loaded
 			DEBUG("Actor no longer loaded");
 			it = actorsInDebuff.erase(it);//erase actor from debuff set.
+			continue;
 		}
-		else if (actor->GetActorValue(RE::ActorValue::kStamina) >= actor->GetPermanentActorValue(RE::ActorValue::kStamina)) { //actor loaded and recovered
+		if (actor->GetActorValue(RE::ActorValue::kStamina) >= actor->GetPermanentActorValue(RE::ActorValue::kStamina)) { //actor loaded and recovered
 			DEBUG("{}'s stamina has fully recovered.", actor->GetName());
 			debuffHandler::stopStaminaDebuff(actor);
 			DEBUG("erasing actor");
 			it = actorsInDebuff.erase(it);
-			if (it == actorsInDebuff.end()) {
-				break;
-			}
+			continue;
 		}
-		else if (settings::bUIAlert){ //flash the actor's meter
+		if (settings::bUIAlert){ //flash the actor's meter
 			if (it->second <= 0) {
 				Utils::flashStaminaMeter(actor);
 				it->second = 0.5;
 			}
 			else {
 				it->second -= *Utils::g_deltaTimeRealTime;
-				DEBUG(it->second);
 			}
 		}
 		++it;
@@ -59,6 +57,8 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 	}
 }
 
+/*Stamina the actor's stamina debuff, remove their debuff perk, and revert their UI meter.
+@param actor actor whose stamina debuff will stop.*/
 void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 	DEBUG("Stopping stamina debuff for {}", actor->GetName());
 	removeDebuffPerk(actor);
@@ -67,17 +67,19 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 	}
 }
 
-#pragma region debuffPerks
+/*Attach stamina debuff perk to actor.
+@param a_actor actor who will receive the debuff perk.*/
 void debuffHandler::addDebuffPerk(RE::Actor* a_actor) {
 	Utils::safeApplyPerk(debuffPerk, a_actor);
 }
 
+/*Remove stamina debuff perk from actor.
+@param a_actor actor who will gets the perk removed.*/
 void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
 	Utils::safeRemovePerk(debuffPerk, a_actor);
 }
 	
 
-#pragma endregion
 #pragma region staminaBarTweak
 
 /*Turn flashColor red, turn barcolor and phantom color grey.*/

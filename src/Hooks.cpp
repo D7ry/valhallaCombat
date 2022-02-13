@@ -30,8 +30,8 @@ void CalcStaminaHook::InstallHook() {
 	INFO("attack data hook installed");
 }
 
-/*this function fires before every attack. Reading from this allows me to 
-decide the attack's light/power therefore calculate its staina consumption accordingly. */
+/*Function returning stamina cost of an actor when they perform a combat action.
+Currently, all stamina cost except for bashing is negated.*/
 float CalcStaminaHook::calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData)
 {
 	DEBUG("hooked attack data!");
@@ -100,9 +100,12 @@ void hitEventHook::processHit(RE::Actor* victim, RE::HitData& hitData) {
 		return;
 	}
 	//block
-	if (hitFlag & (int)HITFLAG::kBlocked && settings::bStaminaBlocking) {
-		blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData);
-
+	if (hitFlag & (int)HITFLAG::kBlocked) {
+		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData)) {
+			DEBUG("attack perfect blocked");
+			_ProcessHit(victim, hitData);
+			return; //if the hit is perfect blocked, no hit registration.
+		}
 	}
 	//hit registration
 	if (!(hitFlag & (int)HITFLAG::kBash)  //bash hit doesn't regen stamina

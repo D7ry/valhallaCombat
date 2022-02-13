@@ -1,5 +1,6 @@
 #include "animEventHandler.h"
 #include "attackHandler.h"
+#include "blockHandler.h"
 //all credits to Bingle
 namespace anno
 {
@@ -33,6 +34,9 @@ constexpr uint32_t operator"" _h(const char* str, size_t size) noexcept
 RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGraphEvent& a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* src) {
     FnProcessEvent fn = fnHash.at(*(uint64_t*)this);
 	std::string_view eventTag = a_event.tag.data();
+	if (a_event.holder->IsPlayerRef()) {
+		DEBUG("player event: {}", a_event.tag);
+	}
 	switch (hash(eventTag.data(), eventTag.size())) {
 	case "preHitFrame"_h:
 		DEBUG("==========prehitFrame==========");
@@ -41,6 +45,12 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	case "attackStop"_h:
 		DEBUG("==========attackstop==========");
 		attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
+		break;
+	case "blockStartOut"_h:
+		DEBUG("===========blockStartOut===========");
+		if (settings::bPerfectBlocking) {
+			blockHandler::GetSingleton()->registerPerfectBlock(a_event.holder->As<RE::Actor>());
+		}
 		break;
 	case "TKDR_DodgeStart"_h:
 		DEBUG("==========TK DODGE============");
