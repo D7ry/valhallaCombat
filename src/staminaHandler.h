@@ -1,7 +1,7 @@
 #pragma once
 #include "data.h"
 #include "debuffHandler.h"
-/*Deal with stamina operations and check stamina to launch debuff.*/
+/*Convenience clas to deal with stamina operations.*/
 class staminaHandler
 {
 public:

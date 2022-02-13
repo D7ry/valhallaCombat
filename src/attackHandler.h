@@ -83,6 +83,7 @@ public:
 		else { //register power hit
 			staminaHandler::staminaHeavyHit(actor);
 		}
+		Utils::flashStaminaMeter(actor);
 		DEBUG("erasing {} from attaker heap", actor->GetName());
 		attackerHeap.erase(actor); //erase the actor from heap i.e. checking out the attack without damaging stamina.
 		DEBUG("current attacker heap size: {}", attackerHeap.size());
@@ -115,7 +116,7 @@ private:
 	iff the actor is not stored in the map, return false.
 	@param actor actor whose info to obtain.
 	@param atkType address to store attack type*/
-	bool getAtkType(RE::Actor* actor, ATTACKTYPE& atkType) {
+	inline bool getAtkType(RE::Actor* actor, ATTACKTYPE& atkType) {
 		DEBUG("Getting {}'s attack from attack heap", actor->GetName());
 		boost::unordered::iterator_detail::iterator atkTypeItr = attackerHeap.find(actor); //check if the actor's attack is registered
 		if (atkTypeItr == attackerHeap.end()) {

@@ -1,4 +1,5 @@
 #pragma once
+#include "ValhallaCombat.hpp"
 namespace Utils
 {
 	/*tweaks the value of designated game setting
@@ -131,6 +132,11 @@ namespace Utils
 			a_actor->RemovePerk(a_perk);
 			DEBUG("perk {} removed from {}", a_perk->GetName(), a_actor->GetName());
 		}
+	}
+	/*flash this actor's stmaina meter once.*/
+	inline void flashStaminaMeter(RE::Actor* actor) {
+		DEBUG("Blinking {}'s stamina", actor->GetName());
+		ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
 	}
 
 	typedef void(_fastcall* tFlashHUDMenuMeter)(RE::ActorValue a_actorValue);

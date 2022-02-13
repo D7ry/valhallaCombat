@@ -1,14 +1,11 @@
-/*bring AC Valhalla's stamina system into Skyrim.
-@author TY
-*/
 #include "SimpleIni.h"
 #include "Hooks.h"
 #include "Papyrus.h"
 #include "data.h"
 #include "debuffHandler.h"
 #include "events/animEventHandler.h"
-#include "Utils.h"
 #include "TrueHUDAPI.h"
+#include "ValhallaCombat.hpp"
 
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
@@ -24,7 +21,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 			SKSE::GetMessagingInterface(),
 			[](void* interfaceInstance, TRUEHUD_API::InterfaceVersion interfaceVersion) {
 				if (interfaceVersion == TRUEHUD_API::InterfaceVersion::V2) {
-					debuffHandler::g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD2*>(interfaceInstance);
+					ValhallaCombat::GetSingleton()->g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD2*>(interfaceInstance);
 					INFO("Obtained TrueHUD API");
 				}
 				else

@@ -1,31 +1,40 @@
 #include "debuffHandler.h"
+
 #include "data.h"
+#include "valhallaCombat.hpp"
+
 
 void debuffHandler::update() {
 	/*Iterate through the set of actors debuffing,
-	checking their stamina.*/
+	Check the actors' stamina. If the actor's stamina has fully recovered, remove the actor from the set.
+	Check the actor's UI counter, if the counter is less than 0, flash the actor's UI.*/
 	auto it = actorsInDebuff.begin();
 	while (it != actorsInDebuff.end()) {
-		if (!(*it) //actor is no longer loaded.
-			|| ((*it)->GetActorValue(RE::ActorValue::kStamina) >= (*it)->GetPermanentActorValue(RE::ActorValue::kStamina))) {
-			DEBUG("{}'s stamina has fully recovered, or they're no longer loaded", (*it)->GetName());
-			debuffHandler::stopStaminaDebuff((*it));
-			it = actorsInDebuff.erase(it); //erase actor from debuff set.
-			DEBUG("actor erased from debuff set");
+		auto actor = it->first;
+		if (!actor) {//actor no longer loaded
+			DEBUG("Actor no longer loaded");
+			it = actorsInDebuff.erase(it);//erase actor from debuff set.
 		}
-		else {
-			++it;
+		else if (actor->GetActorValue(RE::ActorValue::kStamina) >= actor->GetPermanentActorValue(RE::ActorValue::kStamina)) { //actor loaded and recovered
+			DEBUG("{}'s stamina has fully recovered.", actor->GetName());
+			debuffHandler::stopStaminaDebuff(actor);
+			DEBUG("erasing actor");
+			it = actorsInDebuff.erase(it);
+			if (it == actorsInDebuff.end()) {
+				break;
+			}
 		}
-	}
-	/*check iff player is in debuff state, if so, flash the stamina meter*/
-	if (playerInDebuff && settings::bUIAlert) {
-		if (playerMeterFlashTimer <= 0) {
-			Utils::FlashHUDMenuMeter(RE::ActorValue::kStamina);
-			playerMeterFlashTimer = 0.5;
+		else if (settings::bUIAlert){ //flash the actor's meter
+			if (it->second <= 0) {
+				Utils::flashStaminaMeter(actor);
+				it->second = 0.5;
+			}
+			else {
+				it->second -= *Utils::g_deltaTimeRealTime;
+				DEBUG(it->second);
+			}
 		}
-		else {
-			playerMeterFlashTimer -= *Utils::g_deltaTimeRealTime;
-		}
+		++it;
 	}
 	
 }
@@ -44,36 +53,45 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 		return;
 	}
 	addDebuffPerk(actor);
-	actorsInDebuff.emplace(actor); 
+	actorsInDebuff.emplace(actor, 0); 
 	if (settings::bUIAlert) {
 		greyOutStaminaMeter(actor);
-	}
-	if (actor->IsPlayerRef()) {
-		playerInDebuff = true;
 	}
 }
 
 void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 	DEBUG("Stopping stamina debuff for {}", actor->GetName());
-	//rmDebuffSpell();
-	if (actor) {
-		removeDebuffPerk(actor);
-		if (actor->IsPlayerRef()) {
-			playerInDebuff = false;
-		}
-		if (settings::bUIAlert) {
-			revertStaminaMeter(actor);
-		}
+	removeDebuffPerk(actor);
+	if (settings::bUIAlert) {
+		revertStaminaMeter(actor);
 	}
 }
+
+#pragma region debuffPerks
+void debuffHandler::addDebuffPerk(RE::Actor* a_actor) {
+	Utils::safeApplyPerk(debuffPerk, a_actor);
+}
+
+void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
+	Utils::safeRemovePerk(debuffPerk, a_actor);
+}
+	
+
+#pragma endregion
+#pragma region staminaBarTweak
+
+/*Turn flashColor red, turn barcolor and phantom color grey.*/
 void debuffHandler::greyOutStaminaMeter(RE::Actor* actor) {
-	g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
-	g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
-	g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
+	ValhallaCombat::GetSingleton()->g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
+	ValhallaCombat::GetSingleton()->g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
+	ValhallaCombat::GetSingleton()->g_trueHUD->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
 }
 
 void debuffHandler::revertStaminaMeter(RE::Actor* actor) {
-	g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor);
-	g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor);
-	g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor);
+	ValhallaCombat::GetSingleton()->g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor);
+	ValhallaCombat::GetSingleton()->g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor);
+	ValhallaCombat::GetSingleton()->g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor);
+	DEBUG("{}s stamia meter reverted", actor->GetName());
 }
+
+#pragma endregion

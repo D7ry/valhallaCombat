@@ -17,7 +17,7 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "gameSetting", "fStaminaRegenDelay", fStaminaRegenDelay);
 
 	//read attack section
-	ReadBoolSetting(ini, "General", "bBlockedHitRegenStamina", bBlockedHitRegenStamina);
+	ReadBoolSetting(ini, "Attack", "bBlockedHitRegenStamina", bBlockedHitRegenStamina);
 	ReadFloatSetting(ini, "Attack", "fMeleeCostLightMiss_Point", fMeleeCostLightMiss_Point); //this doesn't need to be divided by 100 since it's constnat.
 	ReadFloatSetting(ini, "Attack", "fMeleeRewardLightHit_Percent", fMeleeRewardLightHit_Percent);
 	ReadFloatSetting(ini, "Attack", "fMeleeCostHeavyMiss_Percent", fMeleeCostHeavyMiss_Percent);

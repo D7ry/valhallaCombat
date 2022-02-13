@@ -1,6 +1,7 @@
 #include "Hooks.h"
 #include "Utils.h"
-#include "hitDataProcessor.h"
+#include "blockHandler.h"
+#include "ValhallaCombat.hpp"
 #pragma region attackDataHook
 void CalcStaminaHook::InstallHook() {
 
@@ -89,84 +90,31 @@ void hitEventHook::InstallHook() {
 };
 
 /*stamina blocking*/
-void hitEventHook::processHit(RE::Actor* a_actor, RE::HitData& hitData) {
+void hitEventHook::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	//hitDataProcessor::processHitData(hitData);
 	int hitFlag = (int)hitData.flags;
 	using HITFLAG = RE::HitData::Flag;
-#pragma region StaminaBlocking
-	//nullPtr check in case Skyrim fucks up
-	auto aggressor = hitData.aggressor.get();
-	if (!a_actor || !aggressor) {
-		_ProcessHit(a_actor, hitData);
+	auto aggressor = hitData.aggressor.get().get();
+	if (!victim || !aggressor) {
+		_ProcessHit(victim, hitData);
 		return;
 	}
+	//block
 	if (hitFlag & (int)HITFLAG::kBlocked && settings::bStaminaBlocking) {
-		DEBUG("process stamina blocking!");
-		float staminaDamageBase = hitData.totalDamage;
-		float staminaDamageMult;
-		DEBUG("base stamina damage is {}", staminaDamageBase);
-		if (hitFlag & (int)HITFLAG::kBlockWithWeapon) {
-			DEBUG("hit blocked with weapon");
-			if (a_actor->IsPlayerRef()) {
-				staminaDamageMult = settings::fBckWpnStaminaMult_PC_Block_NPC;
-			}
-			else {
-				if (aggressor->IsPlayerRef()) {
-					staminaDamageMult = settings::fBckWpnStaminaMult_NPC_Block_PC;
-				}
-				else {
-					staminaDamageMult = settings::fBckWpnStaminaMult_NPC_Block_NPC;
-				}
-			}
-		}
-		else {
-			DEBUG("hit blocked with shield");
-			if (a_actor->IsPlayerRef()) {
-				staminaDamageMult = settings::fBckShdStaminaMult_PC_Block_NPC;
-			}
-			else {
-				if (aggressor->IsPlayerRef()) {
-					staminaDamageMult = settings::fBckShdStaminaMult_NPC_Block_PC;
-				}
-				else {
-					staminaDamageMult = settings::fBckShdStaminaMult_NPC_Block_NPC;
-				}
-			}
-		}
-		float staminaDamage = staminaDamageBase * staminaDamageMult;
-		float targetStamina = a_actor->GetActorValue(RE::ActorValue::kStamina);
+		blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData);
 
-		//check whether there's enough stamina to block incoming attack
-		if (targetStamina < staminaDamage) {
-			DEBUG("not enough stamina to block, blocking part of damage!");
-			if (settings::bGuardBreak) {
-				DEBUG("guard break!");
-				a_actor->NotifyAnimationGraph("staggerStart");
-			}
-			hitData.totalDamage = hitData.totalDamage - (targetStamina / staminaDamageMult);
-			Utils::damageav(a_actor, RE::ActorValue::kStamina,
-				targetStamina);
-			DEBUG("failed to block {} damage", hitData.totalDamage);
-			debuffHandler::GetSingleton()->initStaminaDebuff(a_actor); //initialize debuff for the failed blocking attempt
-		}
-		else {
-			hitData.totalDamage = 0;
-			Utils::damageav(a_actor, RE::ActorValue::kStamina,
-				staminaDamage);
-		}
 	}
-#pragma endregion
-#pragma region AttackRegistration
+	//hit registration
 	if (!(hitFlag & (int)HITFLAG::kBash)  //bash hit doesn't regen stamina
 		&& (!(hitFlag & (int)HITFLAG::kBlocked) || settings::bBlockedHitRegenStamina)//blocked hit doesn't regen stamina unless set so
-		&& !a_actor->IsDead()) { //dead actor doesn't regen stamina
-		attackHandler::GetSingleton()->registerHit(aggressor.get());
+		&& !victim->IsDead()) { //dead actor doesn't regen stamina
+		attackHandler::GetSingleton()->registerHit(aggressor);
 	}
-#pragma endregion
-	_ProcessHit(a_actor, hitData);
+
+	_ProcessHit(victim, hitData);
 };
 
 void MainUpdateHook::Update(RE::Main* a_this, float a2) {
-	debuffHandler::GetSingleton()->update();
+	ValhallaCombat::GetSingleton()->update();
 	_Update(a_this, a2);
 }

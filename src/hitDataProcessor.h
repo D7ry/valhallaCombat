@@ -2,6 +2,12 @@
 #include "data.h"
 #include "attackHandler.h"
 using HITFLAG = RE::HitData::Flag;
+class hitDataProcessor {
+public:
+	static void processHitData(RE::HitData& hitData) {
+
+	}
+};
 /*
 class hitDataProcessor {
 public:

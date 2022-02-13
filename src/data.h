@@ -4,6 +4,8 @@
 #include "debuffHandler.h"
 using namespace Utils;
 
+
+
 class settings
 {
 public:
@@ -13,7 +15,7 @@ public:
 	static inline float fCombatStaminaRegenMult = 1;
 	static inline float fStaminaRegenDelay = 2;
 	/*Attacking*/
-	static inline bool bBlockedHitRegenStamina = true;
+	static inline bool bBlockedHitRegenStamina = false;
 	static inline float fMeleeCostLightMiss_Point = 30;
 	static inline float fMeleeRewardLightHit_Percent = 0.2;
 	static inline float fMeleeCostHeavyMiss_Percent = 0.333;
@@ -44,6 +46,11 @@ public:
 	/*additional stamina*/
 	static inline float fDodgeStaminaLong = 20; //additional stamina cost for doing a dodge roll, only works for DMCO.
 	static inline float fDodgeStaminaShort = 30;
+
+
+
+	//perfect blocking 
+	//FIXME: add MCM helper
 
 
 	static void readSettings();
