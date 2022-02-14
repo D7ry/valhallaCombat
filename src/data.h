@@ -69,6 +69,40 @@ private:
 
 };
 
+struct data
+{
+public:
+
+	static data* GetSingleton()
+	{
+		static data singleton;
+		return  std::addressof(singleton);
+	}
+	RE::TESSound* soundParryShield = nullptr;
+	RE::TESSound* soundParryWeapon = nullptr;
+	RE::BGSPerk* debuffPerk = nullptr;
+	RE::BGSSoundDescriptorForm* soundParryShieldD = nullptr;
+	RE::BGSSoundDescriptorForm* soundParryWeaponD = nullptr;
+	/*Fetch data from game and store them for latter use.*/
+	void fetchGameData() {
+		INFO("Fetching data from game...");
+		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
+		if (debuffPerk) {
+			INFO("Debuff perk successfully loaded!");
+		}
+		soundParryShield = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESSound>(0X433D, "ValhallaCombat.esp");
+		soundParryWeapon = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESSound>(0X433E, "ValhallaCombat.esp");
+		if (soundParryShield && soundParryWeapon) {
+			INFO("Sound successfully loaded!");
+		}
+		soundParryShieldD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X433C, "ValhallaCombat.esp");
+		soundParryWeaponD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X3DD9, "ValhallaCombat.esp");
+		if (soundParryShieldD && soundParryWeaponD) {
+			INFO("SoundD successfully loaded!");
+		}
+		INFO("Data fetched.");
+	}
+};
 //struct settingsOld {
 
 

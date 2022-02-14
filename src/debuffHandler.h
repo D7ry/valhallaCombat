@@ -8,11 +8,6 @@
 class debuffHandler
 {
 
-	debuffHandler() {
-		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
-	}
-
-
 public:
 	/*Mapping of a set of actors currently in stamina debuff to their stamina blinking timer.*/
 	boost::unordered_map<RE::Actor*, float> actorsInDebuff;

@@ -1,4 +1,5 @@
 #pragma once
+#include "Utils.h"
 /*Maxsu's block spark function*/
 namespace MaxsuBlockSpark
 {
@@ -77,7 +78,7 @@ namespace MaxsuBlockSpark
 			static SparkLocalizer singleton;
 			return  std::addressof(singleton);
 		}
-		/*
+		
 		bool GetShieldSparkPos(const RE::NiPoint3& hitPos, RE::NiAVObject* shieldNode, RE::NiPoint3& result) {
 			{
 				if (!shieldNode)
@@ -143,7 +144,7 @@ namespace MaxsuBlockSpark
 
 				return true;
 			}
-		}*/
+		}
 
 
 	};
@@ -159,11 +160,11 @@ namespace MaxsuBlockSpark
 		}
 
 		void playPerfectBlockSpark(RE::Actor* attacker, RE::Actor* defender) {
-			auto attackWeapon = attacker->GetAttackingWeapon()->object->As<RE::TESObjectWEAP>();
+			auto attackWeapon = Utils::getWieldingWeapon(attacker);
 			if (!attackWeapon) {
 				return;
 			}
-			if (!defender || !attackWeapon || !defender->currentProcess || !defender->currentProcess->high || !attackWeapon->IsMelee() || attackWeapon->IsHandToHandMelee() || !defender->Get3D()) {
+			if (!defender || !defender->currentProcess || !defender->currentProcess->high || !attackWeapon->IsMelee() || attackWeapon->IsHandToHandMelee() || !defender->Get3D()) {
 				return;
 			}
 			if (!attacker || !attacker->currentProcess || !attacker->currentProcess->high) {
@@ -226,11 +227,10 @@ namespace MaxsuBlockSpark
 
 			RE::NiPoint3 sparkPos;
 			
-			//FIXME: this is bugged
-			//RE::NiPoint3 hitPos = attackerNode->worldBound.center + attackerNode->world.rotate * RE::NiPoint3(0.f, 0.5f * attackerNode->worldBound.radius, 0.f);
-			/*if (BipeObjIndex == RE::BIPED_OBJECT::kShield && defenderLeftEquipped && defenderLeftEquipped->IsArmor() && SparkLocalizer::GetSingleton()->GetShieldSparkPos(hitPos, defenderNode.get(), sparkPos)) {
+			RE::NiPoint3 hitPos = attackerNode->worldBound.center + attackerNode->world.rotate * RE::NiPoint3(0.f, 0.5f * attackerNode->worldBound.radius, 0.f);
+			if (BipeObjIndex == RE::BIPED_OBJECT::kShield && defenderLeftEquipped && defenderLeftEquipped->IsArmor() && SparkLocalizer::GetSingleton()->GetShieldSparkPos(hitPos, defenderNode.get(), sparkPos)) {
 				DEBUG("Get Shield Spark Position!");
-			}*/
+			}
 			sparkPos = defenderNode->worldBound.center;
 			DEBUG("Get Weapon Spark Position!");
 			if (cell->PlaceParticleEffect(0.0f, modelName, defenderNode->world.rotate, sparkPos, 1.0f, 4U, defenderNode.get())) {

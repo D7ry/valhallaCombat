@@ -1,5 +1,4 @@
 #include "debuffHandler.h"
-
 #include "data.h"
 #include "valhallaCombat.hpp"
 
@@ -70,13 +69,13 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 /*Attach stamina debuff perk to actor.
 @param a_actor actor who will receive the debuff perk.*/
 void debuffHandler::addDebuffPerk(RE::Actor* a_actor) {
-	Utils::safeApplyPerk(debuffPerk, a_actor);
+	Utils::safeApplyPerk(data::GetSingleton()->debuffPerk, a_actor);
 }
 
 /*Remove stamina debuff perk from actor.
 @param a_actor actor who will gets the perk removed.*/
 void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
-	Utils::safeRemovePerk(debuffPerk, a_actor);
+	Utils::safeRemovePerk(data::GetSingleton()->debuffPerk, a_actor);
 }
 	
 

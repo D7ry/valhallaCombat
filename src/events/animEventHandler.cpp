@@ -34,9 +34,6 @@ constexpr uint32_t operator"" _h(const char* str, size_t size) noexcept
 RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGraphEvent& a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* src) {
     FnProcessEvent fn = fnHash.at(*(uint64_t*)this);
 	std::string_view eventTag = a_event.tag.data();
-	if (a_event.holder->IsPlayerRef()) {
-		DEBUG("player event: {}", a_event.tag);
-	}
 	switch (hash(eventTag.data(), eventTag.size())) {
 	case "preHitFrame"_h:
 		DEBUG("==========prehitFrame==========");
@@ -55,6 +52,7 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	case "TKDR_DodgeStart"_h:
 		DEBUG("==========TK DODGE============");
 		if (settings::bTKDodgeCompatibility) {
+			DEBUG("TK Dodge compatibility detected, damaging dodge stamina");
 			staminaHandler::staminaDodgeStep(a_event.holder->As<RE::Actor>());
 		}
 		break;

@@ -2,6 +2,8 @@
 #include "data.h"
 #include "Utils.h"
 #include "include/BlockSpark.h"
+#include "RE/B/BGSSoundDescriptorForm.h"
+#include "RE/B/BSAudioManager.h"
 /*Called every frame. 
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
@@ -15,8 +17,14 @@ void blockHandler::update() {
 		if (it1->second <= 0) {
 			DEBUG("{}'s perfect block has ended, starting cool down", actor->GetName());
 			it1 = actorsPerfectBlocking.erase(it1);
-			//start cooling down phase
-			actorsInBlockingCoolDown.emplace(actor, settings::fPerfectBlockCoolDownTime);
+			//skip cooldown timer if the previous blocking is successful
+			if (actorsPerfectblockSuccessful.find(actor) != actorsPerfectblockSuccessful.end()) {
+				actorsPerfectBlocking.erase(actor);
+			}
+			else {
+				//start cooling down
+				actorsInBlockingCoolDown.emplace(actor, settings::fPerfectBlockCoolDownTime);
+			}
 			continue;
 		}
 		it1->second -= *Utils::g_deltaTimeRealTime;
@@ -50,13 +58,13 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 	bool b = actorsPerfectBlocking.find(actor) == actorsPerfectBlocking.end();
 	DEBUG(b);*/
 	if (actorsInBlockingCoolDown.find(actor) == actorsInBlockingCoolDown.end() //not cooling down
-		&& actorsPerfectBlocking.find(actor) == actorsPerfectBlocking.end()) { //and not perfect blocking right now
+		&& actorsPerfectBlocking.find(actor) == actorsPerfectBlocking.end()) { //and not currently perfect blocking
 		actorsPerfectBlocking.emplace(actor, settings::fPerfectBlockTime);
 		DEBUG("perfect block registered");
 	}
-	else if (actorsSuccessful.find(actor) != actorsSuccessful.end()){ //has previously done a successful perfect block
+	else if (actorsPerfectblockSuccessful.find(actor) != actorsPerfectblockSuccessful.end()){ //OR has previously done a successful perfect block
 		DEBUG("previous perfect block successful, registering a new perfect block!");
-		actorsSuccessful.erase(actor);
+		actorsPerfectblockSuccessful.erase(actor); //remove from the successful map.
 		actorsInBlockingCoolDown.erase(actor); //remove from cooldown map
 		actorsPerfectBlocking.erase(actor); //remove from perfect blocking map
 		actorsPerfectBlocking.emplace(actor, settings::fPerfectBlockTime);
@@ -66,17 +74,30 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 		DEBUG("{} is either perfect blocking or cooling down", actor->GetName());
 	}
 }
-
+/*Make an actor break their guard through a animation event.*/
+void blockHandler::guardBreak(RE::Actor* actor) {
+	auto formID = actor->GetFormID();
+	DEBUG("form ID is {}", formID);
+	std::stringstream sstream;
+	sstream << std::hex << formID;
+	std::string result = sstream.str();
+	DEBUG(result);
+	std::string cmd1 = "player.pushactoraway";
+	DEBUG(cmd1);
+	std::string cmd2 = ' ' + result + ' ' + "10";
+	DEBUG(cmd2);
+	std::string cmd = cmd1 + cmd2;
+	DEBUG(cmd);
+	Utils::ExecuteCommand(cmd);
+}
 
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
 	DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
 	if (settings::bPerfectBlocking && actorsPerfectBlocking.find(blocker) != actorsPerfectBlocking.end()) {
-		DEBUG("Process perfect block.");
 		processPerfectBlock(blocker, aggressor, iHitflag, hitData);
 		return true;
 	}
 	else if (settings::bStaminaBlocking) {
-		DEBUG("Process stamina block.");
 		processStaminaBlock(blocker, aggressor, iHitflag, hitData);
 		return false;
 	}
@@ -85,6 +106,7 @@ bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iH
 /*Process a stamina block. 
 Actor with enough stamina can negate all incoming health damage with stamina. Actor without enough stamina will stagger and receive partial damage.*/
 void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
+	DEBUG("processing stamina block");
 	using HITFLAG = RE::HitData::Flag;
 	float staminaDamageBase = hitData.totalDamage;
 	float staminaDamageMult;
@@ -124,12 +146,7 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	if (targetStamina < staminaDamage) {
 		DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
-			if (settings::bPoiseCompatibility) {
-				blocker->NotifyAnimationGraph("poise_largest_start");
-			}
-			else {
-				blocker->NotifyAnimationGraph("staggerStart");
-			}
+			guardBreak(blocker);
 		}
 		hitData.totalDamage = hitData.totalDamage - (targetStamina / staminaDamageMult);
 		Utils::damageav(blocker, RE::ActorValue::kStamina,
@@ -149,15 +166,36 @@ Play block spark effects & screen shake effects if enabled.
 Decrement aggressor's stamina. 
 The blocker will not receive any block cooldown once the block timer ends, and may initialize another perfect block as they wish.*/
 void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
-	hitData.totalDamage = 0;
 	DEBUG("Perfect Block!");
-	if (blocker->IsPlayerRef() || aggressor->IsPlayerRef()) {
-		if (settings::bPerfectBlockingScreenShake) {
-			Utils::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
-		}
-		if (settings::bPerfectBlockingVFX) {
-			MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
-		}
+	hitData.totalDamage = 0;
+	//guardBreak(aggressor);
+	if (settings::bPerfectBlockingVFX) {
+		DEBUG("playing perfect block vfx!");
+		MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
 	}
-	actorsSuccessful.emplace(blocker); //register the blocker as a successful blocker.
+	if ((blocker->IsPlayerRef() || aggressor->IsPlayerRef())
+		&& settings::bPerfectBlockingScreenShake) {
+			Utils::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
+	}
+	if (settings::bPerfectBlockingSFX) {
+		DEBUG("playing perfect block sfx!");
+		if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
+			DEBUG("1");
+			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryWeapon->descriptor)) {
+				DEBUG("play success!");
+			}
+		}
+		else {
+			DEBUG("2");
+			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryShield->descriptor)) {
+				DEBUG("play success!");
+			}
+		}
+
+	}
+	actorsPerfectblockSuccessful.emplace(blocker); //register the blocker as a successful blocker.
+	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
+		DEBUG("guard break!");
+		guardBreak(aggressor);
+	}
 }

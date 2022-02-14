@@ -9,6 +9,7 @@ public:
 
 	TRUEHUD_API::IVTrueHUD2* g_trueHUD = nullptr;
 
+
 	static ValhallaCombat* GetSingleton()
 	{
 		static ValhallaCombat singleton;

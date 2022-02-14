@@ -12,7 +12,7 @@ public:
 	boost::unordered_map <RE::Actor*, float> actorsInBlockingCoolDown;
 
 	/*Set of all actors who have successfully perfect blocked an attack.*/
-	boost::unordered_set <RE::Actor*> actorsSuccessful;
+	boost::unordered_set <RE::Actor*> actorsPerfectblockSuccessful;
 	
 	static blockHandler* GetSingleton()
 	{
@@ -33,8 +33,10 @@ public:
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
 
 private:
+	inline void guardBreak(RE::Actor* actor);
 
 	inline void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
 
 	inline void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
+
 };
