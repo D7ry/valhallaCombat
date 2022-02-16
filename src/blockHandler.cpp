@@ -17,11 +17,8 @@ void blockHandler::update() {
 		if (it1->second <= 0) {
 			DEBUG("{}'s perfect block has ended, starting cool down", actor->GetName());
 			it1 = actorsPerfectBlocking.erase(it1);
-			//skip cooldown timer if the previous blocking is successful
-			if (actorsPerfectblockSuccessful.find(actor) != actorsPerfectblockSuccessful.end()) {
-				actorsPerfectBlocking.erase(actor);
-			}
-			else {
+			//Cool down applies if the previous block fails; if successful no cooldown.
+			if (actorsPerfectblockSuccessful.find(actor) == actorsPerfectblockSuccessful.end()) {
 				//start cooling down
 				actorsInBlockingCoolDown.emplace(actor, settings::fPerfectBlockCoolDownTime);
 			}
@@ -180,13 +177,11 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	if (settings::bPerfectBlockingSFX) {
 		DEBUG("playing perfect block sfx!");
 		if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
-			DEBUG("1");
 			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryWeapon->descriptor)) {
 				DEBUG("play success!");
 			}
 		}
 		else {
-			DEBUG("2");
 			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryShield->descriptor)) {
 				DEBUG("play success!");
 			}

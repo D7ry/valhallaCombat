@@ -58,7 +58,7 @@ public:
 	static inline bool bPerfectBlockingScreenShake = true;
 	static inline bool bPerfectBlockingSFX = true;
 	static inline bool bPerfectBlockingVFX = true;
-	static inline float fPerfectBlockTime = 0.5;
+	static inline float fPerfectBlockTime = 0.3;
 	static inline float fPerfectBlockCoolDownTime = 1;
 
 	static void readSettings();

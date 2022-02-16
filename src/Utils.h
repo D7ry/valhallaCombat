@@ -109,6 +109,10 @@ namespace Utils
 		//DEBUG("Blinking {}'s stamina", actor->GetName());
 		ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
 	}
+	/*Flash this actor's health meter once.*/
+	inline void flashHealthMeter(RE::Actor* actor) {
+		ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kHealth, true);
+	}
 
 	inline void ExecuteCommand(std::string a_command)
 	{
