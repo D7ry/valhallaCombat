@@ -56,9 +56,9 @@ public:
 		}
 	}
 
-	/*register a successful hit for an actor. 
+	/*register a successful hit for an actor. Automatically detects if the hit is light/power.
 	* The actor will no longer receive any stamina debuff for this attack.
-	* if the actor has not received any stamina regen/any stamina damage
+	* If the actor has not received any stamina regen/any stamina damage
 	* due to the attack, do stamina regen/stamina damage.
 	@param actor: actor whose hit will be registered*/
 	void registerHit(RE::Actor* actor) {

@@ -6,17 +6,40 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 		if (hitFlag & (int)HITFLAG::kBlocked) {
 			if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData)) {
 				DEBUG("attack perfect blocked");
-				return; //if the hit is perfect blocked, no hit registration.
+				return; //if the hit is perfect blocked, no hit registration
 			}
-		}
-		//hit registration
-		if (!(hitFlag & (int)HITFLAG::kBash)  //bash hit doesn't regen stamina
-			&& !victim->IsDead()) { //dead actor doesn't regen stamina
-			if (!(hitFlag & (int)HITFLAG::kBlocked) || settings::bBlockedHitRegenStamina) {
+			if (settings::bBlockedHitRegenStamina && !(hitFlag & (int)HITFLAG::kBash)) { //regenerate stamina only if set so.
 				attackHandler::GetSingleton()->registerHit(aggressor);
 			}
+			return;
 		}
-		if (!victim->IsPlayerRef()) {
+
+		//from this point on the hit is not blocked/
+
+		//bash hit
+		if (hitFlag & (int)HITFLAG::kBash) {
+			if (hitFlag & (int)HITFLAG::kPowerAttack) {
+				stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerBash, nullptr, aggressor, victim, 0);
+				
+			}
+			else {
+				stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::bash, nullptr, aggressor, victim, 0);
+			}
+			return;
+		}
+
+		//from this point on the hit can only be unblocked melee hit.
+		attackHandler::GetSingleton()->registerHit(aggressor);
+		if (hitFlag & (int)HITFLAG::kPowerAttack) {
+			stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerAttack, hitData.weapon, aggressor, victim, hitData.totalDamage);
+		}
+		else {
+			stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::lightAttack, hitData.weapon, aggressor, victim, hitData.totalDamage);
+		}
+
+		//TODO: a better execution module
+		//Temporary execution module
+		if (!victim->IsPlayerRef() && !victim->IsPlayerTeammate() && !victim->IsEssential() && !victim->IsInKillMove()) {
 			DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
 			if (stunHandler::GetSingleton()->getStun(victim) <= 0) {
 				stunHandler::GetSingleton()->execute(aggressor, victim);

@@ -64,6 +64,18 @@ public:
 
 	//Stun
 	static inline float fStunParryMult = 1;
+	static inline float fStunBashMult = 1;
+	static inline float fStunPowerBashMult = 1;
+	static inline float fStunPowerAttackMult = 1;
+
+	static inline float fStunUnarmedMult = 1;
+	static inline float fStunDaggerMult = 1;
+	static inline float fStunSwordMult = 1;
+	static inline float fStunWarAxeMult = 1;
+	static inline float fStunMaceMult = 1;
+	static inline float fStunGreatSwordMult = 1;
+	static inline float fStun2HBluntMult = 1;
+
 	static void readSettings();
 
 private:

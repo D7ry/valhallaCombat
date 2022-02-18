@@ -48,11 +48,31 @@ void stunHandler::damageStun(RE::Actor* actor, float damage) {
 }
 
 void stunHandler::calculateStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
+	float dmg = baseDamage;
 	switch (stunSource) {
 	case STUNSOURCE::parry:
 		damageStun(victim, baseDamage * settings::fStunParryMult); break;
 	case STUNSOURCE::bash:
-		break;
+		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult); break;
+	case STUNSOURCE::powerBash:
+		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult * settings::fStunPowerBashMult); break;
+	case STUNSOURCE::powerAttack:
+		dmg *= settings::fStunPowerAttackMult;
+	case STUNSOURCE::lightAttack:
+		if (!weapon) {
+			dmg *= settings::fStunUnarmedMult;
+		}
+		else {
+			switch (weapon->GetWeaponType()) {
+			case RE::WEAPON_TYPE::kOneHandDagger: dmg *= settings::fStunDaggerMult; break;
+			case RE::WEAPON_TYPE::kOneHandSword: dmg *= settings::fStunSwordMult; break;
+			case RE::WEAPON_TYPE::kOneHandAxe: dmg *= settings::fStunWarAxeMult; break;
+			case RE::WEAPON_TYPE::kOneHandMace: dmg *= settings::fStunMaceMult; break;
+			case RE::WEAPON_TYPE::kTwoHandAxe: dmg *= settings::fStun2HBluntMult; break;
+			case RE::WEAPON_TYPE::kTwoHandSword: dmg *= settings::fStunGreatSwordMult; break;
+			}
+		}
+		damageStun(victim, dmg);
 	}
 }
 

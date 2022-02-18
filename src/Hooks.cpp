@@ -97,13 +97,11 @@ void hitEventHook::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	
 	using HITFLAG = RE::HitData::Flag;
 	auto aggressor = hitData.aggressor.get().get();
-	if (!victim || !aggressor) {
+	if (!victim || !aggressor || victim->IsDead()) {
 		_ProcessHit(victim, hitData);
 		return;
 	}
 	hitProcessor::GetSingleton()->processHit(aggressor, victim, hitData);
-	//block
-	
 	_ProcessHit(victim, hitData);
 };
 
