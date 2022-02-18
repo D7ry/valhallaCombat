@@ -3,44 +3,19 @@
 
 /*Handling enemy stun value.*/
 class stunHandler {
-public:
-	static stunHandler* GetSingleton()
-	{
-		static stunHandler singleton;
-		return  std::addressof(singleton);
-	}
 
-	/*Called once per frame to check if the actors are either unloaded or exhausted.*/
-	void update();
-
-
-	/*Calculate stun damage onto an actor and apply it, after, check if the actor is ready for execution.
-	*If so, let execution handler handle the rest.
-	@param actor actor whose stun will be damaged.
-	@param baseDamage base damage to actor's stun.
-	@param weapon weapon used to damage actor's stun.
-	*/
-	void processStunDamage(RE::Actor* actor, float baseDamage, RE::TESObjectWEAP weapon, RE::AttackData::AttackFlag, ) {
-
-	}
-	/*Returns the current stun value of this actor.*/
-	void getStun(RE::Actor* actor);
-	/*Returns the maximum stun value of this actor.*/
-	void getMaxStun(RE::Actor* actor);
 
 private:
-	/*Calculate this actor's maximum stun value based on various parameters.
-	* Current algorithm: Health + Stamina / 2
-	@param actor: actor whose still value will be calculated.
-	@return the actor's maximum stun value.*/
-	inline float calculateStun(RE::Actor* actor);
 
 	/*Start tracking this Actor's stun.
 	@param actor: actor whose stun will be tracked.*/
-	inline void trackStun(RE::Actor* actor);
+	static void trackStun(RE::Actor* actor);
 	/*Stop tracking this Actor's stun.
 	@param actor: actor whose stun will no longer be tracked.*/
-	inline void untrackStun(RE::Actor* actor);
+	static void untrackStun(RE::Actor* actor);
+	/*Reset this actor's stun back to full.
+	@param actor: actor whose stun will be recovered fully.*/
+	static void resetStun(RE::Actor* actor);
 
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
 	boost::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
@@ -48,10 +23,80 @@ private:
 	/*Mapping of actors whose stun values are less than 0 =>their meter blinking timer.*/
 	boost::unordered_map <RE::Actor*, float> actorsStunned;
 
+
+public:
+	static stunHandler* GetSingleton()
+	{
+		static stunHandler singleton;
+		return  std::addressof(singleton);
+	}
+
+
+	/*Source from which a stun damage can be applied.*/
+	enum STUNSOURCE
+	{
+		lightAttack,
+		powerAttack,
+		bash,
+		powerBash,
+		parry
+	};
+
+
+	/*Get this actor's current stun from stun map.
+	If the actor does not exist on the stun map yet, start tracking this actor's stun.
+	@param actor: actor whose stun will be returned.
+	@return the actor's current stun value.*/
+	static float getStun(RE::Actor* actor);
+
+	/*Calculate this actor's maximum stun value based on various parameters.
+	* Current algorithm: Health + Stamina / 2
+	@param actor: actor whose still value will be calculated.
+	@return the actor's maximum stun value.*/
+	static float getMaxStun(RE::Actor* actor);
+
+
+	/*Initialize stun meter, linking stun data to trueHud API.*/
+	void initStunMeter();
+
 	/*Damage this actor's stun. If the actor does not exist on the stunmap, track their stun first.
 	@param actor: actor whose stun will be damaged.
 	@param damage: stun damage applied onto this actor.*/
 	void damageStun(RE::Actor* actor, float damage);
+
+	/*Calculate a stun damage for the actor, and immediately apply the stun damage.
+	Stun calculation go as follows:
+	for light/power attack: simply do base damage * mult.
+	for bash/powerbash: do blocking level * mult.
+	for parry: do aggressor's weapon damage * mult.
+	*/
+	void calculateStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage);
+
+	/*Execute the actor*/
+	void execute(RE::Actor* executer, RE::Actor* victim) {
+		if (victim->IsEssential()) {
+			DEBUG("{} is essential, terminating execution", victim->GetName());
+		}
+		auto executerForm = executer->GetFormID();
+		auto victimForm = victim->GetFormID();
+		std::stringstream sstream1;
+		sstream1 << std::hex << executerForm;
+		std::string executerFormHex = sstream1.str();
+		DEBUG(executerFormHex);
+		if (executerFormHex == "14") {
+			executerFormHex = "player";
+		}
+		std::stringstream sstream2;
+		sstream2 << std::hex << victimForm;
+		std::string victimFormHex = sstream2.str();
+		std::string cmd1 = ".playidle";
+		DEBUG(cmd1);
+		std::string cmd2 = "pa_1hmKillMovedecapbleedout";
+		DEBUG(cmd2);
+		std::string cmd = executerFormHex + cmd1 + " " + cmd2 + " " + victimFormHex;
+		DEBUG(cmd);
+		Utils::ExecuteCommand(cmd);
+	}
 
 
 

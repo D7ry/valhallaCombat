@@ -1,6 +1,7 @@
 #pragma once
 #include "debuffHandler.h"
 #include "blockHandler.h"
+#include "stunHandler.h"
 #include "include/TrueHUDAPI.h"
 /*Combat tweaks to make Skyrim's melee combat feel like AC:Valhalla.*/
 class ValhallaCombat

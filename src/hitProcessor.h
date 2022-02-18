@@ -1,12 +1,18 @@
 #pragma once
 #include "data.h"
 #include "attackHandler.h"
+#include "blockHandler.h"
 using HITFLAG = RE::HitData::Flag;
-class hitDataProcessor {
+class hitProcessor {
 public:
-	static void processHitData(RE::HitData& hitData) {
-
+	static hitProcessor* GetSingleton()
+	{
+		static hitProcessor singleton;
+		return  std::addressof(singleton);
 	}
+
+	/*Process a valid hit passed from hook.*/
+	void processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitData& hitData);
 };
 /*
 class hitDataProcessor {

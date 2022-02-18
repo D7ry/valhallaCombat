@@ -2,6 +2,8 @@
 #include "Utils.h"
 #include "blockHandler.h"
 #include "ValhallaCombat.hpp"
+#include "stunHandler.h"
+#include "hitProcessor.h"
 #pragma region attackDataHook
 void CalcStaminaHook::InstallHook() {
 
@@ -11,8 +13,8 @@ void CalcStaminaHook::InstallHook() {
 	{
 		Code(uintptr_t jump_addr)
 		{
-			mov(rax, jump_addr);
-			jmp(rax);
+mov(rax, jump_addr);
+jmp(rax);
 		}
 	}xbyakCode{ (uintptr_t)CalcStaminaHook::calcStamina };
 
@@ -44,9 +46,9 @@ float CalcStaminaHook::calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData
 			return a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * 0.5; //TODO: a bashing formula
 		}
 		else {
-			return a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * 0.33; 
+			return a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * 0.33;
 		}
-	} 
+	}
 	return 0;
 }
 #pragma endregion
@@ -89,17 +91,19 @@ void hitEventHook::InstallHook() {
 	DEBUG("hit event hook installed!");
 };
 
-/*stamina blocking*/
+
 void hitEventHook::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	//hitDataProcessor::processHitData(hitData);
-	int hitFlag = (int)hitData.flags;
+	
 	using HITFLAG = RE::HitData::Flag;
 	auto aggressor = hitData.aggressor.get().get();
 	if (!victim || !aggressor) {
 		_ProcessHit(victim, hitData);
 		return;
 	}
+	hitProcessor::GetSingleton()->processHit(aggressor, victim, hitData);
 	//block
+	int hitFlag = (int)hitData.flags;
 	if (hitFlag & (int)HITFLAG::kBlocked) {
 		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData)) {
 			DEBUG("attack perfect blocked");
@@ -109,11 +113,18 @@ void hitEventHook::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	}
 	//hit registration
 	if (!(hitFlag & (int)HITFLAG::kBash)  //bash hit doesn't regen stamina
-		&& (!(hitFlag & (int)HITFLAG::kBlocked) || settings::bBlockedHitRegenStamina)//blocked hit doesn't regen stamina unless set so
 		&& !victim->IsDead()) { //dead actor doesn't regen stamina
-		attackHandler::GetSingleton()->registerHit(aggressor);
+		if (!(hitFlag & (int)HITFLAG::kBlocked) || settings::bBlockedHitRegenStamina) {
+			attackHandler::GetSingleton()->registerHit(aggressor);
+		}
+		//stunHandler::GetSingleton()->damageStun(victim, 50);
 	}
-
+	if (!victim->IsPlayerRef()) {
+		DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
+		if (stunHandler::GetSingleton()->getStun(victim) <= 0) {
+			stunHandler::GetSingleton()->execute(aggressor, victim);
+		}
+	}
 	_ProcessHit(victim, hitData);
 };
 

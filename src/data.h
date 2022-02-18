@@ -5,7 +5,7 @@
 using namespace Utils;
 
 
-
+/*All the settings of Valhalla combat*/
 class settings
 {
 public:
@@ -61,6 +61,9 @@ public:
 	static inline float fPerfectBlockTime = 0.3;
 	static inline float fPerfectBlockCoolDownTime = 1;
 
+
+	//Stun
+	static inline float fStunParryMult = 1;
 	static void readSettings();
 
 private:

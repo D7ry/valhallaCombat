@@ -48,6 +48,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		else {
 			INFO("TrueHUD API interface request success");
 		}
+		stunHandler::GetSingleton()->initStunMeter();
 		break;
 	}
 }

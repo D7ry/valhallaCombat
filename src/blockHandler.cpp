@@ -1,6 +1,7 @@
 #include "blockHandler.h"
 #include "data.h"
 #include "Utils.h"
+#include "stunHandler.h"
 #include "include/BlockSpark.h"
 #include "RE/B/BGSSoundDescriptorForm.h"
 #include "RE/B/BSAudioManager.h"
@@ -164,6 +165,9 @@ Decrement aggressor's stamina.
 The blocker will not receive any block cooldown once the block timer ends, and may initialize another perfect block as they wish.*/
 void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
 	DEBUG("Perfect Block!");
+	float stunDmg = hitData.totalDamage;
+	DEBUG(stunDmg);
+	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, stunDmg);
 	hitData.totalDamage = 0;
 	//guardBreak(aggressor);
 	if (settings::bPerfectBlockingVFX) {
@@ -189,8 +193,8 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 
 	}
 	actorsPerfectblockSuccessful.emplace(blocker); //register the blocker as a successful blocker.
-	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
+	/*if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
 		DEBUG("guard break!");
 		guardBreak(aggressor);
-	}
+	}*/
 }

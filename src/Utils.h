@@ -1,5 +1,5 @@
 #pragma once
-#include "ValhallaCombat.hpp"
+
 namespace Utils
 {
 	/*tweaks the value of designated game setting
@@ -107,11 +107,11 @@ namespace Utils
 	/*flash this actor's stmaina meter once.*/
 	inline void flashStaminaMeter(RE::Actor* actor) {
 		//DEBUG("Blinking {}'s stamina", actor->GetName());
-		ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
+		//ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
 	}
 	/*Flash this actor's health meter once.*/
 	inline void flashHealthMeter(RE::Actor* actor) {
-		ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kHealth, true);
+		//ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kHealth, true);
 	}
 
 	inline void ExecuteCommand(std::string a_command)

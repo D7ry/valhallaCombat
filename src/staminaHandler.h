@@ -6,11 +6,10 @@ class staminaHandler
 {
 public:
 	static void checkStamina(RE::Actor* actor) {
-		DEBUG("checking stamina");
 		if (actor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
+			DEBUG("{}'s stamina is less than 0, initializing debuff.", actor->GetName());
 			debuffHandler::GetSingleton()->initStaminaDebuff(actor);
 		}
-		DEBUG("stamina checked");
 	}
 	static void staminaLightMiss(RE::Actor* a) {
 		DEBUG("stamina light miss");

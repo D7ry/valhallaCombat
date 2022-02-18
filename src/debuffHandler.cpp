@@ -1,7 +1,7 @@
 #include "debuffHandler.h"
 #include "data.h"
 #include "valhallaCombat.hpp"
-
+//TODO:make sure to resume the debuff state on reloading the actor i.e. the actor has debuff perk, but it's no longer in the debuff map, so they have to be put back onto the map.
 /*Called every frame.
 Iterate through the set of actors debuffing.
 Check the actors' stamina. If the actor's stamina has fully recovered, remove the actor from the set.
@@ -24,7 +24,7 @@ void debuffHandler::update() {
 		}
 		if (settings::bUIAlert){ //flash the actor's meter
 			if (it->second <= 0) {
-				Utils::flashStaminaMeter(actor);
+				ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
 				it->second = 0.5;
 			}
 			else {
@@ -40,7 +40,6 @@ void debuffHandler::update() {
 If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
 @param actor actor who will receive debuff.*/
 void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
-	//DEBUG("Init stamina debuff for {}", actor->GetName());
 	if (!actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
 		DEBUG("{} is not in combat, no stamina debuff will be applied.", actor->GetName());
 		return;
