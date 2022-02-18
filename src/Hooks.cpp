@@ -103,28 +103,7 @@ void hitEventHook::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	}
 	hitProcessor::GetSingleton()->processHit(aggressor, victim, hitData);
 	//block
-	int hitFlag = (int)hitData.flags;
-	if (hitFlag & (int)HITFLAG::kBlocked) {
-		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData)) {
-			DEBUG("attack perfect blocked");
-			_ProcessHit(victim, hitData);
-			return; //if the hit is perfect blocked, no hit registration.
-		}
-	}
-	//hit registration
-	if (!(hitFlag & (int)HITFLAG::kBash)  //bash hit doesn't regen stamina
-		&& !victim->IsDead()) { //dead actor doesn't regen stamina
-		if (!(hitFlag & (int)HITFLAG::kBlocked) || settings::bBlockedHitRegenStamina) {
-			attackHandler::GetSingleton()->registerHit(aggressor);
-		}
-		//stunHandler::GetSingleton()->damageStun(victim, 50);
-	}
-	if (!victim->IsPlayerRef()) {
-		DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
-		if (stunHandler::GetSingleton()->getStun(victim) <= 0) {
-			stunHandler::GetSingleton()->execute(aggressor, victim);
-		}
-	}
+	
 	_ProcessHit(victim, hitData);
 };
 
