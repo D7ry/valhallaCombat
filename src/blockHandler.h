@@ -34,7 +34,11 @@ public:
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 private:
+<<<<<<< HEAD
 	inline void guardBreak(RE::Actor* actor, RE::Actor* actorToPush);
+=======
+	inline void guardBreak(RE::Actor* actor);
+>>>>>>> parent of 53af9c6 (new guardbreak function)
 
 	inline void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 

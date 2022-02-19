@@ -74,9 +74,26 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 	}
 }
 /*Make an actor break their guard through a animation event.*/
+<<<<<<< HEAD
 void blockHandler::guardBreak(RE::Actor* actor, RE::Actor* actorToPush) {
 	RE::NiPoint3 vec = actor->GetPosition();
 	Utils::pushActorAway(actor->currentProcess, actorToPush, vec, 7);
+=======
+void blockHandler::guardBreak(RE::Actor* actor) {
+	auto formID = actor->GetFormID();
+	DEBUG("form ID is {}", formID);
+	std::stringstream sstream;
+	sstream << std::hex << formID;
+	std::string result = sstream.str();
+	DEBUG(result);
+	std::string cmd1 = "player.pushactoraway";
+	DEBUG(cmd1);
+	std::string cmd2 = ' ' + result + ' ' + "10";
+	DEBUG(cmd2);
+	std::string cmd = cmd1 + cmd2;
+	DEBUG(cmd);
+	Utils::sendConsoleCommand(cmd);
+>>>>>>> parent of 53af9c6 (new guardbreak function)
 }
 
 #pragma region Process Block
@@ -137,11 +154,14 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	if (targetStamina < staminaDamage) {
 		DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
+<<<<<<< HEAD
 			guardBreak(aggressor, blocker);
+=======
+			guardBreak(blocker);
+>>>>>>> parent of 53af9c6 (new guardbreak function)
 		}
-		hitData.totalDamage =
-			(realDamage - (targetStamina / staminaDamageMult)) //real damage actor will be receiving.
-			* (hitData.totalDamage) / realDamage; //offset real damage back into raw damage to be converted into real damage again later.
+		hitData.totalDamage = 
+			hitData.totalDamage - ((targetStamina / staminaDamageMult) * (hitData.totalDamage/realDamage)); //offset real damage back into hit data.
 		Utils::damageav(blocker, RE::ActorValue::kStamina,
 			targetStamina);
 		DEBUG("failed to block {} damage", hitData.totalDamage);
@@ -171,6 +191,7 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	}
 	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, reflectedDamage);
 	hitData.totalDamage = 0;
+	//guardBreak(aggressor);
 	if (settings::bPerfectBlockingVFX) {
 		DEBUG("playing perfect block vfx!");
 		MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
@@ -194,9 +215,14 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 
 	}
 	actorsPerfectblockSuccessful.emplace(blocker); //register the blocker as a successful blocker.
-	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
+	/*if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
 		DEBUG("guard break!");
+<<<<<<< HEAD
 		guardBreak(blocker, aggressor);
 	}
+=======
+		guardBreak(aggressor);
+	}*/
+>>>>>>> parent of 53af9c6 (new guardbreak function)
 }
 #pragma endregion
