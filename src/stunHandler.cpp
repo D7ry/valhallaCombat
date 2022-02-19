@@ -48,12 +48,12 @@ void stunHandler::damageStun(RE::Actor* actor, float damage) {
 	}
 	it->second.second -= damage;
 	DEBUG("{}'s stun damaged to {}", actor->GetName(), it->second.second);
-	if (it->second.second <= 0) {
+	/*if (it->second.second <= 0) {
 		DEBUG("bleed out {}!", actor->GetName());
 		actor->SetGraphVariableBool("IsBleedingOut", true);
 		actor->NotifyAnimationGraph("bleedOutStart");
 		actor->SetGraphVariableBool("IsBleedingOut", true);
-	}
+	}*/
 }
 
 void stunHandler::calculateStunDamage(

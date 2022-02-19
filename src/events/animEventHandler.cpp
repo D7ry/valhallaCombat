@@ -1,20 +1,7 @@
 #include "events.h"
 #include "attackHandler.h"
 #include "blockHandler.h"
-//all credits to Bingle
-namespace anno
-{
-	const char* attackStop = "attackStop";
-	const char* hitFrame = "HitFrame";
-	const char* preHitFrame = "preHitFrame";
-	const char* atkWin_Skysa = "SkySA_AttackWinStart";
-	const char* block_start = "blockStartOut";
-	const char* block_stop = "blockStop";
-	const char* weaponSwing = "weaponSwing";
-	const char* tkDodge = "";
-	const char* dmcoStep = "";
-	const char* dmcoRoll = "";
-}
+//all credits to Bingle&Ersh
 constexpr uint32_t hash(const char* data, size_t const size) noexcept
 {
 	uint32_t hash = 5381;

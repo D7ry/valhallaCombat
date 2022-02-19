@@ -13,8 +13,8 @@ void CalcStaminaHook::InstallHook() {
 	{
 		Code(uintptr_t jump_addr)
 		{
-mov(rax, jump_addr);
-jmp(rax);
+			mov(rax, jump_addr);
+			jmp(rax);
 		}
 	}xbyakCode{ (uintptr_t)CalcStaminaHook::calcStamina };
 

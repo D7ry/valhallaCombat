@@ -11,14 +11,14 @@ void debuffHandler::update() {
 	while (it != actorsInDebuff.end()) {
 		auto actor = it->first;
 		if (!actor) {//actor no longer loaded
-			DEBUG("Actor no longer loaded");
+			//DEBUG("Actor no longer loaded");
 			it = actorsInDebuff.erase(it);//erase actor from debuff set.
 			continue;
 		}
 		if (actor->GetActorValue(RE::ActorValue::kStamina) >= actor->GetPermanentActorValue(RE::ActorValue::kStamina)) { //actor loaded and recovered
 			DEBUG("{}'s stamina has fully recovered.", actor->GetName());
 			debuffHandler::stopStaminaDebuff(actor);
-			DEBUG("erasing actor");
+			//DEBUG("erasing actor");
 			it = actorsInDebuff.erase(it);
 			continue;
 		}
@@ -41,11 +41,11 @@ If the actor is already in the debuff map(i.e. they are already experiencing deb
 @param actor actor who will receive debuff.*/
 void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 	if (!actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
-		DEBUG("{} is not in combat, no stamina debuff will be applied.", actor->GetName());
+		//DEBUG("{} is not in combat, no stamina debuff will be applied.", actor->GetName());
 		return;
 	}
 	if (actorsInDebuff.find(actor) != actorsInDebuff.end()) {
-		DEBUG("{} is already in debuff", actor->GetName());
+		//DEBUG("{} is already in debuff", actor->GetName());
 		return;
 	}
 	addDebuffPerk(actor);
@@ -58,7 +58,7 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 /*Stamina the actor's stamina debuff, remove their debuff perk, and revert their UI meter.
 @param actor actor whose stamina debuff will stop.*/
 void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
-	DEBUG("Stopping stamina debuff for {}", actor->GetName());
+	//DEBUG("Stopping stamina debuff for {}", actor->GetName());
 	removeDebuffPerk(actor);
 	if (settings::bUIAlert) {
 		revertStaminaMeter(actor);
@@ -91,7 +91,7 @@ void debuffHandler::revertStaminaMeter(RE::Actor* actor) {
 	ValhallaCombat::GetSingleton()->g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor);
 	ValhallaCombat::GetSingleton()->g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor);
 	ValhallaCombat::GetSingleton()->g_trueHUD->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor);
-	DEBUG("{}s stamia meter reverted", actor->GetName());
+	//DEBUG("{}s stamia meter reverted", actor->GetName());
 }
 
 #pragma endregion

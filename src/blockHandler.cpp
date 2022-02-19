@@ -89,24 +89,25 @@ void blockHandler::guardBreak(RE::Actor* actor) {
 	Utils::sendConsoleCommand(cmd);
 }
 
-bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
+bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
 	if (settings::bPerfectBlocking && actorsPerfectBlocking.find(blocker) != actorsPerfectBlocking.end()) {
-		processPerfectBlock(blocker, aggressor, iHitflag, hitData);
+		processPerfectBlock(blocker, aggressor, iHitflag, hitData, realDamage);
 		return true;
 	}
 	else if (settings::bStaminaBlocking) {
-		processStaminaBlock(blocker, aggressor, iHitflag, hitData);
+		processStaminaBlock(blocker, aggressor, iHitflag, hitData, realDamage);
 		return false;
 	}
 	return false;
 }
 /*Process a stamina block. 
 Actor with enough stamina can negate all incoming health damage with stamina. Actor without enough stamina will stagger and receive partial damage.*/
-void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
+void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	DEBUG("processing stamina block");
 	using HITFLAG = RE::HitData::Flag;
-	float staminaDamageBase = hitData.totalDamage;
+	//float staminaDamageBase = hitData.totalDamage;
+	float staminaDamageBase = realDamage;
 	float staminaDamageMult;
 	DEBUG("base stamina damage is {}", staminaDamageBase);
 	if (iHitflag & (int)HITFLAG::kBlockWithWeapon) {
@@ -138,6 +139,7 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		}
 	}
 	float staminaDamage = staminaDamageBase * staminaDamageMult;
+
 	float targetStamina = blocker->GetActorValue(RE::ActorValue::kStamina);
 
 	//check whether there's enough stamina to block incoming attack
@@ -146,7 +148,8 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		if (settings::bGuardBreak) {
 			guardBreak(blocker);
 		}
-		hitData.totalDamage = hitData.totalDamage - (targetStamina / staminaDamageMult);
+		hitData.totalDamage = 
+			hitData.totalDamage - ((targetStamina / staminaDamageMult) * (hitData.totalDamage/realDamage)); //offset real damage back into hit data.
 		Utils::damageav(blocker, RE::ActorValue::kStamina,
 			targetStamina);
 		DEBUG("failed to block {} damage", hitData.totalDamage);
@@ -163,11 +166,10 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 Play block spark effects & screen shake effects if enabled.
 Decrement aggressor's stamina. 
 The blocker will not receive any block cooldown once the block timer ends, and may initialize another perfect block as they wish.*/
-void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
+void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	DEBUG("Perfect Block!");
-	float stunDmg = hitData.totalDamage;
-	DEBUG(stunDmg);
-	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, stunDmg);
+	//float stunDmg = hitData.totalDamage;
+	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, hitData.totalDamage);
 	hitData.totalDamage = 0;
 	//guardBreak(aggressor);
 	if (settings::bPerfectBlockingVFX) {
@@ -178,15 +180,15 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		&& settings::bPerfectBlockingScreenShake) {
 			Utils::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
 	}
-	if (settings::bPerfectBlockingSFX) {
+	if (settings::bPerfectBlockingSFX && (blocker->IsPlayerRef() || aggressor->IsPlayerRef())) {
 		DEBUG("playing perfect block sfx!");
 		if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
-			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryWeapon->descriptor)) {
+			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryWeaponD)) {
 				DEBUG("play success!");
 			}
 		}
 		else {
-			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryShield->descriptor)) {
+			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryShieldD)) {
 				DEBUG("play success!");
 			}
 		}

@@ -29,14 +29,15 @@ public:
 	@param aggressor: Actor whose attack gets blocked.
 	@param iHitflag: hitflag of the blocked hit, in int.
 	@param hitData: hitdata of the blocked hit.
+	@param realDamage: real damage of this blocked hit.
 	@return if the block is a perfect block.*/
-	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
+	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 private:
 	inline void guardBreak(RE::Actor* actor);
 
-	inline void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
+	inline void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
-	inline void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
+	inline void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 };

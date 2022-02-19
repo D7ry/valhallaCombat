@@ -1,6 +1,8 @@
 #include "executionHandler.h"
 #include "data.h"
 void executionHandler::attemptExecute(RE::Actor* executer, RE::Actor* victim) {
+	DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executer->GetName());
+
 	//check if victim can be executed
 	if (!settings::bExecutionToggle
 		|| executer->IsDead() || victim->IsDead()
@@ -9,23 +11,37 @@ void executionHandler::attemptExecute(RE::Actor* executer, RE::Actor* victim) {
 		|| (victim->IsPlayer() && !settings::bPlayerExecution)
 		|| (victim->IsPlayerTeammate() && !settings::bPlayerTeammateExecution)
 		|| (victim->IsEssential() && !settings::bEssentialExecution)
-		|| !executer->GetRace() || !executer->GetRace()->bodyPartData
+		|| !executer->GetRace() || executer->GetRace()->bodyPartData->GetFormID() != 29 //executer can only be human.
 		|| !victim->GetRace() || !victim->GetRace()->bodyPartData) {
 		DEBUG("Execution preconditions not met, terminating execution.");
 		return;
 	}
-	/*For debuf purposes*/
+
+	//DEBUGging
 	DEBUG("executer body part data: {}", executer->GetRace()->bodyPartData->GetFormID());
 	DEBUG("victim body part data: {}", victim->GetRace()->bodyPartData->GetFormID());
 	//check relative position and rotation
-	//execute()
-	execute(executer, victim, EXECUTIONTYPE::humanoid);
+	DEBUG("calculating victim skeleton");
+	switch (victim->GetRace()->bodyPartData->GetFormID()) {
+	case uIntBodyPartData_Humanoid: //for humanoids, determine relative angle to trigger backstab.
+		DEBUG("humanoid skeleton");
+		DEBUG("angle is {}", victim->GetHeadingAngle(executer->GetPosition(), false));
+		auto angle = victim->GetHeadingAngle(executer->GetPosition(), false);
+		if (90 < angle || angle < -90) {
+			sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Back);
+		}
+		else {
+			sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Front);
+		}
+		
+	}
+	//sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Front);
 }
 
 void executionHandler::execute(RE::Actor* executer, RE::Actor* victim, EXECUTIONTYPE executionType) {
 	switch (executionType) {
 	case EXECUTIONTYPE::humanoid:
-		sendExecutionCommand(executer, victim, kmStr_Humanoid_Front);
+		sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Front);
 	}
 }
 

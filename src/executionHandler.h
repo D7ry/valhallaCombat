@@ -3,7 +3,7 @@
 class executionHandler {
 
 private:
-	static const uint32_t uIntBodyPartData_Default = 1;
+	static const uint32_t uIntBodyPartData_Humanoid = 29;
 	static const uint32_t uIntBodyPartData_Dragon;
 	static const uint32_t uIntBodyPartData_FrostbiteSpider;
 	static const uint32_t uIntBodyPartData_SabreCat;
@@ -46,9 +46,14 @@ private:
 	static const uint32_t uIntBodyPartData_DLC2_Netch;
 	static const uint32_t uIntBodyPartData_DLC2_BenthicLurker;
 
+	/*Sets of strings corresponding to different types of executions.*/
+	const std::vector<std::string> kmStr_Humanoid_1hm_Front = std::vector<std::string>{ 
+		"pa_1hmKillMovedecapbleedout", "pa_1hmkillmoveBleedoutkill", 
+		"pa_1hmkillmoveshortA ", "pa_1hmkillmoveshortB" , "pa_1hmKillMoveShortC", "pa_1hmKillMoveShortD"};
+	const std::vector<std::string> kmStr_Humanoid_1hm_Back = std::vector<std::string>{
+		"pa_1hmkillmoveBackStab"
+	};
 
-	const std::vector<std::string> kmStr_Humanoid_Front = std::vector<std::string>{ "pa_1hmKillMovedecapbleedout", "233" };
-	const std::vector<std::string> kmStr_Humanoid_Back;
 
 public:
 
@@ -81,7 +86,7 @@ private:
 	@param animStr: paired execution animation to be played, in unsigned int 32.*/
 	void sendExecutionCommand(RE::Actor* executer, RE::Actor* victim, std::vector<std::string> executionStrSet);
 	/*Let aggressor execute victim without condition checks, buffs/debuffs, or setting both parties to ghost.*/
-	void execute(RE::Actor* executer, RE::Actor* victim, EXECUTIONTYPE executionType);
+	inline void execute(RE::Actor* executer, RE::Actor* victim, EXECUTIONTYPE executionType);
 
 
 

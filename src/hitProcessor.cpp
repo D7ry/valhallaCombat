@@ -4,15 +4,19 @@
 #include "executionHandler.h"
 void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitData& hitData) {
 	//offset damage from hitdata, based on player difficulty setting.
+	float realDamage;
 	if (victim->IsPlayerRef()) {
-		offsetRawDamage(hitData, false);
+		realDamage = calculateRealDamage(hitData.totalDamage, false);
 	}
 	else if (aggressor->IsPlayerRef()) {
-		offsetRawDamage(hitData, true);
+		realDamage = calculateRealDamage(hitData.totalDamage, true);
+	}
+	else {
+		realDamage = hitData.totalDamage;
 	}
 	int hitFlag = (int)hitData.flags;
 	if (hitFlag & (int)HITFLAG::kBlocked) {
-		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData)) {
+		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData, realDamage)) {
 			DEBUG("attack perfect blocked");
 			return; //if the hit is perfect blocked, no hit registration
 		}
@@ -40,10 +44,10 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	attackHandler::GetSingleton()->registerHit(aggressor);
 
 	if (hitFlag & (int)HITFLAG::kPowerAttack) {
-		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerAttack, hitData.weapon, aggressor, victim, hitData.totalDamage);
+		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
 	else {
-		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::lightAttack, hitData.weapon, aggressor, victim, hitData.totalDamage);
+		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
 
 	//TODO: a better execution module
@@ -56,25 +60,28 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	}
 }
 
-void hitProcessor::offsetRawDamage(RE::HitData& hitData, bool isPlayerAggressor) {
+float hitProcessor::calculateRealDamage(float damage, bool isPlayerAggressor) {
+	DEBUG("damage before offset: {}", damage);
 	if (isPlayerAggressor) {
 		switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
-		case RE::DIFFICULTY::kNovice: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPByPCVE; break;
-		case RE::DIFFICULTY::kApprentice: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPByPCE; break;
-		case RE::DIFFICULTY::kAdept: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPByPCN; break;
-		case RE::DIFFICULTY::kExpert: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPByPCH; break;
-		case RE::DIFFICULTY::kMaster: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPByPCVH; break;
-		case RE::DIFFICULTY::kLegendary: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPByPCL; break;
+		case RE::DIFFICULTY::kNovice: damage *= data::GetSingleton()->fDiffMultHPByPCVE; break;
+		case RE::DIFFICULTY::kApprentice: damage *= data::GetSingleton()->fDiffMultHPByPCE; break;
+		case RE::DIFFICULTY::kAdept: damage *= data::GetSingleton()->fDiffMultHPByPCN; break;
+		case RE::DIFFICULTY::kExpert: damage *= data::GetSingleton()->fDiffMultHPByPCH; break;
+		case RE::DIFFICULTY::kMaster: damage *= data::GetSingleton()->fDiffMultHPByPCVH; break;
+		case RE::DIFFICULTY::kLegendary: damage *= data::GetSingleton()->fDiffMultHPByPCL; break;
 		}
 	}
 	else {
 		switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
-		case RE::DIFFICULTY::kNovice: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPToPCVE; break;
-		case RE::DIFFICULTY::kApprentice: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPToPCE; break;
-		case RE::DIFFICULTY::kAdept: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPToPCN; break;
-		case RE::DIFFICULTY::kExpert: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPToPCH; break;
-		case RE::DIFFICULTY::kMaster: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPToPCVH; break;
-		case RE::DIFFICULTY::kLegendary: hitData.totalDamage *= data::GetSingleton()->fDiffMultHPToPCL; break;
+		case RE::DIFFICULTY::kNovice: damage *= data::GetSingleton()->fDiffMultHPToPCVE; break;
+		case RE::DIFFICULTY::kApprentice: damage *= data::GetSingleton()->fDiffMultHPToPCE; break;
+		case RE::DIFFICULTY::kAdept: damage *= data::GetSingleton()->fDiffMultHPToPCN; break;
+		case RE::DIFFICULTY::kExpert: damage *= data::GetSingleton()->fDiffMultHPToPCH; break;
+		case RE::DIFFICULTY::kMaster: damage *= data::GetSingleton()->fDiffMultHPToPCVH; break;
+		case RE::DIFFICULTY::kLegendary: damage *= data::GetSingleton()->fDiffMultHPToPCL; break;
 		}
 	}
+	DEBUG("real damage is {}", damage);
+	return damage;
 }

@@ -31,28 +31,28 @@ public:
 	void registerAtk(RE::Actor* actor) {
 		checkout(actor);
 		//TODO:fix bash implementation
-		DEBUG("registering attack for {}", actor->GetName());
+		//DEBUG("registering attack for {}", actor->GetName());
 		if (actor->currentProcess && actor->currentProcess->high) {
 			auto attckData = actor->currentProcess->high->attackData;
 			if (attckData) {
 				if (attckData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
-					DEBUG("skipped shield bash");
+					//DEBUG("skipped shield bash");
 					return; //bash attacks won't get registered
 				}
 				if (attckData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
 					attackerHeap.emplace(actor, ATTACKTYPE::power);
-					DEBUG("registered power attack");
+					//DEBUG("registered power attack");
 					return;
 				}
 				else {
-					DEBUG("registered light attack");
+					//DEBUG("registered light attack");
 					attackerHeap.emplace(actor, ATTACKTYPE::light);
-					DEBUG("attack heap size: {}", attackerHeap.size());
+					//DEBUG("attack heap size: {}", attackerHeap.size());
 				}
 			}
 		}
 		else {
-			DEBUG("ERROR: actor has no high process");
+			//DEBUG("ERROR: actor has no high process");
 		}
 	}
 
@@ -62,13 +62,13 @@ public:
 	* due to the attack, do stamina regen/stamina damage.
 	@param actor: actor whose hit will be registered*/
 	void registerHit(RE::Actor* actor) {
-		DEBUG("registering successful hit for {}", actor->GetName());
+		//DEBUG("registering successful hit for {}", actor->GetName());
 		ATTACKTYPE atkType;
 		if (!getAtkType(actor, atkType)) {
 			return;
 		}
-		DEBUG("attack type is: ");
-		DEBUG(atkType);
+		//DEBUG("attack type is: ");
+		//DEBUG(atkType);
 		if (atkType == ATTACKTYPE::light) { //register light hit
 			actorToRegenStamina = actor;
 			staminaHandler::staminaLightHit(actor);
@@ -78,9 +78,9 @@ public:
 			staminaHandler::staminaHeavyHit(actor);
 		}
 		Utils::flashStaminaMeter(actor);
-		DEBUG("erasing {} from attaker heap", actor->GetName());
+		//DEBUG("erasing {} from attaker heap", actor->GetName());
 		attackerHeap.erase(actor); //erase the actor from heap i.e. checking out the attack without damaging stamina.
-		DEBUG("current attacker heap size: {}", attackerHeap.size());
+		//DEBUG("current attacker heap size: {}", attackerHeap.size());
 	}
 
 	/* attack is checked out when the attack is either:
@@ -90,11 +90,11 @@ public:
 	* @param actor: actor whose attack will be checked out.
 	*/
 	void checkout(RE::Actor* actor) {
-		DEBUG("checking out attack for {}", actor->GetName());
+		//DEBUG("checking out attack for {}", actor->GetName());
 		//no need to perform a nullptr check, which is already done in animEventHandler.
 		ATTACKTYPE atkType;
 		if (!getAtkType(actor, atkType)) {
-			DEBUG("{} has no attack to check out", actor->GetName());
+		//	DEBUG("{} has no attack to check out", actor->GetName());
 			return;
 		}
 		if (atkType == ATTACKTYPE::light) {
@@ -114,11 +114,11 @@ private:
 		DEBUG("Getting {}'s attack from attack heap", actor->GetName());
 		boost::unordered::iterator_detail::iterator atkTypeItr = attackerHeap.find(actor); //check if the actor's attack is registered
 		if (atkTypeItr == attackerHeap.end()) {
-			DEBUG("{} not found in attackState map", actor->GetName());
+			//DEBUG("{} not found in attackState map", actor->GetName());
 			return false;
 		}
 		else {
-			DEBUG("found attack type!");
+			//DEBUG("found attack type!");
 		}
 		atkType = atkTypeItr->second;
 		return true;
