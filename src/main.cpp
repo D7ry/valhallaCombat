@@ -3,7 +3,7 @@
 #include "Papyrus.h"
 #include "data.h"
 #include "debuffHandler.h"
-#include "events/animEventHandler.h"
+#include "events/events.h"
 #include "include/TrueHUDAPI.h"
 #include "ValhallaCombat.hpp"
 
