@@ -23,7 +23,7 @@ float stunHandler::getMaxStun(RE::Actor* actor) {
 }
 
 float stunHandler::getStun(RE::Actor* actor) {
-	DEBUG("Getting {}'s stun.", actor->GetName());
+	//DEBUG("Getting {}'s stun.", actor->GetName());
 	auto actorStunMap = stunHandler::GetSingleton()->actorStunMap;
 	auto it = actorStunMap.find(actor);
 	if (it != actorStunMap.end()) {
