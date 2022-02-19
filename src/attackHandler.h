@@ -111,7 +111,7 @@ private:
 	@param actor: actor whose info to obtain.
 	@param atkType: address to store attack type*/
 	inline bool getAtkType(RE::Actor* actor, ATTACKTYPE& atkType) {
-		DEBUG("Getting {}'s attack from attack heap", actor->GetName());
+		//DEBUG("Getting {}'s attack from attack heap", actor->GetName());
 		boost::unordered::iterator_detail::iterator atkTypeItr = attackerHeap.find(actor); //check if the actor's attack is registered
 		if (atkTypeItr == attackerHeap.end()) {
 			//DEBUG("{} not found in attackState map", actor->GetName());

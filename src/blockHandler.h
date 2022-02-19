@@ -34,7 +34,7 @@ public:
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 private:
-	inline void guardBreak(RE::Actor* actor);
+	inline void guardBreak(RE::Actor* actor, RE::Actor* aggressor);
 
 	inline void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
