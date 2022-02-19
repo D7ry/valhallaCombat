@@ -14,7 +14,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Data loaded");
 		settings::readSettings();
 		animEventHandler::hookAllActors();
-		data::GetSingleton()->fetchGameData();
+		gameDataCache::fetchGameData();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
 		INFO("Post load");
@@ -48,7 +48,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		else {
 			INFO("TrueHUD API interface request success");
 		}
-		stunHandler::GetSingleton()->initStunMeter();
+		stunHandler::GetSingleton()->initTrueHUDStunMeter();
 		break;
 	}
 }

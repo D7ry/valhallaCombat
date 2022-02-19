@@ -95,34 +95,29 @@ private:
 };
 
 /*Everything stored in game.*/
-struct data
+struct gameDataCache
 {
 public:
 
-	static data* GetSingleton()
-	{
-		static data singleton;
-		return  std::addressof(singleton);
-	}
-	RE::BGSPerk* debuffPerk = nullptr;
-	RE::BGSSoundDescriptorForm* soundParryShieldD = nullptr;
-	RE::BGSSoundDescriptorForm* soundParryWeaponD = nullptr;
+	inline static RE::BGSPerk* debuffPerk;
+	inline static RE::BGSSoundDescriptorForm* soundParryShieldD;
+	inline static RE::BGSSoundDescriptorForm* soundParryWeaponD;
 
-	float fDiffMultHPByPCVE;
-	float fDiffMultHPByPCE;
-	float fDiffMultHPByPCN;
-	float fDiffMultHPByPCH;
-	float fDiffMultHPByPCVH;
-	float fDiffMultHPByPCL;
-	float fDiffMultHPToPCVE;
-	float fDiffMultHPToPCE;
-	float fDiffMultHPToPCN;
-	float fDiffMultHPToPCH;
-	float fDiffMultHPToPCVH;
-	float fDiffMultHPToPCL;
+	inline static float fDiffMultHPByPCVE;
+	inline static float fDiffMultHPByPCE;
+	inline static float fDiffMultHPByPCN;
+	inline static float fDiffMultHPByPCH;
+	inline static float fDiffMultHPByPCVH;
+	inline static float fDiffMultHPByPCL;
+	inline static float fDiffMultHPToPCVE;
+	inline static float fDiffMultHPToPCE;
+	inline static float fDiffMultHPToPCN;
+	inline static float fDiffMultHPToPCH;
+	inline static float fDiffMultHPToPCVH;
+	inline static float fDiffMultHPToPCL;
 
 	/*Fetch data from game and store them for latter use.*/
-	void fetchGameData() {
+	static void fetchGameData() {
 		INFO("Fetching data from game...");
 		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
 		if (debuffPerk) {

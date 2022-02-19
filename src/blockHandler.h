@@ -13,7 +13,7 @@ public:
 
 	/*Set of all actors who have successfully perfect blocked an attack.*/
 	boost::unordered_set <RE::Actor*> actorsPerfectblockSuccessful;
-	
+
 	static blockHandler* GetSingleton()
 	{
 		static blockHandler singleton;
@@ -27,17 +27,18 @@ public:
 	/*Process a single block.
 	@param blocker: Actor who blocks.
 	@param aggressor: Actor whose attack gets blocked.
-	@param iHitflag: hitflag of the blocked hit, in int.
+	@param iHitflag: hitflag of the blocked hit, in integer.
 	@param hitData: hitdata of the blocked hit.
 	@param realDamage: real damage of this blocked hit.
 	@return if the block is a perfect block.*/
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 private:
-	inline void guardBreak(RE::Actor* actor, RE::Actor* aggressor);
+	inline void guardBreak(RE::Actor* actor, RE::Actor* actorToPush);
 
 	inline void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
-	inline void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
+	/*Process perfect block does not take in real damage, as parry damage is re-adjusted.*/
+	inline void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
 
 };
