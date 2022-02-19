@@ -38,7 +38,6 @@ float CalcStaminaHook::calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData
 {
 	DEBUG("hooked attack data!");
 	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
-
 	if (atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) { //bash attack
 		DEBUG("is bash attack!");
 		if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) { //power bash

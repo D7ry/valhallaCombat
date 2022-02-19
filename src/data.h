@@ -94,6 +94,7 @@ private:
 
 };
 
+/*Everything stored in game.*/
 struct data
 {
 public:
@@ -103,11 +104,23 @@ public:
 		static data singleton;
 		return  std::addressof(singleton);
 	}
-	RE::TESSound* soundParryShield = nullptr;
-	RE::TESSound* soundParryWeapon = nullptr;
 	RE::BGSPerk* debuffPerk = nullptr;
 	RE::BGSSoundDescriptorForm* soundParryShieldD = nullptr;
 	RE::BGSSoundDescriptorForm* soundParryWeaponD = nullptr;
+
+	float fDiffMultHPByPCVE;
+	float fDiffMultHPByPCE;
+	float fDiffMultHPByPCN;
+	float fDiffMultHPByPCH;
+	float fDiffMultHPByPCVH;
+	float fDiffMultHPByPCL;
+	float fDiffMultHPToPCVE;
+	float fDiffMultHPToPCE;
+	float fDiffMultHPToPCN;
+	float fDiffMultHPToPCH;
+	float fDiffMultHPToPCVH;
+	float fDiffMultHPToPCL;
+
 	/*Fetch data from game and store them for latter use.*/
 	void fetchGameData() {
 		INFO("Fetching data from game...");
@@ -115,16 +128,26 @@ public:
 		if (debuffPerk) {
 			INFO("Debuff perk successfully loaded!");
 		}
-		soundParryShield = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESSound>(0X433D, "ValhallaCombat.esp");
-		soundParryWeapon = RE::TESDataHandler::GetSingleton()->LookupForm<RE::TESSound>(0X433E, "ValhallaCombat.esp");
-		if (soundParryShield && soundParryWeapon) {
-			INFO("Sound successfully loaded!");
-		}
 		soundParryShieldD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X433C, "ValhallaCombat.esp");
 		soundParryWeaponD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X3DD9, "ValhallaCombat.esp");
 		if (soundParryShieldD && soundParryWeaponD) {
 			INFO("SoundD successfully loaded!");
 		}
+		auto gameSettings = RE::GameSettingCollection::GetSingleton();
+		fDiffMultHPByPCVE = gameSettings->GetSetting("fDiffMultHPByPCVE")->GetFloat();
+		fDiffMultHPByPCE = gameSettings->GetSetting("fDiffMultHPByPCE")->GetFloat();
+		fDiffMultHPByPCN = gameSettings->GetSetting("fDiffMultHPByPCN")->GetFloat();
+		fDiffMultHPByPCH = gameSettings->GetSetting("fDiffMultHPByPCH")->GetFloat();
+		fDiffMultHPByPCVH = gameSettings->GetSetting("fDiffMultHPByPCVH")->GetFloat();
+		fDiffMultHPByPCL = gameSettings->GetSetting("fDiffMultHPByPCL")->GetFloat();
+
+		fDiffMultHPToPCVE = gameSettings->GetSetting("fDiffMultHPToPCVE")->GetFloat();
+		fDiffMultHPToPCE = gameSettings->GetSetting("fDiffMultHPToPCE")->GetFloat();
+		fDiffMultHPToPCN = gameSettings->GetSetting("fDiffMultHPToPCN")->GetFloat();
+		fDiffMultHPToPCH = gameSettings->GetSetting("fDiffMultHPToPCH")->GetFloat();
+		fDiffMultHPToPCVH = gameSettings->GetSetting("fDiffMultHPToPCVH")->GetFloat();
+		fDiffMultHPToPCL = gameSettings->GetSetting("fDiffMultHPToPCL")->GetFloat();
+		INFO("Difficulty multipliers loaded!");
 		INFO("Data fetched.");
 	}
 };
