@@ -114,7 +114,7 @@ namespace Utils
 		//ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kHealth, true);
 	}
 
-	inline void ExecuteCommand(std::string a_command)
+	inline void sendConsoleCommand(std::string a_command)
 	{
 		const auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>();
 		const auto script = scriptFactory ? scriptFactory->Create() : nullptr;

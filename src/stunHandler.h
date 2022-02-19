@@ -72,34 +72,6 @@ public:
 	*/
 	void calculateStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage);
 
-	/*Execute the actor*/
-	void execute(RE::Actor* executer, RE::Actor* victim) {
-		if (victim->IsEssential()) {
-			DEBUG("{} is essential, terminating execution", victim->GetName());
-		}
-		auto executerForm = executer->GetFormID();
-		auto victimForm = victim->GetFormID();
-		std::stringstream sstream1;
-		sstream1 << std::hex << executerForm;
-		std::string executerFormHex = sstream1.str();
-		DEBUG(executerFormHex);
-		if (executerFormHex == "14") {
-			executerFormHex = "player";
-		}
-		std::stringstream sstream2;
-		sstream2 << std::hex << victimForm;
-		std::string victimFormHex = sstream2.str();
-		std::string cmd1 = ".playidle";
-		DEBUG(cmd1);
-		std::string cmd2 = "pa_1hmKillMovedecapbleedout";
-		DEBUG(cmd2);
-		std::string cmd = executerFormHex + cmd1 + " " + cmd2 + " " + victimFormHex;
-		DEBUG(cmd);
-		Utils::ExecuteCommand(cmd);
-	}
-
-
-
 
 	/*currently stun meter uses stamina*/
 

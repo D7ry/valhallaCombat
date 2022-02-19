@@ -4,17 +4,20 @@
 #include <iostream>
 
 void stunHandler::initStunMeter() {
-	if (ValhallaCombat::GetSingleton()->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) != TRUEHUD_API::APIResult::AlreadyTaken) {
+	if (ValhallaCombat::GetSingleton()->g_trueHUD
+		->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) != TRUEHUD_API::APIResult::AlreadyTaken) {
 		INFO("TrueHUD special bar request success.");
 		if (
-			ValhallaCombat::GetSingleton()->g_trueHUD->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, false) == TRUEHUD_API::APIResult::OK) {
+			ValhallaCombat::GetSingleton()->g_trueHUD
+			->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, false) == TRUEHUD_API::APIResult::OK) {
 			INFO("TrueHUD special bar init success.");
 		}
 	}
 }
 
 float stunHandler::getMaxStun(RE::Actor* actor) {
-	float stun = (actor->GetPermanentActorValue(RE::ActorValue::kStamina) + actor->GetPermanentActorValue(RE::ActorValue::kHealth)) / 2;
+	float stun = (actor->GetPermanentActorValue(RE::ActorValue::kStamina) 
+		+ actor->GetPermanentActorValue(RE::ActorValue::kHealth)) / 2;
 	//DEBUG("Calculated {}'s max stun: {}.", actor->GetName(), stun);
 	return stun;
 }
@@ -45,17 +48,26 @@ void stunHandler::damageStun(RE::Actor* actor, float damage) {
 	}
 	it->second.second -= damage;
 	DEBUG("{}'s stun damaged to {}", actor->GetName(), it->second.second);
+	if (it->second.second <= 0) {
+		DEBUG("bleed out {}!", actor->GetName());
+		actor->SetGraphVariableBool("IsBleedingOut", true);
+		actor->NotifyAnimationGraph("bleedOutStart");
+		actor->SetGraphVariableBool("IsBleedingOut", true);
+	}
 }
 
-void stunHandler::calculateStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
+void stunHandler::calculateStunDamage(
+	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
 	float dmg = baseDamage;
 	switch (stunSource) {
 	case STUNSOURCE::parry:
 		damageStun(victim, baseDamage * settings::fStunParryMult); break;
 	case STUNSOURCE::bash:
-		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult); break;
+		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult);
+		break;
 	case STUNSOURCE::powerBash:
-		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult * settings::fStunPowerBashMult); break;
+		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult * settings::fStunPowerBashMult); 
+		break;
 	case STUNSOURCE::powerAttack:
 		dmg *= settings::fStunPowerAttackMult;
 	case STUNSOURCE::lightAttack:

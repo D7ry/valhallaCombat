@@ -1,6 +1,7 @@
 #include "hitProcessor.h"
 #include "attackHandler.h"
 #include "stunHandler.h"
+#include "executionHandler.h"
 void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitData& hitData) {
 		int hitFlag = (int)hitData.flags;
 		if (hitFlag & (int)HITFLAG::kBlocked) {
@@ -42,7 +43,7 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 		if (!victim->IsPlayerRef() && !victim->IsPlayerTeammate() && !victim->IsEssential() && !victim->IsInKillMove()) {
 			DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
 			if (stunHandler::GetSingleton()->getStun(victim) <= 0) {
-				stunHandler::GetSingleton()->execute(aggressor, victim);
+				executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
 			}
 		}
 }

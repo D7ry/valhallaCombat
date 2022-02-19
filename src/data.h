@@ -76,6 +76,16 @@ public:
 	static inline float fStunGreatSwordMult = 1;
 	static inline float fStun2HBluntMult = 1;
 
+
+	//execute
+	static inline bool bExecutionToggle = true; //enable/disable execution
+	/*Toggle for player to be executed.*/
+	static inline bool bPlayerExecution = false;
+	/*Toggle for player teammate to be executed.*/
+	static inline bool bPlayerTeammateExecution = false;
+	/*Toggle for essential NPCs to be executed.*/
+	static inline bool bEssentialExecution = false;
+	static inline bool bExecutionLevelLimit = true; //NPCs with level higher than player cannot be executed unless under certain health threshold.
 	static void readSettings();
 
 private:

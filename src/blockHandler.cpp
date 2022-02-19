@@ -86,7 +86,7 @@ void blockHandler::guardBreak(RE::Actor* actor) {
 	DEBUG(cmd2);
 	std::string cmd = cmd1 + cmd2;
 	DEBUG(cmd);
-	Utils::ExecuteCommand(cmd);
+	Utils::sendConsoleCommand(cmd);
 }
 
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
