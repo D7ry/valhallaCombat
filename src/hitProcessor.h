@@ -43,8 +43,8 @@ namespace Utils
 			case RE::DIFFICULTY::kMaster: damage *= gameDataCache::fDiffMultHPToPCVH; break;
 			case RE::DIFFICULTY::kLegendary: damage *= gameDataCache::fDiffMultHPToPCL; break;
 			}
-			DEBUG("real damage is {}", damage);
 		}
+		DEBUG("real damage is {}", damage);
 	}
 
 }

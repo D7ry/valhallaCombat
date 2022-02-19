@@ -92,3 +92,18 @@ private:
 
 
 };
+
+namespace Utils
+{
+	inline void sendConsoleCommand(std::string a_command)
+	{
+		const auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>();
+		const auto script = scriptFactory ? scriptFactory->Create() : nullptr;
+		if (script) {
+			const auto selectedRef = RE::Console::GetSelectedRef();
+			script->SetCommand(a_command);
+			script->CompileAndRun(selectedRef.get());
+			delete script;
+		}
+	}
+}

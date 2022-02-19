@@ -2,10 +2,8 @@
 #include "data.h"
 #include "Utils.h"
 #include "stunHandler.h"
-#include "include/BlockSpark.h"
-#include "RE/B/BGSSoundDescriptorForm.h"
-#include "RE/B/BSAudioManager.h"
 #include "hitProcessor.h"
+#include "include/BlockSpark.h"
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
@@ -163,10 +161,10 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	DEBUG("Perfect Block!");
 	float reflectedDamage = hitData.totalDamage;
 	//when reflecting damage, blocker is the real "attacker". So the damage is readjusted here.
-	if (blocker->IsPlayerRef()) {
+	if (blocker->IsPlayerRef() || blocker->IsPlayerTeammate()) {
 		Utils::offsetRealDamage(reflectedDamage, true);
 	}
-	else if (aggressor->IsPlayerRef()) {
+	else if (aggressor->IsPlayerRef() || aggressor->IsPlayerTeammate()) {
 		Utils::offsetRealDamage(reflectedDamage, false);
 	}
 	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, reflectedDamage);
@@ -182,14 +180,10 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	if (settings::bPerfectBlockingSFX && (blocker->IsPlayerRef() || aggressor->IsPlayerRef())) {
 		DEBUG("playing perfect block sfx!");
 		if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
-			if (RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD)) {
-				DEBUG("play success!");
-			}
+			RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
 		}
 		else {
-			if (RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryShieldD)) {
-				DEBUG("play success!");
-			}
+			RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryShieldD);
 		}
 
 	}

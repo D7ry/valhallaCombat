@@ -77,59 +77,12 @@ namespace Utils
 	}
 
 
-	inline void safeApplySpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
-		if (a_actor && a_spell) {
-			a_actor->AddSpell(a_spell);
-			DEBUG("spell {} applied to {}.", a_spell->GetName(), a_actor->GetName());
-		}
-	}
 
-	inline void safeRemoveSpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
-		if (a_actor && a_spell) {
-			a_actor->RemoveSpell(a_spell);
-			DEBUG("spell {} removed from {}.", a_spell->GetName(), a_actor->GetName());
-		}
-	}
 
-	inline void safeApplyPerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
-		if (a_actor && a_perk && !a_actor->HasPerk(a_perk)) {
-			a_actor->AddPerk(a_perk);
-			DEBUG("perk {} added to {}", a_perk->GetName(), a_actor->GetName());
-		}
-	}
 
-	inline void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
-		if (a_actor && a_perk && a_actor->HasPerk(a_perk)) {
-			a_actor->RemovePerk(a_perk);
-			DEBUG("perk {} removed from {}", a_perk->GetName(), a_actor->GetName());
-		}
-	}
-	/*flash this actor's stmaina meter once.*/
-	inline void flashStaminaMeter(RE::Actor* actor) {
-		//DEBUG("Blinking {}'s stamina", actor->GetName());
-		//ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
-	}
-	/*Flash this actor's health meter once.*/
-	inline void flashHealthMeter(RE::Actor* actor) {
-		//ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kHealth, true);
-	}
-
-	inline void sendConsoleCommand(std::string a_command)
-	{
-		const auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>();
-		const auto script = scriptFactory ? scriptFactory->Create() : nullptr;
-		if (script) {
-			const auto selectedRef = RE::Console::GetSelectedRef();
-			script->SetCommand(a_command);
-			script->CompileAndRun(selectedRef.get());
-			delete script;
-		}
-	}
 	typedef void(_fastcall* _shakeCamera)(float strength, RE::NiPoint3 source, float duration);
 	static REL::Relocation<_shakeCamera> shakeCamera{ REL::ID(32275) };
 
-	typedef void(_fastcall* tFlashHUDMenuMeter)(RE::ActorValue a_actorValue);
-	static REL::Relocation<tFlashHUDMenuMeter> FlashHUDMenuMeter{ REL::ID(51907) };
 
 	typedef void(_fastcall* tPushActorAway_sub_14067D4A0)(RE::AIProcess* a_causer, RE::Actor* a_target, RE::NiPoint3& a_origin, float a_magnitude);
 	static REL::Relocation<tPushActorAway_sub_14067D4A0> pushActorAway{ REL::ID(38858) };

@@ -99,22 +99,22 @@ struct gameDataCache
 {
 public:
 
-	inline static RE::BGSPerk* debuffPerk;
-	inline static RE::BGSSoundDescriptorForm* soundParryShieldD;
-	inline static RE::BGSSoundDescriptorForm* soundParryWeaponD;
+	static inline RE::BGSPerk* debuffPerk;
+	static inline RE::BGSSoundDescriptorForm* soundParryShieldD;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeaponD;
 
-	inline static float fDiffMultHPByPCVE;
-	inline static float fDiffMultHPByPCE;
-	inline static float fDiffMultHPByPCN;
-	inline static float fDiffMultHPByPCH;
-	inline static float fDiffMultHPByPCVH;
-	inline static float fDiffMultHPByPCL;
-	inline static float fDiffMultHPToPCVE;
-	inline static float fDiffMultHPToPCE;
-	inline static float fDiffMultHPToPCN;
-	inline static float fDiffMultHPToPCH;
-	inline static float fDiffMultHPToPCVH;
-	inline static float fDiffMultHPToPCL;
+	static inline float fDiffMultHPByPCVE;
+	static inline float fDiffMultHPByPCE;
+	static inline float fDiffMultHPByPCN;
+	static inline float fDiffMultHPByPCH;
+	static inline float fDiffMultHPByPCVH;
+	static inline float fDiffMultHPByPCL;
+	static inline float fDiffMultHPToPCVE;
+	static inline float fDiffMultHPToPCE;
+	static inline float fDiffMultHPToPCN;
+	static inline float fDiffMultHPToPCH;
+	static inline float fDiffMultHPToPCVH;
+	static inline float fDiffMultHPToPCL;
 
 	/*Fetch data from game and store them for latter use.*/
 	static void fetchGameData() {

@@ -39,4 +39,34 @@ private:
 };
 
 
+namespace Utils
+{
 
+	inline void safeApplySpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
+		if (a_actor && a_spell) {
+			a_actor->AddSpell(a_spell);
+			DEBUG("spell {} applied to {}.", a_spell->GetName(), a_actor->GetName());
+		}
+	}
+
+	inline void safeRemoveSpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
+		if (a_actor && a_spell) {
+			a_actor->RemoveSpell(a_spell);
+			DEBUG("spell {} removed from {}.", a_spell->GetName(), a_actor->GetName());
+		}
+	}
+
+	inline void safeApplyPerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
+		if (a_actor && a_perk && !a_actor->HasPerk(a_perk)) {
+			a_actor->AddPerk(a_perk);
+			DEBUG("perk {} added to {}", a_perk->GetName(), a_actor->GetName());
+		}
+	}
+
+	inline void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
+		if (a_actor && a_perk && a_actor->HasPerk(a_perk)) {
+			a_actor->RemovePerk(a_perk);
+			DEBUG("perk {} removed from {}", a_perk->GetName(), a_actor->GetName());
+		}
+	}
+}
