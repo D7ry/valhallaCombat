@@ -3,7 +3,7 @@
 #include <functional>
 #include <iostream>
 
-void stunHandler::initTrueHUDStunMeter() {
+void stunHandler::initStunMeter() {
 	if (ValhallaCombat::GetSingleton()->g_trueHUD
 		->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) != TRUEHUD_API::APIResult::AlreadyTaken) {
 		INFO("TrueHUD special bar request success.");
@@ -32,7 +32,7 @@ float stunHandler::getStun(RE::Actor* actor) {
 	else {
 		DEBUG("Unable to find actor on the stun map, tracking actor and returning the actor's permanent stun.");
 		trackStun(actor);
-		return getStun(actor);
+		return getMaxStun(actor);
 	}
 	
 }
@@ -55,12 +55,10 @@ void stunHandler::damageStun(RE::Actor* actor, float damage) {
 		actor->SetGraphVariableBool("IsBleedingOut", true);
 	}*/
 }
-//TODO:test unarmed stun damage
+
 void stunHandler::calculateStunDamage(
 	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
-	if (!victim->IsInCombat()) {
-		return;
-	}
+	float dmg = baseDamage;
 	switch (stunSource) {
 	case STUNSOURCE::parry:
 		damageStun(victim, baseDamage * settings::fStunParryMult); break;
@@ -71,22 +69,22 @@ void stunHandler::calculateStunDamage(
 		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult * settings::fStunPowerBashMult); 
 		break;
 	case STUNSOURCE::powerAttack:
-		baseDamage *= settings::fStunPowerAttackMult;
+		dmg *= settings::fStunPowerAttackMult;
 	case STUNSOURCE::lightAttack:
 		if (!weapon) {
-			baseDamage *= settings::fStunUnarmedMult;
+			dmg *= settings::fStunUnarmedMult;
 		}
 		else {
 			switch (weapon->GetWeaponType()) {
-			case RE::WEAPON_TYPE::kOneHandDagger: baseDamage *= settings::fStunDaggerMult; break;
-			case RE::WEAPON_TYPE::kOneHandSword: baseDamage *= settings::fStunSwordMult; break;
-			case RE::WEAPON_TYPE::kOneHandAxe: baseDamage *= settings::fStunWarAxeMult; break;
-			case RE::WEAPON_TYPE::kOneHandMace: baseDamage *= settings::fStunMaceMult; break;
-			case RE::WEAPON_TYPE::kTwoHandAxe: baseDamage *= settings::fStun2HBluntMult; break;
-			case RE::WEAPON_TYPE::kTwoHandSword: baseDamage *= settings::fStunGreatSwordMult; break;
+			case RE::WEAPON_TYPE::kOneHandDagger: dmg *= settings::fStunDaggerMult; break;
+			case RE::WEAPON_TYPE::kOneHandSword: dmg *= settings::fStunSwordMult; break;
+			case RE::WEAPON_TYPE::kOneHandAxe: dmg *= settings::fStunWarAxeMult; break;
+			case RE::WEAPON_TYPE::kOneHandMace: dmg *= settings::fStunMaceMult; break;
+			case RE::WEAPON_TYPE::kTwoHandAxe: dmg *= settings::fStun2HBluntMult; break;
+			case RE::WEAPON_TYPE::kTwoHandSword: dmg *= settings::fStunGreatSwordMult; break;
 			}
 		}
-		damageStun(victim, baseDamage);
+		damageStun(victim, dmg);
 	}
 }
 

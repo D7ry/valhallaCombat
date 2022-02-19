@@ -5,7 +5,6 @@
 #include "include/BlockSpark.h"
 #include "RE/B/BGSSoundDescriptorForm.h"
 #include "RE/B/BSAudioManager.h"
-#include "hitProcessor.h"
 /*Called every frame. 
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
@@ -75,6 +74,7 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 }
 /*Make an actor break their guard through a animation event.*/
 <<<<<<< HEAD
+<<<<<<< HEAD
 void blockHandler::guardBreak(RE::Actor* actor, RE::Actor* actorToPush) {
 	RE::NiPoint3 vec = actor->GetPosition();
 	Utils::pushActorAway(actor->currentProcess, actorToPush, vec, 7);
@@ -94,13 +94,17 @@ void blockHandler::guardBreak(RE::Actor* actor) {
 	DEBUG(cmd);
 	Utils::sendConsoleCommand(cmd);
 >>>>>>> parent of 53af9c6 (new guardbreak function)
+=======
+void blockHandler::guardBreak(RE::Actor* actor, RE::Actor* aggressor) {
+	RE::NiPoint3 vec = actor->GetPosition();
+	Utils::pushActorAway(actor->currentProcess, aggressor, vec, 7);
+>>>>>>> parent of dfef385 (buggy shit)
 }
 
-#pragma region Process Block
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
 	if (settings::bPerfectBlocking && actorsPerfectBlocking.find(blocker) != actorsPerfectBlocking.end()) {
-		processPerfectBlock(blocker, aggressor, iHitflag, hitData);
+		processPerfectBlock(blocker, aggressor, iHitflag, hitData, realDamage);
 		return true;
 	}
 	else if (settings::bStaminaBlocking) {
@@ -155,10 +159,14 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 			guardBreak(aggressor, blocker);
 =======
 			guardBreak(blocker);
 >>>>>>> parent of 53af9c6 (new guardbreak function)
+=======
+			guardBreak(blocker, aggressor);
+>>>>>>> parent of dfef385 (buggy shit)
 		}
 		hitData.totalDamage = 
 			hitData.totalDamage - ((targetStamina / staminaDamageMult) * (hitData.totalDamage/realDamage)); //offset real damage back into hit data.
@@ -177,19 +185,11 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 /*Process a perfect block.
 Play block spark effects & screen shake effects if enabled.
 Decrement aggressor's stamina. 
-The blocker will not receive any block cooldown once the block timer ends, and may initialize another perfect block as they wish.
-Real damage from previous function is not passed in; instead it's being readjusted due to the swap of roles of attacker&defender.*/
-void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
+The blocker will not receive any block cooldown once the block timer ends, and may initialize another perfect block as they wish.*/
+void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	DEBUG("Perfect Block!");
-	float reflectedDamage = hitData.totalDamage;
-	//when reflecting damage, blocker is the real "attacker". So the damage is readjusted here.
-	if (blocker->IsPlayerRef()) { 
-		Utils::offsetRealDamage(reflectedDamage, true);
-	}
-	else if (aggressor->IsPlayerRef()) {
-		Utils::offsetRealDamage(reflectedDamage, false);
-	}
-	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, reflectedDamage);
+	//float stunDmg = hitData.totalDamage;
+	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, hitData.totalDamage);
 	hitData.totalDamage = 0;
 	//guardBreak(aggressor);
 	if (settings::bPerfectBlockingVFX) {
@@ -203,12 +203,12 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	if (settings::bPerfectBlockingSFX && (blocker->IsPlayerRef() || aggressor->IsPlayerRef())) {
 		DEBUG("playing perfect block sfx!");
 		if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
-			if (RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD)) {
+			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryWeaponD)) {
 				DEBUG("play success!");
 			}
 		}
 		else {
-			if (RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryShieldD)) {
+			if (RE::BSAudioManager::GetSingleton()->Play(data::GetSingleton()->soundParryShieldD)) {
 				DEBUG("play success!");
 			}
 		}
@@ -218,11 +218,14 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	/*if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
 		DEBUG("guard break!");
 <<<<<<< HEAD
+<<<<<<< HEAD
 		guardBreak(blocker, aggressor);
+=======
+		guardBreak(aggressor, blocker);
+>>>>>>> parent of dfef385 (buggy shit)
 	}
 =======
 		guardBreak(aggressor);
 	}*/
 >>>>>>> parent of 53af9c6 (new guardbreak function)
 }
-#pragma endregion

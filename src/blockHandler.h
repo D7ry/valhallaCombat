@@ -27,7 +27,7 @@ public:
 	/*Process a single block.
 	@param blocker: Actor who blocks.
 	@param aggressor: Actor whose attack gets blocked.
-	@param iHitflag: hitflag of the blocked hit, in integer.
+	@param iHitflag: hitflag of the blocked hit, in int.
 	@param hitData: hitdata of the blocked hit.
 	@param realDamage: real damage of this blocked hit.
 	@return if the block is a perfect block.*/
@@ -35,14 +35,17 @@ public:
 
 private:
 <<<<<<< HEAD
+<<<<<<< HEAD
 	inline void guardBreak(RE::Actor* actor, RE::Actor* actorToPush);
 =======
 	inline void guardBreak(RE::Actor* actor);
 >>>>>>> parent of 53af9c6 (new guardbreak function)
+=======
+	inline void guardBreak(RE::Actor* actor, RE::Actor* aggressor);
+>>>>>>> parent of dfef385 (buggy shit)
 
 	inline void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
-	/*Process perfect block does not take in real damage, as parry damage is re-adjusted.*/
-	inline void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
+	inline void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 };

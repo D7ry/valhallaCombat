@@ -77,7 +77,7 @@ public:
 	static inline float fStun2HBluntMult = 1;
 
 
-	//execution
+	//execute
 	static inline bool bExecutionToggle = true; //enable/disable execution
 	/*Toggle for player to be executed.*/
 	static inline bool bPlayerExecution = false;
@@ -95,33 +95,34 @@ private:
 };
 
 /*Everything stored in game.*/
-class gameDataCache
+struct data
 {
 public:
-	static gameDataCache* GetSingleton()
+
+	static data* GetSingleton()
 	{
-		static gameDataCache singleton;
+		static data singleton;
 		return  std::addressof(singleton);
 	}
-	 RE::BGSPerk* debuffPerk;
-	 RE::BGSSoundDescriptorForm* soundParryShieldD;
-	 RE::BGSSoundDescriptorForm* soundParryWeaponD;
+	RE::BGSPerk* debuffPerk = nullptr;
+	RE::BGSSoundDescriptorForm* soundParryShieldD = nullptr;
+	RE::BGSSoundDescriptorForm* soundParryWeaponD = nullptr;
 
-	 float fDiffMultHPByPCVE;
-	 float fDiffMultHPByPCE;
-	 float fDiffMultHPByPCN;
-	 float fDiffMultHPByPCH;
-	 float fDiffMultHPByPCVH;
-	 float fDiffMultHPByPCL;
-	 float fDiffMultHPToPCVE;
-	 float fDiffMultHPToPCE;
-	 float fDiffMultHPToPCN;
-	 float fDiffMultHPToPCH;
-	 float fDiffMultHPToPCVH;
-	 float fDiffMultHPToPCL;
+	float fDiffMultHPByPCVE;
+	float fDiffMultHPByPCE;
+	float fDiffMultHPByPCN;
+	float fDiffMultHPByPCH;
+	float fDiffMultHPByPCVH;
+	float fDiffMultHPByPCL;
+	float fDiffMultHPToPCVE;
+	float fDiffMultHPToPCE;
+	float fDiffMultHPToPCN;
+	float fDiffMultHPToPCH;
+	float fDiffMultHPToPCVH;
+	float fDiffMultHPToPCL;
 
-	/*Cache data from game and store them for latter use.*/
-	 void fetchGameData() {
+	/*Fetch data from game and store them for latter use.*/
+	void fetchGameData() {
 		INFO("Fetching data from game...");
 		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
 		if (debuffPerk) {
@@ -133,12 +134,12 @@ public:
 			INFO("SoundD successfully loaded!");
 		}
 		auto gameSettings = RE::GameSettingCollection::GetSingleton();
-		fDiffMultHPByPCVE = gameSettings->GetSetting("fDiffMultHPByPCVE")->GetFloat();
-		fDiffMultHPByPCE = gameSettings->GetSetting("fDiffMultHPByPCE")->GetFloat();
-		fDiffMultHPByPCN = gameSettings->GetSetting("fDiffMultHPByPCN")->GetFloat();
-		fDiffMultHPByPCH = gameSettings->GetSetting("fDiffMultHPByPCH")->GetFloat();
-		fDiffMultHPByPCVH = gameSettings->GetSetting("fDiffMultHPByPCVH")->GetFloat();
-		fDiffMultHPByPCL = gameSettings->GetSetting("fDiffMultHPByPCL")->GetFloat();
+		fDiffMultHPByPCVE = gameSettings->GetSetting("fDiffMultHPByPCVE")->GetFloat(); DEBUG(fDiffMultHPByPCVE);
+		fDiffMultHPByPCE = gameSettings->GetSetting("fDiffMultHPByPCE")->GetFloat(); DEBUG(fDiffMultHPByPCE);
+		fDiffMultHPByPCN = gameSettings->GetSetting("fDiffMultHPByPCN")->GetFloat(); DEBUG(fDiffMultHPByPCN);
+		fDiffMultHPByPCH = gameSettings->GetSetting("fDiffMultHPByPCH")->GetFloat(); DEBUG(fDiffMultHPByPCH);
+		fDiffMultHPByPCVH = gameSettings->GetSetting("fDiffMultHPByPCVH")->GetFloat(); DEBUG(fDiffMultHPByPCVH);
+		fDiffMultHPByPCL = gameSettings->GetSetting("fDiffMultHPByPCL")->GetFloat(); DEBUG(fDiffMultHPByPCL);
 
 		fDiffMultHPToPCVE = gameSettings->GetSetting("fDiffMultHPToPCVE")->GetFloat();
 		fDiffMultHPToPCE = gameSettings->GetSetting("fDiffMultHPToPCE")->GetFloat();
@@ -147,7 +148,30 @@ public:
 		fDiffMultHPToPCVH = gameSettings->GetSetting("fDiffMultHPToPCVH")->GetFloat();
 		fDiffMultHPToPCL = gameSettings->GetSetting("fDiffMultHPToPCL")->GetFloat();
 		INFO("Difficulty multipliers loaded!");
-
 		INFO("Data fetched.");
 	}
 };
+//struct settingsOld {
+
+
+	//FIXME:One day implement stun
+	/*
+	static inline float stunBaseMult; //base stun multiplier. base stun damage = melee damage * stunMult. Also serves to balance difficulty.
+	static inline float stunHvyMult; //stun mult for heavy attack
+
+	static inline float stunUnarmedMult;
+	static inline float stunDaggerMult;
+	static inline float stunSwordMult;
+	static inline float stunAxeMult;
+	static inline float stunMaceMult;
+	static inline float stunGreatSwordMult;
+	static inline float stun2hwMult;
+
+	static inline float stunBowMult;
+	static inline float stunCrossBowMult;
+
+	static inline float stunExecutionDamageMult; //mult for execution of stunned enemy
+
+	*/
+
+//};
