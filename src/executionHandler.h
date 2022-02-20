@@ -69,7 +69,7 @@ private:
 	"Val_1HMKillMoveC", //throw over shoulder and stab in the heart
 	//"Val_1HMKillMoveF", //shield bash all the way to very far
 	"Val_1HMKillMoveG", "Val_1HMKillMoveH", "Val_1HMKillMoveK", 
-	"Val_1HMKillMoveM",
+	//"Val_1HMKillMoveM",
 	//"Val_1HMKillMoveL" //very long distance
 	/*The following are shortblade killmoves i.e. shared with dagger*/
 	"Val_1HMKillMoveShieldBashAttack",

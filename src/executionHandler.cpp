@@ -33,11 +33,14 @@ void executionHandler::sendExecutionCommand(RE::Actor* executer, RE::Actor* vict
 	if (executerStr == "14") {
 		executerStr = "player";
 	}
+	else {
+		executerStr = '\"' + executerStr + '\"';
+	}
 	std::stringstream sstream2;
 	sstream2 << std::hex << victimForm;
 	std::string victimStr = sstream2.str();
 
-	std::string cmd = executerStr + ".playidle " + executionStr + " " + victimStr;
+	std::string cmd = executerStr  + ".playidle " + executionStr + " " + victimStr;
 	DEBUG("sending execution command: " + cmd);
 	Utils::sendConsoleCommand(cmd);
 }
@@ -59,16 +62,18 @@ void executionHandler::attemptExecute(RE::Actor* executer, RE::Actor* victim) {
 		return;
 	}
 
-	//DEBUGging
+	//debug body data
 	DEBUG("executer body part data: {}", executer->GetRace()->bodyPartData->GetFormID());
 	DEBUG("victim body part data: {}", victim->GetRace()->bodyPartData->GetFormID());
-	//check relative position and rotation
+	RE::WEAPON_TYPE weaponType;
 	auto weapon = Utils::getWieldingWeapon(executer);
 	if (!weapon) {
-		DEBUG("Error: executer weapon not found");
-		return;
+		DEBUG("Executor weapon not found, using unarmed as weapon type.");
+		weaponType = RE::WEAPON_TYPE::kHandToHandMelee;
 	}
-	RE::WEAPON_TYPE weaponType = weapon->GetWeaponType();
+	else {
+		weaponType = weapon->GetWeaponType();
+	}
 	DEBUG("weapon type is {}", weaponType);
 	DEBUG("victim body part is {}", victim->GetRace()->bodyPartData->GetFormID());
 	switch (victim->GetRace()->bodyPartData->GetFormID()) {
@@ -84,7 +89,7 @@ void executionHandler::attemptExecute(RE::Actor* executer, RE::Actor* victim) {
 	case uIntBodyPartData_Troll: executeTroll(executer, victim, weaponType); break;
 	case uIntBodyPartData_Hagraven: executeHagraven(executer, victim, weaponType); break;
 	case uIntBodyPartData_Spriggan: executeSpriggan(executer, victim, weaponType); break;
-		//case boar
+		//FIXME: boar uses default body part wtf
 	case uIntBodyPartData_DLC2_Riekling: executeRiekling(executer, victim, weaponType); break;
 	case uIntBodyPartData_DLC2_Scrib: executeAshHopper(executer, victim, weaponType); break;
 	case uIntBodyPartData_DwarvenSteamCenturion: executeSteamCenturion(executer, victim, weaponType); break;
@@ -140,10 +145,10 @@ void executionHandler::executeFalmer(RE::Actor* executer, RE::Actor* victim, RE:
 };
 void executionHandler::executeSpider(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
-	case RE::WEAPON_TYPE::kTwoHandAxe: sendExecutionCommand(executer, victim, kmStr_Falmer_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: sendExecutionCommand(executer, victim, kmStr_Falmer_2hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: sendExecutionCommand(executer, victim, kmStr_Spider_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: sendExecutionCommand(executer, victim, kmStr_Spider_2hm); break;
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	default: sendExecutionCommand(executer, victim, kmStr_Falmer_1hm);
+	default: sendExecutionCommand(executer, victim, kmStr_Spider_1hm);
 	}
 }
 void executionHandler::executeGargoyle(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
