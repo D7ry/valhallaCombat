@@ -12,6 +12,21 @@ private:
 	static float calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData);
 };
 
+class getBashChanceHook
+{
+
+};
+
+class getAttackChanceHook
+{
+
+};
+
+class getBlockChanceHook
+{
+
+};
+
 
 class StaminaRegenHook //block stamina regen during weapon swing
 {
