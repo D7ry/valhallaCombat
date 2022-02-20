@@ -4,17 +4,17 @@ class executionHandler {
 private:
 #pragma region CreatureBodyTypeData
 	static const uint32_t uIntBodyPartData_Humanoid = 29;
-	static const uint32_t uIntBodyPartData_Dragon;
+	static const uint32_t uIntBodyPartData_Dragon = 78994;
 	static const uint32_t uIntBodyPartData_FrostbiteSpider = 96553;
-	static const uint32_t uIntBodyPartData_SabreCat;
+	static const uint32_t uIntBodyPartData_SabreCat = 134694;
 	static const uint32_t uIntBodyPartData_Skeever;
 	static const uint32_t uIntBodyPartData_DragonPriest;
 	static const uint32_t uIntBodyPartData_Draugr = 298003;
 	static const uint32_t uIntBodyPartData_Cow;
-	static const uint32_t uIntBodyPartData_Dog;
+	static const uint32_t uIntBodyPartData_Dog = 326645;
 	static const uint32_t uIntBodyPartData_Giant = 333739;
 	static const uint32_t uIntBodyPartData_Chaurus;
-	static const uint32_t uIntBodyPartData_ChaurusFlyer;
+	static const uint32_t uIntBodyPartData_ChaurusFlyer = 33575429;
 	static const uint32_t uIntBodyPartData_Mammoth;
 	static const uint32_t uIntBodyPartData_AtronachFrost;
 	static const uint32_t uIntBodyPartData_AtronachStorm;
@@ -24,9 +24,9 @@ private:
 	static const uint32_t uIntBodyPartData_Hare;
 	static const uint32_t uIntBodyPartData_Goat;
 	static const uint32_t uIntBodyPartData_Deer;
-	static const uint32_t uIntBodyPartData_DwarvenSphereCenturion;
-	static const uint32_t uIntBodyPartData_DwarvenSteamCenturion;
-	static const uint32_t uIntBodyPartData_DwarvenBallistaCenturion;
+	static const uint32_t uIntBodyPartData_DwarvenSphereCenturion = 493389;
+	static const uint32_t uIntBodyPartData_DwarvenSteamCenturion = 524524;
+	static const uint32_t uIntBodyPartData_DwarvenBallistaCenturion = 67285016;
 	static const uint32_t uIntBodyPartData_DwarvenSpider;
 	static const uint32_t uIntBodyPartData_Bear = 551164;
 	static const uint32_t uIntBodyPartData_Horker;
@@ -36,15 +36,15 @@ private:
 	static const uint32_t uIntBodyPartData_Chicken;
 	static const uint32_t uIntBodyPartData_Mudcrab;
 	static const uint32_t uIntBodyPartData_WerewolfBeast;
-	static const uint32_t uIntBodyPartData_Gargoyle;
+	static const uint32_t uIntBodyPartData_Gargoyle = 33596103;
 	static const uint32_t uIntBodyPartData_DwarvenBallistaCenturion;
-	static const uint32_t uIntBodyPartData_DLC2_Riekling;
-	static const uint32_t uIntBodyPartData_DLC2_Scrib;
+	static const uint32_t uIntBodyPartData_DLC2_Riekling = 67206995;
+	static const uint32_t uIntBodyPartData_DLC2_Scrib = 67214034;
 	static const uint32_t uIntBodyPartData_DLC2_Dragon;
 	static const uint32_t uIntBodyPartData_DLC2_HMDaedra;
 	static const uint32_t uIntBodyPartData_DLC2_MountedRiekling;
 	static const uint32_t uIntBodyPartData_DLC2_Netch;
-	static const uint32_t uIntBodyPartData_DLC2_BenthicLurker;
+	static const uint32_t uIntBodyPartData_DLC2_BenthicLurker = 67274039;
 #pragma endregion
 #pragma region Humanoid
 	/*Sets of strings corresponding to different types of executions.*/
@@ -164,15 +164,12 @@ private:
 	};
 #pragma endregion
 #pragma region Giant
-	const std::vector<std::string> kmStr_Giant_1h = std::vector<std::string>{
+	const std::vector<std::string> kmStr_Giant_1hm = std::vector<std::string>{
 	"Val_1HMGiantKillMoveBleedOutA", "Val_1HMGiantKillMoveA", "Val_1HMGiantKillMoveB"
 	};
 	const std::string kmStr_Giant_2hm = "Val_2HMGiantKillMove";
 	const std::string kmStr_Giant_2hw = "Val_2HWGiantKillMove";
-	const std::vector<std::string> kmStr_Bear = std::vector<std::string>{
-		"Val_1HMKillMoveBearA", "Val_1HMKillMoveBearB", "Val_2HMKillMoveBearA",
-		"Val_2HMKillMoveBearB", "Val_2HWKillMoveBear"
-	};
+
 #pragma endregion
 #pragma region Bear
 	const std::vector<std::string> kmStr_Bear_1hm = std::vector<std::string>{
@@ -259,10 +256,10 @@ private:
 	const std::string kmStr_SteamCenturion_2hm = "Val_2HMSteamCenturionKillMoveA";
 	const std::string kmStr_SteamCenturion_2hw = "Val_2HWSteamCenturionKillMoveA";
 #pragma endregion
-#pragma region DwarwenBallista
-	const std::string kmStr_DwarwenBallista_1hm = "Val_1HMDwarvenBallistarKillMoves";
-	const std::string kmStr_DwarwenBallista_2hm = "Val_2HMDwarvenBallistaKillMovesSlash";
-	const std::string kmStr_DwarwenBallista_2hw = "Val_2HWDwarvenBallistaKillMovesSmash";
+#pragma region DwarvenBallista
+	const std::string kmStr_DwarvenBallista_1hm = "Val_1HMDwarvenBallistarKillMoves";
+	const std::string kmStr_DwarvenBallista_2hm = "Val_2HMDwarvenBallistaKillMovesSlash";
+	const std::string kmStr_DwarvenBallista_2hw = "Val_2HWDwarvenBallistaKillMovesSmash";
 #pragma endregion
 #pragma region ChaurusFlyer
 	const std::vector<std::string> kmStr_ChaurusFlyer_1hm = std::vector<std::string>{
@@ -277,7 +274,7 @@ private:
 	const std::string kmStr_Lurker_2hw = "Val_2HWBenthicLurkerKillMovesSmash";
 #pragma endregion
 #pragma region Dragon
-	const std::vector<std::string> kmStr_Dragon_1HM = std::vector<std::string>{
+	const std::vector<std::string> kmStr_Dragon_1hm = std::vector<std::string>{
 	"Val_1HMSword_KillMoveDragonRodeoStabShort", "Val_1HMSword_KillMoveDragonRodeoSlash"};
 	const std::string kmStr_Dragon_2hm = "Val_2HMDragonKillMoveSlash";
 	const std::vector<std::string> kmStr_Dragon_2hw = std::vector<std::string>{
