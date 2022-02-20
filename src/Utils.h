@@ -90,7 +90,7 @@ namespace Utils
 	static float* g_deltaTime = (float*)REL::ID(523660).address();                            // 2F6B948
 	static float* g_deltaTimeRealTime = (float*)REL::ID(523661).address();                  // 2F6B94C
 
-	/*get the weapon the actor is most likely wielding.*/
+	/*get the weapon the actor is most likely wielding. If the actor is empty handed, return nullptr.*/
 	inline RE::TESObjectWEAP* getWieldingWeapon(RE::Actor* actor) {
 		if (actor) {
 			if (actor->GetAttackingWeapon() && actor->GetAttackingWeapon()->object) {
