@@ -1,5 +1,6 @@
 #include "ValhallaCombat.hpp"
 #include "stunHandler.h"
+#include "hitProcessor.h"
 #include <functional>
 #include <iostream>
 
@@ -9,7 +10,7 @@ void stunHandler::initTrueHUDStunMeter() {
 		INFO("TrueHUD special bar request success.");
 		if (
 			ValhallaCombat::GetSingleton()->g_trueHUD
-			->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, false) == TRUEHUD_API::APIResult::OK) {
+			->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, true) == TRUEHUD_API::APIResult::OK) {
 			INFO("TrueHUD special bar init success.");
 		}
 	}
