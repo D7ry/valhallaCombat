@@ -1,6 +1,6 @@
 #pragma once
 #include "data.h"
-#include "boost/unordered_set.hpp"
+#include "include/robin_hood.h"
 /*Handling enemy stun value.*/
 class stunHandler {
 public:
@@ -24,11 +24,11 @@ private:
 	@param damage: stun damage applied onto this actor.*/
 	void damageStun(RE::Actor* actor, float damage);
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
-	boost::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
+	robin_hood::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 
 	/*Mapping of actors whose stun has been damaged recently => timer before their stun start regenerate.
 	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
-	boost::unordered_map <RE::Actor*, float> stunRegenQueue;
+	robin_hood::unordered_map <RE::Actor*, float> stunRegenQueue;
 
 
 public:

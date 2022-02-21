@@ -1,18 +1,17 @@
 #pragma once
-#include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
+#include "include/robin_hood.h"
 /*Handling block stamina damage and perfect blocking.*/
 class blockHandler {
 public:
 
 	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
-	boost::unordered_map <RE::Actor*, float> actorsPerfectBlocking;
+	robin_hood::unordered_map <RE::Actor*, float> actorsPerfectBlocking;
 
 	/*Mapping of all actors in perfect blocking cool down =>> remaining time of the cool down.*/
-	boost::unordered_map <RE::Actor*, float> actorsInBlockingCoolDown;
+	robin_hood::unordered_map <RE::Actor*, float> actorsInBlockingCoolDown;
 
 	/*Set of all actors who have successfully perfect blocked an attack.*/
-	boost::unordered_set <RE::Actor*> actorsPerfectblockSuccessful;
+	robin_hood::unordered_set <RE::Actor*> actorsPerfectblockSuccessful;
 
 	static blockHandler* GetSingleton()
 	{

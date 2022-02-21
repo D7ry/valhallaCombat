@@ -1,8 +1,5 @@
 #pragma once
-
-#include <boost/container/set.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/foreach.hpp>
+#include "include/robin_hood.h"
 #define foreach_         BOOST_FOREACH
 /*Class handling actor debuffs and corresponding UI alerts.*/
 class debuffHandler
@@ -10,7 +7,7 @@ class debuffHandler
 
 public:
 	/*Mapping of a set of actors currently in stamina debuff to their stamina blinking timer.*/
-	boost::unordered_map<RE::Actor*, float> actorDebuffMap;
+	robin_hood::unordered_map<RE::Actor*, float> actorDebuffMap;
 
 	static debuffHandler* GetSingleton()
 	{

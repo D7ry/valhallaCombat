@@ -1,7 +1,6 @@
 #pragma once
 #include "staminaHandler.h"
-#include <boost/unordered_map.hpp>
-#include <boost/container/set.hpp>
+#include "include/robin_hood.h"
 /*Handle attack registration, stamina consumption, and stamina reward.*/
 class attackHandler
 {
@@ -23,8 +22,8 @@ public:
 	/*mapping of all actors who:
 	1. are attacking£¨swinging a weapon)
 	2. have not hit any target.*/
-	boost::unordered_map<RE::Actor*, ATTACKTYPE> attackerHeap;
-
+	//boost::unordered_map<RE::Actor*, ATTACKTYPE> attackerHeap;
+	robin_hood::unordered_map<RE::Actor*, ATTACKTYPE> attackerHeap;
 	/* registers a light/heavy attack.
 	    checks iff there is a previous attack not checked out, if so,
 		check out the attack.*/
@@ -111,15 +110,12 @@ private:
 	@param atkType: address to store attack type*/
 	inline bool getAtkType(RE::Actor* actor, ATTACKTYPE& atkType) {
 		//DEBUG("Getting {}'s attack from attack heap", actor->GetName());
-		boost::unordered::iterator_detail::iterator atkTypeItr = attackerHeap.find(actor); //check if the actor's attack is registered
-		if (atkTypeItr == attackerHeap.end()) {
+		auto it = attackerHeap.find(actor); //check if the actor's attack is registered
+		if (it == attackerHeap.end()) {
 			//DEBUG("{} not found in attackState map", actor->GetName());
 			return false;
 		}
-		else {
-			//DEBUG("found attack type!");
-		}
-		atkType = atkTypeItr->second;
+		atkType = it->second;
 		return true;
 	}
 

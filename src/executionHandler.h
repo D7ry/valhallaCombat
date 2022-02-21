@@ -1,5 +1,6 @@
 #pragma once
 #include <boost/unordered_set.hpp>
+#include "include/robin_hood.h"
 /*Class handling all executions*/
 class executionHandler {
 private:
@@ -287,7 +288,7 @@ public:
 
 
 	/*Mapping of all active executors -> people being executed.*/
-	boost::unordered_map<RE::Actor*, RE::Actor*> activeExecutionMap;
+	robin_hood::unordered_map<RE::Actor*, RE::Actor*> activeExecutionMap;
 	static executionHandler* GetSingleton()
 	{
 		static executionHandler singleton;

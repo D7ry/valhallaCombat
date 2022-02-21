@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include "SimpleIni.h"
 #include "debuffHandler.h"
+#include "include/robin_hood.h"
 using namespace Utils;
 
 
@@ -155,7 +156,7 @@ namespace Utils
 	}
 
 	/*a map of all game races' original stamina regen, in case player wants to tweak the stamina regen values again*/
-	inline static std::unordered_map<std::string, float> staminaRegenMap;
+	inline static robin_hood::unordered_map<std::string, float> staminaRegenMap;
 
 	/*multiplies stamina regen of every single race by MULT.
 	@param mult multiplier for stamina regen.
