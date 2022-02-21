@@ -31,12 +31,12 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "Stamina", "fMeleeCostHeavyHit_Percent", fMeleeCostHeavyHit_Percent);
 
 	/*Read perfect blocking section*/
-	ReadBoolSetting(ini, "Blocking", "bPerfectBlockToggle", bPerfectBlockToggle);
-	ReadBoolSetting(ini, "Blocking", "bPerfectBlockScreenShake", bPerfectBlockScreenShake);
-	ReadBoolSetting(ini, "Blocking", "bPerfectBlockSFX", bPerfectBlockSFX);
+	ReadBoolSetting(ini, "Parrying", "bPerfectBlockToggle", bPerfectBlockToggle);
+	ReadBoolSetting(ini, "Parrying", "bPerfectBlockScreenShake", bPerfectBlockScreenShake);
+	ReadBoolSetting(ini, "Parrying", "bPerfectBlockSFX", bPerfectBlockSFX);
 	ReadBoolSetting(ini, "Blocking", "bPerfectBlockVFX", bPerfectBlockVFX);
-	ReadFloatSetting(ini, "Stamina", "fPerfectBlockTime", fPerfectBlockTime);
-	ReadFloatSetting(ini, "Stamina", "fPerfectBlockCoolDownTime", fPerfectBlockCoolDownTime);
+	ReadFloatSetting(ini, "Parrying", "fPerfectBlockTime", fPerfectBlockTime);
+	ReadFloatSetting(ini, "Parrying", "fPerfectBlockCoolDownTime", fPerfectBlockCoolDownTime);
 
 	/*Read stun section*/
 	ReadBoolSetting(ini, "Stun", "bStunToggle", bStunToggle);
