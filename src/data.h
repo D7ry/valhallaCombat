@@ -26,7 +26,6 @@ public:
 	static inline bool bNonCombatStaminaDebuff = true;
 
 	/*Blocking*/
-	static inline bool bStaminaBlocking = true;
 	static inline bool bGuardBreak = true;
 	static inline float fBckShdStaminaMult_PC_Block_NPC = 2;
 	static inline float fBckWpnStaminaMult_PC_Block_NPC = 2;
@@ -38,31 +37,24 @@ public:
 	static inline float fBckWpnStaminaMult_NPC_Block_NPC = 2;
 
 
-	/*Compatibility for dodge framework*/
-	static inline bool bTKDodgeCompatibility = false;
-	static inline bool bDMCOCompatibility = false;
-	static inline bool bCGOCompatibility = false;
-	static inline bool bTUDMCompatibility = false;
-	/*additional stamina override. This override does not limit dodging.*/
-	static inline float fDodgeStaminaLong = 0; //additional stamina cost for doing a dodge roll, only works for DMCO.
-	static inline float fDodgeStaminaShort = 0;
-
-
 
 	//perfect blocking
 	//FIXME: add MCM helper
 
 	//TODO:Settings to add to MCM and readSettings()
 	static inline bool bPoiseCompatibility = false;
-	static inline bool bPerfectBlocking = true;
-	static inline bool bPerfectBlockingScreenShake = true;
-	static inline bool bPerfectBlockingSFX = true;
-	static inline bool bPerfectBlockingVFX = true;
+	static inline bool bPerfectBlockToggle = true;
+	static inline bool bPerfectBlockScreenShake = true;
+	static inline bool bPerfectBlockSFX = true;
+	static inline bool bPerfectBlockVFX = true;
 	static inline float fPerfectBlockTime = 0.3;
 	static inline float fPerfectBlockCoolDownTime = 1;
 
 
 	//Stun
+	//TODO:WHEN READ SETTING, automatically request/release TRUEHUD meter control.
+	/*Enable/disable stun and execution.*/
+	static inline bool bStunToggle = true;
 	static inline float fStunParryMult = 1;
 	static inline float fStunBashMult = 1;
 	static inline float fStunPowerBashMult = 1;
@@ -78,7 +70,6 @@ public:
 
 
 	//execute
-	static inline bool bExecutionToggle = true; //enable/disable execution
 	/*Toggle for player to be executed.*/
 	static inline bool bPlayerExecution = false;
 	/*Toggle for player teammate to be executed.*/
@@ -86,6 +77,8 @@ public:
 	/*Toggle for essential NPCs to be executed.*/
 	static inline bool bEssentialExecution = false;
 	static inline bool bExecutionLevelLimit = true; //NPCs with level higher than player cannot be executed unless under certain health threshold.
+
+
 	static void readSettings();
 
 private:

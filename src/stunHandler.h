@@ -3,7 +3,11 @@
 
 /*Handling enemy stun value.*/
 class stunHandler {
+public:
+	/*Called once per frame*/
+	void update() {
 
+	}
 
 private:
 
@@ -59,6 +63,8 @@ public:
 	/*Initialize stun meter, linking stun data to trueHud API.*/
 	void initTrueHUDStunMeter();
 
+	/*Uninitialize stun meter.*/
+	void releaseTrueHUDStunMeter();
 	/*Damage this actor's stun. If the actor does not exist on the stunmap, track their stun first.
 	@param actor: actor whose stun will be damaged.
 	@param damage: stun damage applied onto this actor.*/

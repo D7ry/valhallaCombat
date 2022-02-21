@@ -24,7 +24,6 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "Attack", "fMeleeCostHeavyHit_Percent", fMeleeCostHeavyHit_Percent);
 
 	//read block section
-	ReadBoolSetting(ini, "Block", "bStaminaBlocking", bStaminaBlocking);
 	ReadBoolSetting(ini, "Block", "bGuardBreak", bGuardBreak);
 	ReadFloatSetting(ini, "Block", "fBckShdStaminaMult_NPC_Block_NPC", fBckShdStaminaMult_NPC_Block_NPC);
 	ReadFloatSetting(ini, "Block", "fBckShdStaminaMult_NPC_Block_PC", fBckShdStaminaMult_NPC_Block_PC);
@@ -33,13 +32,6 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "Block", "fBckWpnStaminaMult_NPC_Block_PC", fBckWpnStaminaMult_NPC_Block_PC);
 	ReadFloatSetting(ini, "Block", "fBckWpnStaminaMult_PC_Block_NPC", fBckWpnStaminaMult_PC_Block_NPC);
 
-	//read dodge section
-	ReadFloatSetting(ini, "Dodging", "fDodgeStaminaShort", fDodgeStaminaShort);
-	ReadFloatSetting(ini, "Dodging", "fDodgeStaminaLong", fDodgeStaminaLong);
-	ReadBoolSetting(ini, "Dodging", "bTKDodgeCompatibility", bTKDodgeCompatibility);
-	ReadBoolSetting(ini, "Dodging", "bDMCOCompatibility", bDMCOCompatibility);
-	ReadBoolSetting(ini, "Dodging", "bCGOCompatibility", bCGOCompatibility);
-	ReadBoolSetting(ini, "Dodging", "bTUDMCompatibility", bTUDMCompatibility);
 
 	INFO("Ini settings read.");
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);

@@ -80,14 +80,11 @@ void blockHandler::guardBreak(RE::Actor* actor, RE::Actor* actorToPush) {
 #pragma region Process Block
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
-	if (settings::bPerfectBlocking && actorsPerfectBlocking.find(blocker) != actorsPerfectBlocking.end()) {
+	if (settings::bPerfectBlockToggle && actorsPerfectBlocking.find(blocker) != actorsPerfectBlocking.end()) {
 		processPerfectBlock(blocker, aggressor, iHitflag, hitData);
 		return true;
 	}
-	else if (settings::bStaminaBlocking) {
-		processStaminaBlock(blocker, aggressor, iHitflag, hitData, realDamage);
-		return false;
-	}
+	processStaminaBlock(blocker, aggressor, iHitflag, hitData, realDamage);
 	return false;
 }
 /*Process a stamina block.
@@ -169,15 +166,15 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	}
 	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, reflectedDamage);
 	hitData.totalDamage = 0;
-	if (settings::bPerfectBlockingVFX) {
+	if (settings::bPerfectBlockVFX) {
 		DEBUG("playing perfect block vfx!");
 		MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
 	}
 	if ((blocker->IsPlayerRef() || aggressor->IsPlayerRef())
-		&& settings::bPerfectBlockingScreenShake) {
+		&& settings::bPerfectBlockScreenShake) {
 		Utils::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
 	}
-	if (settings::bPerfectBlockingSFX && (blocker->IsPlayerRef() || aggressor->IsPlayerRef())) {
+	if (settings::bPerfectBlockSFX && (blocker->IsPlayerRef() || aggressor->IsPlayerRef())) {
 		DEBUG("playing perfect block sfx!");
 		if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
 			RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);

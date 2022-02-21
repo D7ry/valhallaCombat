@@ -16,6 +16,13 @@ void stunHandler::initTrueHUDStunMeter() {
 	}
 }
 
+void stunHandler::releaseTrueHUDStunMeter() {
+	if (ValhallaCombat::GetSingleton()->g_trueHUD
+		->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) != TRUEHUD_API::APIResult::OK) {
+		INFO("TrueHUD special bar release success.");
+	}
+}
+
 float stunHandler::getMaxStun(RE::Actor* actor) {
 	float stun = (actor->GetPermanentActorValue(RE::ActorValue::kStamina)
 		+ actor->GetPermanentActorValue(RE::ActorValue::kHealth)) / 2;
@@ -59,17 +66,20 @@ void stunHandler::damageStun(RE::Actor* actor, float damage) {
 //TODO:test unarmed stun damage
 void stunHandler::calculateStunDamage(
 	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
+	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
+		return;
+	}
 	if (!victim->IsInCombat()) {
 		return;
 	}
 	switch (stunSource) {
 	case STUNSOURCE::parry:
 		damageStun(victim, baseDamage * settings::fStunParryMult); break;
+	case STUNSOURCE::powerBash:
+		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunPowerBashMult);
+		break;
 	case STUNSOURCE::bash:
 		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult);
-		break;
-	case STUNSOURCE::powerBash:
-		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult * settings::fStunPowerBashMult);
 		break;
 	case STUNSOURCE::powerAttack:
 		baseDamage *= settings::fStunPowerAttackMult;
@@ -79,6 +89,7 @@ void stunHandler::calculateStunDamage(
 		}
 		else {
 			switch (weapon->GetWeaponType()) {
+			case RE::WEAPON_TYPE::kHandToHandMelee: baseDamage *= settings::fStunUnarmedMult; break;
 			case RE::WEAPON_TYPE::kOneHandDagger: baseDamage *= settings::fStunDaggerMult; break;
 			case RE::WEAPON_TYPE::kOneHandSword: baseDamage *= settings::fStunSwordMult; break;
 			case RE::WEAPON_TYPE::kOneHandAxe: baseDamage *= settings::fStunWarAxeMult; break;
@@ -88,6 +99,7 @@ void stunHandler::calculateStunDamage(
 			}
 		}
 		damageStun(victim, baseDamage);
+		break;
 	}
 }
 
