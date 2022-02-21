@@ -49,19 +49,33 @@ class getAttackChanceHook
 class Hook_GetBlockChance
 {
 public:
-	static void install() {
+	static void install() { //Down	p	sub_140845C60+2E	call    Actor__GetEquippedShield_140625FA0
 		auto& trampoline = SKSE::GetTrampoline();
 
-		REL::Relocation<uintptr_t> hook{ REL::ID(37650) };
+		REL::Relocation<uintptr_t> hook{ REL::ID(49751) };
 
-		_getBlockChance = trampoline.write_call<5>(hook.address() + 0x16E, getBlockChance);
-		INFO("Heavy attack stamina hook installed.");
+		_getBlockChance = trampoline.write_call<5>(hook.address() + 0x2E, getBlockChance);
+		INFO("Get block chance hook installed.");
 	}
 private:
-	static float getBlockChance(uintptr_t avOwner, RE::BGSAttackData* atkData);
+	static uintptr_t getBlockChance(RE::Actor* actor);
 	static inline REL::Relocation<decltype(getBlockChance)> _getBlockChance;
 };
 
+class Hook_GetAttackChance {
+public:
+	static void install() { //Down	p	sub_140845C60+2E	call    Actor__GetEquippedShield_140625FA0
+		auto& trampoline = SKSE::GetTrampoline();
+
+		REL::Relocation<uintptr_t> hook{ REL::ID(49751) };
+
+		_getAttackChance = trampoline.write_call<5>(hook.address() + 0x2E, getAttackChance);
+		INFO("Get block chance hook installed.");
+	}
+private:
+	static uintptr_t getAttackChance(RE::Actor* actor);
+	static inline REL::Relocation<decltype(getAttackChance)> _getAttackChance;
+};
 
 class Hook_StaminaRegen //block stamina regen during weapon swing
 {
@@ -117,6 +131,7 @@ public:
 		SKSE::AllocTrampoline(1 << 8);
 		Hook_GetAttackStaminaCost::install();
 		//Hook_CacheAttackStaminaCost::install();
+		Hook_GetBlockChance::install();
 		Hook_StaminaRegen::install();
 		Hook_MeleeHit::install();
 		Hook_MainUpdate::install();

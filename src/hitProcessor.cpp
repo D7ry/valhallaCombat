@@ -15,6 +15,7 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	if (hitFlag & (int)HITFLAG::kBlocked) {
 		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData, realDamage)) {
 			DEBUG("attack perfect blocked");
+			debuffHandler::GetSingleton()->stopStaminaDebuff(victim);
 			return; //if the hit is perfect blocked, no hit registration
 		}
 		// if not perfect blocked, regenerate stamina only if set so.

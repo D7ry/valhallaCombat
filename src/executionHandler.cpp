@@ -109,7 +109,9 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 
 
 void executionHandler::executeHumanoid(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
-	if (executer->isDualWielding() && weaponType != RE::WEAPON_TYPE::kHandToHandMelee) {
+	if (executer->GetEquippedObject(true) && executer->GetEquippedObject(true)->IsWeapon() 
+		&& executer->GetEquippedObject(true)->As<RE::TESObjectWEAP>()->GetWeaponType() != RE::WEAPON_TYPE::kHandToHandMelee
+		&& weaponType != RE::WEAPON_TYPE::kHandToHandMelee) {
 		sendExecutionCommand(executer, victim, kmStr_Humanoid_dw);
 	}
 	else if  (isBackFacing(victim, executer)) {

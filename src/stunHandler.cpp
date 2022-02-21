@@ -3,6 +3,30 @@
 #include "hitProcessor.h"
 #include <functional>
 #include <iostream>
+void stunHandler::update() {
+	auto it1 = actorStunMap.begin();
+	while (it1 != actorStunMap.end()) {
+		auto actor = it1->first;
+		if (!actor->Is3DLoaded() || actor->IsDead()) {
+			it1 = actorStunMap.erase(it1);
+			continue;
+		}
+		if (!actor->IsInCombat() && stunRegenCooldownMap.find(actor) != stunRegenCooldownMap.end() //if actor can regen stamina
+			&& it1->second.second < it1->second.first) { //if actor will regen stamina
+			it1->second.second += (*Utils::g_deltaTimeRealTime * 10);
+		}
+		++it1;
+	}
+	auto it2 = stunRegenCooldownMap.begin();
+	while (it2 != stunRegenCooldownMap.end()) {
+		if (it2->second <= 0) {
+			it2 = stunRegenCooldownMap.erase(it2);
+		}
+		else {
+			it2->second -= *Utils::g_deltaTimeRealTime;
+		}
+	}
+}
 
 void stunHandler::initTrueHUDStunMeter() {
 	if (ValhallaCombat::GetSingleton()->g_trueHUD
@@ -38,24 +62,25 @@ float stunHandler::getStun(RE::Actor* actor) {
 		return it->second.second;
 	}
 	else {
-		DEBUG("Unable to find actor on the stun map, tracking actor and returning the actor's permanent stun.");
-		trackStun(actor);
+		//DEBUG("Unable to find actor on the stun map, tracking actor and returning the actor's permanent stun.");
+		stunHandler::GetSingleton()->trackStun(actor);
 		return getStun(actor);
 	}
 
 }
 
 void stunHandler::damageStun(RE::Actor* actor, float damage) {
-	DEBUG("Damaging {}'s stun by {} points.", actor->GetName(), damage);
+	//DEBUG("Damaging {}'s stun by {} points.", actor->GetName(), damage);
 	auto it = actorStunMap.find(actor);
 	if (it == actorStunMap.end()) {
-		DEBUG("{} not found on the stun map, tracking actor.", actor->GetName());
+		//DEBUG("{} not found on the stun map, tracking actor.", actor->GetName());
 		trackStun(actor);
 		damageStun(actor, damage);
 		return;
 	}
 	it->second.second -= damage;
-	DEBUG("{}'s stun damaged to {}", actor->GetName(), it->second.second);
+	stunRegenCooldownMap.emplace(actor, 2); //3 seconds cooldown to regenerate stun.
+	//DEBUG("{}'s stun damaged to {}", actor->GetName(), it->second.second);
 	/*if (it->second.second <= 0) {
 		DEBUG("bleed out {}!", actor->GetName());
 		actor->SetGraphVariableBool("IsBleedingOut", true);
@@ -108,16 +133,16 @@ void stunHandler::calculateStunDamage(
 #pragma region stunUtils
 void stunHandler::trackStun(RE::Actor* actor) {
 	float maxStun = getMaxStun(actor);
-	stunHandler::GetSingleton()->actorStunMap.emplace(actor, std::pair<float, float>(maxStun, maxStun));
+	actorStunMap.emplace(actor, std::pair<float, float>(maxStun, maxStun));
 	DEBUG("Start tracking {}'s stun. Max Stun: {}.", actor->GetName(), maxStun);
 };
 void stunHandler::untrackStun(RE::Actor* actor) {
-	stunHandler::GetSingleton()->actorStunMap.erase(actor);
+	actorStunMap.erase(actor);
 }
 void stunHandler::resetStun(RE::Actor* actor) {
 	DEBUG("Resetting {}'s stun.", actor->GetName());
-	auto it = stunHandler::GetSingleton()->actorStunMap.find(actor);
-	if (it != stunHandler::GetSingleton()->actorStunMap.end()) {
+	auto it = actorStunMap.find(actor);
+	if (it != actorStunMap.end()) {
 		it->second.second = it->second.first;
 	}
 	else {

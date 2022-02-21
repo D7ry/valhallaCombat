@@ -4,55 +4,6 @@
 #include "ValhallaCombat.hpp"
 #include "stunHandler.h"
 #include "hitProcessor.h"
-#pragma region attackData
-/*
-void CalcStaminaHook::InstallHook() {
-
-
-	//apply_func<25863>(std::uintptr_t(CalcStaminaHook::calcStamina));  // SkyrimSE.exe+3BEC90
-	struct Code : Xbyak::CodeGenerator
-	{
-		Code(uintptr_t jump_addr)
-		{
-			mov(rax, jump_addr);
-			jmp(rax);
-		}
-	}xbyakCode{ (uintptr_t)CalcStaminaHook::calcStamina };
-
-	//add_trampoline<6, ID>(&xbyakCode);
-	//template <size_t offset = 0, bool call = false>
-	const int ID = 25863;
-	constexpr REL::ID funcOffset = REL::ID(ID);
-	auto funcAddr = funcOffset.address();
-	auto size = xbyakCode.getSize();
-	auto& trampoline = SKSE::GetTrampoline();
-	auto result = trampoline.allocate(size);
-	std::memcpy(result, xbyakCode.getCode(), size);
-	trampoline.write_branch<6>(funcAddr, (std::uintptr_t)result);
-
-	INFO("attack data hook installed");
-}
-
-/*Function returning stamina cost of an actor when they perform a combat action.
-Currently, all stamina cost except for bashing is negated.*/
-/*
-float CalcStaminaHook::calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData)
-{
-	DEBUG("hooked attack data!");
-	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
-	if (atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) { //bash attack
-		DEBUG("is bash attack!");
-		if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) { //power bash
-			DEBUG("power bash!");
-			return a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * 0.5; //TODO: a bashing formula
-		}
-		else {
-			return a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * 0.33;
-		}
-	}
-	return 0;
-}
-*/
 #pragma endregion
 #pragma region GetHeavyStaminaCost
 float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
@@ -71,6 +22,16 @@ float Hook_CacheAttackStaminaCost::cacheAttackStaminaCost(uintptr_t avOwner, RE:
 	DEBUG("Cached attack stamina! Actor is {}.", a_actor->GetName());
 	return _cacheAttackStaminaCost(avOwner, atkData);
 }
+#pragma endregion
+#pragma region GetBlockChance
+uintptr_t Hook_GetBlockChance::getBlockChance(RE::Actor* actor) {
+	if (debuffHandler::GetSingleton()->actorsInDebuff.find(actor) != debuffHandler::GetSingleton()->actorsInDebuff.end()) {
+		return 0; //disable locking for exhausted actors
+	}
+	return _getBlockChance(actor);
+}
+#pragma endregion
+#pragma region GetAttackChance
 #pragma endregion
 #pragma region StaminaRegen
 /*function generating conditions for stamina regen. Iff returned value is true, no regen.

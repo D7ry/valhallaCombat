@@ -21,6 +21,7 @@ public:
 	void update() {
 		debuffHandler::GetSingleton()->update();
 		blockHandler::GetSingleton()->update();
+		stunHandler::GetSingleton()->update();
 	}
 
 };

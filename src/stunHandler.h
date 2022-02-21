@@ -1,31 +1,30 @@
 #pragma once
 #include "data.h"
-
+#include "boost/unordered_set.hpp"
 /*Handling enemy stun value.*/
 class stunHandler {
 public:
-	/*Called once per frame*/
-	void update() {
-
-	}
+	/*Called once per frame.
+	Regenerate stun for actors not in combat.*/
+	void update();
 
 private:
 
 	/*Start tracking this Actor's stun.
 	@param actor: actor whose stun will be tracked.*/
-	static void trackStun(RE::Actor* actor);
+	void trackStun(RE::Actor* actor);
 	/*Stop tracking this Actor's stun.
 	@param actor: actor whose stun will no longer be tracked.*/
-	static void untrackStun(RE::Actor* actor);
+	void untrackStun(RE::Actor* actor);
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
-	static void resetStun(RE::Actor* actor);
+	void resetStun(RE::Actor* actor);
 
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
 	boost::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 
-	/*Mapping of actors whose stun values are less than 0 =>their meter blinking timer.*/
-	boost::unordered_map <RE::Actor*, float> actorsStunned;
+	/*Mapping of actors whose stun has been damaged recently => timer before their stun start regenerate*/
+	boost::unordered_map <RE::Actor*, float> stunRegenCooldownMap;
 
 
 public:
