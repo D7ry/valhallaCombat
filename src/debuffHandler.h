@@ -10,7 +10,7 @@ class debuffHandler
 
 public:
 	/*Mapping of a set of actors currently in stamina debuff to their stamina blinking timer.*/
-	boost::unordered_map<RE::Actor*, float> actorsInDebuff;
+	boost::unordered_map<RE::Actor*, float> actorDebuffMap;
 
 	static debuffHandler* GetSingleton()
 	{
@@ -20,6 +20,9 @@ public:
 
 	/*called along with the main update hook.*/
 	void update();
+
+	/*@return whether this actor is in stamina debuff.*/
+	bool isInDebuff(RE::Actor* actor);
 
 	inline void greyOutStaminaMeter(RE::Actor* actor);
 	inline void revertStaminaMeter(RE::Actor* actor);

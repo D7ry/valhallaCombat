@@ -42,7 +42,7 @@ void stunHandler::initTrueHUDStunMeter() {
 
 void stunHandler::releaseTrueHUDStunMeter() {
 	if (ValhallaCombat::GetSingleton()->g_trueHUD
-		->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) != TRUEHUD_API::APIResult::OK) {
+		->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
 		INFO("TrueHUD special bar release success.");
 	}
 }

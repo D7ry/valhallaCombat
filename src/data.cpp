@@ -40,6 +40,7 @@ void settings::readSettings() {
 
 	/*Read stun section*/
 	ReadBoolSetting(ini, "Stun", "bStunToggle", bStunToggle);
+	ReadBoolSetting(ini, "Stun", "bStunMeterToggle", bStunMeterToggle);
 	ReadBoolSetting(ini, "Stun", "bPlayerExecution", bPlayerExecution);
 	ReadBoolSetting(ini, "Stun", "bEssentialExecution", bEssentialExecution);
 	ReadBoolSetting(ini, "Stun", "bExecutionLimit", bExecutionLimit);

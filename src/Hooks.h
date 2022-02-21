@@ -1,7 +1,6 @@
 #pragma once
 #include "attackHandler.h"
 #include "SKSE/Trampoline.h"
-#include <xbyak\xbyak.h>
 
 
 class Hook_GetAttackStaminaCost //Actor__sub_140627930+16E	call ActorValueOwner__sub_1403BEC90
@@ -36,15 +35,6 @@ private:
 	static float cacheAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData);
 	static inline REL::Relocation<decltype(cacheAttackStaminaCost)> _cacheAttackStaminaCost;
 };
-class getBashChanceHook
-{
-
-};
-
-class getAttackChanceHook
-{
-
-};
 
 class Hook_GetBlockChance
 {
@@ -62,18 +52,33 @@ private:
 	static inline REL::Relocation<decltype(getBlockChance)> _getBlockChance;
 };
 
-class Hook_GetAttackChance {
+class Hook_GetAttackChance1 {
 public:
-	static void install() { //Down	p	sub_140845C60+2E	call    Actor__GetEquippedShield_140625FA0
+	static void install() { //Up	p	sub_14042F810+157A	call    Character__sub_140845B30
 		auto& trampoline = SKSE::GetTrampoline();
 
-		REL::Relocation<uintptr_t> hook{ REL::ID(49751) };
+		REL::Relocation<uintptr_t> hook{ REL::ID(28629) };
 
-		_getAttackChance = trampoline.write_call<5>(hook.address() + 0x2E, getAttackChance);
+		_getAttackChance = trampoline.write_call<5>(hook.address() + 0x157A, getAttackChance);
 		INFO("Get block chance hook installed.");
 	}
 private:
-	static uintptr_t getAttackChance(RE::Actor* actor);
+	static uintptr_t getAttackChance(RE::Actor* a1, RE::Actor* a2, RE::BGSAttackData* atkData);
+	static inline REL::Relocation<decltype(getAttackChance)> _getAttackChance;
+};
+
+class Hook_GetAttackChance2 {
+public:
+	static void install() { //Up	p	sub_14080C020+2AE	call    Character__sub_140845B30
+		auto& trampoline = SKSE::GetTrampoline();
+
+		REL::Relocation<uintptr_t> hook{ REL::ID(48139) };
+
+		_getAttackChance = trampoline.write_call<5>(hook.address() + 0x2AE, getAttackChance);
+		INFO("Get block chance hook installed.");
+	}
+private:
+	static uintptr_t getAttackChance(RE::Actor* a1, RE::Actor* a2, RE::BGSAttackData* atkData);
 	static inline REL::Relocation<decltype(getAttackChance)> _getAttackChance;
 };
 
@@ -132,6 +137,8 @@ public:
 		Hook_GetAttackStaminaCost::install();
 		//Hook_CacheAttackStaminaCost::install();
 		Hook_GetBlockChance::install();
+		Hook_GetAttackChance1::install();
+		Hook_GetAttackChance2::install();
 		Hook_StaminaRegen::install();
 		Hook_MeleeHit::install();
 		Hook_MainUpdate::install();

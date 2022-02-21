@@ -4,6 +4,7 @@
 #include "ValhallaCombat.hpp"
 #include "stunHandler.h"
 #include "hitProcessor.h"
+#include "AI.h"
 #pragma endregion
 #pragma region GetHeavyStaminaCost
 float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
@@ -25,13 +26,29 @@ float Hook_CacheAttackStaminaCost::cacheAttackStaminaCost(uintptr_t avOwner, RE:
 #pragma endregion
 #pragma region GetBlockChance
 uintptr_t Hook_GetBlockChance::getBlockChance(RE::Actor* actor) {
-	if (debuffHandler::GetSingleton()->actorsInDebuff.find(actor) != debuffHandler::GetSingleton()->actorsInDebuff.end()) {
+	if (debuffHandler::GetSingleton()->actorDebuffMap.find(actor) != debuffHandler::GetSingleton()->actorDebuffMap.end()) {
 		return 0; //disable locking for exhausted actors
 	}
 	return _getBlockChance(actor);
 }
 #pragma endregion
 #pragma region GetAttackChance
+uintptr_t Hook_GetAttackChance1::getAttackChance(RE::Actor* actor, RE::Actor* target, RE::BGSAttackData* atkData) {
+	//DEBUG("hooked getattackchance1");
+	//DEBUG("actor 1: {}, actor2: {}", actor->GetName(), target->GetName());
+	if (debuffHandler::GetSingleton()->isInDebuff(actor)) {
+		return 0;
+	}
+	return _getAttackChance(actor, target, atkData);
+}
+uintptr_t Hook_GetAttackChance2::getAttackChance(RE::Actor* actor, RE::Actor* target, RE::BGSAttackData* atkData) {
+	//DEBUG("hooked getattackchance2");
+	//DEBUG("actor 1: {}, actor2: {}", actor->GetName(), target->GetName());
+	if (debuffHandler::GetSingleton()->isInDebuff(actor)) {
+		return 0;
+	}
+	return _getAttackChance(actor, target, atkData);
+}
 #pragma endregion
 #pragma region StaminaRegen
 /*function generating conditions for stamina regen. Iff returned value is true, no regen.

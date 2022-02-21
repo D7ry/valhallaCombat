@@ -7,12 +7,12 @@ Iterate through the set of actors debuffing.
 Check the actors' stamina. If the actor's stamina has fully recovered, remove the actor from the set.
 Check the actor's UI counter, if the counter is less than 0, flash the actor's UI.*/
 void debuffHandler::update() {
-	auto it = actorsInDebuff.begin();
-	while (it != actorsInDebuff.end()) {
+	auto it = actorDebuffMap.begin();
+	while (it != actorDebuffMap.end()) {
 		auto actor = it->first;
 		if (!actor) {//actor no longer loaded
 			//DEBUG("Actor no longer loaded");
-			it = actorsInDebuff.erase(it);//erase actor from debuff set.
+			it = actorDebuffMap.erase(it);//erase actor from debuff set.
 			continue;
 		}
 		if (actor->GetActorValue(RE::ActorValue::kStamina) >= 
@@ -21,7 +21,7 @@ void debuffHandler::update() {
 			//DEBUG("{}'s stamina has fully recovered.", actor->GetName());
 			debuffHandler::stopStaminaDebuff(actor);
 			//DEBUG("erasing actor");
-			it = actorsInDebuff.erase(it);
+			it = actorDebuffMap.erase(it);
 			continue;
 		}
 		if (settings::bUIAlert){ //flash the actor's meter
@@ -46,12 +46,12 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 		//DEBUG("{} is not in combat, no stamina debuff will be applied.", actor->GetName());
 		return;
 	}
-	if (actorsInDebuff.find(actor) != actorsInDebuff.end()) {
+	if (actorDebuffMap.find(actor) != actorDebuffMap.end()) {
 		//DEBUG("{} is already in debuff", actor->GetName());
 		return;
 	}
 	addDebuffPerk(actor);
-	actorsInDebuff.emplace(actor, 0); 
+	actorDebuffMap.emplace(actor, 0); 
 	if (settings::bUIAlert) {
 		greyOutStaminaMeter(actor);
 	}
@@ -79,6 +79,13 @@ void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
 	Utils::safeRemovePerk(gameDataCache::debuffPerk, a_actor);
 }
 	
+
+bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
+	if (actorDebuffMap.find(a_actor) != actorDebuffMap.end()) {
+		return true;
+	}
+	return false;
+} 
 
 #pragma region staminaBarTweak
 

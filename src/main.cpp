@@ -32,10 +32,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 			break;
 	case SKSE::MessagingInterface::kPostLoadGame:
 		INFO("Post load game");
-		INFO("clearing stamina debuff");
-		debuffHandler::GetSingleton();
-		//FIXME:clear debuff states for every load
-		//debuffHandler::GetSingleton()->refresh();
+		debuffHandler::GetSingleton()->stopStaminaDebuff(RE::PlayerCharacter::GetSingleton());
 		INFO("debuff cleared");
 		break;
 	case SKSE::MessagingInterface::kPostPostLoad:
@@ -43,12 +40,11 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		if (!TRUEHUD_API::RequestInterface(
 			SKSE::GetMessagingInterface(),
 			TRUEHUD_API::InterfaceVersion::V2)) {
-			INFO("TrueHUD API::RequestInterface reported an error");
+			INFO("TrueHUD API::RequestInterface reported an error.");
 		}
 		else {
 			INFO("TrueHUD API interface request success");
 		}
-		stunHandler::GetSingleton()->initTrueHUDStunMeter();
 		break;
 	}
 }
