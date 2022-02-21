@@ -4,27 +4,32 @@
 #include <functional>
 #include <iostream>
 void stunHandler::update() {
-	auto it1 = actorStunMap.begin();
-	while (it1 != actorStunMap.end()) {
-		auto actor = it1->first;
-		if (!actor->Is3DLoaded() || actor->IsDead()) {
-			it1 = actorStunMap.erase(it1);
-			continue;
+	auto it = stunRegenQueue.begin();
+	while (it != stunRegenQueue.end()) {
+		if (!it->first) {
+			it = stunRegenQueue.erase(it); continue;
 		}
-		if (!actor->IsInCombat() && stunRegenCooldownMap.find(actor) != stunRegenCooldownMap.end() //if actor can regen stamina
-			&& it1->second.second < it1->second.first) { //if actor will regen stamina
-			it1->second.second += (*Utils::g_deltaTimeRealTime * 10);
+		if (!it->first->IsInCombat()) {
+			if (it->second <= 0) {
+				//start regenerating stun from actorStunMap.
+				if (actorStunMap.find(it->first) == actorStunMap.end()) {
+					it = stunRegenQueue.erase(it); continue;
+				}
+				else {
+					auto stunData = actorStunMap.find(it->first)->second;
+					if (stunData.second < stunData.first) {
+						stunData.second += *Utils::g_deltaTimeRealTime * 1/10 * stunData.first; //regenerate stun
+					}
+					else {
+						it = stunRegenQueue.erase(it); continue;
+					}
+				}
+			}
+			else {
+				it->second -= *Utils::g_deltaTimeRealTime;
+			}
 		}
-		++it1;
-	}
-	auto it2 = stunRegenCooldownMap.begin();
-	while (it2 != stunRegenCooldownMap.end()) {
-		if (it2->second <= 0) {
-			it2 = stunRegenCooldownMap.erase(it2);
-		}
-		else {
-			it2->second -= *Utils::g_deltaTimeRealTime;
-		}
+		++it;
 	}
 }
 
@@ -79,7 +84,7 @@ void stunHandler::damageStun(RE::Actor* actor, float damage) {
 		return;
 	}
 	it->second.second -= damage;
-	stunRegenCooldownMap.emplace(actor, 2); //3 seconds cooldown to regenerate stun.
+	stunRegenQueue.emplace(actor, 3); //3 seconds cooldown to regenerate stun.
 	//DEBUG("{}'s stun damaged to {}", actor->GetName(), it->second.second);
 	/*if (it->second.second <= 0) {
 		DEBUG("bleed out {}!", actor->GetName());
@@ -88,9 +93,10 @@ void stunHandler::damageStun(RE::Actor* actor, float damage) {
 		actor->SetGraphVariableBool("IsBleedingOut", true);
 	}*/
 }
-//TODO:test unarmed stun damage
+
 void stunHandler::calculateStunDamage(
 	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
+	//TODO:see if I can optimize it a bit more
 	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
 		return;
 	}
@@ -128,6 +134,27 @@ void stunHandler::calculateStunDamage(
 	}
 }
 
+void stunHandler::houseKeeping() {
+	DEBUG("housekeeping...");
+	auto it = actorStunMap.begin();
+	while (it != actorStunMap.end()) {
+		auto actor = it->first;
+		if (!actor) {
+			it = actorStunMap.erase(it); continue;
+		}
+		auto stunData = it->second;
+		auto newMax = getMaxStun(actor); 		
+		stunData.first = newMax; //refresh max stun.
+		if (newMax > stunData.second) {
+			stunRegenQueue.emplace(actor, 0); //if the new max is bigger, start regenerating
+		}
+		else {
+			stunData.second = newMax; //if the new max is smalle/equal, set it back.
+		}
+		it++;
+	}
+	DEBUG("housekeeping finished.");
+}
 
 /*Bunch of abstracted utilities.*/
 #pragma region stunUtils

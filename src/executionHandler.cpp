@@ -108,27 +108,27 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 
 
 
-void executionHandler::executeHumanoid(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
-	if (executer->isDualWielding()) {
-		sendExecutionCommand(executer, victim, kmStr_Humanoid_dw);
+void executionHandler::executeHumanoid(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
+	if (executor->isDualWielding()) {
+		sendExecutionCommand(executor, victim, kmStr_Humanoid_dw);
 	}
-	else if  (isBackFacing(victim, executer)) {
+	else if  (isBackFacing(victim, executor)) {
 		switch (weaponType) {
-		case RE::WEAPON_TYPE::kTwoHandAxe: sendExecutionCommand(executer, victim, kmStr_Humanoid_2hw_Back); break;
-		case RE::WEAPON_TYPE::kTwoHandSword: sendExecutionCommand(executer, victim, kmStr_Humanoid_2hm_Back); break;
-		case RE::WEAPON_TYPE::kHandToHandMelee: sendExecutionCommand(executer, victim, kmStr_Humanoid_h2h_Back); break;
-		default: sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Back); break;
+		case RE::WEAPON_TYPE::kTwoHandAxe: sendExecutionCommand(executor, victim, kmStr_Humanoid_2hw_Back); break;
+		case RE::WEAPON_TYPE::kTwoHandSword: sendExecutionCommand(executor, victim, kmStr_Humanoid_2hm_Back); break;
+		case RE::WEAPON_TYPE::kHandToHandMelee: sendExecutionCommand(executor, victim, kmStr_Humanoid_h2h_Back); break;
+		default: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Back); break;
 		}
 	}
 	else {
 		switch (weaponType) {
-		case RE::WEAPON_TYPE::kOneHandSword: sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Sword); break;
-		case RE::WEAPON_TYPE::kOneHandDagger: sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Axe_Mace); break;
-		case RE::WEAPON_TYPE::kOneHandAxe: sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Axe_Mace); break;
-		case RE::WEAPON_TYPE::kOneHandMace: sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Axe_Mace); break;
-		case RE::WEAPON_TYPE::kTwoHandAxe: sendExecutionCommand(executer, victim, kmStr_Humanoid_2hw); break;
-		case RE::WEAPON_TYPE::kTwoHandSword: sendExecutionCommand(executer, victim, kmStr_Humanoid_2hm); break;
-		case RE::WEAPON_TYPE::kHandToHandMelee: sendExecutionCommand(executer, victim, kmStr_Humanoid_h2h); break;
+		case RE::WEAPON_TYPE::kOneHandSword: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Sword); break;
+		case RE::WEAPON_TYPE::kOneHandDagger: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Axe_Mace); break;
+		case RE::WEAPON_TYPE::kOneHandAxe: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Axe_Mace); break;
+		case RE::WEAPON_TYPE::kOneHandMace: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Axe_Mace); break;
+		case RE::WEAPON_TYPE::kTwoHandAxe: sendExecutionCommand(executor, victim, kmStr_Humanoid_2hw); break;
+		case RE::WEAPON_TYPE::kTwoHandSword: sendExecutionCommand(executor, victim, kmStr_Humanoid_2hm); break;
+		case RE::WEAPON_TYPE::kHandToHandMelee: sendExecutionCommand(executor, victim, kmStr_Humanoid_h2h); break;
 		}
 	}
 };

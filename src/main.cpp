@@ -34,6 +34,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Post load game");
 		debuffHandler::GetSingleton()->stopStaminaDebuff(RE::PlayerCharacter::GetSingleton());
 		INFO("debuff cleared");
+		stunHandler::GetSingleton()->houseKeeping();
 		break;
 	case SKSE::MessagingInterface::kPostPostLoad:
 		INFO("Post post load");

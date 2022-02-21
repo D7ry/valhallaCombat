@@ -9,5 +9,5 @@ public:
 		return  std::addressof(singleton);
 	}
 
-	uintptr_t getAttackChance(RE::Actor* actor, RE::Actor* target, RE::)
+	uintptr_t getAttackChance(RE::Actor* actor, RE::Actor* target);
 };

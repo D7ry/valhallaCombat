@@ -19,12 +19,16 @@ private:
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
 	void resetStun(RE::Actor* actor);
-
+	/*Damage this actor's stun. If the actor does not exist on the stunmap, track their stun first.
+	@param actor: actor whose stun will be damaged.
+	@param damage: stun damage applied onto this actor.*/
+	void damageStun(RE::Actor* actor, float damage);
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
 	boost::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 
-	/*Mapping of actors whose stun has been damaged recently => timer before their stun start regenerate*/
-	boost::unordered_map <RE::Actor*, float> stunRegenCooldownMap;
+	/*Mapping of actors whose stun has been damaged recently => timer before their stun start regenerate.
+	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
+	boost::unordered_map <RE::Actor*, float> stunRegenQueue;
 
 
 public:
@@ -64,10 +68,9 @@ public:
 
 	/*Uninitialize stun meter.*/
 	void releaseTrueHUDStunMeter();
-	/*Damage this actor's stun. If the actor does not exist on the stunmap, track their stun first.
-	@param actor: actor whose stun will be damaged.
-	@param damage: stun damage applied onto this actor.*/
-	void damageStun(RE::Actor* actor, float damage);
+
+	/*Reload all actor's maximum stun, and remove actors no longer loaded.*/
+	void houseKeeping();
 
 	/*Calculate a stun damage for the actor, and immediately apply the stun damage.
 	Stun calculation go as follows:

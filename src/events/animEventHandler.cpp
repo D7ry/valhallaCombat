@@ -24,15 +24,15 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	std::string_view eventTag = a_event.tag.data();
 	switch (hash(eventTag.data(), eventTag.size())) {
 	case "preHitFrame"_h:
-		DEBUG("==========prehitFrame==========");
+		//DEBUG("==========prehitFrame==========");
 		attackHandler::GetSingleton()->registerAtk(a_event.holder->As<RE::Actor>());
 		break;
 	case "attackStop"_h:
-		DEBUG("==========attackstop==========");
+		//DEBUG("==========attackstop==========");
 		attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
 		break;
 	case "blockStartOut"_h:
-		DEBUG("===========blockStartOut===========");
+		//DEBUG("===========blockStartOut===========");
 		if (settings::bPerfectBlockToggle) {
 			blockHandler::GetSingleton()->registerPerfectBlock(a_event.holder->As<RE::Actor>());
 		}
@@ -47,7 +47,7 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	case "SoundPlay"_h:
 		DEBUG("soundplay: {} from actor: {}", a_event.payload, a_event.holder->GetName());
 	case "TKDR_DodgeStart"_h:
-		DEBUG("==========TK DODGE============");
+		//DEBUG("==========TK DODGE============");
 		staminaHandler::checkStamina(a_event.holder->As<RE::Actor>());
 		break;
 	}

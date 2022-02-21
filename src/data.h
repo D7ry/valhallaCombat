@@ -118,12 +118,12 @@ public:
 			INFO("SoundD successfully loaded!");
 		}
 		auto gameSettings = RE::GameSettingCollection::GetSingleton();
-		fDiffMultHPByPCVE = gameSettings->GetSetting("fDiffMultHPByPCVE")->GetFloat(); DEBUG(fDiffMultHPByPCVE);
-		fDiffMultHPByPCE = gameSettings->GetSetting("fDiffMultHPByPCE")->GetFloat(); DEBUG(fDiffMultHPByPCE);
-		fDiffMultHPByPCN = gameSettings->GetSetting("fDiffMultHPByPCN")->GetFloat(); DEBUG(fDiffMultHPByPCN);
-		fDiffMultHPByPCH = gameSettings->GetSetting("fDiffMultHPByPCH")->GetFloat(); DEBUG(fDiffMultHPByPCH);
-		fDiffMultHPByPCVH = gameSettings->GetSetting("fDiffMultHPByPCVH")->GetFloat(); DEBUG(fDiffMultHPByPCVH);
-		fDiffMultHPByPCL = gameSettings->GetSetting("fDiffMultHPByPCL")->GetFloat(); DEBUG(fDiffMultHPByPCL);
+		fDiffMultHPByPCVE = gameSettings->GetSetting("fDiffMultHPByPCVE")->GetFloat();
+		fDiffMultHPByPCE = gameSettings->GetSetting("fDiffMultHPByPCE")->GetFloat();
+		fDiffMultHPByPCN = gameSettings->GetSetting("fDiffMultHPByPCN")->GetFloat();
+		fDiffMultHPByPCH = gameSettings->GetSetting("fDiffMultHPByPCH")->GetFloat();
+		fDiffMultHPByPCVH = gameSettings->GetSetting("fDiffMultHPByPCVH")->GetFloat();
+		fDiffMultHPByPCL = gameSettings->GetSetting("fDiffMultHPByPCL")->GetFloat();
 
 		fDiffMultHPToPCVE = gameSettings->GetSetting("fDiffMultHPToPCVE")->GetFloat();
 		fDiffMultHPToPCE = gameSettings->GetSetting("fDiffMultHPToPCE")->GetFloat();
