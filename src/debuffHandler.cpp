@@ -67,6 +67,11 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 	}
 }
 
+void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
+	actorDebuffMap.erase(actor);
+	stopStaminaDebuff(actor);
+}
+
 /*Attach stamina debuff perk to actor.
 @param a_actor actor who will receive the debuff perk.*/
 void debuffHandler::addDebuffPerk(RE::Actor* a_actor) {

@@ -1,4 +1,5 @@
 #pragma once
+using EventResult = RE::BSEventNotifyControl;
 class animEventHandler {
 public:
     template<class Ty>
@@ -38,4 +39,30 @@ public:
 
 protected:
     static std::unordered_map<uint64_t, FnProcessEvent> fnHash;
+};
+
+class cellLoadEventHandler : public RE::BSTEventSink<RE::TESCellFullyLoadedEvent>
+{
+public:
+
+	virtual EventResult ProcessEvent(const RE::TESCellFullyLoadedEvent* a_event, RE::BSTEventSource<RE::TESCellFullyLoadedEvent>* a_eventSource);
+
+
+	static bool Register()
+	{
+		static cellLoadEventHandler singleton;
+		auto ScriptEventSource = RE::ScriptEventSourceHolder::GetSingleton();
+
+		if (!ScriptEventSource) {
+			ERROR("Script event source not found");
+			return false;
+		}
+
+		ScriptEventSource->AddEventSink(&singleton);
+
+		INFO("Registered {}.", typeid(singleton).name());
+
+		return true;
+	}
+
 };

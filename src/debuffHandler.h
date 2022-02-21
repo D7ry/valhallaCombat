@@ -29,8 +29,9 @@ public:
 
 	void initStaminaDebuff(RE::Actor* actor);
 	void stopStaminaDebuff(RE::Actor* actor);
-
-
+	/*Quickly stop stamina debuff without using the iterator.
+	a convenience method for outside class.*/
+	void quickStopStaminaDebuff(RE::Actor* actor);
 private:
 
 	void addDebuffPerk(RE::Actor* a_actor);

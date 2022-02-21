@@ -14,6 +14,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Data loaded");
 		settings::readSettings();
 		animEventHandler::hookAllActors();
+		cellLoadEventHandler::Register();
 		gameDataCache::fetchGameData();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
@@ -33,8 +34,8 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	case SKSE::MessagingInterface::kPostLoadGame:
 		INFO("Post load game");
 		debuffHandler::GetSingleton()->stopStaminaDebuff(RE::PlayerCharacter::GetSingleton());
-		INFO("debuff cleared");
 		stunHandler::GetSingleton()->houseKeeping();
+		INFO("debuff cleared");
 		break;
 	case SKSE::MessagingInterface::kPostPostLoad:
 		INFO("Post post load");

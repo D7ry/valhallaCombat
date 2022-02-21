@@ -62,7 +62,7 @@ public:
 	* due to the attack, do stamina regen/stamina damage.
 	@param actor: actor whose hit will be registered*/
 	void registerHit(RE::Actor* actor) {
-		//DEBUG("registering successful hit for {}", actor->GetName());
+		DEBUG("registering successful hit for {}", actor->GetName());
 		ATTACKTYPE atkType;
 		if (!getAtkType(actor, atkType)) {
 			return;

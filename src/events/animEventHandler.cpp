@@ -30,6 +30,14 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	case "attackStop"_h:
 		//DEBUG("==========attackstop==========");
 		attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
+		if (settings::bStunToggle) {
+			if (executionHandler::GetSingleton()->activeExecutor.find(a_event.holder->As<RE::Actor>())
+				!= executionHandler::GetSingleton()->activeExecutor.end()) {
+				DEBUG("{} is out of execution", a_event.holder->GetName());
+				executionHandler::GetSingleton()->activeExecutor.erase(a_event.holder->As<RE::Actor>());
+				setIsGhost(a_event.holder->As<RE::Actor>(), false);
+			}
+		}
 		break;
 	case "blockStartOut"_h:
 		//DEBUG("===========blockStartOut===========");
@@ -39,10 +47,7 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		break;
 	case "tailcombatidle"_h:
 		/*Unghost the executor on finish*/
-		if (settings::bStunToggle) {
-			executionHandler::GetSingleton()->activeExecutor.erase(a_event.holder->As<RE::Actor>());
-			setIsGhost(a_event.holder->As<RE::Actor>(), false);
-		}
+
 		break;
 	case "SoundPlay"_h:
 		DEBUG("soundplay: {} from actor: {}", a_event.payload, a_event.holder->GetName());

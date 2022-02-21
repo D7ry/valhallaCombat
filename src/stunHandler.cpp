@@ -6,19 +6,20 @@
 void stunHandler::update() {
 	auto it = stunRegenQueue.begin();
 	while (it != stunRegenQueue.end()) {
-		if (!it->first) {
+		auto actor = it->first;
+		if (!actor || !actor->Is3DLoaded()) {
 			it = stunRegenQueue.erase(it); continue;
 		}
-		if (!it->first->IsInCombat()) {
+		if (!actor->IsInCombat()) {
 			if (it->second <= 0) {
 				//start regenerating stun from actorStunMap.
-				if (actorStunMap.find(it->first) == actorStunMap.end()) {
+				if (actorStunMap.find(actor) == actorStunMap.end()) {
 					it = stunRegenQueue.erase(it); continue;
 				}
 				else {
-					auto stunData = actorStunMap.find(it->first)->second;
-					if (stunData.second < stunData.first) {
-						stunData.second += *Utils::g_deltaTimeRealTime * 1/10 * stunData.first; //regenerate stun
+					if (actorStunMap.find(actor)->second.second < actorStunMap.find(actor)->second.first) {
+						actorStunMap.find(actor)->second.second += 
+							*Utils::g_deltaTimeRealTime * 1 / 10 * actorStunMap.find(actor)->second.first;
 					}
 					else {
 						it = stunRegenQueue.erase(it); continue;
@@ -96,6 +97,7 @@ void stunHandler::damageStun(RE::Actor* actor, float damage) {
 
 void stunHandler::calculateStunDamage(
 	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
+	DEBUG("Calculating stun damage");
 	//TODO:see if I can optimize it a bit more
 	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
 		return;
@@ -136,20 +138,26 @@ void stunHandler::calculateStunDamage(
 
 void stunHandler::houseKeeping() {
 	DEBUG("housekeeping...");
+	stunRegenQueue.clear();
 	auto it = actorStunMap.begin();
 	while (it != actorStunMap.end()) {
 		auto actor = it->first;
 		if (!actor) {
+			DEBUG("actor not longer exist, cleaning up from stun map...");
 			it = actorStunMap.erase(it); continue;
 		}
-		auto stunData = it->second;
+		if (!actor->Is3DLoaded()) {
+			DEBUG("{} no longer 3d loaded, cleaning up from stun map...");
+			it = actorStunMap.erase(it); continue;
+		}
+		DEBUG("Updating {}", actor->GetName());
 		auto newMax = getMaxStun(actor); 		
-		stunData.first = newMax; //refresh max stun.
-		if (newMax > stunData.second) {
+		it->second.first = newMax; //refresh max stun.
+		if (newMax > it->second.second) {
 			stunRegenQueue.emplace(actor, 0); //if the new max is bigger, start regenerating
 		}
 		else {
-			stunData.second = newMax; //if the new max is smalle/equal, set it back.
+			it->second.second = newMax; //if the new max is smalle/equal, set it back.
 		}
 		it++;
 	}
