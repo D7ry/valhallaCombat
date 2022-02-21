@@ -53,8 +53,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		|| executor->IsDead() || victim->IsDead()
 		|| !executor->Is3DLoaded() || !victim->Is3DLoaded()
 		|| executor->IsInKillMove() || victim->IsInKillMove()
-		|| (victim->IsPlayer() && !settings::bPlayerExecution)
-		|| (victim->IsPlayerTeammate() && !settings::bPlayerTeammateExecution)
+		|| (!settings::bPlayerExecution && (victim->IsPlayerTeammate() || victim->IsPlayer()))
 		|| (victim->IsEssential() && !settings::bEssentialExecution)
 		|| !executor->GetRace() || executor->GetRace()->bodyPartData->GetFormID() != 29 //executor can only be human.
 		|| !victim->GetRace() || !victim->GetRace()->bodyPartData) {
