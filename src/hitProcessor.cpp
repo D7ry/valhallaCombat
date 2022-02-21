@@ -50,7 +50,8 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 
 	//TODO: a better execution module
 	//Temporary execution module
-	if (!victim->IsPlayerRef() && !victim->IsPlayerTeammate() && !victim->IsEssential() && !victim->IsInKillMove()) {
+	if (settings::bStunToggle && //stun must be toggled to trigger execution.
+		!victim->IsPlayerRef() && !victim->IsPlayerTeammate() && !victim->IsEssential() && !victim->IsInKillMove()) {
 		DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
 		if (stunHandler::GetSingleton()->getStun(victim) <= 0) {
 			executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
