@@ -10,7 +10,7 @@ void debuffHandler::update() {
 	auto it = actorDebuffMap.begin();
 	while (it != actorDebuffMap.end()) {
 		auto actor = it->first;
-		if (!actor) {//actor no longer loaded
+		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {//actor no longer loaded
 			//DEBUG("Actor no longer loaded");
 			it = actorDebuffMap.erase(it);//erase actor from debuff set.
 			continue;
@@ -60,7 +60,7 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 /*Stamina the actor's stamina debuff, remove their debuff perk, and revert their UI meter.
 @param actor actor whose stamina debuff will stop.*/
 void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
-	//DEBUG("Stopping stamina debuff for {}", actor->GetName());
+	DEBUG("Stopping stamina debuff for {}", actor->GetName());
 	removeDebuffPerk(actor);
 	if (settings::bUIAlert) {
 		revertStaminaMeter(actor);

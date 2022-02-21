@@ -26,6 +26,7 @@ float Hook_CacheAttackStaminaCost::cacheAttackStaminaCost(uintptr_t avOwner, RE:
 #pragma endregion
 #pragma region GetBlockChance
 uintptr_t Hook_GetBlockChance::getBlockChance(RE::Actor* actor) {
+	//DEBUG("hooked blockchance");
 	if (debuffHandler::GetSingleton()->actorDebuffMap.find(actor) != debuffHandler::GetSingleton()->actorDebuffMap.end()) {
 		return 0; //disable locking for exhausted actors
 	}
@@ -37,7 +38,7 @@ uintptr_t Hook_GetAttackChance1::getAttackChance(RE::Actor* actor, RE::Actor* ta
 	//DEBUG("hooked getattackchance1");
 	//DEBUG("actor 1: {}, actor2: {}", actor->GetName(), target->GetName());
 	if (debuffHandler::GetSingleton()->isInDebuff(actor)) {
-		DEBUG("attack denied");
+		//DEBUG("attack denied");
 		return 0;
 	}
 	return _getAttackChance(actor, target, atkData);
@@ -46,7 +47,7 @@ uintptr_t Hook_GetAttackChance2::getAttackChance(RE::Actor* actor, RE::Actor* ta
 	//DEBUG("hooked getattackchance2");
 	//DEBUG("actor 1: {}, actor2: {}", actor->GetName(), target->GetName());
 	if (debuffHandler::GetSingleton()->isInDebuff(actor)) {
-		DEBUG("attack denied");
+		//DEBUG("attack denied");
 		return 0;
 	}
 	return _getAttackChance(actor, target, atkData);

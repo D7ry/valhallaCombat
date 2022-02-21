@@ -69,7 +69,10 @@ public:
 	/*Uninitialize stun meter.*/
 	void releaseTrueHUDStunMeter();
 
-	/*Reload all actor's maximum stun, and remove actors no longer loaded.*/
+	/*Clears all records from StunMap.*/
+	void refreshStun();
+
+	/*Does what it says*/
 	void houseKeeping();
 
 	/*Calculate a stun damage for the actor, and immediately apply the stun damage.

@@ -7,7 +7,8 @@ void stunHandler::update() {
 	auto it = stunRegenQueue.begin();
 	while (it != stunRegenQueue.end()) {
 		auto actor = it->first;
-		if (!actor || !actor->Is3DLoaded()) {
+		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {
+			actorStunMap.erase(actor);
 			it = stunRegenQueue.erase(it); continue;
 		}
 		if (!actor->IsInCombat()) {
@@ -61,7 +62,7 @@ float stunHandler::getMaxStun(RE::Actor* actor) {
 }
 
 float stunHandler::getStun(RE::Actor* actor) {
-	//DEBUG("Getting {}'s stun.", actor->GetName());
+	DEBUG("Getting {}'s stun.", actor->GetName());
 	auto actorStunMap = stunHandler::GetSingleton()->actorStunMap;
 	auto it = actorStunMap.find(actor);
 	if (it != actorStunMap.end()) {
@@ -102,9 +103,6 @@ void stunHandler::calculateStunDamage(
 	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
 		return;
 	}
-	if (!victim->IsInCombat()) {
-		return;
-	}
 	switch (stunSource) {
 	case STUNSOURCE::parry:
 		damageStun(victim, baseDamage * settings::fStunParryMult); break;
@@ -139,29 +137,30 @@ void stunHandler::calculateStunDamage(
 void stunHandler::houseKeeping() {
 	DEBUG("housekeeping...");
 	stunRegenQueue.clear();
+	DEBUG("1");
 	auto it = actorStunMap.begin();
 	while (it != actorStunMap.end()) {
 		auto actor = it->first;
-		if (!actor) {
+		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {
 			DEBUG("actor not longer exist, cleaning up from stun map...");
 			it = actorStunMap.erase(it); continue;
 		}
-		if (!actor->Is3DLoaded()) {
-			DEBUG("{} no longer 3d loaded, cleaning up from stun map...");
-			it = actorStunMap.erase(it); continue;
-		}
-		DEBUG("Updating {}", actor->GetName());
 		auto newMax = getMaxStun(actor); 		
 		it->second.first = newMax; //refresh max stun.
 		if (newMax > it->second.second) {
 			stunRegenQueue.emplace(actor, 0); //if the new max is bigger, start regenerating
 		}
 		else {
-			it->second.second = newMax; //if the new max is smalle/equal, set it back.
+			it->second.second = newMax; //if the new max is smaller/equal, lower the og value
 		}
 		it++;
 	}
 	DEBUG("housekeeping finished.");
+}
+
+void stunHandler::refreshStun() {
+	stunRegenQueue.clear();
+	actorStunMap.clear();
 }
 
 /*Bunch of abstracted utilities.*/

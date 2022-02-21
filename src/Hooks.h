@@ -138,7 +138,7 @@ public:
 		//Hook_CacheAttackStaminaCost::install();
 		Hook_GetBlockChance::install();
 		Hook_GetAttackChance1::install();
-		//Hook_GetAttackChance2::install();
+		Hook_GetAttackChance2::install();
 		Hook_StaminaRegen::install();
 		Hook_MeleeHit::install();
 		Hook_MainUpdate::install();

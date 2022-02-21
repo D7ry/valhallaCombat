@@ -49,8 +49,8 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		/*Unghost the executor on finish*/
 
 		break;
-	case "SoundPlay"_h:
-		DEBUG("soundplay: {} from actor: {}", a_event.payload, a_event.holder->GetName());
+	//case "SoundPlay"_h:
+		//DEBUG("soundplay: {} from actor: {}", a_event.payload, a_event.holder->GetName());
 	case "TKDR_DodgeStart"_h:
 		//DEBUG("==========TK DODGE============");
 		staminaHandler::checkStamina(a_event.holder->As<RE::Actor>());
