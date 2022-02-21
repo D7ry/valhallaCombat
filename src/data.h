@@ -10,39 +10,34 @@ class settings
 {
 public:
 	/*General*/
+
+	/*Stamina*/
+	static inline bool bUIAlert = true;
+	static inline bool bNonCombatStaminaDebuff = true;
+
 	static inline float fStaminaRegenMult = 5;
 	static inline float fStaminaRegenLimit = 50;
 	static inline float fCombatStaminaRegenMult = 1;
 	static inline float fStaminaRegenDelay = 2;
-	/*Attacking*/
+
+	static inline bool bGuardBreak = true;
+	static inline float fBckShdStaminaMult_PC_Block_NPC = 1;
+	static inline float fBckWpnStaminaMult_PC_Block_NPC = 1;
+
+	static inline float fBckShdStaminaMult_NPC_Block_PC = 1; //stamina penalty mult for NPCs blockign a player hit with a shield
+	static inline float fBckWpnStaminaMult_NPC_Block_PC = 1;
+
+	static inline float fBckShdStaminaMult_NPC_Block_NPC = 1;
+	static inline float fBckWpnStaminaMult_NPC_Block_NPC = 1;
+
 	static inline bool bBlockedHitRegenStamina = false;
 	static inline float fMeleeCostLightMiss_Point = 30;
 	static inline float fMeleeRewardLightHit_Percent = 0.2;
 	static inline float fMeleeCostHeavyMiss_Percent = 0.333;
 	static inline float fMeleeCostHeavyHit_Percent = 0.199;
+	/*perfect blocking*/
+	//static inline bool bPoiseCompatibility = false;
 
-	/*UI*/
-	static inline bool bUIAlert = true;
-	static inline bool bNonCombatStaminaDebuff = true;
-
-	/*Blocking*/
-	static inline bool bGuardBreak = true;
-	static inline float fBckShdStaminaMult_PC_Block_NPC = 2;
-	static inline float fBckWpnStaminaMult_PC_Block_NPC = 2;
-
-	static inline float fBckShdStaminaMult_NPC_Block_PC = 2; //stamina penalty mult for NPCs blockign a player hit with a shield
-	static inline float fBckWpnStaminaMult_NPC_Block_PC = 2;
-
-	static inline float fBckShdStaminaMult_NPC_Block_NPC = 2;
-	static inline float fBckWpnStaminaMult_NPC_Block_NPC = 2;
-
-
-
-	//perfect blocking
-	//FIXME: add MCM helper
-
-	//TODO:Settings to add to MCM and readSettings()
-	static inline bool bPoiseCompatibility = false;
 	static inline bool bPerfectBlockToggle = true;
 	static inline bool bPerfectBlockScreenShake = true;
 	static inline bool bPerfectBlockSFX = true;
@@ -51,10 +46,11 @@ public:
 	static inline float fPerfectBlockCoolDownTime = 1;
 
 
-	//Stun
+
 	//TODO:WHEN READ SETTING, automatically request/release TRUEHUD meter control.
 	/*Enable/disable stun and execution.*/
 	static inline bool bStunToggle = true;
+	static inline bool bStunMeterToggle = true;
 	static inline float fStunParryMult = 1;
 	static inline float fStunBashMult = 1;
 	static inline float fStunPowerBashMult = 1;
@@ -76,7 +72,7 @@ public:
 	static inline bool bPlayerTeammateExecution = false;
 	/*Toggle for essential NPCs to be executed.*/
 	static inline bool bEssentialExecution = false;
-	static inline bool bExecutionLevelLimit = true; //NPCs with level higher than player cannot be executed unless under certain health threshold.
+	static inline bool bExecutionLimit = true; //NPCs with level higher than player cannot be executed unless under certain health threshold.
 
 
 	static void readSettings();
@@ -139,27 +135,50 @@ public:
 		INFO("Data fetched.");
 	}
 };
-//struct settingsOld {
 
+namespace Utils
+{
+	/*tweaks the value of designated game setting
+	@param gameSettingStr game setting to be tweaked.
+	@param val desired float value of gamesetting.*/
+	inline void setGameSettingf(const char* settingStr, float val) {
+		RE::Setting* setting = nullptr;
+		RE::GameSettingCollection* _settingCollection = RE::GameSettingCollection::GetSingleton();
+		setting = _settingCollection->GetSetting(settingStr);
+		if (!setting) {
+			INFO("invalid setting: {}", settingStr);
+		}
+		else {
+			INFO("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
+			setting->data.f = val;
+		}
+	}
 
-	//FIXME:One day implement stun
-	/*
-	static inline float stunBaseMult; //base stun multiplier. base stun damage = melee damage * stunMult. Also serves to balance difficulty.
-	static inline float stunHvyMult; //stun mult for heavy attack
+	/*a map of all game races' original stamina regen, in case player wants to tweak the stamina regen values again*/
+	inline static std::unordered_map<std::string, float> staminaRegenMap;
 
-	static inline float stunUnarmedMult;
-	static inline float stunDaggerMult;
-	static inline float stunSwordMult;
-	static inline float stunAxeMult;
-	static inline float stunMaceMult;
-	static inline float stunGreatSwordMult;
-	static inline float stun2hwMult;
-
-	static inline float stunBowMult;
-	static inline float stunCrossBowMult;
-
-	static inline float stunExecutionDamageMult; //mult for execution of stunned enemy
-
-	*/
-
-//};
+	/*multiplies stamina regen of every single race by MULT.
+	@param mult multiplier for stamina regen.
+	@param upperLimit upper limit for stamina regen.*/
+	inline void multStaminaRegen(float mult, float upperLimit) {
+		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
+			if (race) {
+				std::string raceName = race->GetName();
+				float staminaRegen;
+				if (staminaRegenMap.find(raceName) == staminaRegenMap.end()) {
+					DEBUG("recording race default stamina for {}!", raceName);
+					staminaRegenMap[raceName] = race->data.staminaRegen;
+					staminaRegen = race->data.staminaRegen * mult;
+				}
+				else {
+					staminaRegen = mult * staminaRegenMap.at(raceName);
+				}
+				if (staminaRegen > upperLimit) {
+					staminaRegen = upperLimit;
+				}
+				race->data.staminaRegen = staminaRegen;
+				INFO("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
+			}
+		}
+	}
+}

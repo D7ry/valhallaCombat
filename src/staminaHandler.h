@@ -37,11 +37,6 @@ public:
 		checkStamina(a);
 	}
 
-	static void staminaDodgeStep(RE::Actor* a) {
-		//DEBUG("stamina dodge step");
-		Utils::damageav(a, RE::ActorValue::kStamina, settings::fDodgeStaminaShort);
-		checkStamina(a);
-	}
 
 
 };

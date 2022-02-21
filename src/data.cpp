@@ -1,5 +1,5 @@
 #include "data.h"
-
+#include "stunHandler.h"
 /*read settings from ini, and update them into game settings.*/
 void settings::readSettings() {
 	INFO("Reading ini settings...");
@@ -8,35 +8,65 @@ void settings::readSettings() {
 	ini.LoadFile(SETTINGFILE_PATH);
 
 
-	//read general settings
-	ReadBoolSetting(ini, "General", "bUIalert", bUIAlert);
-	ReadBoolSetting(ini, "General", "bNonCombatStaminaDebuff", bNonCombatStaminaDebuff);
-	ReadFloatSetting(ini, "gameSetting", "fStaminaRegenMult", fStaminaRegenMult);
-	ReadFloatSetting(ini, "gameSettings", "fStaminaRegenLimit", fStaminaRegenLimit); //FIXME:add MCM config
-	ReadFloatSetting(ini, "gameSetting", "fCombatStaminaRegenMult", fCombatStaminaRegenMult);
-	ReadFloatSetting(ini, "gameSetting", "fStaminaRegenDelay", fStaminaRegenDelay);
+	/*Read stamina section*/
+	ReadBoolSetting(ini, "Stamina", "bUIalert", bUIAlert);
+	ReadBoolSetting(ini, "Stamina", "bNonCombatStaminaDebuff", bNonCombatStaminaDebuff);
+	ReadFloatSetting(ini, "Stamina", "fStaminaRegenMult", fStaminaRegenMult);
+	ReadFloatSetting(ini, "Stamina", "fStaminaRegenLimit", fStaminaRegenLimit);
+	ReadFloatSetting(ini, "Stamina", "fCombatStaminaRegenMult", fCombatStaminaRegenMult);
+	ReadFloatSetting(ini, "Stamina", "fStaminaRegenDelay", fStaminaRegenDelay);
 
-	//read attack section
-	ReadBoolSetting(ini, "Attack", "bBlockedHitRegenStamina", bBlockedHitRegenStamina);
-	ReadFloatSetting(ini, "Attack", "fMeleeCostLightMiss_Point", fMeleeCostLightMiss_Point); //this doesn't need to be divided by 100 since it's constnat.
-	ReadFloatSetting(ini, "Attack", "fMeleeRewardLightHit_Percent", fMeleeRewardLightHit_Percent);
-	ReadFloatSetting(ini, "Attack", "fMeleeCostHeavyMiss_Percent", fMeleeCostHeavyMiss_Percent);
-	ReadFloatSetting(ini, "Attack", "fMeleeCostHeavyHit_Percent", fMeleeCostHeavyHit_Percent);
+	ReadBoolSetting(ini, "Stamina", "bGuardBreak", bGuardBreak);
+	ReadFloatSetting(ini, "Stamina", "fBckShdStaminaMult_NPC_Block_NPC", fBckShdStaminaMult_NPC_Block_NPC);
+	ReadFloatSetting(ini, "Stamina", "fBckShdStaminaMult_NPC_Block_PC", fBckShdStaminaMult_NPC_Block_PC);
+	ReadFloatSetting(ini, "Stamina", "fBckShdStaminaMult_PC_Block_NPC", fBckShdStaminaMult_PC_Block_NPC);
+	ReadFloatSetting(ini, "Stamina", "fBckWpnStaminaMult_NPC_Block_NPC", fBckWpnStaminaMult_NPC_Block_NPC);
+	ReadFloatSetting(ini, "Stamina", "fBckWpnStaminaMult_NPC_Block_PC", fBckWpnStaminaMult_NPC_Block_PC);
+	ReadFloatSetting(ini, "Stamina", "fBckWpnStaminaMult_PC_Block_NPC", fBckWpnStaminaMult_PC_Block_NPC);
 
-	//read block section
-	ReadBoolSetting(ini, "Block", "bGuardBreak", bGuardBreak);
-	ReadFloatSetting(ini, "Block", "fBckShdStaminaMult_NPC_Block_NPC", fBckShdStaminaMult_NPC_Block_NPC);
-	ReadFloatSetting(ini, "Block", "fBckShdStaminaMult_NPC_Block_PC", fBckShdStaminaMult_NPC_Block_PC);
-	ReadFloatSetting(ini, "Block", "fBckShdStaminaMult_PC_Block_NPC", fBckShdStaminaMult_PC_Block_NPC);
-	ReadFloatSetting(ini, "Block", "fBckWpnStaminaMult_NPC_Block_NPC", fBckWpnStaminaMult_NPC_Block_NPC);
-	ReadFloatSetting(ini, "Block", "fBckWpnStaminaMult_NPC_Block_PC", fBckWpnStaminaMult_NPC_Block_PC);
-	ReadFloatSetting(ini, "Block", "fBckWpnStaminaMult_PC_Block_NPC", fBckWpnStaminaMult_PC_Block_NPC);
+	ReadBoolSetting(ini, "Stamina", "bBlockedHitRegenStamina", bBlockedHitRegenStamina);
+	ReadFloatSetting(ini, "Stamina", "fMeleeCostLightMiss_Point", fMeleeCostLightMiss_Point); 
+	ReadFloatSetting(ini, "Stamina", "fMeleeRewardLightHit_Percent", fMeleeRewardLightHit_Percent);
+	ReadFloatSetting(ini, "Stamina", "fMeleeCostHeavyMiss_Percent", fMeleeCostHeavyMiss_Percent);
+	ReadFloatSetting(ini, "Stamina", "fMeleeCostHeavyHit_Percent", fMeleeCostHeavyHit_Percent);
 
+	/*Read perfect blocking section*/
+	ReadBoolSetting(ini, "Blocking", "bPerfectBlockToggle", bPerfectBlockToggle);
+	ReadBoolSetting(ini, "Blocking", "bPerfectBlockScreenShake", bPerfectBlockScreenShake);
+	ReadBoolSetting(ini, "Blocking", "bPerfectBlockSFX", bPerfectBlockSFX);
+	ReadBoolSetting(ini, "Blocking", "bPerfectBlockVFX", bPerfectBlockVFX);
+	ReadFloatSetting(ini, "Stamina", "fPerfectBlockTime", fPerfectBlockTime);
+	ReadFloatSetting(ini, "Stamina", "fPerfectBlockCoolDownTime", fPerfectBlockCoolDownTime);
+
+	/*Read stun section*/
+	ReadBoolSetting(ini, "Stun", "bStunToggle", bStunToggle);
+	ReadBoolSetting(ini, "Stun", "bPlayerExecution", bPlayerExecution);
+	ReadBoolSetting(ini, "Stun", "bEssentialExecution", bEssentialExecution);
+	ReadBoolSetting(ini, "Stun", "bExecutionLimit", bExecutionLimit);
+
+	ReadFloatSetting(ini, "Stun", "fStunParryMult", fStunParryMult);
+	ReadFloatSetting(ini, "Stun", "fStunBashMult", fStunBashMult);
+	ReadFloatSetting(ini, "Stun", "fStunPowerBashMult", fStunPowerBashMult);
+	ReadFloatSetting(ini, "Stun", "fStunPowerAttackMult", fStunPowerAttackMult);
+
+	ReadFloatSetting(ini, "Stun", "fStunUnarmedMult", fStunUnarmedMult);
+	ReadFloatSetting(ini, "Stun", "fStunDaggerMult", fStunDaggerMult);
+	ReadFloatSetting(ini, "Stun", "fStunSwordMult", fStunSwordMult);
+	ReadFloatSetting(ini, "Stun", "fStunWarAxeMult", fStunWarAxeMult);
+	ReadFloatSetting(ini, "Stun", "fStunMaceMult", fStunMaceMult);
+	ReadFloatSetting(ini, "Stun", "fStunGreatSwordMult", fStunGreatSwordMult);
+	ReadFloatSetting(ini, "Stun", "fStun2HBluntMult", fStun2HBluntMult);
 
 	INFO("Ini settings read.");
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
 	multStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
+	if (bStunToggle && bStunMeterToggle) {
+		stunHandler::GetSingleton()->initTrueHUDStunMeter();
+	}
+	else {
+		stunHandler::GetSingleton()->releaseTrueHUDStunMeter();
+	}
 	INFO("Game settings applied.");
 }
 
@@ -68,3 +98,4 @@ void settings::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, co
 		INFO("failed to find {}, using default value", a_settingName);
 	}
 }
+

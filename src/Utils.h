@@ -2,48 +2,8 @@
 
 namespace Utils
 {
-	/*tweaks the value of designated game setting
-	@param gameSettingStr game setting to be tweaked.
-	@param val desired float value of gamesetting.*/
-	inline void setGameSettingf(const char* settingStr, float val) {
-		RE::Setting* setting = nullptr;
-		RE::GameSettingCollection* _settingCollection = RE::GameSettingCollection::GetSingleton();
-		setting = _settingCollection->GetSetting(settingStr);
-		if (!setting) {
-			INFO("invalid setting: {}", settingStr);
-		}
-		else {
-			INFO("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
-			setting->data.f = val;
-		}
-	}
-	/*a map of all game races' original stamina regen, in case player wants to tweak the stamina regen values again*/
-	inline static std::unordered_map<std::string, float> staminaRegenMap;
 
-	/*multiplies stamina regen of every single race by MULT.
-	@param mult multiplier for stamina regen.
-	@param upperLimit upper limit for stamina regen.*/
-	inline void multStaminaRegen(float mult, float upperLimit) {
-		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
-			if (race) {
-				std::string raceName = race->GetName();
-				float staminaRegen;
-				if (staminaRegenMap.find(raceName) == staminaRegenMap.end()) {
-					DEBUG("recording race default stamina for {}!", raceName);
-					staminaRegenMap[raceName] = race->data.staminaRegen;
-					staminaRegen = race->data.staminaRegen * mult;
-				}
-				else {
-					staminaRegen = mult * staminaRegenMap.at(raceName);
-				}
-				if (staminaRegen > upperLimit) {
-					staminaRegen = upperLimit;
-				}
-				race->data.staminaRegen = staminaRegen;
-				INFO("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
-			}
-		}
-	}
+
 
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
