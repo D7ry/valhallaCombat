@@ -1,32 +1,32 @@
 #include "executionHandler.h"
 #include "data.h"
 
-void executionHandler::sendExecutionCommand(RE::Actor* executer, RE::Actor* victim, std::vector<std::string> executionStrSet) {
-	auto executerForm = executer->GetFormID();
+void executionHandler::sendExecutionCommand(RE::Actor* executor, RE::Actor* victim, std::vector<std::string> executionStrSet) {
+	auto executerForm = executor->GetFormID();
 	auto victimForm = victim->GetFormID();
 
-	//convert executer and victim's formID to hex.
+	//convert executor and victim's formID to hex.
 	std::stringstream sstream1;
 	sstream1 << std::hex << executerForm;
-	std::string executerStr = sstream1.str();
-	if (executerStr == "14") {
-		executerStr = "player";
+	std::string executorStr = sstream1.str();
+	if (executorStr == "14") {
+		executorStr = "player";
 	}
 	std::stringstream sstream2;
 	sstream2 << std::hex << victimForm;
 	std::string victimStr = sstream2.str();
 
 	std::string executionStr = getRandomStr(executionStrSet); //get an random element from this execution string set.
-	std::string cmd = executerStr + ".playidle " + executionStr + " " + victimStr;
+	std::string cmd = executorStr + ".playidle " + executionStr + " " + victimStr;
 	DEBUG("sending execution command: " + cmd);
 	Utils::sendConsoleCommand(cmd);
 }
 
-void executionHandler::sendExecutionCommand(RE::Actor* executer, RE::Actor* victim, std::string executionStr) {
-	auto executerForm = executer->GetFormID();
+void executionHandler::sendExecutionCommand(RE::Actor* executor, RE::Actor* victim, std::string executionStr) {
+	auto executerForm = executor->GetFormID();
 	auto victimForm = victim->GetFormID();
 
-	//convert executer and victim's formID to hex.
+	//convert executor and victim's formID to hex.
 	std::stringstream sstream1;
 	sstream1 << std::hex << executerForm;
 	std::string executerStr = sstream1.str();
@@ -45,28 +45,28 @@ void executionHandler::sendExecutionCommand(RE::Actor* executer, RE::Actor* vict
 	Utils::sendConsoleCommand(cmd);
 }
 
-void executionHandler::attemptExecute(RE::Actor* executer, RE::Actor* victim) {
-	DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executer->GetName());
+void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
+	DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());
 
 	//check if victim can be executed
-	if (!settings::bExecutionToggle
-		|| executer->IsDead() || victim->IsDead()
-		|| !executer->Is3DLoaded() || !victim->Is3DLoaded()
-		|| executer->IsInKillMove() || victim->IsInKillMove()
+	if (!settings::bStunToggle
+		|| executor->IsDead() || victim->IsDead()
+		|| !executor->Is3DLoaded() || !victim->Is3DLoaded()
+		|| executor->IsInKillMove() || victim->IsInKillMove()
 		|| (victim->IsPlayer() && !settings::bPlayerExecution)
 		|| (victim->IsPlayerTeammate() && !settings::bPlayerTeammateExecution)
 		|| (victim->IsEssential() && !settings::bEssentialExecution)
-		|| !executer->GetRace() || executer->GetRace()->bodyPartData->GetFormID() != 29 //executer can only be human.
+		|| !executor->GetRace() || executor->GetRace()->bodyPartData->GetFormID() != 29 //executor can only be human.
 		|| !victim->GetRace() || !victim->GetRace()->bodyPartData) {
 		DEBUG("Execution preconditions not met, terminating execution.");
 		return;
 	}
 
 	//debug body data
-	DEBUG("executer body part data: {}", executer->GetRace()->bodyPartData->GetFormID());
+	DEBUG("executor body part data: {}", executor->GetRace()->bodyPartData->GetFormID());
 	DEBUG("victim body part data: {}", victim->GetRace()->bodyPartData->GetFormID());
 	RE::WEAPON_TYPE weaponType;
-	auto weapon = Utils::getWieldingWeapon(executer);
+	auto weapon = Utils::getWieldingWeapon(executor);
 	if (!weapon) {
 		DEBUG("Executor weapon not found, using unarmed as weapon type.");
 		weaponType = RE::WEAPON_TYPE::kHandToHandMelee;
@@ -77,29 +77,32 @@ void executionHandler::attemptExecute(RE::Actor* executer, RE::Actor* victim) {
 	DEBUG("weapon type is {}", weaponType);
 	DEBUG("victim body part is {}", victim->GetRace()->bodyPartData->GetFormID());
 	switch (victim->GetRace()->bodyPartData->GetFormID()) {
-	case uIntBodyPartData_Humanoid: executeHumanoid(executer, victim, weaponType); break;
-	case uIntBodyPartData_Draugr: executeDraugr(executer, victim, weaponType); break;
-	case uIntBodyPartData_Falmer: executeFalmer(executer, victim, weaponType); break;
-	case uIntBodyPartData_FrostbiteSpider: executeSpider(executer, victim, weaponType); break;
-	case uIntBodyPartData_Gargoyle: executeGargoyle(executer, victim, weaponType); break;
-	case uIntBodyPartData_Giant: executeGiant(executer, victim, weaponType); break;
-	case uIntBodyPartData_Bear: executeBear(executer, victim, weaponType); break;
-	case uIntBodyPartData_SabreCat: executeSabreCat(executer, victim, weaponType); break;
-	case uIntBodyPartData_Dog: executeWolf(executer, victim, weaponType); break;
-	case uIntBodyPartData_Troll: executeTroll(executer, victim, weaponType); break;
-	case uIntBodyPartData_Hagraven: executeHagraven(executer, victim, weaponType); break;
-	case uIntBodyPartData_Spriggan: executeSpriggan(executer, victim, weaponType); break;
+	case uIntBodyPartData_Humanoid: executeHumanoid(executor, victim, weaponType); break;
+	case uIntBodyPartData_Draugr: executeDraugr(executor, victim, weaponType); break;
+	case uIntBodyPartData_Falmer: executeFalmer(executor, victim, weaponType); break;
+	case uIntBodyPartData_FrostbiteSpider: executeSpider(executor, victim, weaponType); break;
+	case uIntBodyPartData_Gargoyle: executeGargoyle(executor, victim, weaponType); break;
+	case uIntBodyPartData_Giant: executeGiant(executor, victim, weaponType); break;
+	case uIntBodyPartData_Bear: executeBear(executor, victim, weaponType); break;
+	case uIntBodyPartData_SabreCat: executeSabreCat(executor, victim, weaponType); break;
+	case uIntBodyPartData_Dog: executeWolf(executor, victim, weaponType); break;
+	case uIntBodyPartData_Troll: executeTroll(executor, victim, weaponType); break;
+	case uIntBodyPartData_Hagraven: executeHagraven(executor, victim, weaponType); break;
+	case uIntBodyPartData_Spriggan: executeSpriggan(executor, victim, weaponType); break;
 		//FIXME: boar uses default body part wtf
-	case uIntBodyPartData_DLC2_Riekling: executeRiekling(executer, victim, weaponType); break;
-	case uIntBodyPartData_DLC2_Scrib: executeAshHopper(executer, victim, weaponType); break;
-	case uIntBodyPartData_DwarvenSteamCenturion: executeSteamCenturion(executer, victim, weaponType); break;
-	case uIntBodyPartData_DwarvenBallistaCenturion: executeDwarvenBallista(executer, victim, weaponType); break;
-	case uIntBodyPartData_ChaurusFlyer: executeChaurusFlyer(executer, victim, weaponType); break;
-	case uIntBodyPartData_DLC2_BenthicLurker: executeLurker(executer, victim, weaponType); break;
-	case uIntBodyPartData_Dragon: executeDragon(executer, victim, weaponType); break;
+	case uIntBodyPartData_DLC2_Riekling: executeRiekling(executor, victim, weaponType); break;
+	case uIntBodyPartData_DLC2_Scrib: executeAshHopper(executor, victim, weaponType); break;
+	case uIntBodyPartData_DwarvenSteamCenturion: executeSteamCenturion(executor, victim, weaponType); break;
+	case uIntBodyPartData_DwarvenBallistaCenturion: executeDwarvenBallista(executor, victim, weaponType); break;
+	case uIntBodyPartData_ChaurusFlyer: executeChaurusFlyer(executor, victim, weaponType); break;
+	case uIntBodyPartData_DLC2_BenthicLurker: executeLurker(executor, victim, weaponType); break;
+	case uIntBodyPartData_Dragon: executeDragon(executor, victim, weaponType); break;
+	default: return; //iff no body part match, no need to set ghost.
 	}
-
-	//sendExecutionCommand(executer, victim, kmStr_Humanoid_1hm_Front);
+	/*Set the executor as ghost and start tracking them.*/
+	setIsGhost(executor, true);
+	activeExecutor.emplace(executor);
+	//sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Front);
 };
 
 
