@@ -366,11 +366,8 @@ namespace Utils
 		return in[rand() % in.size()];
 	}
 
-}
-
-namespace Utils
-{
 	typedef void(_fastcall* _setIsGhost)(RE::Actor* actor, bool isGhost);
 	static REL::Relocation<_setIsGhost> setIsGhost{ REL::ID(36287) };
 
 }
+
