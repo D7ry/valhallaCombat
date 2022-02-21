@@ -31,12 +31,7 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		//DEBUG("==========attackstop==========");
 		attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
 		if (settings::bStunToggle) {
-			if (executionHandler::GetSingleton()->activeExecutor.find(a_event.holder->As<RE::Actor>())
-				!= executionHandler::GetSingleton()->activeExecutor.end()) {
-				DEBUG("{} is out of execution", a_event.holder->GetName());
-				executionHandler::GetSingleton()->activeExecutor.erase(a_event.holder->As<RE::Actor>());
-				setIsGhost(a_event.holder->As<RE::Actor>(), false);
-			}
+			executionHandler::GetSingleton()->concludeExecution(a_event.holder->As<RE::Actor>());
 		}
 		break;
 	case "blockStartOut"_h:

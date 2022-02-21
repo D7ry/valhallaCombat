@@ -86,7 +86,7 @@ private:
 	"Val_KillMoveShortD",
 	"Val_1HMKillMoveI",
 	"Val_KillMoveShortB",
-	"Val_1HMKillMoveJ"
+	//"Val_1HMKillMoveJ"
 	};
 	const std::vector<std::string> kmStr_Humanoid_1hm_Axe_Mace = std::vector<std::string>{
 		"Val_KillingBlowBleedOutAxeDecap",
@@ -285,8 +285,9 @@ private:
 #pragma endregion
 public:
 
-	boost::unordered_set<RE::Actor*> activeExecutor;
 
+	/*Mapping of all active executors -> people being executed.*/
+	boost::unordered_map<RE::Actor*, RE::Actor*> activeExecutionMap;
 	static executionHandler* GetSingleton()
 	{
 		static executionHandler singleton;
@@ -298,9 +299,12 @@ public:
 	/*Attempt an execution. Help aggressor decide which killmove to use
 	based on aggressor/victim's relative position, rotation, and victim's race.
 	Also performs a check on whether the aggressor can execute victim.
-	@param executer: actor to perform killmove.
+	@param executor: actor to perform killmove.
 	@param victim: actor to be executed.*/
-	void attemptExecute(RE::Actor* executer, RE::Actor* victim);
+	void attemptExecute(RE::Actor* executor, RE::Actor* victim);
+
+	/*Conclude an execution, cancle executor and victim's ghost state. Optionally apply buff onto executor.*/
+	void concludeExecution(RE::Actor* executor);
 
 private:
 	/*Send an execution console command through console.

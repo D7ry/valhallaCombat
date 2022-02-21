@@ -100,11 +100,19 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	}
 	/*Set the executor as ghost and start tracking them.*/
 	setIsGhost(executor, true);
-	activeExecutor.emplace(executor);
+	setIsGhost(victim, true);
+	activeExecutionMap.emplace(executor, victim);
 	//sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Front);
 };
 
-
+void executionHandler::concludeExecution(RE::Actor* executor) {
+	if (activeExecutionMap.find(executor) != activeExecutionMap.end()) {
+		auto victim = activeExecutionMap.find(executor)->second;
+		Utils::setIsGhost(executor, false);
+		Utils::setIsGhost(victim, false);
+		activeExecutionMap.erase(executor);
+	}
+}
 
 
 
