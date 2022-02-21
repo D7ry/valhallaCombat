@@ -4,7 +4,8 @@
 #include "ValhallaCombat.hpp"
 #include "stunHandler.h"
 #include "hitProcessor.h"
-#pragma region attackDataHook
+#pragma region attackData
+/*
 void CalcStaminaHook::InstallHook() {
 
 
@@ -34,6 +35,7 @@ void CalcStaminaHook::InstallHook() {
 
 /*Function returning stamina cost of an actor when they perform a combat action.
 Currently, all stamina cost except for bashing is negated.*/
+/*
 float CalcStaminaHook::calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData)
 {
 	DEBUG("hooked attack data!");
@@ -50,22 +52,30 @@ float CalcStaminaHook::calcStamina(uintptr_t avOwner, RE::BGSAttackData* atkData
 	}
 	return 0;
 }
+*/
 #pragma endregion
-
-
-
-#pragma region StaminaRegenHook
-void StaminaRegenHook::InstallHook()
-{
-	REL::Relocation<uintptr_t> hook{ REL::ID(37510) };  // 620690 - a function that regenerates stamina
-	auto& trampoline = SKSE::GetTrampoline();
-	_HasFlags1 = trampoline.write_call<5>(hook.address() + 0x62, HasFlags1);
-	INFO("stamina regen hook installed");
+#pragma region GetHeavyStaminaCost
+float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
+	DEBUG("hooked heavy attack!");
+	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
+	DEBUG("actor is {}", a_actor->GetName());
+	if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack) 
+		&& !atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
+		return 0;
+	}
+	return _getHeavyAttackStaminaCost(avOwner, atkData);
 }
-
+float Hook_CacheAttackStaminaCost::cacheAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
+	
+	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
+	DEBUG("Cached attack stamina! Actor is {}.", a_actor->GetName());
+	return _cacheAttackStaminaCost(avOwner, atkData);
+}
+#pragma endregion
+#pragma region StaminaRegen
 /*function generating conditions for stamina regen. Iff returned value is true, no regen.
 used to block stamina regen in certain situations.*/
-bool StaminaRegenHook::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
+bool Hook_StaminaRegen::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 {
 	//if bResult is true, prevents regen.
 	bool bResult = _HasFlags1(a_this, a_flags); // is sprinting?
@@ -79,19 +89,12 @@ bool StaminaRegenHook::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 		}
 	}
 	return bResult;
+
 }
 #pragma endregion
 
-
-void hitEventHook::InstallHook() {
-	REL::Relocation<uintptr_t> hook{ REL::ID(37673) };
-	auto& trampoline = SKSE::GetTrampoline();
-	_ProcessHit = trampoline.write_call<5>(hook.address() + 0x3C0, processHit);
-	DEBUG("hit event hook installed!");
-};
-
-
-void hitEventHook::processHit(RE::Actor* victim, RE::HitData& hitData) {
+#pragma region MeleeHit
+void Hook_MeleeHit::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	//hitDataProcessor::processHitData(hitData);
 	
 	using HITFLAG = RE::HitData::Flag;
@@ -102,9 +105,13 @@ void hitEventHook::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	}
 	hitProcessor::GetSingleton()->processHit(aggressor, victim, hitData);
 	_ProcessHit(victim, hitData);
-};
+}
 
-void MainUpdateHook::Update(RE::Main* a_this, float a2) {
+#pragma endregion
+
+#pragma region MainUpdate
+void Hook_MainUpdate::Update(RE::Main* a_this, float a2) {
 	ValhallaCombat::GetSingleton()->update();
 	_Update(a_this, a2);
 }
+#pragma endregion
