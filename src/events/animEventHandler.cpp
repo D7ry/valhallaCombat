@@ -1,6 +1,7 @@
 #include "events.h"
 #include "attackHandler.h"
 #include "blockHandler.h"
+#include "executionHandler.h"
 //all credits to Bingle&Ersh
 constexpr uint32_t hash(const char* data, size_t const size) noexcept
 {
@@ -32,16 +33,22 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		break;
 	case "blockStartOut"_h:
 		DEBUG("===========blockStartOut===========");
-		if (settings::bPerfectBlocking) {
+		if (settings::bPerfectBlockToggle) {
 			blockHandler::GetSingleton()->registerPerfectBlock(a_event.holder->As<RE::Actor>());
 		}
 		break;
+	case "tailcombatidle"_h:
+		/*Unghost the executor on finish*/
+		if (settings::bStunToggle) {
+			executionHandler::GetSingleton()->activeExecutor.erase(a_event.holder->As<RE::Actor>());
+			setIsGhost(a_event.holder->As<RE::Actor>(), false);
+		}
+		break;
+	case "SoundPlay"_h:
+		DEBUG("soundplay: {} from actor: {}", a_event.payload, a_event.holder->GetName());
 	case "TKDR_DodgeStart"_h:
 		DEBUG("==========TK DODGE============");
-		if (settings::bTKDodgeCompatibility) {
-			DEBUG("TK Dodge compatibility detected, damaging dodge stamina");
-			staminaHandler::staminaDodgeStep(a_event.holder->As<RE::Actor>());
-		}
+		staminaHandler::checkStamina(a_event.holder->As<RE::Actor>());
 		break;
 	}
     return fn ? (this->*fn)(a_event, src) : RE::BSEventNotifyControl::kContinue;

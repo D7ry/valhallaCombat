@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/unordered_set.hpp>
 /*Class handling all executions*/
 class executionHandler {
 private:
@@ -284,6 +285,7 @@ private:
 #pragma endregion
 public:
 
+	boost::unordered_set<RE::Actor*> activeExecutor;
 
 	static executionHandler* GetSingleton()
 	{
@@ -363,5 +365,12 @@ namespace Utils
 	inline std::string getRandomStr(std::vector<std::string> in) {
 		return in[rand() % in.size()];
 	}
+
+}
+
+namespace Utils
+{
+	typedef void(_fastcall* _setIsGhost)(RE::Actor* actor, bool isGhost);
+	static REL::Relocation<_setIsGhost> setIsGhost{ REL::ID(36287) };
 
 }
