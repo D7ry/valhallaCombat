@@ -15,8 +15,10 @@ void debuffHandler::update() {
 			it = actorsInDebuff.erase(it);//erase actor from debuff set.
 			continue;
 		}
-		if (actor->GetActorValue(RE::ActorValue::kStamina) >= actor->GetPermanentActorValue(RE::ActorValue::kStamina)) { //actor loaded and recovered
-			DEBUG("{}'s stamina has fully recovered.", actor->GetName());
+		if (actor->GetActorValue(RE::ActorValue::kStamina) >= 
+			actor->GetPermanentActorValue(RE::ActorValue::kStamina) 
+			+ actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina)) { //offset max stamina based on modifier
+			//DEBUG("{}'s stamina has fully recovered.", actor->GetName());
 			debuffHandler::stopStaminaDebuff(actor);
 			//DEBUG("erasing actor");
 			it = actorsInDebuff.erase(it);
