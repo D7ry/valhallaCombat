@@ -223,7 +223,7 @@ namespace MaxsuBlockSpark
 
 			auto cell = defender->GetParentCell();
 
-			const auto modelName = BipeObjIndex == RE::BIPED_OBJECT::kShield && defenderLeftEquipped && defenderLeftEquipped->IsArmor() ? "ValhallaCombat\\fxmetalsparkimpactshield.nif" : "ValhallaCombat\\fxmetalsparkimpactweap.nif";
+			const auto modelName = BipeObjIndex == RE::BIPED_OBJECT::kShield && defenderLeftEquipped && defenderLeftEquipped->IsArmor() ? "ValhallaCombat\\impactShieldRoot.nif" : "ValhallaCombat\\impactWeaponRoot.nif";
 
 			RE::NiPoint3 sparkPos;
 			
@@ -233,7 +233,7 @@ namespace MaxsuBlockSpark
 			}
 			sparkPos = defenderNode->worldBound.center;
 			DEBUG("Get Weapon Spark Position!");
-			if (cell->PlaceParticleEffect(0.5f, modelName, defenderNode->world.rotate, sparkPos, 1.0f, 4U, defenderNode.get())) {
+			if (cell->PlaceParticleEffect(0.0f, modelName, defenderNode->world.rotate, sparkPos, 1.0f, 4U, defenderNode.get())) {
 				DEBUG("Play Spark Effect Successfully!");
 			}
 
