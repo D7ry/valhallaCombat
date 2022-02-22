@@ -75,7 +75,7 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(48139) };
 
 		_getAttackChance = trampoline.write_call<5>(hook.address() + 0x2AE, getAttackChance);
-		INFO("Get attack chance hook installed.");
+		INFO("Get block chance hook installed.");
 	}
 private:
 	static uintptr_t getAttackChance(RE::Actor* a1, RE::Actor* a2, RE::BGSAttackData* atkData);
@@ -87,16 +87,14 @@ class Hook_StaminaRegen //block stamina regen during weapon swing
 public:
 	static void install() {
 		REL::Relocation<uintptr_t> hook{ REL::ID(37510) };  // 620690 - a function that regenerates stamina
-		
 		auto& trampoline = SKSE::GetTrampoline();
-		trampoline.write_call<6>(hook.address() + 0x13F, GetStaminaRateMult);
-		REL::safe_fill(hook.address() + 0x145, 0x90, 5);
+		_HasFlags1 = trampoline.write_call<5>(hook.address() + 0x62, HasFlags1);
 		INFO("Stamina Regen hook installed");
 	}
 
 private:
-    static float GetStaminaRateMult(RE::ActorValueOwner* a_this, RE::ActorValue a_aKValue);
-    static inline REL::Relocation<decltype(GetStaminaRateMult)> _GetStaminaRateMult;
+    static bool HasFlags1(RE::ActorState* a_this, uint16_t a_flags);
+    static inline REL::Relocation<decltype(HasFlags1)> _HasFlags1;
 };
 
 class Hook_MeleeHit
@@ -138,7 +136,7 @@ public:
 		SKSE::AllocTrampoline(1 << 8);
 		Hook_GetAttackStaminaCost::install();
 		//Hook_CacheAttackStaminaCost::install();
-		//Hook_GetBlockChance::install();
+		Hook_GetBlockChance::install();
 		Hook_GetAttackChance1::install();
 		Hook_GetAttackChance2::install();
 		Hook_StaminaRegen::install();

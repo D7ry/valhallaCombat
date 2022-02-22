@@ -56,18 +56,20 @@ uintptr_t Hook_GetAttackChance2::getAttackChance(RE::Actor* actor, RE::Actor* ta
 #pragma region StaminaRegen
 /*function generating conditions for stamina regen. Iff returned value is true, no regen.
 used to block stamina regen in certain situations.*/
-float Hook_StaminaRegen::GetStaminaRateMult(RE::ActorValueOwner* a_this, RE::ActorValue a_aKValue)
+bool Hook_StaminaRegen::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 {
-	RE::Actor* actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, -0xB0);
-	auto atkState = actor->GetAttackState();
-	if (RE::ATTACK_STATE_ENUM::kNone < atkState && atkState < RE::ATTACK_STATE_ENUM::kBash
-		&& actor != attackHandler::GetSingleton()->actorToRegenStamina) {
-		return 0;
+	//if bResult is true, prevents regen.
+	bool bResult = _HasFlags1(a_this, a_flags); // is sprinting?
+
+	if (!bResult) {
+		RE::Actor* actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, -0xB8);
+		auto attackState = actor->GetAttackState();
+		if (actor != attackHandler::GetSingleton()->actorToRegenStamina) {
+			//if melee hit regen is needed, no need to disable regen.
+			bResult = (attackState > RE::ATTACK_STATE_ENUM::kNone && attackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) || actor->IsBlocking(); //when attacking or blocking, doens't regen stmaina.
+		}
 	}
-	if (actor->IsBlocking()) {
-		return _GetStaminaRateMult(a_this, a_aKValue) * 0.1;
-	}
-	return _GetStaminaRateMult(a_this, a_aKValue);
+	return bResult;
 
 }
 #pragma endregion
