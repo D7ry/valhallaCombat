@@ -18,7 +18,7 @@ void executionHandler::sendExecutionCommand(RE::Actor* executor, RE::Actor* vict
 
 	std::string executionStr = getRandomStr(executionStrSet); //get an random element from this execution string set.
 	std::string cmd = executorStr + ".playidle " + executionStr + " " + victimStr;
-	DEBUG("sending execution command: " + cmd);
+	INFO("sending execution command: " + cmd);
 	Utils::sendConsoleCommand(cmd);
 }
 
@@ -41,7 +41,7 @@ void executionHandler::sendExecutionCommand(RE::Actor* executor, RE::Actor* vict
 	std::string victimStr = sstream2.str();
 
 	std::string cmd = executerStr  + ".playidle " + executionStr + " " + victimStr;
-	DEBUG("sending execution command: " + cmd);
+	INFO("sending execution command: " + cmd);
 	Utils::sendConsoleCommand(cmd);
 }
 
@@ -59,6 +59,12 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		|| !victim->GetRace() || !victim->GetRace()->bodyPartData
 		|| victim->HasEffectWithArchetype(RE::MagicTarget::Archetype::kParalysis)) {
 		DEBUG("Execution preconditions not met, terminating execution.");
+		return;
+	}
+
+	if (activeExecutionMap.find(executor) != activeExecutionMap.end() //executor is executing
+		|| activeExecutionMap.find(executor)->second == victim //victim is being executed
+		|| activeExecutionMap.find(victim) != activeExecutionMap.end()) { //victim is executing
 		return;
 	}
 
@@ -102,6 +108,8 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	case uIntBodyPartData_Dragon: executeDragon(executor, victim, weaponType); break;
 	default: return; //iff no body part match, no need to set ghost.
 	}
+
+
 	/*Set the executor as ghost and start tracking them.*/
 	setIsGhost(executor, true);
 	setIsGhost(victim, true);

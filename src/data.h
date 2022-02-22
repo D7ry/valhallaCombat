@@ -92,7 +92,9 @@ public:
 	static inline RE::BGSPerk* debuffPerk;
 	static inline RE::BGSSoundDescriptorForm* soundParryShieldD;
 	static inline RE::BGSSoundDescriptorForm* soundParryWeaponD;
-
+	static inline RE::BGSSoundDescriptorForm* soundParryShield_gbD;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeapon_gbD;
+#pragma region gameDifficultySettings
 	static inline float fDiffMultHPByPCVE;
 	static inline float fDiffMultHPByPCE;
 	static inline float fDiffMultHPByPCN;
@@ -105,19 +107,7 @@ public:
 	static inline float fDiffMultHPToPCH;
 	static inline float fDiffMultHPToPCVH;
 	static inline float fDiffMultHPToPCL;
-
-	/*Fetch data from game and store them for latter use.*/
-	static void fetchGameData() {
-		INFO("Fetching data from game...");
-		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
-		if (debuffPerk) {
-			INFO("Debuff perk successfully loaded!");
-		}
-		soundParryShieldD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X433C, "ValhallaCombat.esp");
-		soundParryWeaponD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X3DD9, "ValhallaCombat.esp");
-		if (soundParryShieldD && soundParryWeaponD) {
-			INFO("SoundD successfully loaded!");
-		}
+	static inline void cacheGameDifficultySettings() {
 		auto gameSettings = RE::GameSettingCollection::GetSingleton();
 		fDiffMultHPByPCVE = gameSettings->GetSetting("fDiffMultHPByPCVE")->GetFloat();
 		fDiffMultHPByPCE = gameSettings->GetSetting("fDiffMultHPByPCE")->GetFloat();
@@ -133,6 +123,23 @@ public:
 		fDiffMultHPToPCVH = gameSettings->GetSetting("fDiffMultHPToPCVH")->GetFloat();
 		fDiffMultHPToPCL = gameSettings->GetSetting("fDiffMultHPToPCL")->GetFloat();
 		INFO("Difficulty multipliers loaded!");
+	}
+#pragma endregion
+	/*Fetch data from game and store them for latter use.*/
+	static void fetchGameData() {
+		INFO("Fetching data from game...");
+		debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
+		if (debuffPerk) {
+			INFO("Debuff perk successfully loaded!");
+		}
+		soundParryShieldD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X433C, "ValhallaCombat.esp");
+		soundParryWeaponD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X3DD9, "ValhallaCombat.esp");
+		soundParryShield_gbD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X47720, "ValhallaCombat.esp");
+		soundParryWeapon_gbD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X47721, "ValhallaCombat.esp");
+		if (soundParryShieldD && soundParryWeaponD && soundParryShield_gbD && soundParryWeapon_gbD) {
+			INFO("SoundD successfully loaded!");
+		}
+		cacheGameDifficultySettings();
 		INFO("Data fetched.");
 	}
 };

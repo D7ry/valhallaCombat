@@ -33,9 +33,12 @@ public:
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 private:
-	inline void guardBreak(RE::Actor* actor, RE::Actor* actorToPush);
-
+	inline void guardBreakLarge(RE::Actor* actor, RE::Actor* actorToPush);
+	inline void guardBreakMedium(RE::Actor* actor);
+	inline void guardBreakSmall(RE::Actor* deflector, RE::Actor* deflected);
 	inline void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
+
+
 
 	/*Process perfect block does not take in real damage, as parry damage is re-adjusted.*/
 	inline void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);

@@ -96,6 +96,10 @@ void stunHandler::damageStun(RE::Actor* actor, float damage) {
 	}*/
 }
 
+void stunHandler::knockDown(RE::Actor* aggressor, RE::Actor* victim) {
+
+}
+
 void stunHandler::calculateStunDamage(
 	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
 	DEBUG("Calculating stun damage");

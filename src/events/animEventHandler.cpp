@@ -22,10 +22,16 @@ constexpr uint32_t operator"" _h(const char* str, size_t size) noexcept
 RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGraphEvent& a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* src) {
     FnProcessEvent fn = fnHash.at(*(uint64_t*)this);
 	std::string_view eventTag = a_event.tag.data();
+	if (a_event.holder == nullptr) {
+		return fn ? (this->*fn)(a_event, src) : RE::BSEventNotifyControl::kContinue;
+	}
 	switch (hash(eventTag.data(), eventTag.size())) {
 	case "preHitFrame"_h:
 		//DEBUG("==========prehitFrame==========");
 		attackHandler::GetSingleton()->registerAtk(a_event.holder->As<RE::Actor>());
+		if (settings::bStunToggle) {
+			executionHandler::GetSingleton()->concludeExecution(a_event.holder->As<RE::Actor>());
+		}
 		break;
 	case "attackStop"_h:
 		//DEBUG("==========attackstop==========");
@@ -40,14 +46,15 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 			blockHandler::GetSingleton()->registerPerfectBlock(a_event.holder->As<RE::Actor>());
 		}
 		break;
-	case "tailcombatidle"_h:
+	//case "tailcombatidle"_h:
 		/*Unghost the executor on finish*/
 
-		break;
-	//case "SoundPlay"_h:
-		//DEBUG("soundplay: {} from actor: {}", a_event.payload, a_event.holder->GetName());
+		//break;
 	case "TKDR_IFrameEnd"_h:
 		//DEBUG("==========TK DODGE============");
+		staminaHandler::checkStamina(a_event.holder->As<RE::Actor>());
+		break;
+	case "Dodge"_h:
 		staminaHandler::checkStamina(a_event.holder->As<RE::Actor>());
 		break;
 	}

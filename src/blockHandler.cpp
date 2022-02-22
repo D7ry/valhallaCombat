@@ -72,10 +72,23 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 	}
 }
 /*Make an actor break their guard through a animation event.*/
-void blockHandler::guardBreak(RE::Actor* actor, RE::Actor* actorToPush) {
-	RE::NiPoint3 vec = actor->GetPosition();
-	Utils::pushActorAway(actor->currentProcess, actorToPush, vec, 7);
+void blockHandler::guardBreakLarge(RE::Actor* guardBreakingActor, RE::Actor* guardBrokeActor) {
+	RE::NiPoint3 vec = guardBreakingActor->GetPosition();
+	Utils::pushActorAway(guardBreakingActor->currentProcess, guardBrokeActor, vec, 7);
 }
+
+/*Make a small guardbreak.*/
+void blockHandler::guardBreakMedium(RE::Actor* victim) {
+	victim->SetGraphVariableFloat("StaggerMagnitude", 10);
+	victim->NotifyAnimationGraph("staggerStart");
+}
+
+void blockHandler::guardBreakSmall(RE::Actor* deflector, RE::Actor* deflected) {
+	deflected->NotifyAnimationGraph("RecoilStop");
+	deflected->SetGraphVariableFloat("recoilMagnitude", 10);
+	deflected->NotifyAnimationGraph("recoilLargeStart");
+}
+
 
 #pragma region Process Block
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
@@ -132,7 +145,12 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	if (targetStamina < staminaDamage) {
 		DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
-			guardBreak(aggressor, blocker);
+			if (iHitflag & (int)HITFLAG::kPowerAttack) {
+				guardBreakLarge(aggressor, blocker);
+			}
+			else {
+				guardBreakMedium(blocker);
+			}
 		}
 		hitData.totalDamage =
 			(realDamage - (targetStamina / staminaDamageMult)) //real damage actor will be receiving.
@@ -166,28 +184,46 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	}
 	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, reflectedDamage);
 	hitData.totalDamage = 0;
+	bool blockBrokeGuard = false;
+	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
+		DEBUG("send deflect reaction!");
+		guardBreakLarge(blocker, aggressor);
+		blockBrokeGuard = true;
+	}
 	if (settings::bPerfectBlockVFX) {
 		DEBUG("playing perfect block vfx!");
 		MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
 	}
 	if ((blocker->IsPlayerRef() || aggressor->IsPlayerRef())
 		&& settings::bPerfectBlockScreenShake) {
-		Utils::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
+		if (blockBrokeGuard) {
+			Utils::shakeCamera(1.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
+		}
+		else {
+			Utils::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
+		}
 	}
 	if (settings::bPerfectBlockSFX && (blocker->IsPlayerRef() || aggressor->IsPlayerRef())) {
 		DEBUG("playing perfect block sfx!");
 		if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
-			RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
+			if (blockBrokeGuard) {
+				RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeapon_gbD);
+			}
+			else {
+				RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
+			}
 		}
 		else {
-			RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryShieldD);
+			if (blockBrokeGuard) {
+				RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryShield_gbD);
+			}
+			else {
+				RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
+			}
 		}
 
 	}
 	actorsPerfectblockSuccessful.emplace(blocker); //register the blocker as a successful blocker.
-	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
-		DEBUG("guard break!");
-		guardBreak(blocker, aggressor);
-	}
+
 }
 #pragma endregion

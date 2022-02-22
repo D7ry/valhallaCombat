@@ -23,6 +23,12 @@ private:
 	@param actor: actor whose stun will be damaged.
 	@param damage: stun damage applied onto this actor.*/
 	void damageStun(RE::Actor* actor, float damage);
+
+	/*An actor is knocked down when simultaneously out of stun and stamina, and either:
+	gets their attack parried OR
+	failed to block a heavy attack*/
+	void knockDown(RE::Actor* aggressor, RE::Actor* victim);
+
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
 	robin_hood::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 
