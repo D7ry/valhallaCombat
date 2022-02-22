@@ -56,7 +56,8 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		|| (!settings::bPlayerExecution && (victim->IsPlayerTeammate() || victim->IsPlayer()))
 		|| (!settings::bEssentialExecution && victim->IsEssential())
 		|| !executor->GetRace() || executor->GetRace()->bodyPartData->GetFormID() != 29 //executor can only be human.
-		|| !victim->GetRace() || !victim->GetRace()->bodyPartData) {
+		|| !victim->GetRace() || !victim->GetRace()->bodyPartData
+		|| victim->HasEffectWithArchetype(RE::MagicTarget::Archetype::kParalysis)) {
 		DEBUG("Execution preconditions not met, terminating execution.");
 		return;
 	}
@@ -72,6 +73,9 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	}
 	else {
 		weaponType = weapon->GetWeaponType();
+	}
+	if (weaponType == RE::WEAPON_TYPE::kBow || weaponType == RE::WEAPON_TYPE::kCrossbow) {
+		return;
 	}
 	DEBUG("weapon type is {}", weaponType);
 	DEBUG("victim body part is {}", victim->GetRace()->bodyPartData->GetFormID());
