@@ -173,7 +173,6 @@ namespace Utils
 			if (race) {
 				float staminaRegen;
 				if (staminaRegenMap.find(race) == staminaRegenMap.end()) {
-					DEBUG("recording race default stamina for {}!", raceName);
 					staminaRegenMap[race] = race->data.staminaRegen;
 					staminaRegen = race->data.staminaRegen * mult;
 				}
