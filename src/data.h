@@ -163,7 +163,7 @@ namespace Utils
 	}
 
 	/*a map of all game races' original stamina regen, in case player wants to tweak the stamina regen values again*/
-	inline static robin_hood::unordered_map<std::string, float> staminaRegenMap;
+	inline static robin_hood::unordered_map<RE::TESRace*, float> staminaRegenMap;
 
 	/*multiplies stamina regen of every single race by MULT.
 	@param mult multiplier for stamina regen.
@@ -171,15 +171,14 @@ namespace Utils
 	inline void multStaminaRegen(float mult, float upperLimit) {
 		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
 			if (race) {
-				std::string raceName = race->GetName();
 				float staminaRegen;
-				if (staminaRegenMap.find(raceName) == staminaRegenMap.end()) {
+				if (staminaRegenMap.find(race) == staminaRegenMap.end()) {
 					DEBUG("recording race default stamina for {}!", raceName);
-					staminaRegenMap[raceName] = race->data.staminaRegen;
+					staminaRegenMap[race] = race->data.staminaRegen;
 					staminaRegen = race->data.staminaRegen * mult;
 				}
 				else {
-					staminaRegen = mult * staminaRegenMap.at(raceName);
+					staminaRegen = mult * staminaRegenMap.at(race);
 				}
 				if (staminaRegen > upperLimit) {
 					staminaRegen = upperLimit;
