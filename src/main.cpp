@@ -15,7 +15,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		settings::readSettings();
 		animEventHandler::hookAllActors();
 		cellLoadEventHandler::Register();
-		gameDataCache::fetchGameData();
+		gameDataCache::GetSingleton()->loadData();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
 		INFO("Post load");

@@ -207,20 +207,20 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		DEBUG("playing perfect block sfx!");
 		if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
 			if (blockBrokeGuard) {
-				Utils::sound::playSound(blocker, gameDataCache::soundParryWeapon_gbD->GetFormID());
+				Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryWeapon_gbD->GetFormID());
 			}
 			else {
-				Utils::sound::playSound(blocker, gameDataCache::soundParryWeaponD->GetFormID());
+				Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryWeaponD->GetFormID());
 				//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
 			}
 		}
 		else {
 			if (blockBrokeGuard) {
-				Utils::sound::playSound(blocker, gameDataCache::soundParryShield_gbD->GetFormID());
+				Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryShield_gbD->GetFormID());
 				//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryShield_gbD);
 			}
 			else {
-				Utils::sound::playSound(blocker, gameDataCache::soundParryWeaponD->GetFormID());
+				Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryShieldD->GetFormID());
 				//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
 			}
 		}

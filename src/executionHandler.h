@@ -1,6 +1,7 @@
 #pragma once
 #include <boost/unordered_set.hpp>
 #include "include/robin_hood.h"
+
 /*Class handling all executions*/
 class executionHandler {
 private:
@@ -288,15 +289,19 @@ public:
 
 
 	/*Mapping of all active executors -> people being executed.*/
-	robin_hood::unordered_map<RE::Actor*, RE::Actor*> activeExecutionMap;
+	robin_hood::unordered_set<RE::Actor*> activeExecutor;
 	static executionHandler* GetSingleton()
 	{
 		static executionHandler singleton;
 		return  std::addressof(singleton);
 	}
 
-
-
+	/*Play an execution idle animation.
+	@param executor: the actor the execute.
+	@param victim: the actor to be executed.
+	@param executionIdle: the execution idle to be played.*/
+	void playExecutionIdle(RE::Actor* executor, RE::Actor* victim, RE::TESIdleForm* executionIdle);
+	void playExecutionIdle(RE::Actor* executor, RE::Actor* victim, std::vector<RE::TESIdleForm*> executionIdleV);
 	/*Attempt an execution. Help aggressor decide which killmove to use
 	based on aggressor/victim's relative position, rotation, and victim's race.
 	Also performs a check on whether the aggressor can execute victim.
@@ -312,10 +317,10 @@ private:
 	@param uIntAggressorFormId: formId of aggressor, in unsigned int 32.
 	@param uIntVictimFormId: formid of victim, in unsigned int 32.
 	@param animStr: paired execution animation to be played, in unsigned int 32.*/
-	void sendExecutionCommand(RE::Actor* executer, RE::Actor* victim, std::vector<std::string> executionStrSet);
-	void sendExecutionCommand(RE::Actor* executer, RE::Actor* victim, std::string executionStr);
+	void sendExecutionCommand(RE::Actor* executer, RE::Actor* victim, std::vector<std::string> executionStrSet) { };
+	void sendExecutionCommand(RE::Actor* executer, RE::Actor* victim, std::string executionStr) { };
 
-	inline void executeHumanoid(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeHumanoid(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
 	inline void executeDraugr(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
 	inline void executeFalmer(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
 	inline void executeSpider(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
@@ -371,8 +376,25 @@ namespace Utils
 		return in[rand() % in.size()];
 	}
 
+	/*Get a random element from this vector.
+	@param in the vector containing strings.
+	@return a random element from the vector.*/
+	inline RE::TESIdleForm* getRandomIdle(std::vector<RE::TESIdleForm*> in) {
+		DEBUG("getting random idle");
+		DEBUG("in size: {}", in.size());
+		return in[rand() % in.size()];
+	}
+
+
+
 	typedef void(_fastcall* _setIsGhost)(RE::Actor* actor, bool isGhost);
 	static REL::Relocation<_setIsGhost> setIsGhost{ REL::ID(36287) };
 
+	inline bool playPairedIdle(RE::AIProcess* proc, RE::Actor* attacker, RE::DEFAULT_OBJECT smth, RE::TESIdleForm* idle, bool a5, bool a6, RE::TESObjectREFR* target)
+	{
+		using func_t = decltype(&playPairedIdle);
+		REL::Relocation<func_t> func{ REL::ID(38290) };
+		return func(proc, attacker, smth, idle, a5, a6, target);
+	}
 }
 

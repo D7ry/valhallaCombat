@@ -29,9 +29,6 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	case "preHitFrame"_h:
 		//DEBUG("==========prehitFrame==========");
 		attackHandler::GetSingleton()->registerAtk(a_event.holder->As<RE::Actor>());
-		if (settings::bStunToggle) {
-			executionHandler::GetSingleton()->concludeExecution(a_event.holder->As<RE::Actor>());
-		}
 		break;
 	case "attackStop"_h:
 		//DEBUG("==========attackstop==========");

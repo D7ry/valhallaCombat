@@ -1,50 +1,6 @@
 #include "executionHandler.h"
 #include "data.h"
-
-void executionHandler::sendExecutionCommand(RE::Actor* executor, RE::Actor* victim, std::vector<std::string> executionStrSet) {
-	auto executerForm = executor->GetFormID();
-	auto victimForm = victim->GetFormID();
-
-	//convert executor and victim's formID to hex.
-	std::stringstream sstream1;
-	sstream1 << std::hex << executerForm;
-	std::string executorStr = sstream1.str();
-	if (executorStr == "14") {
-		executorStr = "player";
-	}
-	std::stringstream sstream2;
-	sstream2 << std::hex << victimForm;
-	std::string victimStr = sstream2.str();
-
-	std::string executionStr = getRandomStr(executionStrSet); //get an random element from this execution string set.
-	std::string cmd = executorStr + ".playidle " + executionStr + " " + victimStr;
-	INFO("sending execution command: " + cmd);
-	Utils::sendConsoleCommand(cmd);
-}
-
-void executionHandler::sendExecutionCommand(RE::Actor* executor, RE::Actor* victim, std::string executionStr) {
-	auto executerForm = executor->GetFormID();
-	auto victimForm = victim->GetFormID();
-
-	//convert executor and victim's formID to hex.
-	std::stringstream sstream1;
-	sstream1 << std::hex << executerForm;
-	std::string executerStr = sstream1.str();
-	if (executerStr == "14") {
-		executerStr = "player";
-	}
-	else {
-		executerStr = '\"' + executerStr + '\"';
-	}
-	std::stringstream sstream2;
-	sstream2 << std::hex << victimForm;
-	std::string victimStr = sstream2.str();
-
-	std::string cmd = executerStr  + ".playidle " + executionStr + " " + victimStr;
-	INFO("sending execution command: " + cmd);
-	Utils::sendConsoleCommand(cmd);
-}
-
+using namespace Utils;
 void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());
 
@@ -62,9 +18,8 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		return;
 	}
 
-	if (activeExecutionMap.find(executor) != activeExecutionMap.end() //executor is executing
-		|| activeExecutionMap.find(executor)->second == victim //victim is being executed
-		|| activeExecutionMap.find(victim) != activeExecutionMap.end()) { //victim is executing
+	if (activeExecutor.find(executor) != activeExecutor.end() //executor is executing
+		|| activeExecutor.find(victim) != activeExecutor.end()) { //victim is executing
 		return;
 	}
 
@@ -112,43 +67,42 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 
 	/*Set the executor as ghost and start tracking them.*/
 	setIsGhost(executor, true);
-	setIsGhost(victim, true);
-	activeExecutionMap.emplace(executor, victim);
+	activeExecutor.emplace(executor);
+	victim->SetGraphVariableBool("bIdlePlaying", true);
 	//sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Front);
 };
 
 void executionHandler::concludeExecution(RE::Actor* executor) {
-	if (activeExecutionMap.find(executor) != activeExecutionMap.end()) {
-		auto victim = activeExecutionMap.find(executor)->second;
+	if (activeExecutor.find(executor) != activeExecutor.end()) {
 		Utils::setIsGhost(executor, false);
-		Utils::setIsGhost(victim, false);
-		activeExecutionMap.erase(executor);
+		activeExecutor.erase(executor);
 	}
 }
 
 
 
 void executionHandler::executeHumanoid(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
+	auto gameData = gameDataCache::GetSingleton();
 	if (executor->isDualWielding()) {
-		sendExecutionCommand(executor, victim, kmStr_Humanoid_dw);
+		playExecutionIdle(executor, victim, gameData->KM_Humanoid_DW);
 	}
-	else if  (isBackFacing(victim, executor)) {
+	else if (isBackFacing(victim, executor)) {
 		switch (weaponType) {
-		case RE::WEAPON_TYPE::kTwoHandAxe: sendExecutionCommand(executor, victim, kmStr_Humanoid_2hw_Back); break;
-		case RE::WEAPON_TYPE::kTwoHandSword: sendExecutionCommand(executor, victim, kmStr_Humanoid_2hm_Back); break;
-		case RE::WEAPON_TYPE::kHandToHandMelee: sendExecutionCommand(executor, victim, kmStr_Humanoid_h2h_Back); break;
-		default: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Back); break;
+		case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, gameData->KM_Humanoid_2hw_Back); break;
+		case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, gameData->KM_Humanoid_2hm_Back); break;
+		case RE::WEAPON_TYPE::kHandToHandMelee: playExecutionIdle(executor, victim, gameData->KM_Humanoid_H2H_Back); break;
+		default: playExecutionIdle(executor, victim, gameData->KM_Humanoid_1hm_Back); break;
 		}
 	}
 	else {
 		switch (weaponType) {
-		case RE::WEAPON_TYPE::kOneHandSword: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Sword); break;
-		case RE::WEAPON_TYPE::kOneHandDagger: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Axe_Mace); break;
-		case RE::WEAPON_TYPE::kOneHandAxe: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Axe_Mace); break;
-		case RE::WEAPON_TYPE::kOneHandMace: sendExecutionCommand(executor, victim, kmStr_Humanoid_1hm_Axe_Mace); break;
-		case RE::WEAPON_TYPE::kTwoHandAxe: sendExecutionCommand(executor, victim, kmStr_Humanoid_2hw); break;
-		case RE::WEAPON_TYPE::kTwoHandSword: sendExecutionCommand(executor, victim, kmStr_Humanoid_2hm); break;
-		case RE::WEAPON_TYPE::kHandToHandMelee: sendExecutionCommand(executor, victim, kmStr_Humanoid_h2h); break;
+		case RE::WEAPON_TYPE::kOneHandSword: playExecutionIdle(executor, victim, gameData->KM_Humanoid_Sword); break;
+		case RE::WEAPON_TYPE::kOneHandDagger: playExecutionIdle(executor, victim, gameData->KM_Humanoid_Dagger); break;
+		case RE::WEAPON_TYPE::kOneHandAxe:  playExecutionIdle(executor, victim, gameData->KM_Humanoid_Axe); break;
+		case RE::WEAPON_TYPE::kOneHandMace:  playExecutionIdle(executor, victim, gameData->KM_Humanoid_Mace); break;
+		case RE::WEAPON_TYPE::kTwoHandAxe:  playExecutionIdle(executor, victim, gameData->KM_Humanoid_2hw); break;
+		case RE::WEAPON_TYPE::kTwoHandSword:  playExecutionIdle(executor, victim, gameData->KM_Humanoid_GreatSword); break;
+		case RE::WEAPON_TYPE::kHandToHandMelee:  playExecutionIdle(executor, victim, gameData->KM_Humanoid_H2H); break;
 		}
 	}
 };
@@ -307,4 +261,27 @@ void executionHandler::executeDragon(RE::Actor* executer, RE::Actor* victim, RE:
 	case RE::WEAPON_TYPE::kTwoHandSword: sendExecutionCommand(executer, victim, kmStr_Dragon_2hm); break;
 	default: sendExecutionCommand(executer, victim, kmStr_Dragon_1hm); break;
 	}
+}
+
+
+void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim, RE::TESIdleForm* executionIdle) {
+	playPairedIdle(executor->currentProcess, executor, RE::DEFAULT_OBJECT::kActionIdle, executionIdle, true, false, victim);
+}
+
+void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim, std::vector<RE::TESIdleForm*> executionIdleV) {
+	DEBUG("playing execution idle!");
+	DEBUG(executionIdleV.size());
+	if (executionIdleV.size() == 0) {
+		DEBUG("error: no idle present in vector");
+		return;
+	}
+	auto idle = getRandomIdle(executionIdleV);
+	if (!idle) {
+		DEBUG("Error! no idle received");
+	}
+	else {
+		DEBUG("received idle with name {}", idle->GetName());
+		playExecutionIdle(executor, victim, idle);
+	}
+	
 }

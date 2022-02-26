@@ -83,7 +83,9 @@ namespace Utils
 			REL::Relocation<func_t> func{ RE::Offset::BSAudioManager::GetSingleton };
 			return func();
 		}
-
+		/*Play sound with formid at actor.
+		@param a: actor on which to play sonud.
+		@param formid: formid of the sound descriptor.*/
 		static inline void playSound(RE::Actor* a, int formid)
 		{
 			RE::BSSoundHandle handle;

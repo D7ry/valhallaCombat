@@ -75,13 +75,13 @@ void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
 /*Attach stamina debuff perk to actor.
 @param a_actor actor who will receive the debuff perk.*/
 void debuffHandler::addDebuffPerk(RE::Actor* a_actor) {
-	Utils::safeApplyPerk(gameDataCache::debuffPerk, a_actor);
+	Utils::safeApplyPerk(gameDataCache::GetSingleton()->debuffPerk, a_actor);
 }
 
 /*Remove stamina debuff perk from actor.
 @param a_actor actor who will gets the perk removed.*/
 void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
-	Utils::safeRemovePerk(gameDataCache::debuffPerk, a_actor);
+	Utils::safeRemovePerk(gameDataCache::GetSingleton()->debuffPerk, a_actor);
 }
 	
 
