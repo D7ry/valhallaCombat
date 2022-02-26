@@ -85,6 +85,8 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "Stun", "fStunGreatSwordMult", fStunGreatSwordMult);
 	ReadFloatSetting(ini, "Stun", "fStun2HBluntMult", fStun2HBluntMult);
 
+
+	ReadBoolSetting(ini, "Compatibility", "bPoiseCompatibility", bPoiseCompatibility);
 	INFO("Ini settings read.");
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
@@ -195,6 +197,81 @@ void gameDataCache::loadIdle() {
 	loadIdleSection(DATA, &KM_Humanoid_2hw_Back, "Humanoid-2HW-Back");
 	loadIdleSection(DATA, &KM_Humanoid_H2H_Back, "Humanoid-Unarmed-Back");
 
+	loadIdleSection(DATA, &KM_Undead_1hm, "Undead-1HM");
+	loadIdleSection(DATA, &KM_Undead_2hm, "Undead-2HM");
+	loadIdleSection(DATA, &KM_Undead_2hw, "Undead-2HW");
+
+	loadIdleSection(DATA, &KM_Falmer_1hm, "Falmer-1HM");
+	loadIdleSection(DATA, &KM_Falmer_2hm, "Falmer-2HM");
+	loadIdleSection(DATA, &KM_Falmer_2hw, "Falmer-2HW");
+
+
+	loadIdleSection(DATA, &KM_Spider_1hm, "Spider-1HM");
+	loadIdleSection(DATA, &KM_Spider_2hm, "Spider-2HM");
+	loadIdleSection(DATA, &KM_Spider_2hw, "Spider-2HW");
+
+	loadIdleSection(DATA, &KM_Gargoyle_1hm, "Gargoyle-1HM");
+	loadIdleSection(DATA, &KM_Gargoyle_2hm, "Gargoyle-2HM");
+	loadIdleSection(DATA, &KM_Gargoyle_2hw, "Gargoyle-2HW");
+
+	loadIdleSection(DATA, &KM_Giant_1hm, "Giant-1HM");
+	loadIdleSection(DATA, &KM_Giant_2hm, "Giant-2HM");
+	loadIdleSection(DATA, &KM_Giant_2hw, "Ginat-2HW");
+
+	loadIdleSection(DATA, &KM_Bear_1hm, "Bear-1HM");
+	loadIdleSection(DATA, &KM_Bear_2hm, "Bear-2HM");
+	loadIdleSection(DATA, &KM_Bear_2hw, "Bear-2HW");
+
+	loadIdleSection(DATA, &KM_SabreCat_1hm, "SabreCat-1HM");
+	loadIdleSection(DATA, &KM_SabreCat_2hm, "SabreCat-2HM");
+	loadIdleSection(DATA, &KM_SabreCat_2hw, "SabreCat-2HW");
+
+	loadIdleSection(DATA, &KM_Wolf_1hm, "Wolf-1HM");
+	loadIdleSection(DATA, &KM_Wolf_2hm, "Wolf-2HM");
+	loadIdleSection(DATA, &KM_Wolf_2hw, "Wolf-2HW");
+
+	loadIdleSection(DATA, &KM_Troll_1hm, "Troll-1HM");
+	loadIdleSection(DATA, &KM_Troll_2hm, "Troll-2HM");
+	loadIdleSection(DATA, &KM_Troll_2hw, "Troll-2HW");
+
+
+	loadIdleSection(DATA, &KM_Hagraven_1hm, "Hagraven-1HM");
+	loadIdleSection(DATA, &KM_Hagraven_2hm, "Hagraven-2HM");
+	loadIdleSection(DATA, &KM_Hagraven_2hw, "Hagraven-2HW");
+
+	loadIdleSection(DATA, &KM_Spriggan_1hm, "Spriggan-1HM");
+	loadIdleSection(DATA, &KM_Spriggan_2hm, "Spriggan-2HM");
+	loadIdleSection(DATA, &KM_Spriggan_2hw, "Spriggan-2HW");
+
+	loadIdleSection(DATA, &KM_Boar_1hm, "Boar-1HM");
+	loadIdleSection(DATA, &KM_Boar_2hm, "Boar-2HM");
+	loadIdleSection(DATA, &KM_Boar_2hw, "Boar-2HW");
+
+	loadIdleSection(DATA, &KM_Riekling_1hm, "Riekling-1HM");
+	loadIdleSection(DATA, &KM_Riekling_2hm, "Riekling-2HM");
+	loadIdleSection(DATA, &KM_Riekling_2hw, "Riekling-2HW");
+
+	loadIdleSection(DATA, &KM_AshHopper_1hm, "AshHopper-1HM");
+	loadIdleSection(DATA, &KM_AshHopper_2hm, "AshHopper-2HM");
+	loadIdleSection(DATA, &KM_AshHopper_2hw, "AshHopper-2HW");
+
+	loadIdleSection(DATA, &KM_Ballista_1hm, "DwarvenBallista-1HM");
+	loadIdleSection(DATA, &KM_Ballista_2hm, "DwarvenBallista-2HM");
+	loadIdleSection(DATA, &KM_Ballista_2hw, "DwarvenBallista-2HW");
+
+	loadIdleSection(DATA, &KM_ChaurusFlyer_1hm, "ChaurusFlyer-1HM");
+	loadIdleSection(DATA, &KM_ChaurusFlyer_2hm, "ChaurusFlyer-2HM");
+	loadIdleSection(DATA, &KM_ChaurusFlyer_2hw, "ChaurusFlyer-2HW");
+
+
+	loadIdleSection(DATA, &KM_Lurker_1hm, "Lurker-1HM");
+	loadIdleSection(DATA, &KM_Lurker_2hm, "Lurker-2HM");
+	loadIdleSection(DATA, &KM_Lurker_2hw, "Lurker-2HW");
+
+
+	loadIdleSection(DATA, &KM_Dragon_1hm, "Dragon-1HM");
+	loadIdleSection(DATA, &KM_Dragon_2hm, "Dragon-2HM");
+	loadIdleSection(DATA, &KM_Dragon_2hw, "Dragon-2HW");
 	INFO("Idle loaded.");
 }
 

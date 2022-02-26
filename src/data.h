@@ -76,7 +76,9 @@ public:
 	static inline bool bEssentialExecution = false;
 	static inline bool bExecutionLimit = true; //NPCs with level higher than player cannot be executed unless under certain health threshold.
 #pragma endregion
-
+#pragma region Compatibility
+	static inline bool bPoiseCompatibility = false;
+#pragma endregion
 	static void readSettings();
 	
 private:
@@ -114,7 +116,63 @@ public:
 	KM KM_Humanoid_2hm_Back = std::vector<RE::TESIdleForm*>();
 	KM KM_Humanoid_H2H_Back = std::vector<RE::TESIdleForm*>();
 	KM KM_Humanoid_2hw_Back = std::vector<RE::TESIdleForm*>();
-
+	KM KM_Falmer_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Falmer_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Falmer_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Undead_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Undead_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Undead_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Spider_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Spider_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Spider_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Gargoyle_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Gargoyle_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Gargoyle_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Giant_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Giant_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Giant_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Bear_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Bear_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Bear_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_SabreCat_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_SabreCat_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_SabreCat_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Wolf_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Wolf_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Wolf_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Troll_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Troll_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Troll_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Hagraven_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Hagraven_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Hagraven_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Spriggan_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Spriggan_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Spriggan_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Boar_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Boar_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Boar_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Riekling_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Riekling_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Riekling_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_AshHopper_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_AshHopper_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_AshHopper_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Centurion_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Centurion_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Centurion_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Ballista_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Ballista_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Ballista_2hw= std::vector<RE::TESIdleForm*>(); 
+	KM KM_ChaurusFlyer_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_ChaurusFlyer_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_ChaurusFlyer_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Lurker_1hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Lurker_2hm= std::vector<RE::TESIdleForm*>();
+	KM KM_Lurker_2hw= std::vector<RE::TESIdleForm*>();
+	KM KM_Dragon_1hm = std::vector<RE::TESIdleForm*>();
+	KM KM_Dragon_2hm = std::vector<RE::TESIdleForm*>();
+	KM KM_Dragon_2hw = std::vector<RE::TESIdleForm*>();
 
 #pragma endregion
 #pragma region sounds

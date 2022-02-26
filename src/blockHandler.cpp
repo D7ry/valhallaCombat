@@ -73,20 +73,37 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 }
 /*Make an actor break their guard through a animation event.*/
 void blockHandler::guardBreakLarge(RE::Actor* guardBreakingActor, RE::Actor* guardBrokeActor) {
-	RE::NiPoint3 vec = guardBreakingActor->GetPosition();
-	Utils::pushActorAway(guardBreakingActor->currentProcess, guardBrokeActor, vec, 7);
+	if (!settings::bPoiseCompatibility) {
+		RE::NiPoint3 vec = guardBreakingActor->GetPosition();
+		Utils::pushActorAway(guardBreakingActor->currentProcess, guardBrokeActor, vec, 7);
+	}
+	else {
+		guardBrokeActor->NotifyAnimationGraph("poise_largest_start");
+	}
 }
 
 /*Make a small guardbreak.*/
 void blockHandler::guardBreakMedium(RE::Actor* victim) {
-	victim->SetGraphVariableFloat("StaggerMagnitude", 10);
-	victim->NotifyAnimationGraph("staggerStart");
+	if (!settings::bPoiseCompatibility) {
+		victim->SetGraphVariableFloat("StaggerMagnitude", 10);
+		victim->NotifyAnimationGraph("staggerStart");
+	}
+	else {
+		victim->NotifyAnimationGraph("poise_large_start");
+	}
+
 }
 
 void blockHandler::guardBreakSmall(RE::Actor* deflector, RE::Actor* deflected) {
-	deflected->NotifyAnimationGraph("RecoilStop");
-	deflected->SetGraphVariableFloat("recoilMagnitude", 10);
-	deflected->NotifyAnimationGraph("recoilLargeStart");
+	if (!settings::bPoiseCompatibility) {
+		deflected->NotifyAnimationGraph("RecoilStop");
+		deflected->SetGraphVariableFloat("recoilMagnitude", 10);
+		deflected->NotifyAnimationGraph("recoilLargeStart");
+	}
+	else {
+		deflected->NotifyAnimationGraph("poise_med_start");
+	}
+
 }
 
 

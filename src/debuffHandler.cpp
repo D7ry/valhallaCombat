@@ -42,10 +42,6 @@ void debuffHandler::update() {
 If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
 @param actor actor who will receive debuff.*/
 void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
-	if (!actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
-		//DEBUG("{} is not in combat, no stamina debuff will be applied.", actor->GetName());
-		return;
-	}
 	if (actorDebuffMap.find(actor) != actorDebuffMap.end()) {
 		//DEBUG("{} is already in debuff", actor->GetName());
 		return;

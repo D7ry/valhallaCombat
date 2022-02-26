@@ -13,6 +13,9 @@ public:
 	}
 	static void staminaLightMiss(RE::Actor* a) {
 		//DEBUG("stamina light miss");
+		if (!a->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+			return;
+		}
 		Utils::damageav(a, RE::ActorValue::kStamina, settings::fMeleeCostLightMiss_Point);
 		checkStamina(a);
 	}
@@ -20,6 +23,9 @@ public:
 
 	static void staminaLightHit(RE::Actor* a) {
 		//DEBUG("stamina light hit");
+		if (!a->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+			return;
+		}
 		Utils::restoreav(a, RE::ActorValue::kStamina, a->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
 		//DEBUG("stamina restored");
 		checkStamina(a);
@@ -27,12 +33,18 @@ public:
 
 	static void staminaHeavyMiss(RE::Actor* a) {
 		//DEBUG("stamina heavy miss");
+		if (!a->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+			return;
+		}
 		Utils::damageav(a, RE::ActorValue::kStamina, a->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyMiss_Percent);
 		checkStamina(a);
 	}
 
 	static void staminaHeavyHit(RE::Actor* a) {
 		//DEBUG("stamina heavy hit");
+		if (!a->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+			return;
+		}
 		Utils::damageav(a, RE::ActorValue::kStamina, a->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyHit_Percent);
 		checkStamina(a);
 	}
