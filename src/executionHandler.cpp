@@ -13,6 +13,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		|| (!settings::bEssentialExecution && victim->IsEssential())
 		|| !executor->GetRace() || executor->GetRace()->bodyPartData->GetFormID() != 29 //executor can only be human.
 		|| !victim->GetRace() || !victim->GetRace()->bodyPartData
+		|| executor->IsOnMount() || victim->IsOnMount()
 		|| victim->HasEffectWithArchetype(RE::MagicTarget::Archetype::kParalysis)) {
 		DEBUG("Execution preconditions not met, terminating execution.");
 		return;
