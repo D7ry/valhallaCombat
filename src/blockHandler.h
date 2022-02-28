@@ -1,5 +1,6 @@
 #pragma once
 #include "include/robin_hood.h"
+#include <mutex>
 /*Handling block stamina damage and perfect blocking.*/
 class blockHandler {
 public:
@@ -33,6 +34,7 @@ public:
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 private:
+	static inline std::mutex mtx;
 	inline void guardBreakLarge(RE::Actor* actor, RE::Actor* actorToPush);
 	inline void guardBreakMedium(RE::Actor* actor);
 	inline void guardBreakSmall(RE::Actor* deflector, RE::Actor* deflected);

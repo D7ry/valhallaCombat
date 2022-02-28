@@ -7,6 +7,7 @@ Iterate through the set of actors debuffing.
 Check the actors' stamina. If the actor's stamina has fully recovered, remove the actor from the set.
 Check the actor's UI counter, if the counter is less than 0, flash the actor's UI.*/
 void debuffHandler::update() {
+	mtx.lock();
 	auto it = actorDebuffMap.begin();
 	while (it != actorDebuffMap.end()) {
 		auto actor = it->first;
@@ -35,6 +36,7 @@ void debuffHandler::update() {
 		}
 		++it;
 	}
+	mtx.unlock();
 	
 }
 
@@ -42,12 +44,15 @@ void debuffHandler::update() {
 If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
 @param actor actor who will receive debuff.*/
 void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
+	mtx.lock();
 	if (actorDebuffMap.find(actor) != actorDebuffMap.end()) {
 		//DEBUG("{} is already in debuff", actor->GetName());
+		mtx.unlock();
 		return;
 	}
+	actorDebuffMap.emplace(actor, 0);
+	mtx.unlock();
 	addDebuffPerk(actor);
-	actorDebuffMap.emplace(actor, 0); 
 	if (settings::bUIAlert) {
 		greyOutStaminaMeter(actor);
 	}
@@ -64,7 +69,9 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 }
 
 void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
+	mtx.lock();
 	actorDebuffMap.erase(actor);
+	mtx.unlock();
 	stopStaminaDebuff(actor);
 }
 
@@ -82,9 +89,11 @@ void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
 	
 
 bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
+	mtx.lock();
 	if (actorDebuffMap.find(a_actor) != actorDebuffMap.end()) {
 		return true;
 	}
+	mtx.unlock();
 	return false;
 } 
 

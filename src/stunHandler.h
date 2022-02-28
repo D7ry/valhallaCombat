@@ -1,6 +1,7 @@
 #pragma once
 #include "data.h"
 #include "include/robin_hood.h"
+#include <mutex>
 /*Handling enemy stun value.*/
 class stunHandler {
 public:
@@ -9,7 +10,11 @@ public:
 	void update();
 
 private:
-
+	static inline std::mutex mtx;
+	/*Calculate this Actor's max(i.e. permanent) stun.
+	@param actor: actor whose stun will be calculated
+	@return this actor's max sun.*/
+	float calcMaxStun(RE::Actor* actor);
 	/*Start tracking this Actor's stun.
 	@param actor: actor whose stun will be tracked.*/
 	void trackStun(RE::Actor* actor);
@@ -18,7 +23,7 @@ private:
 	void untrackStun(RE::Actor* actor);
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
-	void resetStun(RE::Actor* actor);
+	void refillStun(RE::Actor* actor);
 	/*Damage this actor's stun. If the actor does not exist on the stunmap, track their stun first.
 	@param actor: actor whose stun will be damaged.
 	@param damage: stun damage applied onto this actor.*/
@@ -62,8 +67,8 @@ public:
 	@return the actor's current stun value.*/
 	static float getStun(RE::Actor* actor);
 
-	/*Calculate this actor's maximum stun value based on various parameters.
-	* Current algorithm: Health + Stamina / 2
+	/*Get this actor's max stun(i.e. permanent stun) from stun map.
+	* If the actor does not exist on the stun map yet, start tracking this actor's stun.
 	@param actor: actor whose still value will be calculated.
 	@return the actor's maximum stun value.*/
 	static float getMaxStun(RE::Actor* actor);
@@ -78,7 +83,9 @@ public:
 	/*Clears all records from StunMap.*/
 	void refreshStun();
 
-	/*Does what it says*/
+	/*Iterate over actor stun map and clears off all unloaded actors.
+	* Also recalculates everybody's max stun.
+	*/
 	void houseKeeping();
 
 	/*Calculate a stun damage for the actor, and immediately apply the stun damage.

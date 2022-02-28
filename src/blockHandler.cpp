@@ -7,6 +7,7 @@
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
+	mtx.lock();
 	auto it1 = actorsPerfectBlocking.begin();
 	while (it1 != actorsPerfectBlocking.end()) {
 		auto actor = it1->first;
@@ -27,7 +28,6 @@ void blockHandler::update() {
 		it1->second -= *Utils::g_deltaTimeRealTime;
 		++it1;
 	}
-
 	auto it2 = actorsInBlockingCoolDown.begin();
 	while (it2 != actorsInBlockingCoolDown.end()) {
 		auto actor = it2->first;
@@ -44,32 +44,23 @@ void blockHandler::update() {
 		it2->second -= *Utils::g_deltaTimeRealTime;
 		++it2;
 	}
+	mtx.unlock();
 }
 
 /*Register a perfect block when an actor tries to block. Put the blocker into the active perfect blocker set and start timing.
 @param actor actor whose block is registered as a perfect block.*/
 void blockHandler::registerPerfectBlock(RE::Actor* actor) {
-	DEBUG("Registering perfect block for {}", actor->GetName());
-	/*bool a = actorsInBlockingCoolDown.find(actor) == actorsInBlockingCoolDown.end();
-	DEBUG(a);
-	bool b = actorsPerfectBlocking.find(actor) == actorsPerfectBlocking.end();
-	DEBUG(b);*/
-	if (actorsInBlockingCoolDown.find(actor) == actorsInBlockingCoolDown.end() //not cooling down
+	//DEBUG("Registering perfect block for {}", actor->GetName());
+	mtx.lock();
+	if (actorsPerfectblockSuccessful.find(actor) != actorsPerfectblockSuccessful.end()) { //has previously done a successful perfect block
+		actorsPerfectblockSuccessful.erase(actor); //remove from the successful map.
+		actorsPerfectBlocking[actor] = settings::fPerfectBlockTime; //start perfect blocking.
+	}
+	else if (actorsInBlockingCoolDown.find(actor) == actorsInBlockingCoolDown.end() //OR not cooling down
 		&& actorsPerfectBlocking.find(actor) == actorsPerfectBlocking.end()) { //and not currently perfect blocking
 		actorsPerfectBlocking.emplace(actor, settings::fPerfectBlockTime);
-		DEBUG("perfect block registered");
 	}
-	else if (actorsPerfectblockSuccessful.find(actor) != actorsPerfectblockSuccessful.end()) { //OR has previously done a successful perfect block
-		DEBUG("previous perfect block successful, registering a new perfect block!");
-		actorsPerfectblockSuccessful.erase(actor); //remove from the successful map.
-		actorsInBlockingCoolDown.erase(actor); //remove from cooldown map
-		actorsPerfectBlocking.erase(actor); //remove from perfect blocking map
-		actorsPerfectBlocking.emplace(actor, settings::fPerfectBlockTime);
-		DEBUG("perfect block registered");
-	}
-	else {
-		DEBUG("{} is either perfect blocking or cooling down", actor->GetName());
-	}
+	mtx.unlock();
 }
 /*Make an actor break their guard through a animation event.*/
 void blockHandler::guardBreakLarge(RE::Actor* guardBreakingActor, RE::Actor* guardBrokeActor) {
@@ -243,8 +234,9 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		}
 
 	}
+	mtx.lock();
 	actorsPerfectblockSuccessful.emplace(blocker); //register the blocker as a successful blocker.
-
+	mtx.unlock();
 }
 #pragma endregion
 

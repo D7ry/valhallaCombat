@@ -14,7 +14,6 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	int hitFlag = (int)hitData.flags;
 	if (hitFlag & (int)HITFLAG::kBlocked) {
 		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData, realDamage)) {
-			DEBUG("attack perfect blocked");
 			debuffHandler::GetSingleton()->quickStopStaminaDebuff(victim);
 			return; //if the hit is perfect blocked, no hit registration
 		}

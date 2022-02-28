@@ -1,6 +1,6 @@
 #pragma once
 #include "include/robin_hood.h"
-#define foreach_         BOOST_FOREACH
+#include <mutex>
 /*Class handling actor debuffs and corresponding UI alerts.*/
 class debuffHandler
 {
@@ -8,7 +8,7 @@ class debuffHandler
 public:
 	/*Mapping of a set of actors currently in stamina debuff to their stamina blinking timer.*/
 	robin_hood::unordered_map<RE::Actor*, float> actorDebuffMap;
-
+	static inline std::mutex mtx;
 	static debuffHandler* GetSingleton()
 	{
 		static debuffHandler singleton;
