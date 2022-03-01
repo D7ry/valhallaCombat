@@ -1,7 +1,5 @@
-# valhallaCombat
-
-
-Valhalla Combat is an integrated and script-free combat overhaul designed with modern principles in mind. Heavily inspired by modern action games such as AC:Valhalla, God of War, and Elden Ring, Valhalla Combat will fundamentally change the feeling of Skrim's combat both in 1st and 3rd person, rendering a enjoyable and consistent experience.
+# Valhalla Combat
+  Valhalla Combat is an integrated and script-free combat overhaul designed with modern principles in mind. Heavily inspired by modern action games such as AC:Valhalla, God of War, and Elden Ring, Valhalla Combat will fundamentally change the feeling of Skrim's combat both in 1st and 3rd person, rendering a enjoyable and consistent experience.
 # **Features**
 
 ## **Weightless**
