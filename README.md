@@ -5,6 +5,13 @@
 ## **Weightless**
 Valhalla Combat brings a hefty amount of changes; however unlike other combat overhauls, all changes and functionalities are implemented through SKSE. Therefore it is neither "heavy-weight" nor "light-weight", it's weightless. You will not experience any script lag, nor save corruption if you ever decide to uninstall this mod mid-save. 
 
+## **Stamina**
+- Stamina plays a crucial role in Valhalla Combat. The way it factors into your combat gameplay, however, is vastly different from all other combat overhauls. 
+- As such, stamina regenerates 5x faster for all races by default. (Tweakable)<br/>
+- Specifities of stamina will be elaborated on later.
+
+_Unlike "Souls Like Stamina" or many other combat mods, stamina regeneration is not hard-coded into esp records, but multiplied based on the records you already have. This make stamina changes brought by Valhalla Combat consistent with all other race overhauls._
+
 ## **Attack**
 - Light attack costs a fixed amount of stamina. Heavy attack costs a fixed portion of stamina. (Tweakable)
 - The former incentivizes the player to level up. The latter keeps late-game characters and player from being over-powered. Specific values are tweakable.
@@ -46,11 +53,6 @@ _Unlike all other perfect blocking mods(Deflection, Strike Obstruction Systems, 
 
 _Attacking&Blocking costs stamina, so there will be some penalties for not having enough stamina. Vanilla stamina penalty is outright useless, as it merely places a limitation on doing power attacks, which can be easily lifted by drinking a vegetable soup. Souls stamina penalty is way too punishing and limiting, as it leaves you with 0 countermeasures when out of stamina. Some mods implement procedural stamina penalty i.e. actors do more damage with more stamina; that disrupts the flow of combat as you're required to keep your stamina high. Giving actors debuff ONLY on stamina depletion is the perfect middleground._
 
-## **Stamina**
-- Stamina regenerates 5x faster for all races by default. (Tweakable)
-
-_This is to offset the stamina cost of attacking&blocking. Unlike "Souls Like Stamina" or many other combat mods, stamina regeneration is not hard-coded into esp records, but multiplied based on the records you already have. This make stamina changes brought by Valhalla Combat consistent with all other race overhauls. 
-When performing offensive actions(attacking/blocking/drawing a bow), stamina does not regenerate._
 
 ## **Stun/Execution**
 - Stun
