@@ -11,7 +11,7 @@ This mod brings a hefty amount of changes. Unlike other combat overhauls however
 - Hitting an enemy with light attacks replenishes stamina. (Tweakable)
 - Hitting an enemy with heavy attacks costs reduced stamina. (Tweakable)<br/>
 
-_Stamina costs for attack is a common practice in modern action games; however, Skyrim's level design-along with all other additional levels from the modding community-makes it impossible to make a balanced stamina attack system. With one of those other stamina mods, you'd quickly find yourself surrounded by 20 bandits with 0 stamina; this is much more frustration even than Dark Souls. Hitting enemies regenerate stamina balances this fact: you get stronger on well-timed hit and can keep your combos going, even when you are surrounded by 20 bandits._
+_Stamina costs for attack is a common practice in modern action games; however, Skyrim's level design-along with all other additional levels from the modding community-makes it impossible to make a balanced stamina attack system. With one of those other stamina mods, you'd quickly find yourself surrounded by 20 bandits with 0 stamina; this is much more frustrating even than Dark Souls. Hitting enemies regenerate stamina balances this fact: you get stronger on well-timed hit and can keep your combos going, even when you are surrounded by 20 bandits._
 
 ## **Block**
 - Blocking costs stamina only.
