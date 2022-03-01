@@ -1,9 +1,9 @@
 #pragma once
 #include "Utils.h"
-#include "SimpleIni.h"
+
 #include "debuffHandler.h"
 #include "include/robin_hood.h"
-
+#include "include/SimpleIni.h"
 
 
 /*All the settings of Valhalla combat*/
@@ -237,14 +237,14 @@ namespace Utils
 	@param upperLimit upper limit for stamina regen.*/
 	inline void multStaminaRegen(float mult, float upperLimit) {
 		for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
-			if (race) {
+			if (race && race->data.staminaRegen) {
 				float staminaRegen;
 				if (staminaRegenMap.find(race) == staminaRegenMap.end()) {
 					staminaRegenMap[race] = race->data.staminaRegen;
-					staminaRegen = race->data.staminaRegen * mult;
+					staminaRegen = staminaRegenMap[race] * mult;
 				}
 				else {
-					staminaRegen = mult * staminaRegenMap.at(race);
+					staminaRegen = mult * staminaRegenMap[race];
 				}
 				if (staminaRegen > upperLimit) {
 					staminaRegen = upperLimit;
