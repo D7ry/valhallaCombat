@@ -34,6 +34,7 @@ Unlike any scripted workarounds, Valhalla Combat's stamina blocking implementati
 - Parrying deflects the attacker's damage back as stun damage. 
 - If the attacker has less than 0 stamina, parrying their attack knocks them back.
 - Parrying an attack will trigger custom visual and sound effects that are easily replaceable. 
+
 _Unlike all other perfect blocking mods(Deflection, Strike Obstruction Systems, Ultimate Combat, Inpa Sekiro Combat, Sekiro Combat, Wildcat, Ordinator, etc...), Valhalla Combat's perfect blocking has 0 script lag. Whether you can successfully parry an attack depends entirely on your skill, not how much script lag you have._
 
 ## **Exhaustion**
@@ -52,13 +53,15 @@ _This is to offset the stamina cost of attacking&blocking. Unlike "Souls Like St
 When performing offensive actions(attacking/blocking/drawing a bow), stamina does not regenerate._
 
 ## **Stun/Execution**
-- Every actor has their own separate stun value, based on their health and stamina.
-- Use TrueHud to enable NPC stun meter, displaying the amount of stun they have on top of their health meter.
-- Stun Damage
+- Stun
+  - Every actor has their own separate stun value, based on their health and stamina.
+  - Use TrueHud to enable NPC stun meter, displaying the amount of stun they have on top of their health meter.
   - Every hit damages an actor's stun. 
   - Power attack damages significantly more stun than light. 
   - Blunt weapon damages moderately more stun than blades.
   - Parrying an attack also damages the attacker's stun.
   - Blocked attacks will not damage stun. 
-- Stun does not regenerate during combat.
-- When an actor's stun reaches 0, the actor can be executed.
+  - Stun does not regenerate during combat.
+
+- Execution
+  - When an actor's stun reaches 0, the actor can be executed.
