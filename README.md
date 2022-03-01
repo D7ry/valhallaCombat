@@ -3,7 +3,7 @@
 # **Features**
 
 ## **Weightless**
-This mod brings a hefty amount of changes. Unlike other combat overhauls however, all functionalities are achieved through SKSE. Valhalla Combat is neither "heavy-weight" nor "light-weight", it's weightless. You will not experience any script lag, nor save corruption if you ever decide to uninstall this mod mid-save. 
+Valhalla Combat brings a hefty amount of changes. Unlike other combat overhauls however, all functionalities are achieved through SKSE. Valhalla Combat is neither "heavy-weight" nor "light-weight", it's weightless. You will not experience any script lag, nor save corruption if you ever decide to uninstall this mod mid-save. 
 
 ## **Attack**
 - Light attack costs a fixed amount of stamina. Heavy attack costs a fixed portion of stamina. (Tweakable)
