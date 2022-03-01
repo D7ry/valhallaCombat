@@ -10,7 +10,7 @@ Valhalla Combat brings a hefty amount of changes; however unlike other combat ov
 - As such, stamina regenerates 5x faster for all races by default. (Tweakable)<br/>
 - Specifities of stamina will be elaborated on later.
 
-_Unlike "Souls Like Stamina" or many other combat mods, stamina regeneration is not hard-coded into esp records, but multiplied based on the records you already have. This make stamina changes brought by Valhalla Combat consistent with all other race overhauls._
+_Unlike most other combat mods, stamina regeneration is not hard-coded into esp records. Instead, regen rates are multiplied based on the records you already have. This ensures maximum compatibility and consistency with other race overhauls. Additionally, you can set a stamina regeneration upper limit to prevent certain race's stamina rate from skyrocketing._
 
 ## **Attack**
 - Light attack costs a fixed amount of stamina. Heavy attack costs a fixed portion of stamina. (Tweakable)
@@ -19,7 +19,9 @@ _Unlike "Souls Like Stamina" or many other combat mods, stamina regeneration is 
 - Hitting an enemy with heavy attacks costs reduced stamina. (Tweakable)
 - Attack stamina consumption can be turned off in MCM while not in combat, so you can experiment with your movesets more freely like in Elden Ring.
 
-_Stamina costs for attack is a common practice in modern action games; however, Skyrim's level design-along with all other additional levels from the modding community-makes it impossible to make a balanced stamina attack system. With one of those other stamina mods, you'd quickly find yourself surrounded by 20 bandits with 0 stamina; this is much more frustrating even than Dark Souls. Hitting enemies regenerate stamina balances this fact: you get stronger on well-timed hit and can keep your combos going, even when you are surrounded by 20 bandits._
+_Stamina costs for attack is a common practice in modern action games; however, Skyrim's level design-along with all other additional levels from the modding community-makes it impossible to make a balanced stamina attack system. With one of those other stamina mods, you'd quickly find yourself surrounded by 20 bandits with 0 stamina; this is much more frustrating even than Dark Souls._
+
+_Hitting enemies regenerate stamina balances this fact: you are rewarded for well-timed hits and can keep your combos going even when you are surrounded by 20 enemies._
 
 ## **Block**
 - Blocking costs stamina only.
@@ -42,7 +44,7 @@ Unlike any scripted workarounds, Valhalla Combat's stamina blocking implementati
 - If the attacker has less than 0 stamina, parrying their attack knocks them back.
 - Parrying an attack will trigger custom visual and sound effects that are easily replaceable. 
 
-_Unlike all other perfect blocking mods(Deflection, Strike Obstruction Systems, Ultimate Combat, Inpa Sekiro Combat, Sekiro Combat, Wildcat, Ordinator, etc...), Valhalla Combat's perfect blocking has 0 script lag. Whether you can successfully parry an attack depends entirely on your skill, not how much script lag you have._
+_Unlike all other perfect blocking mods(Deflection, Strike Obstruction Systems, Ultimate Combat, Inpa Sekiro Combat, Sekiro Combat, Wildcat, Ordinator, etc...), Valhalla Combat's perfect blocking has 0 script lag. Whether you can successfully parry an attack depends entirely on your timing, not how much script lag you have._
 
 ## **Exhaustion**
 - When an attack/attempt to block an attack depletes stamina, the attacker enters a state of "exhaustion".
