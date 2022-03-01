@@ -91,6 +91,7 @@ void settings::readSettings() {
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
 	multStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
+	/*Release truehud meter if set so.*/
 	if (bStunToggle && bStunMeterToggle) {
 		stunHandler::GetSingleton()->initTrueHUDStunMeter();
 	}

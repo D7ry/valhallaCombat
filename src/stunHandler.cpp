@@ -37,8 +37,8 @@ void stunHandler::update() {
 }
 
 void stunHandler::initTrueHUDStunMeter() {
-	if (ValhallaCombat::GetSingleton()->g_trueHUD
-		->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) != TRUEHUD_API::APIResult::AlreadyTaken) {
+	auto result = ValhallaCombat::GetSingleton()->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle());
+	if (result != TRUEHUD_API::APIResult::AlreadyTaken || result != TRUEHUD_API::APIResult::AlreadyGiven) {
 		INFO("TrueHUD special bar request success.");
 		if (
 			ValhallaCombat::GetSingleton()->g_trueHUD
