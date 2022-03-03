@@ -1,10 +1,12 @@
 #pragma once
 #include "staminaHandler.h"
 #include "lib/robin_hood.h"
+#include <mutex>
 /*Handle attack registration, stamina consumption, and stamina reward.*/
 class attackHandler
 {
-
+private:
+	static std::mutex mtx;
 public:
 	static attackHandler* GetSingleton()
 	{
@@ -38,6 +40,7 @@ public:
 					//DEBUG("skipped shield bash");
 					return; //bash attacks won't get registered
 				}
+				mtx.lock();
 				if (attckData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
 					attackerHeap.emplace(actor, ATTACKTYPE::power);
 					//DEBUG("registered power attack");
@@ -48,6 +51,7 @@ public:
 					attackerHeap.emplace(actor, ATTACKTYPE::light);
 					//DEBUG("attack heap size: {}", attackerHeap.size());
 				}
+				mtx.unlock();
 			}
 		}
 		else {
@@ -77,7 +81,9 @@ public:
 			staminaHandler::staminaHeavyHit(actor);
 		}
 		//DEBUG("erasing {} from attaker heap", actor->GetName());
+		mtx.lock();
 		attackerHeap.erase(actor); //erase the actor from heap i.e. checking out the attack without damaging stamina.
+		mtx.unlock();
 		//DEBUG("current attacker heap size: {}", attackerHeap.size());
 	}
 
@@ -101,21 +107,26 @@ public:
 		else {
 			staminaHandler::staminaHeavyMiss(actor);
 		}
+		mtx.lock();
 		attackerHeap.erase(actor);
+		mtx.unlock();
 	}
 private:
+	static inline std::mutex mtx;
 	/*try to obtain an actor's attack type stored in the map.
 	iff the actor is not stored in the map, return false.
 	@param actor: actor whose info to obtain.
 	@param atkType: address to store attack type*/
 	inline bool getAtkType(RE::Actor* actor, ATTACKTYPE& atkType) {
 		//DEBUG("Getting {}'s attack from attack heap", actor->GetName());
+		mtx.lock();
 		auto it = attackerHeap.find(actor); //check if the actor's attack is registered
 		if (it == attackerHeap.end()) {
 			//DEBUG("{} not found in attackState map", actor->GetName());
 			return false;
 		}
 		atkType = it->second;
+		mtx.unlock();
 		return true;
 	}
 
