@@ -7,14 +7,11 @@
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
+	auto deltaTime = *Utils::g_deltaTimeRealTime;
 	mtx.lock();
 	auto it1 = actorsPerfectBlocking.begin();
 	while (it1 != actorsPerfectBlocking.end()) {
 		auto actor = it1->first;
-		if (!actor) {
-			it1 = actorsPerfectBlocking.erase(it1);
-			continue;
-		}
 		if (it1->second <= 0) {
 			DEBUG("{}'s perfect block has ended, starting cool down", actor->GetName());
 			it1 = actorsPerfectBlocking.erase(it1);
@@ -23,25 +20,24 @@ void blockHandler::update() {
 				//start cooling down
 				actorsInBlockingCoolDown.emplace(actor, settings::fPerfectBlockCoolDownTime);
 			}
+			else {
+				actorsPerfectblockSuccessful.erase(actor);
+			}
 			continue;
 		}
-		it1->second -= *Utils::g_deltaTimeRealTime;
+		it1->second -= deltaTime;
 		++it1;
 	}
 	auto it2 = actorsInBlockingCoolDown.begin();
 	while (it2 != actorsInBlockingCoolDown.end()) {
 		auto actor = it2->first;
-		if (!actor) {
-			it2 = actorsInBlockingCoolDown.erase(it2);
-			continue;
-		}
 		if (it2->second <= 0) {
 			//exit cooling down phase
-			DEBUG("{}'s cool down has ended", actor->GetName());
+			//DEBUG("{}'s cool down has ended", actor->GetName());
 			it2 = actorsInBlockingCoolDown.erase(it2);
 			continue;
 		}
-		it2->second -= *Utils::g_deltaTimeRealTime;
+		it2->second -= deltaTime;
 		++it2;
 	}
 	mtx.unlock();
@@ -194,45 +190,18 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	hitData.totalDamage = 0;
 	bool blockBrokeGuard = false;
 	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
-		DEBUG("send deflect reaction!");
 		guardBreakLarge(blocker, aggressor);
 		blockBrokeGuard = true;
 	}
 	if (settings::bPerfectBlockVFX) {
-		DEBUG("playing perfect block vfx!");
-		MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
+		playPerfectBlockVFX(blocker, aggressor, iHitflag, blockBrokeGuard);
 	}
 	if ((blocker->IsPlayerRef() || aggressor->IsPlayerRef())
 		&& settings::bPerfectBlockScreenShake) {
-		if (blockBrokeGuard) {
-			Utils::shakeCamera(1.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
-		}
-		else {
-			Utils::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
-		}
-	}
-	if (true) {
-		DEBUG("playing perfect block sfx!");
-		if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
-			if (blockBrokeGuard) {
-				Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryWeapon_gbD->GetFormID());
-			}
-			else {
-				Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryWeaponD->GetFormID());
-				//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
-			}
-		}
-		else {
-			if (blockBrokeGuard) {
-				Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryShield_gbD->GetFormID());
-				//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryShield_gbD);
-			}
-			else {
-				Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryShieldD->GetFormID());
-				//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
-			}
-		}
 
+	}
+	if (settings::bPerfectBlockSFX) {
+		playPerfectBlockSFX(blocker, iHitflag, blockBrokeGuard);
 	}
 	mtx.lock();
 	actorsPerfectblockSuccessful.emplace(blocker); //register the blocker as a successful blocker.
@@ -240,3 +209,36 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 }
 #pragma endregion
 
+void blockHandler::playPerfectBlockSFX(RE::Actor* blocker, int iHitflag, bool blockBrokeGuard) {
+	if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
+		if (blockBrokeGuard) {
+			Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryWeapon_gbD->GetFormID());
+		}
+		else {
+			Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryWeaponD->GetFormID());
+			//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
+		}
+	}
+	else {
+		if (blockBrokeGuard) {
+			Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryShield_gbD->GetFormID());
+			//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryShield_gbD);
+		}
+		else {
+			Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryShieldD->GetFormID());
+			//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
+		}
+	}
+}
+void blockHandler::playPerfectBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, bool blockBrokeGuard) {
+	MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
+}
+void blockHandler::playPerfectBlockScreenShake(RE::Actor* blocker, int iHitflag, bool blockBrokeGuard) {
+	playPerfectBlockScreenShake(blocker, iHitflag, blockBrokeGuard);
+	if (blockBrokeGuard) {
+		Utils::shakeCamera(1.8, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.5f);
+	}
+	else {
+		Utils::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
+	}
+}

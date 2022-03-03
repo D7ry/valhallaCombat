@@ -22,6 +22,8 @@ public:
 
 	void update();
 
+	/*Register a perfect block when an actor tries to block. Put the blocker into the active perfect blocker set and start timing.
+	@param actor actor whose block is registered as a perfect block.*/
 	void registerPerfectBlock(RE::Actor* actor);
 
 	/*Process a single block.
@@ -38,13 +40,18 @@ private:
 	inline void guardBreakLarge(RE::Actor* actor, RE::Actor* actorToPush);
 	inline void guardBreakMedium(RE::Actor* actor);
 	inline void guardBreakSmall(RE::Actor* deflector, RE::Actor* deflected);
-	inline void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
-
-
+	/*Process a stamina block.
+	Actor with enough stamina can negate all incoming health damage with stamina. 
+	Actor without enough stamina will stagger and receive partial damage.*/
+	void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 	/*Process perfect block does not take in real damage, as parry damage is re-adjusted.*/
-	inline void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
+	void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
 
+	/*Play VFX, SFX and screenShake for successful perfect block.*/
+	inline void playPerfectBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, bool blockBrokeGuard);
+	inline void playPerfectBlockSFX(RE::Actor* blocker, int iHitFlag, bool blockBrokeGuard);
+	inline void playPerfectBlockScreenShake(RE::Actor* blocker, int iHitFlag, bool blockBrokeGuard);
 };
 
 namespace Utils

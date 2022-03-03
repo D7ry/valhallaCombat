@@ -3,6 +3,7 @@
 #include "include/hitProcessor.h"
 void stunHandler::update() {
 	mtx.lock();
+	auto deltaTime = *Utils::g_deltaTimeRealTime;
 	auto it = stunRegenQueue.begin();
 	while (it != stunRegenQueue.end()) {
 		auto actor = it->first;
@@ -20,7 +21,7 @@ void stunHandler::update() {
 				else {
 					if (actorStunMap.find(actor)->second.second < actorStunMap.find(actor)->second.first) {
 						actorStunMap.find(actor)->second.second += 
-							*Utils::g_deltaTimeRealTime * 1 / 10 * actorStunMap.find(actor)->second.first;
+							deltaTime * 1 / 10 * actorStunMap.find(actor)->second.first;
 					}
 					else {
 						it = stunRegenQueue.erase(it); continue; //regeneration complete.
@@ -28,7 +29,7 @@ void stunHandler::update() {
 				}
 			}
 			else {
-				it->second -= *Utils::g_deltaTimeRealTime;//keep decrementing regen timer.
+				it->second -= deltaTime;//keep decrementing regen timer.
 			}
 		}
 		++it;
