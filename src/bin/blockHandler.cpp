@@ -76,7 +76,7 @@ void blockHandler::guardBreakMedium(RE::Actor* victim) {
 		victim->NotifyAnimationGraph("staggerStart");
 	}
 	else {
-		victim->NotifyAnimationGraph("poise_large_start");
+		victim->NotifyAnimationGraph("poise_med_start");
 	}
 
 }
