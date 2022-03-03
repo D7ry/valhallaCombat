@@ -23,7 +23,7 @@ void actorManager::update() {
 			updateBlocking(it->second, deltaTime);
 		}
 		if (settings::bStaminaToggle) {
-			updateDebuff(it->second, deltaTime);
+			//updateDebuff(it->second, deltaTime);
 		}
 	}
 }

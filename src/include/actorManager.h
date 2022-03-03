@@ -50,5 +50,5 @@ private:
 	inline void updateStun(actorMetaData* metaData, float deltaTime);
 	inline void updateStagger(actorMetaData* metaData, float deltaTime);
 	inline void updateBlocking(actorMetaData* metaData, float deltaTime);
-	inline void updateDebuff(actorMetaData* metaData, float deltaTime);
+	//inline void updateDebuff(actorMetaData* metaData, float deltaTime);
 };

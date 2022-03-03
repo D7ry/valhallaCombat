@@ -114,25 +114,42 @@ void stunHandler::calculateStunDamage(
 			Utils::offsetRealDamage(stunDamage, false);
 		}
 		break;
-	case STUNSOURCE::powerAttack:
-		baseDamage *= settings::fStunPowerAttackMult;
 	case STUNSOURCE::lightAttack:
+		stunDamage = baseDamage * settings::fStunNormalAttackMult;
 		if (!weapon) {
-			stunDamage = baseDamage * settings::fStunUnarmedMult;
+			stunDamage *= settings::fStunUnarmedMult;
 		}
 		else {
 			switch (weapon->GetWeaponType()) {
-			case RE::WEAPON_TYPE::kHandToHandMelee: stunDamage = baseDamage * settings::fStunUnarmedMult; break;
-			case RE::WEAPON_TYPE::kOneHandDagger: stunDamage = baseDamage * settings::fStunDaggerMult; break;
-			case RE::WEAPON_TYPE::kOneHandSword: stunDamage = baseDamage * settings::fStunSwordMult; break;
-			case RE::WEAPON_TYPE::kOneHandAxe: stunDamage = baseDamage * settings::fStunWarAxeMult; break;
-			case RE::WEAPON_TYPE::kOneHandMace: stunDamage = baseDamage * settings::fStunMaceMult; break;
-			case RE::WEAPON_TYPE::kTwoHandAxe: stunDamage = baseDamage * settings::fStun2HBluntMult; break;
-			case RE::WEAPON_TYPE::kTwoHandSword: stunDamage = baseDamage * settings::fStunGreatSwordMult; break;
+			case RE::WEAPON_TYPE::kHandToHandMelee: stunDamage *= settings::fStunUnarmedMult; break;
+			case RE::WEAPON_TYPE::kOneHandDagger: stunDamage *= settings::fStunDaggerMult; break;
+			case RE::WEAPON_TYPE::kOneHandSword: stunDamage *= settings::fStunSwordMult; break;
+			case RE::WEAPON_TYPE::kOneHandAxe: stunDamage *= settings::fStunWarAxeMult; break;
+			case RE::WEAPON_TYPE::kOneHandMace: stunDamage *= settings::fStunMaceMult; break;
+			case RE::WEAPON_TYPE::kTwoHandAxe: stunDamage *= settings::fStun2HBluntMult; break;
+			case RE::WEAPON_TYPE::kTwoHandSword: stunDamage *= settings::fStunGreatSwordMult; break;
+			}
+		}
+		break;
+	case STUNSOURCE::powerAttack:
+		stunDamage = baseDamage * settings::fStunPowerAttackMult;
+		if (!weapon) {
+			stunDamage *= settings::fStunUnarmedMult;
+		}
+		else {
+			switch (weapon->GetWeaponType()) {
+			case RE::WEAPON_TYPE::kHandToHandMelee: stunDamage *= settings::fStunUnarmedMult; break;
+			case RE::WEAPON_TYPE::kOneHandDagger: stunDamage *= settings::fStunDaggerMult; break;
+			case RE::WEAPON_TYPE::kOneHandSword: stunDamage *= settings::fStunSwordMult; break;
+			case RE::WEAPON_TYPE::kOneHandAxe: stunDamage *= settings::fStunWarAxeMult; break;
+			case RE::WEAPON_TYPE::kOneHandMace: stunDamage *= settings::fStunMaceMult; break;
+			case RE::WEAPON_TYPE::kTwoHandAxe: stunDamage *= settings::fStun2HBluntMult; break;
+			case RE::WEAPON_TYPE::kTwoHandSword: stunDamage *= settings::fStunGreatSwordMult; break;
 			}
 		}
 		break;
 	}
+
 	damageStun(victim, stunDamage);
 }
 

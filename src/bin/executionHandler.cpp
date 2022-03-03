@@ -74,6 +74,9 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 };
 
 void executionHandler::concludeExecution(RE::Actor* executor) {
+	if (!executor) {
+		return;
+	}
 	if (activeExecutor.find(executor) != activeExecutor.end()) {
 		Utils::setIsGhost(executor, false);
 		activeExecutor.erase(executor);

@@ -6,7 +6,7 @@
 class attackHandler
 {
 private:
-	static std::mutex mtx;
+	static inline std::mutex mtx;
 public:
 	static attackHandler* GetSingleton()
 	{
@@ -37,25 +37,23 @@ public:
 			auto attckData = actor->currentProcess->high->attackData;
 			if (attckData) {
 				if (attckData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
-					//DEBUG("skipped shield bash");
 					return; //bash attacks won't get registered
 				}
-				mtx.lock();
 				if (attckData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
+					mtx.lock();
 					attackerHeap.emplace(actor, ATTACKTYPE::power);
+					mtx.unlock();
 					//DEBUG("registered power attack");
-					return;
 				}
 				else {
 					//DEBUG("registered light attack");
+					mtx.lock();
 					attackerHeap.emplace(actor, ATTACKTYPE::light);
+					mtx.unlock();
 					//DEBUG("attack heap size: {}", attackerHeap.size());
 				}
-				mtx.unlock();
+				
 			}
-		}
-		else {
-			//DEBUG("ERROR: actor has no high process");
 		}
 	}
 
@@ -112,7 +110,6 @@ public:
 		mtx.unlock();
 	}
 private:
-	static inline std::mutex mtx;
 	/*try to obtain an actor's attack type stored in the map.
 	iff the actor is not stored in the map, return false.
 	@param actor: actor whose info to obtain.
@@ -122,6 +119,7 @@ private:
 		mtx.lock();
 		auto it = attackerHeap.find(actor); //check if the actor's attack is registered
 		if (it == attackerHeap.end()) {
+			mtx.unlock();
 			//DEBUG("{} not found in attackState map", actor->GetName());
 			return false;
 		}
