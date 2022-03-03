@@ -108,6 +108,7 @@ public:
 private:
     static void processHit(RE::Actor* victim, RE::HitData& hitData);
     static inline REL::Relocation<decltype(processHit)> _ProcessHit;
+
 };
 
 class Hook_MainUpdate

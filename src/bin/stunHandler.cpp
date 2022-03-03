@@ -91,35 +91,49 @@ void stunHandler::calculateStunDamage(
 	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
 		return;
 	}
+	float stunDamage;
 	switch (stunSource) {
 	case STUNSOURCE::parry:
-		damageStun(victim, baseDamage * settings::fStunParryMult); break;
-	case STUNSOURCE::powerBash:
-		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunPowerBashMult);
+		stunDamage = baseDamage * settings::fStunParryMult;
 		break;
 	case STUNSOURCE::bash:
-		damageStun(victim, aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult);
+		stunDamage = aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult;
+		if (aggressor->IsPlayerRef()) {
+			Utils::offsetRealDamage(stunDamage, true);
+		}
+		if (victim->IsPlayerRef()) {
+			Utils::offsetRealDamage(stunDamage, false);
+		}
+		break;
+	case STUNSOURCE::powerBash:
+		stunDamage = aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunPowerBashMult;
+		if (aggressor->IsPlayerRef()) {
+			Utils::offsetRealDamage(stunDamage, true);
+		}
+		if (victim->IsPlayerRef()) {
+			Utils::offsetRealDamage(stunDamage, false);
+		}
 		break;
 	case STUNSOURCE::powerAttack:
 		baseDamage *= settings::fStunPowerAttackMult;
 	case STUNSOURCE::lightAttack:
 		if (!weapon) {
-			baseDamage *= settings::fStunUnarmedMult;
+			stunDamage = baseDamage * settings::fStunUnarmedMult;
 		}
 		else {
 			switch (weapon->GetWeaponType()) {
-			case RE::WEAPON_TYPE::kHandToHandMelee: baseDamage *= settings::fStunUnarmedMult; break;
-			case RE::WEAPON_TYPE::kOneHandDagger: baseDamage *= settings::fStunDaggerMult; break;
-			case RE::WEAPON_TYPE::kOneHandSword: baseDamage *= settings::fStunSwordMult; break;
-			case RE::WEAPON_TYPE::kOneHandAxe: baseDamage *= settings::fStunWarAxeMult; break;
-			case RE::WEAPON_TYPE::kOneHandMace: baseDamage *= settings::fStunMaceMult; break;
-			case RE::WEAPON_TYPE::kTwoHandAxe: baseDamage *= settings::fStun2HBluntMult; break;
-			case RE::WEAPON_TYPE::kTwoHandSword: baseDamage *= settings::fStunGreatSwordMult; break;
+			case RE::WEAPON_TYPE::kHandToHandMelee: stunDamage = baseDamage * settings::fStunUnarmedMult; break;
+			case RE::WEAPON_TYPE::kOneHandDagger: stunDamage = baseDamage * settings::fStunDaggerMult; break;
+			case RE::WEAPON_TYPE::kOneHandSword: stunDamage = baseDamage * settings::fStunSwordMult; break;
+			case RE::WEAPON_TYPE::kOneHandAxe: stunDamage = baseDamage * settings::fStunWarAxeMult; break;
+			case RE::WEAPON_TYPE::kOneHandMace: stunDamage = baseDamage * settings::fStunMaceMult; break;
+			case RE::WEAPON_TYPE::kTwoHandAxe: stunDamage = baseDamage * settings::fStun2HBluntMult; break;
+			case RE::WEAPON_TYPE::kTwoHandSword: stunDamage = baseDamage * settings::fStunGreatSwordMult; break;
 			}
 		}
-		damageStun(victim, baseDamage);
 		break;
 	}
+	damageStun(victim, stunDamage);
 }
 
 void stunHandler::houseKeeping() {

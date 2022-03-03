@@ -8,13 +8,12 @@ public:
 	/*Called once per frame.
 	Regenerate stun for actors not in combat, by looking up actors.*/
 	void update();
-
-private:
-	static inline std::mutex mtx;
 	/*Calculate this Actor's max(i.e. permanent) stun.
 	@param actor: actor whose stun will be calculated
 	@return this actor's max sun.*/
 	float calcMaxStun(RE::Actor* actor);
+private:
+	static inline std::mutex mtx;
 	/*Start tracking this Actor's stun.
 	@param actor: actor whose stun will be tracked.*/
 	void trackStun(RE::Actor* actor);

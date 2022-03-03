@@ -56,17 +56,19 @@ public:
 	static inline bool bStunToggle = true;
 	static inline bool bStunMeterToggle = true;
 	static inline float fStunParryMult = 1;
-	static inline float fStunBashMult = 1;
+	static inline float fStunBashMult = 0.3;
 	static inline float fStunPowerBashMult = 1;
-	static inline float fStunPowerAttackMult = 1;
+	static inline float fStunNormalAttackMult = 0.3;
+	static inline float fStunPowerAttackMult = 1.5;
 
-	static inline float fStunUnarmedMult = 1;
-	static inline float fStunDaggerMult = 1;
-	static inline float fStunSwordMult = 1;
-	static inline float fStunWarAxeMult = 1;
-	static inline float fStunMaceMult = 1;
-	static inline float fStunGreatSwordMult = 1;
-	static inline float fStun2HBluntMult = 1;
+
+	static inline float fStunUnarmedMult = 1.3;
+	static inline float fStunDaggerMult = 0.5;
+	static inline float fStunSwordMult = 0.9;
+	static inline float fStunWarAxeMult = 1.2;
+	static inline float fStunMaceMult = 1.3;
+	static inline float fStunGreatSwordMult = 1.5;
+	static inline float fStun2HBluntMult = 1.7;
 
 
 	//execute

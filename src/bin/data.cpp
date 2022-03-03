@@ -75,6 +75,7 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "Stun", "fStunParryMult", fStunParryMult);
 	ReadFloatSetting(ini, "Stun", "fStunBashMult", fStunBashMult);
 	ReadFloatSetting(ini, "Stun", "fStunPowerBashMult", fStunPowerBashMult);
+	ReadFloatSetting(ini, "Stun", "fStunNormalAttackMult", fStunNormalAttackMult);
 	ReadFloatSetting(ini, "Stun", "fStunPowerAttackMult", fStunPowerAttackMult);
 
 	ReadFloatSetting(ini, "Stun", "fStunUnarmedMult", fStunUnarmedMult);

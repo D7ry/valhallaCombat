@@ -50,7 +50,7 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 	mtx.lock();
 	if (actorsPerfectblockSuccessful.find(actor) != actorsPerfectblockSuccessful.end()) { //has previously done a successful perfect block
 		actorsPerfectblockSuccessful.erase(actor); //remove from the successful map.
-		actorsPerfectBlocking[actor] = settings::fPerfectBlockTime; //start perfect blocking.
+		actorsPerfectBlocking[actor] = settings::fPerfectBlockTime; //reset perfect blocking timer
 	}
 	else if (actorsInBlockingCoolDown.find(actor) == actorsInBlockingCoolDown.end() //OR not cooling down
 		&& actorsPerfectBlocking.find(actor) == actorsPerfectBlocking.end()) { //and not currently perfect blocking
