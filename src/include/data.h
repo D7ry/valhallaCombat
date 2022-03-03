@@ -51,7 +51,7 @@ public:
 
 #pragma endregion
 #pragma region StunSettings
-	//TODO:WHEN READ SETTING, automatically request/release TRUEHUD meter control.
+
 	/*Enable/disable stun and execution.*/
 	static inline bool bStunToggle = true;
 	static inline bool bStunMeterToggle = true;
@@ -81,6 +81,9 @@ public:
 #pragma region Compatibility
 	static inline bool bPoiseCompatibility = false;
 #pragma endregion
+
+	//TODO: add new settings
+	static inline bool bStaminaToggle = true;
 	static void readSettings();
 	
 private:
