@@ -1,6 +1,7 @@
 #include "include/actorManager.h"
 #include "include/Utils.h"
 #include "include/data.h"
+#include "include/stunHandler.h"
 bool actorManager::isActorManaged(RE::Actor* actor) {
 	return managedActors.find(actor) != managedActors.end();
 }
@@ -30,10 +31,25 @@ void actorManager::update() {
 void actorManager::updateBlocking(actorMetaData* metadata, float deltaTime) {
 	if (metadata->isPerfectBlocking) {
 		if (metadata->perfectBlockingTimer <= 0) {
+			metadata->isPerfectBlocking = false;
 			metadata->isPerfectBlockingCoolingDown = true;
 			metadata->perfectBlockingCooldownTimer = settings::fPerfectBlockCoolDownTime;
 		}
-		metadata->perfectBlockingTimer -= deltaTime;
-
+		else {
+			metadata->perfectBlockingTimer -= deltaTime;
+		}
 	}
+	if (metadata->isPerfectBlockingCoolingDown) {
+		if (metadata->perfectBlockingCooldownTimer <= 0) {
+			metadata->isPerfectBlockingCoolingDown = false;
+		}
+		else {
+			metadata->perfectBlockingCooldownTimer -= deltaTime;
+		}
+	}
+}
+
+void actorManager::updateStun(actorMetaData* metadata, float deltaTime) {
+	//metadata->maxStun = stunHandler::calcMaxStun(metadata->actor);
+
 }

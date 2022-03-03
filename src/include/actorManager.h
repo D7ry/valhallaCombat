@@ -4,6 +4,7 @@
 struct actorMetaData
 {
 public:
+	RE::Actor* actor;
 	/*Blocking*/
 	bool isPerfectBlocking;
 	bool isPerfectBlockingCoolingDown;
