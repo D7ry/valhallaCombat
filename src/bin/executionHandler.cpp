@@ -1,5 +1,5 @@
-#include "executionHandler.h"
-#include "data.h"
+#include "include/executionHandler.h"
+#include "include/data.h"
 using namespace Utils;
 void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());

@@ -1,9 +1,9 @@
-#include "blockHandler.h"
-#include "data.h"
-#include "Utils.h"
-#include "stunHandler.h"
-#include "hitProcessor.h"
-#include "include/BlockSpark.h"
+#include "include/blockHandler.h"
+#include "include/data.h"
+#include "include/Utils.h"
+#include "include/stunHandler.h"
+#include "include/hitProcessor.h"
+#include "include/lib/BlockSpark.h"
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {

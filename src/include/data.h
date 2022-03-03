@@ -2,8 +2,8 @@
 #include "Utils.h"
 
 #include "debuffHandler.h"
-#include "include/robin_hood.h"
-#include "include/SimpleIni.h"
+#include "lib/robin_hood.h"
+#include "lib/SimpleIni.h"
 
 
 /*All the settings of Valhalla combat*/
@@ -35,6 +35,8 @@ public:
 	static inline float fMeleeRewardLightHit_Percent = 0.2;
 	static inline float fMeleeCostHeavyMiss_Percent = 0.333;
 	static inline float fMeleeCostHeavyHit_Percent = 0.199;
+
+	static inline uint32_t uExecutionKey = 35; //H for now
 #pragma endregion
 #pragma region PerfectBlockingSettings
 	/*perfect blocking*/

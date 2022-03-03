@@ -1,12 +1,12 @@
 #pragma once
 #include "data.h"
-#include "include/robin_hood.h"
+#include "lib/robin_hood.h"
 #include <mutex>
 /*Handling enemy stun value.*/
 class stunHandler {
 public:
 	/*Called once per frame.
-	Regenerate stun for actors not in combat.*/
+	Regenerate stun for actors not in combat, by looking up actors.*/
 	void update();
 
 private:

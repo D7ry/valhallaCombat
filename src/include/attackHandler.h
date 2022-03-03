@@ -1,6 +1,6 @@
 #pragma once
 #include "staminaHandler.h"
-#include "include/robin_hood.h"
+#include "lib/robin_hood.h"
 /*Handle attack registration, stamina consumption, and stamina reward.*/
 class attackHandler
 {

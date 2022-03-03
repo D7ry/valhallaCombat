@@ -1,6 +1,6 @@
-#include "Papyrus.h"
+#include "include/Papyrus.h"
 
-#include "data.h"
+#include "include/data.h"
 
 namespace Papyrus
 {

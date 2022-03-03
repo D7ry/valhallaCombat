@@ -2,7 +2,6 @@
 #include "attackHandler.h"
 #include "SKSE/Trampoline.h"
 
-
 class Hook_GetAttackStaminaCost //Actor__sub_140627930+16E	call ActorValueOwner__sub_1403BEC90
 {
 	/*to cancel out vanilla power attack stamina consumption.*/
@@ -129,7 +128,17 @@ private:
 
 };
 
+/*class Hook_GetFallbackChance {
+public:
+	static void install() {
+		auto& trampoline = SKSE::GetTrampoline();
 
+		REL::Relocation<uintptr_t> hook{ REL::ID(35551) };  // 5AF3D0, main loop
+
+		_Update = trampoline.write_call<5>(hook.address() + 0x11F, Update);
+		INFO("Main Update hook installed.");
+	}
+};*/
 class Hooks {
 public:
 	static void install() {

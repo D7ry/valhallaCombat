@@ -1,5 +1,5 @@
 #pragma once
-#include "include/robin_hood.h"
+#include "lib/robin_hood.h"
 #include <mutex>
 /*Class handling actor debuffs and corresponding UI alerts.*/
 class debuffHandler

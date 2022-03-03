@@ -1,5 +1,5 @@
-#include "debuffHandler.h"
-#include "data.h"
+#include "include/debuffHandler.h"
+#include "include/data.h"
 #include "valhallaCombat.hpp"
 //TODO:make sure to resume the debuff state on reloading the actor i.e. the actor has debuff perk, but it's no longer in the debuff map, so they have to be put back onto the map.
 /*Called every frame.

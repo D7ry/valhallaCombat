@@ -1,5 +1,5 @@
-#include "data.h"
-#include "stunHandler.h"
+#include "include/data.h"
+#include "include/stunHandler.h"
 using namespace Utils;
 void settings::ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting)
 {

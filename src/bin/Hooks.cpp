@@ -1,10 +1,10 @@
-#include "Hooks.h"
-#include "Utils.h"
-#include "blockHandler.h"
+#include "include/Hooks.h"
+#include "include/Utils.h"
+#include "include/blockHandler.h"
 #include "ValhallaCombat.hpp"
-#include "stunHandler.h"
-#include "hitProcessor.h"
-#include "AI.h"
+#include "include/stunHandler.h"
+#include "include/hitProcessor.h"
+#include "include/AI.h"
 #pragma endregion
 #pragma region GetHeavyStaminaCost
 float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {

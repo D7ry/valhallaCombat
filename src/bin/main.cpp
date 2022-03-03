@@ -1,10 +1,11 @@
 #include "SimpleIni.h"
-#include "Hooks.h"
-#include "Papyrus.h"
-#include "data.h"
-#include "debuffHandler.h"
-#include "events/events.h"
-#include "include/TrueHUDAPI.h"
+#include "include/Hooks.h"
+#include "include/Papyrus.h"
+#include "include/data.h"
+#include "include/debuffHandler.h"
+#include "include/events.h"
+#include "include/lib/TrueHUDAPI.h"
+#include "include/PCH.h"
 #include "ValhallaCombat.hpp"
 
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
@@ -15,6 +16,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		settings::readSettings();
 		animEventHandler::hookAllActors();
 		cellLoadEventHandler::Register();
+		inputEventHandler::Register();
 		gameDataCache::GetSingleton()->loadData();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:

@@ -1,6 +1,6 @@
 #include "ValhallaCombat.hpp"
-#include "stunHandler.h"
-#include "hitProcessor.h"
+#include "include/stunHandler.h"
+#include "include/hitProcessor.h"
 void stunHandler::update() {
 	mtx.lock();
 	auto it = stunRegenQueue.begin();
@@ -36,24 +36,7 @@ void stunHandler::update() {
 	mtx.unlock();
 }
 
-void stunHandler::initTrueHUDStunMeter() {
-	auto result = ValhallaCombat::GetSingleton()->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle());
-	if (result != TRUEHUD_API::APIResult::AlreadyTaken || result != TRUEHUD_API::APIResult::AlreadyGiven) {
-		INFO("TrueHUD special bar request success.");
-		if (
-			ValhallaCombat::GetSingleton()->g_trueHUD
-			->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, true) == TRUEHUD_API::APIResult::OK) {
-			INFO("TrueHUD special bar init success.");
-		}
-	}
-}
 
-void stunHandler::releaseTrueHUDStunMeter() {
-	if (ValhallaCombat::GetSingleton()->g_trueHUD
-		->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-		INFO("TrueHUD special bar release success.");
-	}
-}
 
 float stunHandler::getMaxStun(RE::Actor* actor) {
 	auto actorStunMap = stunHandler::GetSingleton()->actorStunMap;
@@ -160,12 +143,7 @@ void stunHandler::houseKeeping() {
 	mtx.unlock();
 }
 
-void stunHandler::refreshStun() {
-	mtx.lock();
-	stunRegenQueue.clear();
-	actorStunMap.clear();
-	mtx.unlock();
-}
+
 
 /*Bunch of abstracted utilities.*/
 #pragma region stunUtils
@@ -191,5 +169,31 @@ void stunHandler::refillStun(RE::Actor* actor) {
 		it->second.second = it->second.first;
 	}
 	mtx.unlock();
+}
+
+void stunHandler::refreshStun() {
+	mtx.lock();
+	stunRegenQueue.clear();
+	actorStunMap.clear();
+	mtx.unlock();
+}
+
+void stunHandler::initTrueHUDStunMeter() {
+	auto result = ValhallaCombat::GetSingleton()->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle());
+	if (result != TRUEHUD_API::APIResult::AlreadyTaken || result != TRUEHUD_API::APIResult::AlreadyGiven) {
+		INFO("TrueHUD special bar request success.");
+		if (
+			ValhallaCombat::GetSingleton()->g_trueHUD
+			->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, true) == TRUEHUD_API::APIResult::OK) {
+			INFO("TrueHUD special bar init success.");
+		}
+	}
+}
+
+void stunHandler::releaseTrueHUDStunMeter() {
+	if (ValhallaCombat::GetSingleton()->g_trueHUD
+		->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
+		INFO("TrueHUD special bar release success.");
+	}
 }
 #pragma endregion

@@ -1,5 +1,5 @@
 #pragma once
-#include "Utils.h"
+#include "include/Utils.h"
 /*Maxsu's block spark function*/
 namespace MaxsuBlockSpark
 {
@@ -228,13 +228,16 @@ namespace MaxsuBlockSpark
 			RE::NiPoint3 sparkPos;
 			
 			RE::NiPoint3 hitPos = attackerNode->worldBound.center + attackerNode->world.rotate * RE::NiPoint3(0.f, 0.5f * attackerNode->worldBound.radius, 0.f);
-			if (BipeObjIndex == RE::BIPED_OBJECT::kShield && defenderLeftEquipped && defenderLeftEquipped->IsArmor() && SparkLocalizer::GetSingleton()->GetShieldSparkPos(hitPos, defenderNode.get(), sparkPos)) {
-				DEBUG("Get Shield Spark Position!");
+			if (BipeObjIndex == RE::BIPED_OBJECT::kShield && defenderLeftEquipped && defenderLeftEquipped->IsArmor() 
+				&& SparkLocalizer::GetSingleton()->GetShieldSparkPos(hitPos, defenderNode.get(), sparkPos)) {
+				//DEBUG("Get Shield Spark Position!");
 			}
-			sparkPos = defenderNode->worldBound.center;
-			DEBUG("Get Weapon Spark Position!");
+			else {
+				sparkPos = defenderNode->worldBound.center;
+			}
+			//DEBUG("Get Weapon Spark Position!");
 			if (cell->PlaceParticleEffect(0.0f, modelName, defenderNode->world.rotate, sparkPos, 1.0f, 4U, defenderNode.get())) {
-				DEBUG("Play Spark Effect Successfully!");
+				//DEBUG("Play Spark Effect Successfully!");
 			}
 
 		}
