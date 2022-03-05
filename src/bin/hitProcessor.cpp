@@ -2,6 +2,7 @@
 #include "include/attackHandler.h"
 #include "include/stunHandler.h"
 #include "include/executionHandler.h"
+#include "include/settings.h"
 void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitData& hitData) {
 	//offset damage from hitdata, based on player difficulty setting.
 	float realDamage = hitData.totalDamage;
@@ -41,7 +42,7 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	//from this point on the hit can only be unblocked melee hit.
 	attackHandler::GetSingleton()->registerHit(aggressor);
 	//DEBUG("test execution");
-	//executionHandler::GetSingleton()->playExecutionIdle(aggressor, victim, gameDataCache::testIdle);
+	//executionHandler::GetSingleton()->playExecutionIdle(aggressor, victim, data::testIdle);
 	if (hitFlag & (int)HITFLAG::kPowerAttack) {
 		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerAttack, hitData.weapon, aggressor, victim, realDamage);
 	}

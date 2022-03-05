@@ -7,7 +7,7 @@
 #include "include/lib/TrueHUDAPI.h"
 #include "include/PCH.h"
 #include "ValhallaCombat.hpp"
-
+#include "include/settings.h"
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
@@ -17,7 +17,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		animEventHandler::hookAllActors();
 		cellLoadEventHandler::Register();
 		inputEventHandler::Register();
-		gameDataCache::GetSingleton()->loadData();
+		data::GetSingleton()->loadData();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
 		INFO("Post load");

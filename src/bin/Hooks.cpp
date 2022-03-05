@@ -5,6 +5,7 @@
 #include "include/stunHandler.h"
 #include "include/hitProcessor.h"
 #include "include/AI.h"
+#include "include/settings.h"
 #pragma endregion
 #pragma region GetHeavyStaminaCost
 float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {

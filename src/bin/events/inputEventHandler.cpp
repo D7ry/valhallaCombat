@@ -1,5 +1,6 @@
 #include "include/events.h"
 #include "include/data.h"
+#include "include/settings.h"
 using EventType = RE::INPUT_EVENT_TYPE;
 using DeviceType = RE::INPUT_DEVICE;
 const auto ui = RE::UI::GetSingleton();

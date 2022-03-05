@@ -1,5 +1,6 @@
 #pragma once
 #include "data.h"
+#include "include/settings.h"
 #include "debuffHandler.h"
 /*Convenience clas to deal with stamina operations.*/
 class staminaHandler

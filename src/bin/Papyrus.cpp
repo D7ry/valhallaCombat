@@ -1,7 +1,7 @@
 #include "include/Papyrus.h"
 
 #include "include/data.h"
-
+#include "include/settings.h"
 namespace Papyrus
 {
 	void ValhallaCombat_MCM::OnConfigClose(RE::TESQuest*)

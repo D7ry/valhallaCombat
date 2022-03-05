@@ -1,5 +1,6 @@
 #include "include/executionHandler.h"
 #include "include/data.h"
+#include "include/settings.h"
 using namespace Utils;
 void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());
@@ -106,7 +107,7 @@ void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim,
 
 }
 
-#define GAMEDATA gameDataCache::GetSingleton()
+#define GAMEDATA data::GetSingleton()
 void executionHandler::executeHumanoid(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	if (executor->isDualWielding()) {
 		playExecutionIdle(executor, victim, GAMEDATA->KM_Humanoid_DW);
@@ -132,7 +133,7 @@ void executionHandler::executeHumanoid(RE::Actor* executor, RE::Actor* victim, R
 	}
 };
 void executionHandler::executeDraugr(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
-	auto gameData = gameDataCache::GetSingleton();
+	auto gameData = data::GetSingleton();
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, GAMEDATA->KM_Undead_2hw); break;
 	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, GAMEDATA->KM_Undead_2hm); break;
@@ -141,7 +142,7 @@ void executionHandler::executeDraugr(RE::Actor* executor, RE::Actor* victim, RE:
 	}
 };
 void executionHandler::executeFalmer(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
-	auto gameData = gameDataCache::GetSingleton();
+	auto gameData = data::GetSingleton();
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, GAMEDATA->KM_Falmer_2hw); break;
 	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, GAMEDATA->KM_Falmer_2hm); break;

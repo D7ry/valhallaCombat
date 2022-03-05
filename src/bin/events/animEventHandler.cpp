@@ -2,6 +2,7 @@
 #include "include/attackHandler.h"
 #include "include/blockHandler.h"
 #include "include/executionHandler.h"
+#include "include/settings.h"
 //all credits to Bingle&Ersh
 constexpr uint32_t hash(const char* data, size_t const size) noexcept
 {

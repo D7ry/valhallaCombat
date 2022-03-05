@@ -25,7 +25,7 @@ namespace Utils
 	@param isPlayerAggressor: whether the play is aggressor or victim of this hitdata.*/
 	inline void offsetRealDamage(float& damage, bool isPlayerAggressor) {
 		DEBUG("damage before offset: {}", damage);
-		auto difficulty = gameDataCache::GetSingleton();
+		auto difficulty = data::GetSingleton();
 		if (isPlayerAggressor) {
 			switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
 			case RE::DIFFICULTY::kNovice: damage *= difficulty->fDiffMultHPByPCVE; break;

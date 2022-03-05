@@ -1,6 +1,7 @@
 #include "ValhallaCombat.hpp"
 #include "include/stunHandler.h"
 #include "include/hitProcessor.h"
+#include "include/settings.h"
 void stunHandler::update() {
 	mtx.lock();
 	auto deltaTime = *Utils::g_deltaTimeRealTime;

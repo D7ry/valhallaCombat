@@ -1,5 +1,6 @@
 #include "include/blockHandler.h"
 #include "include/data.h"
+#include "include/settings.h"
 #include "include/Utils.h"
 #include "include/stunHandler.h"
 #include "include/hitProcessor.h"
@@ -212,21 +213,21 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 void blockHandler::playPerfectBlockSFX(RE::Actor* blocker, int iHitflag, bool blockBrokeGuard) {
 	if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
 		if (blockBrokeGuard) {
-			Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryWeapon_gbD->GetFormID());
+			Utils::sound::playSound(blocker, data::GetSingleton()->soundParryWeapon_gbD->GetFormID());
 		}
 		else {
-			Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryWeaponD->GetFormID());
-			//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
+			Utils::sound::playSound(blocker, data::GetSingleton()->soundParryWeaponD->GetFormID());
+			//RE::BSAudioManager::GetSingleton()->Play(data::soundParryWeaponD);
 		}
 	}
 	else {
 		if (blockBrokeGuard) {
-			Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryShield_gbD->GetFormID());
-			//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryShield_gbD);
+			Utils::sound::playSound(blocker, data::GetSingleton()->soundParryShield_gbD->GetFormID());
+			//RE::BSAudioManager::GetSingleton()->Play(data::soundParryShield_gbD);
 		}
 		else {
-			Utils::sound::playSound(blocker, gameDataCache::GetSingleton()->soundParryShieldD->GetFormID());
-			//RE::BSAudioManager::GetSingleton()->Play(gameDataCache::soundParryWeaponD);
+			Utils::sound::playSound(blocker, data::GetSingleton()->soundParryShieldD->GetFormID());
+			//RE::BSAudioManager::GetSingleton()->Play(data::soundParryWeaponD);
 		}
 	}
 }

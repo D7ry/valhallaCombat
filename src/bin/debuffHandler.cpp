@@ -1,5 +1,6 @@
 #include "include/debuffHandler.h"
 #include "include/data.h"
+#include "include/settings.h"
 #include "valhallaCombat.hpp"
 //TODO:make sure to resume the debuff state on reloading the actor i.e. the actor has debuff perk, but it's no longer in the debuff map, so they have to be put back onto the map.
 /*Called every frame.
@@ -78,13 +79,13 @@ void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
 /*Attach stamina debuff perk to actor.
 @param a_actor actor who will receive the debuff perk.*/
 void debuffHandler::addDebuffPerk(RE::Actor* a_actor) {
-	Utils::safeApplyPerk(gameDataCache::GetSingleton()->debuffPerk, a_actor);
+	Utils::safeApplyPerk(data::GetSingleton()->debuffPerk, a_actor);
 }
 
 /*Remove stamina debuff perk from actor.
 @param a_actor actor who will gets the perk removed.*/
 void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
-	Utils::safeRemovePerk(gameDataCache::GetSingleton()->debuffPerk, a_actor);
+	Utils::safeRemovePerk(data::GetSingleton()->debuffPerk, a_actor);
 }
 	
 
