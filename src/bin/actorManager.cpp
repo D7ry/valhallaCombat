@@ -2,7 +2,7 @@
 #include "include/Utils.h"
 #include "include/data.h"
 #include "include/stunHandler.h"
-bool actorManager::isActorManaged(RE::Actor* actor) {
+/*bool actorManager::isActorManaged(RE::Actor* actor) {
 	return managedActors.find(actor) != managedActors.end();
 }
 
@@ -52,4 +52,4 @@ void actorManager::updateBlocking(actorMetaData* metadata, float deltaTime) {
 void actorManager::updateStun(actorMetaData* metadata, float deltaTime) {
 	//metadata->maxStun = stunHandler::calcMaxStun(metadata->actor);
 
-}
+}*/
