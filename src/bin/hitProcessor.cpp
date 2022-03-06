@@ -20,7 +20,9 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 		}
 		// if not perfect blocked, regenerate stamina only if set so.
 		if (settings::bBlockedHitRegenStamina && !(hitFlag & (int)HITFLAG::kBash)) {
-			attackHandler::GetSingleton()->registerHit(aggressor);
+			if (settings::bAttackStaminaToggle) {
+				attackHandler::GetSingleton()->registerHit(aggressor);
+			}
 		}
 		return;
 	}
@@ -40,7 +42,9 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	}
 
 	//from this point on the hit can only be unblocked melee hit.
-	attackHandler::GetSingleton()->registerHit(aggressor);
+	if (settings::bAttackStaminaToggle) {
+		attackHandler::GetSingleton()->registerHit(aggressor);
+	}
 	//DEBUG("test execution");
 	//executionHandler::GetSingleton()->playExecutionIdle(aggressor, victim, data::testIdle);
 	if (hitFlag & (int)HITFLAG::kPowerAttack) {

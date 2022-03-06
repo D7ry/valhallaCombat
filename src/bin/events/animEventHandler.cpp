@@ -35,7 +35,9 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		break;
 	case "attackStop"_h:
 		//DEBUG("==========attackstop==========");
-		attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
+		if (settings::bAttackStaminaToggle) {
+			attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
+		}
 		if (settings::bStunToggle) {
 			executionHandler::GetSingleton()->concludeExecution(a_event.holder->As<RE::Actor>());
 		}
