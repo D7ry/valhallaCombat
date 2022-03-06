@@ -1,11 +1,11 @@
 #pragma once
+//TODO:clear this up a bit
 namespace Utils
 {
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
 		if (a) {
 			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
-			//DEBUG("{}'s {} damaged for {} points", a->GetName(), av, val);
 		}
 	}
 
@@ -13,7 +13,6 @@ namespace Utils
 	{
 		if (a) {
 			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
-			//DEBUG("{}'s {} restored for {} points", a->GetName(), av, val);
 		}
 	}
 
@@ -60,5 +59,34 @@ namespace Utils
 		return nullptr;
 	}
 
+
+};
+
+class ValhallaUtils
+{
+public:
+	/*Whether the actor's back is facing the other actor's front.
+	@param actor1: actor whose facing will be returned
+	@param actor2: actor whose relative location to actor1 will be calculated.*/
+	static bool isBackFacing(RE::Actor* actor1, RE::Actor* actor2) {
+		auto angle = actor1->GetHeadingAngle(actor2->GetPosition(), false);
+		if (90 < angle || angle < -90) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+
+	typedef void(_fastcall* tPushActorAway_sub_14067D4A0)(RE::AIProcess* a_causer, RE::Actor* a_target, RE::NiPoint3& a_origin, float a_magnitude);
+	inline static REL::Relocation<tPushActorAway_sub_14067D4A0> pushActorAway{ REL::ID(38858) };
+
+	/*Send the target flying based on causer's location.
+	@param magnitude: strength of a push.*/
+	static void PushActorAway(RE::Actor* causer, RE::Actor* target, float magnitude) {
+		RE::NiPoint3 vec = causer->GetPosition();
+		pushActorAway(causer->currentProcess, target, vec, magnitude);
+	}
 
 };

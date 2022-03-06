@@ -29,7 +29,9 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	switch (hash(eventTag.data(), eventTag.size())) {
 	case "preHitFrame"_h:
 		//DEBUG("==========prehitFrame==========");
-		attackHandler::GetSingleton()->registerAtk(a_event.holder->As<RE::Actor>());
+		if (settings::bAttackStaminaToggle) {
+			attackHandler::GetSingleton()->registerAtk(a_event.holder->As<RE::Actor>());
+		}
 		break;
 	case "attackStop"_h:
 		//DEBUG("==========attackstop==========");
@@ -46,7 +48,6 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		break;
 	//case "tailcombatidle"_h:
 		/*Unghost the executor on finish*/
-
 		//break;
 	case "TKDR_IFrameEnd"_h:
 		//DEBUG("==========TK DODGE============");

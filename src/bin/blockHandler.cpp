@@ -4,6 +4,7 @@
 #include "include/Utils.h"
 #include "include/stunHandler.h"
 #include "include/hitProcessor.h"
+#include "include/reactionHandler.h"
 #include "include/lib/BlockSpark.h"
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
@@ -60,53 +61,24 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 	mtx.unlock();
 }
 /*Make an actor break their guard through a animation event.*/
-void blockHandler::guardBreakLarge(RE::Actor* guardBreakingActor, RE::Actor* guardBrokeActor) {
-	if (!settings::bPoiseCompatibility) {
-		RE::NiPoint3 vec = guardBreakingActor->GetPosition();
-		Utils::pushActorAway(guardBreakingActor->currentProcess, guardBrokeActor, vec, 7);
-	}
-	else {
-		guardBrokeActor->NotifyAnimationGraph("poise_largest_start");
-	}
-}
-
-/*Make a small guardbreak.*/
-void blockHandler::guardBreakMedium(RE::Actor* victim) {
-	if (!settings::bPoiseCompatibility) {
-		victim->SetGraphVariableFloat("StaggerMagnitude", 10);
-		victim->NotifyAnimationGraph("staggerStart");
-	}
-	else {
-		victim->NotifyAnimationGraph("poise_med_start");
-	}
-
-}
-
-void blockHandler::guardBreakSmall(RE::Actor* deflector, RE::Actor* deflected) {
-	if (!settings::bPoiseCompatibility) {
-		deflected->NotifyAnimationGraph("RecoilStop");
-		deflected->SetGraphVariableFloat("recoilMagnitude", 10);
-		deflected->NotifyAnimationGraph("recoilLargeStart");
-	}
-	else {
-		deflected->NotifyAnimationGraph("poise_med_start");
-	}
-
-}
 
 
 #pragma region Process Block
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
-	if (settings::bPerfectBlockToggle && actorsPerfectBlocking.find(blocker) != actorsPerfectBlocking.end()) {
-		processPerfectBlock(blocker, aggressor, iHitflag, hitData);
-		return true;
+	if (settings::bPerfectBlockToggle) {
+		if (actorsPerfectBlocking.find(blocker) != actorsPerfectBlocking.end()) {
+			processPerfectBlock(blocker, aggressor, iHitflag, hitData);
+			return true;
+		}
 	}
-	processStaminaBlock(blocker, aggressor, iHitflag, hitData, realDamage);
+	if (settings::bBlockStaminaToggle) {
+		processStaminaBlock(blocker, aggressor, iHitflag, hitData, realDamage);
+	}
 	return false;
 }
 /*Process a stamina block.
-Actor with enough stamina can negate all incoming health damage with stamina. Actor without enough stamina will stagger and receive partial damage.*/
+Actor with enough stamina can negate all incoming health damage with stamina. Actor without enough stamina will triggerStagger and receive partial damage.*/
 void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	DEBUG("processing stamina block");
 	using HITFLAG = RE::HitData::Flag;
@@ -151,10 +123,10 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
 			if (iHitflag & (int)HITFLAG::kPowerAttack) {
-				guardBreakLarge(aggressor, blocker);
+				reactionHandler::GetSingleton()->triggerReactionLarge(aggressor, blocker);
 			}
 			else {
-				guardBreakMedium(blocker);
+				reactionHandler::GetSingleton()->triggerReactionMedium(aggressor, blocker);
 			}
 		}
 		hitData.totalDamage =
@@ -191,7 +163,7 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	hitData.totalDamage = 0;
 	bool blockBrokeGuard = false;
 	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
-		guardBreakLarge(blocker, aggressor);
+		reactionHandler::GetSingleton()->triggerReactionMedium(blocker, aggressor);
 		blockBrokeGuard = true;
 	}
 	if (settings::bPerfectBlockVFX) {
@@ -199,7 +171,7 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	}
 	if ((blocker->IsPlayerRef() || aggressor->IsPlayerRef())
 		&& settings::bPerfectBlockScreenShake) {
-
+		playPerfectBlockScreenShake(blocker, iHitflag, blockBrokeGuard);
 	}
 	if (settings::bPerfectBlockSFX) {
 		playPerfectBlockSFX(blocker, iHitflag, blockBrokeGuard);

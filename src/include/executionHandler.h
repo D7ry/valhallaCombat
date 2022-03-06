@@ -2,51 +2,6 @@
 #include "lib/robin_hood.h"
 /*Class handling all executions*/
 class executionHandler {
-private:
-#pragma region CreatureBodyTypeData
-	static const uint32_t uIntBodyPartData_Humanoid = 29;
-	static const uint32_t uIntBodyPartData_Dragon = 78994;
-	static const uint32_t uIntBodyPartData_FrostbiteSpider = 96553;
-	static const uint32_t uIntBodyPartData_SabreCat = 134694;
-	static const uint32_t uIntBodyPartData_Skeever;
-	static const uint32_t uIntBodyPartData_DragonPriest;
-	static const uint32_t uIntBodyPartData_Draugr = 298003;
-	static const uint32_t uIntBodyPartData_Cow;
-	static const uint32_t uIntBodyPartData_Dog = 326645;
-	static const uint32_t uIntBodyPartData_Giant = 333739;
-	static const uint32_t uIntBodyPartData_Chaurus;
-	static const uint32_t uIntBodyPartData_ChaurusFlyer = 33575429;
-	static const uint32_t uIntBodyPartData_Mammoth;
-	static const uint32_t uIntBodyPartData_AtronachFrost;
-	static const uint32_t uIntBodyPartData_AtronachStorm;
-	static const uint32_t uIntBodyPartData_AtronachFlame;
-	static const uint32_t uIntBodyPartData_Falmer = 384418;
-	static const uint32_t uIntBodyPartData_Horse;
-	static const uint32_t uIntBodyPartData_Hare;
-	static const uint32_t uIntBodyPartData_Goat;
-	static const uint32_t uIntBodyPartData_Deer;
-	static const uint32_t uIntBodyPartData_DwarvenSphereCenturion = 493389;
-	static const uint32_t uIntBodyPartData_DwarvenSteamCenturion = 524524;
-	static const uint32_t uIntBodyPartData_DwarvenBallistaCenturion = 67285016;
-	static const uint32_t uIntBodyPartData_DwarvenSpider;
-	static const uint32_t uIntBodyPartData_Bear = 551164;
-	static const uint32_t uIntBodyPartData_Horker;
-	static const uint32_t uIntBodyPartData_Troll = 601235;
-	static const uint32_t uIntBodyPartData_Hagraven = 619074;
-	static const uint32_t uIntBodyPartData_Spriggan = 656416;
-	static const uint32_t uIntBodyPartData_Chicken;
-	static const uint32_t uIntBodyPartData_Mudcrab;
-	static const uint32_t uIntBodyPartData_WerewolfBeast;
-	static const uint32_t uIntBodyPartData_Gargoyle = 33596103;
-	static const uint32_t uIntBodyPartData_DwarvenBallistaCenturion;
-	static const uint32_t uIntBodyPartData_DLC2_Riekling = 67206995;
-	static const uint32_t uIntBodyPartData_DLC2_Scrib = 67214034;
-	static const uint32_t uIntBodyPartData_DLC2_Dragon;
-	static const uint32_t uIntBodyPartData_DLC2_HMDaedra;
-	static const uint32_t uIntBodyPartData_DLC2_MountedRiekling;
-	static const uint32_t uIntBodyPartData_DLC2_Netch;
-	static const uint32_t uIntBodyPartData_DLC2_BenthicLurker = 67274039;
-#pragma endregion
 public:
 
 
@@ -75,33 +30,26 @@ public:
 	void concludeExecution(RE::Actor* executor);
 
 private:
-	/*Send an execution console command through console.
-	@param uIntAggressorFormId: formId of aggressor, in unsigned int 32.
-	@param uIntVictimFormId: formid of victim, in unsigned int 32.
-	@param animStr: paired execution animation to be played, in unsigned int 32.*/
-	void sendExecutionCommand(RE::Actor* executer, RE::Actor* victim, std::vector<std::string> executionStrSet) { };
-	void sendExecutionCommand(RE::Actor* executer, RE::Actor* victim, std::string executionStr) { };
-
 	void executeHumanoid(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeDraugr(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeFalmer(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeSpider(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeGargoyle(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeGiant(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeBear(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeSabreCat(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeWolf(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeTroll(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeHagraven(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeSpriggan(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeBoar(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeRiekling(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeAshHopper(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeSteamCenturion(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeDwarvenBallista(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeChaurusFlyer(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeLurker(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
-	inline void executeDragon(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeDraugr(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeFalmer(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeSpider(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeGargoyle(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeGiant(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeBear(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeSabreCat(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeWolf(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeTroll(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeHagraven(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeSpriggan(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeBoar(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeRiekling(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeAshHopper(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeSteamCenturion(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeDwarvenBallista(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeChaurusFlyer(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeLurker(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+	void executeDragon(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
 
 };
 

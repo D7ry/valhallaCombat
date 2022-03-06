@@ -37,12 +37,9 @@ public:
 
 private:
 	static inline std::mutex mtx;
-	inline void guardBreakLarge(RE::Actor* actor, RE::Actor* actorToPush);
-	inline void guardBreakMedium(RE::Actor* actor);
-	inline void guardBreakSmall(RE::Actor* deflector, RE::Actor* deflected);
 	/*Process a stamina block.
 	Actor with enough stamina can negate all incoming health damage with stamina. 
-	Actor without enough stamina will stagger and receive partial damage.*/
+	Actor without enough stamina will triggerStagger and receive partial damage.*/
 	void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 	/*Process perfect block does not take in real damage, as parry damage is re-adjusted.*/

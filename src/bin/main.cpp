@@ -15,7 +15,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Data loaded");
 		settings::readSettings();
 		animEventHandler::hookAllActors();
-		cellLoadEventHandler::Register();
+		//cellLoadEventHandler::Register();
 		inputEventHandler::Register();
 		data::GetSingleton()->loadData();
 		break;

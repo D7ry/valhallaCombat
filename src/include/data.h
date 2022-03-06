@@ -94,8 +94,32 @@ public:
 
 #pragma endregion
 #pragma region ExecutionRaces
-	/*Mapping of all executable races -> Vector of killmove idles suitable for those races.*/
-	robin_hood::unordered_map<RE::TESRace*, std::vector<RE::TESIdleForm*>> ExecutionRaceMap;
+	enum raceCatagory
+	{
+		Humanoid = 0,
+		Undead,
+		Falmer,
+		Spider,
+		Gargoyle,
+		Giant,
+		Bear,
+		SabreCat,
+		Wolf,
+		Troll,
+		Hagraven,
+		Spriggan,
+		Boar,
+		Riekling,
+		AshHopper,
+		SteamCenturion,
+		DwarvenBallista,
+		ChaurusFlyer,
+		Lurker,
+		Dragon
+	};
+	/*Mapping of all executable races -> catagory of those races.*/
+	//Note: catagorization of execution races has to be done manually.
+	robin_hood::unordered_map<RE::TESRace*, raceCatagory> ExecutionRaceMap;
 #pragma endregion
 #pragma region sounds
 	RE::BGSSoundDescriptorForm* soundParryShieldD;
@@ -119,14 +143,58 @@ public:
 
 #pragma endregion
 private:
+	/*Directory storing all executable race and the mapping to their killmoves.*/
+	static inline const std::string kmRaceDir = "Data/SKSE/Plugins/ValhallaCombat/RaceMapping";
+	/*Path of file storing all killmoves.*/
+	static inline const char* kmFilePath = "Data\\SKSE\\Plugins\\ValhallaCombat\\Killmoves.ini";
 
-
+	/*Lookup an idle from a certain esp, and store it in an idleContainer. Errors if the idle does not exist.
+	@param DATA: pointer to TESDataHandler's singleton.
+	@param form: formID of the idle.
+	@param pluginName: name of the plugin storing idle.
+	@param idleContainer: Vector to store loaded idle.
+	@return Whether the idle exists and therefore can be loaded or not.*/
 	bool lookupIdle(RE::TESDataHandler* DATA, RE::FormID form, std::string pluginName, std::vector<RE::TESIdleForm*>* idleContainer);
-	void loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm*>* idleContainer, const char* section);
+
+	/*Load a simpleIni section storing a set of idles belonging to that section.
+	@param DATA: pointer to TESDataHandler's singleton.
+	@param idleContainer: Vector to store loaded idles.
+	@param ini: ini storing idle sections.
+	@param section: a simpleIni's section, in string, to be loaded.*/
+	void loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm*>* idleContainer, 
+		CSimpleIniA& ini, const char* section);
+
+	/*Load all execution animations.*/
 	void loadIdle();
 
+	/*Read race from the plugin, and map it to an execution type through ExecutionRaceMap.
+	@param DATA: pointer to TESDataHandler's singleton.
+	@param form: formID of the race.
+	@param pluginName: name of the plugin storing the race.
+	@param raceCatagory: type of the execution race to be mapped to.
+	@return If the race form exists or not.*/
+	bool pairUpRace(RE::TESDataHandler* DATA, RE::FormID form, std::string pluginName, raceCatagory raceType);
+
+	/*Load a simpleIni section storing a set of races belonging to that section's corresponding killmove.
+	@param DATA: pointer to TESDataHandler's singleton.
+	@param raceType: type of the execution race to be mapped to.
+	@param ini: ini whose section to load.
+	@param section: a simpleIni's section, in string, to be loaded.*/
+	void loadRaceSection(RE::TESDataHandler* DATA, raceCatagory raceType, CSimpleIniA& ini, const char* section);
+
+	/*Load a simpleIni file storing mapping of executable races.*/
+	void loadExecutableRaceIni(RE::TESDataHandler* DATA, const char* ini_path);
+
+	/*Load all executable races from all ini files by iterating over them.*/
+	void loadExecutableRace();
+
+	/*Load all sounds from game.*/
 	void loadSound();
+
+	/*Load all perks from game.*/
 	void loadPerk();
+
+	/*Load all difficulty multiplier from game.*/
 	void loadDifficultySettings();
 
 

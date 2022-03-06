@@ -12,9 +12,11 @@ float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGS
 	DEBUG("hooked attack stamina cost!");
 	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
 	DEBUG("actor is {}", a_actor->GetName());
-	if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack) 
-		&& !atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
-		return 0;
+	if (settings::bAttackStaminaToggle) { //negate vanilla heavy attack stamina cost
+		if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)
+			&& !atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
+			return 0;
+		}
 	}
 	return _getHeavyAttackStaminaCost(avOwner, atkData);
 }

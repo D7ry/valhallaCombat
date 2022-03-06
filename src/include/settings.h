@@ -85,7 +85,8 @@ public:
 #pragma endregion
 
 	//TODO: add new settings
-	static inline bool bStaminaToggle = true;
+	static inline bool bAttackStaminaToggle = true;
+	static inline bool bBlockStaminaToggle = true;
 	static void readSettings();
 	
 private:
