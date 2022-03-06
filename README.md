@@ -56,16 +56,17 @@ _Unlike all other perfect blocking mods(Deflection, Strike Obstruction Systems, 
 _Attacking&Blocking costs stamina, so there will be some penalties for not having enough stamina. Vanilla stamina penalty is outright useless, as it merely places a limitation on doing power attacks, which can be easily lifted by drinking a vegetable soup. Souls stamina penalty is way too punishing and limiting, as it leaves you with 0 countermeasures when out of stamina. Some mods implement procedural stamina penalty i.e. actors do more damage with more stamina; that disrupts the flow of combat as you're required to keep your stamina high. Giving actors debuff ONLY on stamina depletion is the perfect middleground._
 
 
-## **Stun/Execution**
-- Stun
-  - Every actor has their own separate stun value, based on their health and stamina.
-  - Use TrueHud to enable NPC stun meter, displaying the amount of stun they have on top of their health meter.
-  - Every hit damages an actor's stun. 
-  - Power attack damages significantly more stun than light. 
-  - Blunt weapon damages moderately more stun than blades.
-  - Parrying an attack also damages the attacker's stun.
-  - Blocked attacks will not damage stun. 
-  - Stun does not regenerate during combat.
+## **Stun**
+- Every actor has their own separate stun value, based on their health and stamina.
+- Use TrueHud to enable NPC stun meter, displaying the amount of stun they have on top of their health meter.
+- Every hit damages an actor's stun. 
+- Power attack damages significantly more stun than light. 
+- Blunt weapon damages moderately more stun than blades.
+- Parrying an attack also damages the attacker's stun.
+- Blocked attacks will not damage stun. 
+- Stun does not regenerate during combat.
 
-- Execution
-  - When an actor's stun reaches 0, the actor can be executed.
+
+## **Execution**
+- When an actor's stun reaches 0, they can be executed.
+- Currently one can execute their target by a simple button press. In the future there will be a dedicated button for execution.
