@@ -43,7 +43,7 @@ Unlike any scripted workarounds, Valhalla Combat's stamina blocking implementati
 - Parrying deflects the attacker's damage back as stun damage. 
 - If the attacker has less than 0 stamina, parrying their attack knocks them back.
 - Parrying an attack will trigger custom visual and sound effects that are easily replaceable. 
-- Scriptless, lag-free.
+- Scriptless, lag-free.<br/>
 _Unlike all other perfect blocking mods(Deflection, Strike Obstruction Systems, Ultimate Combat, Inpa Sekiro Combat, Sekiro Combat, Wildcat, Ordinator, etc...), Valhalla Combat's perfect blocking has 0 script lag. Whether you can successfully parry an attack depends entirely on your timing, not how much script lag you have._
 
 ## **Exhaustion**
