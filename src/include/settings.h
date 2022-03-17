@@ -14,12 +14,14 @@ public:
 #pragma region StaminSettings
 	static inline bool bUIAlert = true;
 	static inline bool bNonCombatStaminaDebuff = true;
-
+	
+	
 	static inline float fStaminaRegenMult = 5;
 	static inline float fStaminaRegenLimit = 50;
 	static inline float fCombatStaminaRegenMult = 1;
 	static inline float fStaminaRegenDelay = 2;
 
+	static inline bool bBlockStaminaToggle = true;
 	static inline bool bGuardBreak = true;
 	static inline float fBckShdStaminaMult_PC_Block_NPC = 1;
 	static inline float fBckWpnStaminaMult_PC_Block_NPC = 1;
@@ -30,7 +32,10 @@ public:
 	static inline float fBckShdStaminaMult_NPC_Block_NPC = 1;
 	static inline float fBckWpnStaminaMult_NPC_Block_NPC = 1;
 
+	static inline bool bAttackStaminaToggle = true;
 	static inline bool bBlockedHitRegenStamina = false;
+
+	
 	static inline float fMeleeCostLightMiss_Point = 30;
 	static inline float fMeleeRewardLightHit_Percent = 0.2;
 	static inline float fMeleeCostHeavyMiss_Percent = 0.333;
@@ -46,7 +51,7 @@ public:
 	static inline bool bPerfectBlockScreenShake = true;
 	static inline bool bPerfectBlockSFX = true;
 	static inline bool bPerfectBlockVFX = true;
-	static inline float fPerfectBlockTime = 0.3;
+	static inline float fPerfectBlockTime = 0.33;
 	static inline float fPerfectBlockCoolDownTime = 1;
 
 #pragma endregion
@@ -65,10 +70,10 @@ public:
 	static inline float fStunUnarmedMult = 1.3;
 	static inline float fStunDaggerMult = 0.5;
 	static inline float fStunSwordMult = 0.9;
-	static inline float fStunWarAxeMult = 1.2;
-	static inline float fStunMaceMult = 1.3;
-	static inline float fStunGreatSwordMult = 1.5;
-	static inline float fStun2HBluntMult = 1.7;
+	static inline float fStunWarAxeMult = 1.1;
+	static inline float fStunMaceMult = 1.1;
+	static inline float fStunGreatSwordMult = 1.2;
+	static inline float fStun2HBluntMult = 1.3;
 
 
 	//execute
@@ -85,8 +90,7 @@ public:
 #pragma endregion
 
 	//TODO: add new settings
-	static inline bool bAttackStaminaToggle = true;
-	static inline bool bBlockStaminaToggle = true;
+
 	static void readSettings();
 	
 private:

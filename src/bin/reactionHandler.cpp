@@ -69,7 +69,7 @@ void reactionHandler::triggerReactionLarge(RE::Actor* causer, RE::Actor* reactor
 
 void reactionHandler::triggerReactionMedium(RE::Actor* causer, RE::Actor* reactor) {
 	if (!settings::bPoiseCompatibility) {
-		triggerStagger(causer, reactor, 1);
+		triggerStagger(causer, reactor, 2);
 	}
 	else {
 		triggerPoiseReaction(causer, reactor, poiseReactionType::kMedium);
@@ -78,7 +78,7 @@ void reactionHandler::triggerReactionMedium(RE::Actor* causer, RE::Actor* reacto
 
 void reactionHandler::triggerReactionSmall(RE::Actor* causer, RE::Actor* reactor) {
 	if (!settings::bPoiseCompatibility) {
-		triggerStagger(causer, reactor, 0.1);
+		triggerStagger(causer, reactor, 1);
 	}
 	else {
 		triggerPoiseReaction(causer, reactor, poiseReactionType::kSmall);

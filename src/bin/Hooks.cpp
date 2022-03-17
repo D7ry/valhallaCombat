@@ -38,18 +38,16 @@ uintptr_t Hook_GetBlockChance::getBlockChance(RE::Actor* actor) {
 #pragma endregion
 #pragma region GetAttackChance
 uintptr_t Hook_GetAttackChance1::getAttackChance(RE::Actor* actor, RE::Actor* target, RE::BGSAttackData* atkData) {
-	//DEBUG("hooked getattackchance1");
-	//DEBUG("actor 1: {}, actor2: {}", actor->GetName(), target->GetName());
-	if (debuffHandler::GetSingleton()->isInDebuff(actor)) {
+	if (settings::bAttackStaminaToggle
+		&& debuffHandler::GetSingleton()->isInDebuff(actor)) {
 		//DEBUG("attack denied");
 		return 0;
 	}
 	return _getAttackChance(actor, target, atkData);
 }
 uintptr_t Hook_GetAttackChance2::getAttackChance(RE::Actor* actor, RE::Actor* target, RE::BGSAttackData* atkData) {
-	//DEBUG("hooked getattackchance2");
-	//DEBUG("actor 1: {}, actor2: {}", actor->GetName(), target->GetName());
-	if (debuffHandler::GetSingleton()->isInDebuff(actor)) {
+	if (settings::bAttackStaminaToggle
+		&& debuffHandler::GetSingleton()->isInDebuff(actor)) {
 		//DEBUG("attack denied");
 		return 0;
 	}

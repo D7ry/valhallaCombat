@@ -43,6 +43,7 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "Stamina", "fCombatStaminaRegenMult", fCombatStaminaRegenMult);
 	ReadFloatSetting(ini, "Stamina", "fStaminaRegenDelay", fStaminaRegenDelay);
 
+	ReadBoolSetting(ini, "Stamina", "bBlockStaminaToggle", bBlockStaminaToggle);
 	ReadBoolSetting(ini, "Stamina", "bGuardBreak", bGuardBreak);
 	ReadFloatSetting(ini, "Stamina", "fBckShdStaminaMult_NPC_Block_NPC", fBckShdStaminaMult_NPC_Block_NPC);
 	ReadFloatSetting(ini, "Stamina", "fBckShdStaminaMult_NPC_Block_PC", fBckShdStaminaMult_NPC_Block_PC);
@@ -51,6 +52,7 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "Stamina", "fBckWpnStaminaMult_NPC_Block_PC", fBckWpnStaminaMult_NPC_Block_PC);
 	ReadFloatSetting(ini, "Stamina", "fBckWpnStaminaMult_PC_Block_NPC", fBckWpnStaminaMult_PC_Block_NPC);
 
+	ReadBoolSetting(ini, "Stamina", "bAttackStaminaToggle", bAttackStaminaToggle);
 	ReadBoolSetting(ini, "Stamina", "bBlockedHitRegenStamina", bBlockedHitRegenStamina);
 	ReadFloatSetting(ini, "Stamina", "fMeleeCostLightMiss_Point", fMeleeCostLightMiss_Point); 
 	ReadFloatSetting(ini, "Stamina", "fMeleeRewardLightHit_Percent", fMeleeRewardLightHit_Percent);

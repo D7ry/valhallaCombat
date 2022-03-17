@@ -88,7 +88,6 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	/*Set the executor as ghost and start tracking them.*/
 	setIsGhost(executor, true);
 	activeExecutor.emplace(executor);
-
 	victim->SetGraphVariableBool("bIdlePlaying", true); //DHAF compatibility
 };
 

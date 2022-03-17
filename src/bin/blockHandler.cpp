@@ -123,10 +123,10 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
 			if (iHitflag & (int)HITFLAG::kPowerAttack) {
-				reactionHandler::GetSingleton()->triggerReactionLarge(aggressor, blocker);
+				reactionHandler::triggerReactionLarge(aggressor, blocker);
 			}
 			else {
-				reactionHandler::GetSingleton()->triggerReactionMedium(aggressor, blocker);
+				reactionHandler::triggerReactionMedium(aggressor, blocker);
 			}
 		}
 		hitData.totalDamage =
@@ -163,22 +163,26 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	hitData.totalDamage = 0;
 	bool blockBrokeGuard = false;
 	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
-		reactionHandler::GetSingleton()->triggerReactionMedium(blocker, aggressor);
+		reactionHandler::triggerKnockBack(blocker, aggressor);
 		blockBrokeGuard = true;
 	}
 	if (settings::bPerfectBlockVFX) {
+		DEBUG("vfx");
 		playPerfectBlockVFX(blocker, aggressor, iHitflag, blockBrokeGuard);
 	}
 	if ((blocker->IsPlayerRef() || aggressor->IsPlayerRef())
 		&& settings::bPerfectBlockScreenShake) {
+		DEBUG("screen shake");
 		playPerfectBlockScreenShake(blocker, iHitflag, blockBrokeGuard);
 	}
 	if (settings::bPerfectBlockSFX) {
+		DEBUG("SFX");
 		playPerfectBlockSFX(blocker, iHitflag, blockBrokeGuard);
 	}
 	mtx.lock();
 	actorsPerfectblockSuccessful.emplace(blocker); //register the blocker as a successful blocker.
 	mtx.unlock();
+	DEBUG("perfect block process complete");
 }
 #pragma endregion
 
@@ -207,7 +211,6 @@ void blockHandler::playPerfectBlockVFX(RE::Actor* blocker, RE::Actor* aggressor,
 	MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
 }
 void blockHandler::playPerfectBlockScreenShake(RE::Actor* blocker, int iHitflag, bool blockBrokeGuard) {
-	playPerfectBlockScreenShake(blocker, iHitflag, blockBrokeGuard);
 	if (blockBrokeGuard) {
 		Utils::shakeCamera(1.8, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.5f);
 	}

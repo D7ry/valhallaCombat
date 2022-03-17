@@ -51,6 +51,7 @@ private:
 	static inline REL::Relocation<decltype(getBlockChance)> _getBlockChance;
 };
 
+/*Returns NPC attack chance. Return 0 to deny NPC attack.*/
 class Hook_GetAttackChance1 {
 public:
 	static void install() { //Up	p	sub_14042F810+157A	call    Character__sub_140845B30
@@ -65,7 +66,7 @@ private:
 	static uintptr_t getAttackChance(RE::Actor* a1, RE::Actor* a2, RE::BGSAttackData* atkData);
 	static inline REL::Relocation<decltype(getAttackChance)> _getAttackChance;
 };
-
+/*Returns NPC attack chance. Return 0 to deny NPC attack.*/
 class Hook_GetAttackChance2 {
 public:
 	static void install() { //Up	p	sub_14080C020+2AE	call    Character__sub_140845B30
@@ -147,8 +148,8 @@ public:
 		Hook_GetAttackStaminaCost::install();
 		//Hook_CacheAttackStaminaCost::install();
 		//Hook_GetBlockChance::install();
-		//Hook_GetAttackChance1::install();
-		//Hook_GetAttackChance2::install();
+		Hook_GetAttackChance1::install();
+		Hook_GetAttackChance2::install();
 		Hook_StaminaRegen::install();
 		Hook_MeleeHit::install();
 		Hook_MainUpdate::install();

@@ -92,6 +92,7 @@ void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
 bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
 	mtx.lock();
 	if (actorDebuffMap.find(a_actor) != actorDebuffMap.end()) {
+		mtx.unlock();
 		return true;
 	}
 	mtx.unlock();

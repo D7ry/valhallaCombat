@@ -3,6 +3,7 @@
 #include "include/stunHandler.h"
 #include "include/executionHandler.h"
 #include "include/settings.h"
+#include "include/reactionHandler.h"
 void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitData& hitData) {
 	//offset damage from hitdata, based on player difficulty setting.
 	float realDamage = hitData.totalDamage;
