@@ -40,7 +40,7 @@ uintptr_t Hook_GetBlockChance::getBlockChance(RE::Actor* actor) {
 uintptr_t Hook_GetAttackChance1::getAttackChance(RE::Actor* actor, RE::Actor* target, RE::BGSAttackData* atkData) {
 	if (settings::bAttackStaminaToggle
 		&& debuffHandler::GetSingleton()->isInDebuff(actor)) {
-		//DEBUG("attack denied");
+		int i = 0;
 		return 0;
 	}
 	return _getAttackChance(actor, target, atkData);
@@ -48,7 +48,7 @@ uintptr_t Hook_GetAttackChance1::getAttackChance(RE::Actor* actor, RE::Actor* ta
 uintptr_t Hook_GetAttackChance2::getAttackChance(RE::Actor* actor, RE::Actor* target, RE::BGSAttackData* atkData) {
 	if (settings::bAttackStaminaToggle
 		&& debuffHandler::GetSingleton()->isInDebuff(actor)) {
-		//DEBUG("attack denied");
+		int j = 0;
 		return 0;
 	}
 	return _getAttackChance(actor, target, atkData);

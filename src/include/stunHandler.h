@@ -24,9 +24,10 @@ private:
 	@param actor: actor whose stun will be recovered fully.*/
 	void refillStun(RE::Actor* actor);
 	/*Damage this actor's stun. If the actor does not exist on the stunmap, track their stun first.
+	@param aggressor: actor who will apply stun damage.
 	@param actor: actor whose stun will be damaged.
 	@param damage: stun damage applied onto this actor.*/
-	void damageStun(RE::Actor* actor, float damage);
+	void damageStun(RE::Actor* aggressor, RE::Actor* actor, float damage);
 
 	/*An actor is knocked down when simultaneously out of stun and stamina, and either:
 	gets their attack parried OR

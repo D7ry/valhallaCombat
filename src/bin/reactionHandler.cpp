@@ -51,7 +51,7 @@ void reactionHandler::triggerPoiseReaction(RE::Actor* aggressor, RE::Actor* reac
 
 void reactionHandler::triggerKnockBack(RE::Actor* aggressor, RE::Actor* reactor) {
 	if (!settings::bPoiseCompatibility) {
-		ValhallaUtils::PushActorAway(aggressor, reactor, 6);
+		ValhallaUtils::PushActorAway(aggressor, reactor, 7);
 	}
 	else {
 		triggerPoiseReaction(aggressor, reactor, poiseReactionType::kLargest);

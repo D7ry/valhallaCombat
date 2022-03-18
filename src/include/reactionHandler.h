@@ -31,7 +31,9 @@ public:
 	/*Initialize a large reaction. */
 	static void triggerReactionLarge(RE::Actor* causer, RE::Actor* reactor);
 
-	/*Initialize a knockback.*/
+	/*Initialize a knockback.
+	@param causer: actor to cause the knockback.
+	@param reactor: actor to be knocked back.*/
 	static void triggerKnockBack(RE::Actor* causer, RE::Actor* reactor);
 
 

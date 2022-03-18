@@ -55,56 +55,6 @@ namespace Utils
 {
 	namespace sound
 	{
-		static inline int sub_140BEEE70(void* manager, RE::BSSoundHandle* a2, int a3, int a4)
-		{
-			using func_t = decltype(&sub_140BEEE70);
-			REL::Relocation<func_t> func{ REL::ID(66401) };
-			return func(manager, a2, a3, a4);
-		}
 
-		static inline char set_sound_position(RE::BSSoundHandle* a1, float x, float y, float z)
-		{
-			using func_t = decltype(&set_sound_position);
-			REL::Relocation<func_t> func{ REL::ID(66370) };
-			return func(a1, x, y, z);
-		}
-
-		static inline void sub_140BEDB10(RE::BSSoundHandle* a1, RE::NiAVObject* source_node)
-		{
-			using func_t = decltype(&sub_140BEDB10);
-			REL::Relocation<func_t> func{ REL::ID(66375) };
-			return func(a1, source_node);
-		}
-
-		static inline char __fastcall sub_140BED530(RE::BSSoundHandle* a1)
-		{
-			using func_t = decltype(&sub_140BED530);
-			REL::Relocation<func_t> func{ REL::ID(66355) };
-			return func(a1);
-		}
-
-		static inline void* BSAudioManager__GetSingleton()
-		{
-			using func_t = decltype(&BSAudioManager__GetSingleton);
-			REL::Relocation<func_t> func{ RE::Offset::BSAudioManager::GetSingleton };
-			return func();
-		}
-		/*Play sound with formid at actor.
-		@param a: actor on which to play sonud.
-		@param formid: formid of the sound descriptor.*/
-		static inline void playSound(RE::Actor* a, int formid)
-		{
-			RE::BSSoundHandle handle;
-			handle.soundID = static_cast<uint32_t>(-1);
-			handle.assumeSuccess = false;
-			*(uint32_t*)&handle.state = 0;
-
-			auto manager = BSAudioManager__GetSingleton();
-			sub_140BEEE70(manager, &handle, formid, 16);
-			if (set_sound_position(&handle, a->data.location.x, a->data.location.y, a->data.location.z)) {
-				sub_140BEDB10(&handle, a->Get3D());
-				sub_140BED530(&handle);
-			}
-		}
 	}
 }

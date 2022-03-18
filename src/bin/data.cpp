@@ -14,10 +14,12 @@ void data::loadData() {
 
 void data::loadSound() {
 	INFO("Loading sound descriptors...");
-	soundParryShieldD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X433C, "ValhallaCombat.esp");
-	soundParryWeaponD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X3DD9, "ValhallaCombat.esp");
-	soundParryShield_gbD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X47720, "ValhallaCombat.esp");
-	soundParryWeapon_gbD = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSSoundDescriptorForm>(0X47721, "ValhallaCombat.esp");
+	auto DATA = RE::TESDataHandler::GetSingleton();
+	soundParryShieldD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X433C, "ValhallaCombat.esp");
+	soundParryWeaponD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X3DD9, "ValhallaCombat.esp");
+	soundParryShield_gbD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X47720, "ValhallaCombat.esp");
+	soundParryWeapon_gbD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X47721, "ValhallaCombat.esp");
+	soundStunBreakD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X56A22, "ValhallaCombat.esp");
 	if (soundParryShieldD && soundParryWeaponD && soundParryShield_gbD && soundParryWeapon_gbD) {
 		INFO("Sound descriptors successfully loaded!");
 	}
@@ -50,7 +52,7 @@ void data::loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm
 	for (CSimpleIniA::TNamesDepend::iterator s_it1 = keys.begin(); s_it1 != keys.end(); s_it1++) {
 		const char* idle = s_it1->pItem;
 		auto line = ini.GetValue(section, idle);
-		std::vector<std::string> idleConfigs = parseStr("|", line);
+		std::vector<std::string> idleConfigs = tokenize("|", line);
 		if (idleConfigs.size() != 2) {
 			ERROR("Error: wrong config length");
 			continue;
@@ -190,7 +192,7 @@ void data::loadRaceSection(RE::TESDataHandler* DATA, raceCatagory raceType, CSim
 		const char* idle = s_it1->pItem;
 		auto line = ini.GetValue(section, idle);
 		INFO(line);
-		std::vector<std::string> raceConfigs = parseStr("|", line);
+		std::vector<std::string> raceConfigs = tokenize("|", line);
 		if (raceConfigs.size() != 2) {
 			ERROR("Error: wrong config length");
 			continue;

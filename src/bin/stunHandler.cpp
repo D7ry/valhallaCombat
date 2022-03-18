@@ -2,6 +2,7 @@
 #include "include/stunHandler.h"
 #include "include/hitProcessor.h"
 #include "include/settings.h"
+#include "include/reactionHandler.h"
 void stunHandler::update() {
 	mtx.lock();
 	auto deltaTime = *Utils::g_deltaTimeRealTime;
@@ -65,15 +66,21 @@ float stunHandler::getStun(RE::Actor* actor) {
 
 }
 
-void stunHandler::damageStun(RE::Actor* actor, float damage) {
+void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damage) {
 	//DEBUG("Damaging {}'s stun by {} points.", actor->GetName(), damage);
 	auto it = actorStunMap.find(actor);
 	if (it == actorStunMap.end()) { //actor's stun is not yet tracked.
 		trackStun(actor);
-		damageStun(actor, damage);
+		damageStun(aggressor, actor, damage);
 	}
 	else {
-		it->second.second -= damage;
+		if (it->second.second > 0) { //no need to damage 0 stun
+			it->second.second -= damage;
+			if (it->second.second <= 0) {
+				ValhallaUtils::playSound(actor, data::GetSingleton()->soundStunBreakD->GetFormID());
+				reactionHandler::triggerKnockBack(aggressor, actor);
+			}
+		}
 		mtx.lock();
 		stunRegenQueue.emplace(actor, 3); //3 seconds cooldown to regenerate stun.
 		mtx.unlock();
@@ -151,10 +158,10 @@ void stunHandler::calculateStunDamage(
 		break;
 	}
 
-	damageStun(victim, stunDamage);
+	damageStun(aggressor, victim, stunDamage);
 }
 
-void stunHandler::houseKeeping() {
+void stunHandler::houseKeeping() { //no longer used
 	mtx.lock();
 	stunRegenQueue.clear();
 	auto it = actorStunMap.begin();

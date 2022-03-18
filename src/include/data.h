@@ -126,6 +126,7 @@ public:
 	RE::BGSSoundDescriptorForm* soundParryWeaponD;
 	RE::BGSSoundDescriptorForm* soundParryShield_gbD;
 	RE::BGSSoundDescriptorForm* soundParryWeapon_gbD;
+	RE::BGSSoundDescriptorForm* soundStunBreakD;
 #pragma endregion
 #pragma region gameDifficultySettings
 	float fDiffMultHPByPCVE;
@@ -204,7 +205,7 @@ private:
 namespace Utils
 {
 	/*Parse a string into a vector of tokens.*/
-	static std::vector<std::string> parseStr(const std::string& delimiter, const std::string& str) {
+	static std::vector<std::string> tokenize(const std::string& delimiter, const std::string& str) {
 		std::vector<std::string> arr;
 		int strleng = str.length();
 		int delleng = delimiter.length();
