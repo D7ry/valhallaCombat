@@ -33,8 +33,7 @@ void settings::readSettings() {
 	CSimpleIniA ini;
 #define SETTINGFILE_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
 	ini.LoadFile(SETTINGFILE_PATH);
-
-
+	std::list<CSimpleIniA::Entry> ls;
 	/*Read stamina section*/
 	ReadBoolSetting(ini, "Stamina", "bUIalert", bUIAlert);
 	ReadBoolSetting(ini, "Stamina", "bNonCombatStaminaDebuff", bNonCombatStaminaDebuff);

@@ -10,6 +10,7 @@ void data::loadData() {
 	loadIdle();
 	loadExecutableRace();
 	INFO("Data fetched.");
+	
 }
 
 void data::loadSound() {
@@ -23,6 +24,7 @@ void data::loadSound() {
 	if (soundParryShieldD && soundParryWeaponD && soundParryShield_gbD && soundParryWeapon_gbD) {
 		INFO("Sound descriptors successfully loaded!");
 	}
+
 }
 
 void data::loadPerk() {

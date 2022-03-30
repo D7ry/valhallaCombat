@@ -6,10 +6,11 @@
 #include "include/hitProcessor.h"
 #include "include/reactionHandler.h"
 #include "include/lib/BlockSpark.h"
+#include "include/offsets.h"
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
-	auto deltaTime = *Utils::g_deltaTimeRealTime;
+	auto deltaTime = *RE::Offset::g_deltaTimeRealTime;
 	mtx.lock();
 	auto it1 = actorsPerfectBlocking.begin();
 	while (it1 != actorsPerfectBlocking.end()) {
@@ -212,9 +213,9 @@ void blockHandler::playPerfectBlockVFX(RE::Actor* blocker, RE::Actor* aggressor,
 }
 void blockHandler::playPerfectBlockScreenShake(RE::Actor* blocker, int iHitflag, bool blockBrokeGuard) {
 	if (blockBrokeGuard) {
-		Utils::shakeCamera(1.8, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.5f);
+		RE::Offset::shakeCamera(1.8, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.5f);
 	}
 	else {
-		Utils::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
+		RE::Offset::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
 	}
 }

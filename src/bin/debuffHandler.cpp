@@ -1,6 +1,7 @@
 #include "include/debuffHandler.h"
 #include "include/data.h"
 #include "include/settings.h"
+#include "include/offsets.h"
 #include "valhallaCombat.hpp"
 //TODO:make sure to resume the debuff state on reloading the actor i.e. the actor has debuff perk, but it's no longer in the debuff map, so they have to be put back onto the map.
 /*Called every frame.
@@ -32,7 +33,7 @@ void debuffHandler::update() {
 				it->second = 0.5;
 			}
 			else {
-				it->second -= *Utils::g_deltaTimeRealTime;
+				it->second -= *RE::Offset::g_deltaTimeRealTime;
 			}
 		}
 		++it;

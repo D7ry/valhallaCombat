@@ -6,6 +6,7 @@
 #include "include/hitProcessor.h"
 #include "include/AI.h"
 #include "include/settings.h"
+#include "include/attackHandler.h"
 #pragma endregion
 #pragma region GetHeavyStaminaCost
 float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
@@ -40,18 +41,22 @@ uintptr_t Hook_GetBlockChance::getBlockChance(RE::Actor* actor) {
 uintptr_t Hook_GetAttackChance1::getAttackChance(RE::Actor* actor, RE::Actor* target, RE::BGSAttackData* atkData) {
 	if (settings::bAttackStaminaToggle
 		&& debuffHandler::GetSingleton()->isInDebuff(actor)) {
-		int i = 0;
 		return 0;
 	}
-	return _getAttackChance(actor, target, atkData);
+	else {
+		return _getAttackChance(actor, target, atkData);
+	}
+	
 }
 uintptr_t Hook_GetAttackChance2::getAttackChance(RE::Actor* actor, RE::Actor* target, RE::BGSAttackData* atkData) {
 	if (settings::bAttackStaminaToggle
 		&& debuffHandler::GetSingleton()->isInDebuff(actor)) {
-		int j = 0;
 		return 0;
 	}
-	return _getAttackChance(actor, target, atkData);
+	else {
+		return _getAttackChance(actor, target, atkData);
+	}
+	
 }
 #pragma endregion
 #pragma region StaminaRegen

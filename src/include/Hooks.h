@@ -1,5 +1,5 @@
 #pragma once
-#include "attackHandler.h"
+
 #include "SKSE/Trampoline.h"
 
 class Hook_GetAttackStaminaCost //Actor__sub_140627930+16E	call ActorValueOwner__sub_1403BEC90

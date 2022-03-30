@@ -46,7 +46,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	}
 
 	RE::WEAPON_TYPE weaponType;
-	auto weapon = Utils::getWieldingWeapon(executor);
+	auto weapon = executor->getWieldingWeapon();
 	if (!weapon) {
 		DEBUG("Executor weapon not found, using unarmed as weapon type.");
 		weaponType = RE::WEAPON_TYPE::kHandToHandMelee;

@@ -160,7 +160,7 @@ namespace MaxsuBlockSpark
 		}
 
 		void playPerfectBlockSpark(RE::Actor* attacker, RE::Actor* defender) {
-			auto attackWeapon = Utils::getWieldingWeapon(attacker);
+			auto attackWeapon = attacker->getWieldingWeapon();
 			if (!attackWeapon) {
 				return;
 			}
@@ -239,7 +239,6 @@ namespace MaxsuBlockSpark
 			if (cell->PlaceParticleEffect(0.0f, modelName, defenderNode->world.rotate, sparkPos, 1.0f, 4U, defenderNode.get())) {
 				//DEBUG("Play Spark Effect Successfully!");
 			}
-
 		}
 	};
 }

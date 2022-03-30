@@ -1,7 +1,4 @@
-#include "include/actorManager.h"
-#include "include/Utils.h"
-#include "include/data.h"
-#include "include/stunHandler.h"
+
 /*bool actorManager::isActorManaged(RE::Actor* actor) {
 	return managedActors.find(actor) != managedActors.end();
 }

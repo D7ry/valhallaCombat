@@ -27,6 +27,7 @@ namespace Utils
 		DEBUG("damage before offset: {}", damage);
 		auto difficulty = data::GetSingleton();
 		if (isPlayerAggressor) {
+
 			switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
 			case RE::DIFFICULTY::kNovice: damage *= difficulty->fDiffMultHPByPCVE; break;
 			case RE::DIFFICULTY::kApprentice: damage *= difficulty->fDiffMultHPByPCE; break;

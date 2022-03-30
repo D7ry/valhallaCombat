@@ -3,9 +3,11 @@
 #include "include/hitProcessor.h"
 #include "include/settings.h"
 #include "include/reactionHandler.h"
+#include "include/offsets.h"
+#include "include/Utils.h"
 void stunHandler::update() {
 	mtx.lock();
-	auto deltaTime = *Utils::g_deltaTimeRealTime;
+	auto deltaTime = *RE::Offset::g_deltaTimeRealTime;
 	auto it = stunRegenQueue.begin();
 	while (it != stunRegenQueue.end()) {
 		auto actor = it->first;
