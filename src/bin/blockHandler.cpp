@@ -7,21 +7,27 @@
 #include "include/reactionHandler.h"
 #include "include/lib/BlockSpark.h"
 #include "include/offsets.h"
+#include "ValhallaCombat.hpp"
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
 	auto deltaTime = *RE::Offset::g_deltaTimeRealTime;
+	if (actorsPerfectBlocking.size() == 0
+		&& actorsInBlockingCoolDown.size() == 0) {
+		ValhallaCombat::GetSingleton()->update_BlockHandler = false;
+	}
 	mtx.lock();
 	auto it1 = actorsPerfectBlocking.begin();
 	while (it1 != actorsPerfectBlocking.end()) {
 		auto actor = it1->first;
 		if (it1->second <= 0) {
-			DEBUG("{}'s perfect block has ended, starting cool down", actor->GetName());
+			//DEBUG("{}'s perfect block has ended, starting cool down", actor->GetName());
 			it1 = actorsPerfectBlocking.erase(it1);
 			//Cool down applies if the previous block fails; if successful no cooldown.
 			if (actorsPerfectblockSuccessful.find(actor) == actorsPerfectblockSuccessful.end()) {
 				//start cooling down
-				actorsInBlockingCoolDown.emplace(actor, settings::fPerfectBlockCoolDownTime);
+				actorsInBlockingCoolDown[actor] = settings::fPerfectBlockCoolDownTime;
+				//actorsInBlockingCoolDown.emplace(actor, settings::fPerfectBlockCoolDownTime);
 			}
 			else {
 				actorsPerfectblockSuccessful.erase(actor);
@@ -54,10 +60,13 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 	if (actorsPerfectblockSuccessful.find(actor) != actorsPerfectblockSuccessful.end()) { //has previously done a successful perfect block
 		actorsPerfectblockSuccessful.erase(actor); //remove from the successful map.
 		actorsPerfectBlocking[actor] = settings::fPerfectBlockTime; //reset perfect blocking timer
+		ValhallaCombat::GetSingleton()->update_BlockHandler = true;
 	}
 	else if (actorsInBlockingCoolDown.find(actor) == actorsInBlockingCoolDown.end() //OR not cooling down
 		&& actorsPerfectBlocking.find(actor) == actorsPerfectBlocking.end()) { //and not currently perfect blocking
-		actorsPerfectBlocking.emplace(actor, settings::fPerfectBlockTime);
+		actorsPerfectBlocking[actor] = settings::fPerfectBlockTime;
+		ValhallaCombat::GetSingleton()->update_BlockHandler = true;
+		//actorsPerfectBlocking.emplace(actor, settings::fPerfectBlockTime);
 	}
 	mtx.unlock();
 }

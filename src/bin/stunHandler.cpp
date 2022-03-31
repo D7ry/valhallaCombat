@@ -14,13 +14,21 @@ void stunHandler::update() {
 		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {
 			//if an actor is no longer present=>remove actor.
 			actorStunMap.erase(actor);
-			it = stunRegenQueue.erase(it); continue;
+			it = stunRegenQueue.erase(it); 
+			if (stunRegenQueue.size() == 0) {
+				ValhallaCombat::GetSingleton()->update_StunHandler = false;
+			}
+			continue;
 		}
 		if (!actor->IsInCombat()) {//no regen during combat.
 			if (it->second <= 0) {//timer reached zero, time to regen.
 				//start regenerating stun from actorStunMap.
 				if (actorStunMap.find(actor) == actorStunMap.end()) {//oops, somehow the actor is not found in the stun map.
-					it = stunRegenQueue.erase(it); continue; 
+					it = stunRegenQueue.erase(it); 
+					if (stunRegenQueue.size() == 0) {
+						ValhallaCombat::GetSingleton()->update_StunHandler = false;
+					}
+					continue; 
 				}
 				else {
 					if (actorStunMap.find(actor)->second.second < actorStunMap.find(actor)->second.first) {
@@ -28,7 +36,11 @@ void stunHandler::update() {
 							deltaTime * 1 / 10 * actorStunMap.find(actor)->second.first;
 					}
 					else {
-						it = stunRegenQueue.erase(it); continue; //regeneration complete.
+						it = stunRegenQueue.erase(it); 
+						if (stunRegenQueue.size() == 0) {
+							ValhallaCombat::GetSingleton()->update_StunHandler = false;
+						}
+						continue; //regeneration complete.
 					}
 				}
 			}
@@ -97,7 +109,9 @@ void stunHandler::knockDown(RE::Actor* aggressor, RE::Actor* victim) {
 void stunHandler::calculateStunDamage(
 	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
 	DEBUG("Calculating stun damage");
-	//TODO:see if I can optimize it a bit more
+	if (victim->IsPlayerRef()) { //player do not receive stun damage at all.
+		return;
+	}
 	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
 		return;
 	}
@@ -221,6 +235,12 @@ void stunHandler::refreshStun() {
 }
 
 void stunHandler::initTrueHUDStunMeter() {
+	auto ptr = ValhallaCombat::GetSingleton();
+	if (ptr->g_trueHUD) {
+		if (ptr->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
+			ptr->g_trueHUD->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, true, false);
+		}
+	}/*
 	auto result = ValhallaCombat::GetSingleton()->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle());
 	if (result != TRUEHUD_API::APIResult::AlreadyTaken || result != TRUEHUD_API::APIResult::AlreadyGiven) {
 		INFO("TrueHUD special bar request success.");
@@ -229,7 +249,7 @@ void stunHandler::initTrueHUDStunMeter() {
 			->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, true) == TRUEHUD_API::APIResult::OK) {
 			INFO("TrueHUD special bar init success.");
 		}
-	}
+	}*/
 }
 
 void stunHandler::releaseTrueHUDStunMeter() {

@@ -8,8 +8,7 @@ class ValhallaCombat
 {
 public:
 
-	TRUEHUD_API::IVTrueHUD2* g_trueHUD = nullptr;
-
+	TRUEHUD_API::IVTrueHUD3* g_trueHUD = nullptr;
 
 	static ValhallaCombat* GetSingleton()
 	{
@@ -17,11 +16,21 @@ public:
 		return  std::addressof(singleton);
 	}
 
+	bool update_DebuffHandler;
+	bool update_BlockHandler;
+	bool update_StunHandler;
 	/*Runs every frame*/
 	void update() {
-		debuffHandler::GetSingleton()->update();
-		blockHandler::GetSingleton()->update();
-		stunHandler::GetSingleton()->update();
+		if (update_DebuffHandler) {
+			debuffHandler::GetSingleton()->update();
+		}
+		if (update_BlockHandler) {
+			blockHandler::GetSingleton()->update();
+		}
+		if (update_StunHandler) {
+			stunHandler::GetSingleton()->update();
+		}
+		
 	}
 
 };

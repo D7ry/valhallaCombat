@@ -16,6 +16,9 @@ void debuffHandler::update() {
 		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {//actor no longer loaded
 			//DEBUG("Actor no longer loaded");
 			it = actorDebuffMap.erase(it);//erase actor from debuff set.
+			if (actorDebuffMap.size() == 0) {
+				ValhallaCombat::GetSingleton()->update_DebuffHandler == false;
+			}
 			continue;
 		}
 		if (actor->GetActorValue(RE::ActorValue::kStamina) >= 
@@ -25,6 +28,10 @@ void debuffHandler::update() {
 			debuffHandler::stopStaminaDebuff(actor);
 			//DEBUG("erasing actor");
 			it = actorDebuffMap.erase(it);
+			//switch off update.
+			if (actorDebuffMap.size() == 0) {
+				ValhallaCombat::GetSingleton()->update_DebuffHandler == false;
+			}
 			continue;
 		}
 		if (settings::bUIAlert){ //flash the actor's meter
@@ -38,6 +45,7 @@ void debuffHandler::update() {
 		}
 		++it;
 	}
+
 	mtx.unlock();
 	
 }
@@ -58,6 +66,7 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 	if (settings::bUIAlert) {
 		greyOutStaminaMeter(actor);
 	}
+	ValhallaCombat::GetSingleton()->update_DebuffHandler = true;
 }
 
 /*Stamina the actor's stamina debuff, remove their debuff perk, and revert their UI meter.
@@ -73,6 +82,9 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
 	mtx.lock();
 	actorDebuffMap.erase(actor);
+	if (actorDebuffMap.size() == 0) {
+		ValhallaCombat::GetSingleton()->update_DebuffHandler == false;
+	}
 	mtx.unlock();
 	stopStaminaDebuff(actor);
 }
