@@ -8,6 +8,7 @@
 #include "include/PCH.h"
 #include "ValhallaCombat.hpp"
 #include "include/settings.h"
+
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
@@ -15,12 +16,21 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Data loaded");
 		settings::readSettings();
 		animEventHandler::hookAllActors();
-		//cellLoadEventHandler::Register();
-		inputEventHandler::Register();
+		//TODO:dedicated execution
+		//inputEventHandler::Register();
 		data::GetSingleton()->loadData();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
 		INFO("Post load");
+		ValhallaCombat::GetSingleton()->g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
+		if (ValhallaCombat::GetSingleton()->g_trueHUD) {
+			INFO("Obtained Ersh stuff - {0:x}", (uintptr_t)ValhallaCombat::GetSingleton()->g_trueHUD);
+		}
+		else {
+			INFO("WTF Ersh");
+		}
+		break;
+		/*Old trueHud stuff
 		if (!TRUEHUD_API::RegisterInterfaceLoaderCallback(
 			SKSE::GetMessagingInterface(),
 			[](void* interfaceInstance, TRUEHUD_API::InterfaceVersion interfaceVersion) {
@@ -32,7 +42,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 					INFO("Unable to acquire requested TrueHUD API interface version");
 			}))
 			INFO("TRUEHUD_API::RegisterInterfaceLoaderCallback reported an error");
-			break;
+			*/
 	case SKSE::MessagingInterface::kPostLoadGame:
 		INFO("Post load game");
 		debuffHandler::GetSingleton()->quickStopStaminaDebuff(RE::PlayerCharacter::GetSingleton());
@@ -41,14 +51,15 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		break;
 	case SKSE::MessagingInterface::kPostPostLoad:
 		INFO("Post post load");
-		if (!TRUEHUD_API::RequestInterface(
+		//Old trueHud stuff
+		/*if (!TRUEHUD_API::RequestInterface(
 			SKSE::GetMessagingInterface(),
 			TRUEHUD_API::InterfaceVersion::V2)) {
 			INFO("TrueHUD API::RequestInterface reported an error.");
 		}
 		else {
 			INFO("TrueHUD API interface request success");
-		}
+		}*/
 		break;
 	}
 }
