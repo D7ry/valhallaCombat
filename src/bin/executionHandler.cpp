@@ -32,7 +32,12 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		DEBUG("executor is not human");
 		return;
 	}
-
+	
+	if (executor->IsPlayerRef()
+		&& !playerCanExecute) {
+		DEBUG("Player cannot execute");
+		return;
+	}
 	auto it2 = DATA->ExecutionRaceMap.find(victimRace);
 	if (it2 == DATA->ExecutionRaceMap.end()) {
 		DEBUG("Victim race not found on race map.");

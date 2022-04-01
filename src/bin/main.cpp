@@ -17,7 +17,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		settings::readSettings();
 		animEventHandler::hookAllActors();
 		//TODO:dedicated execution
-		//inputEventHandler::Register();
+		inputEventHandler::Register();
 		data::GetSingleton()->loadData();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:

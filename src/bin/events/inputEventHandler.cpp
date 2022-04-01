@@ -1,6 +1,7 @@
 #include "include/events.h"
 #include "include/data.h"
 #include "include/settings.h"
+#include "include/executionHandler.h"
 using EventType = RE::INPUT_EVENT_TYPE;
 using DeviceType = RE::INPUT_DEVICE;
 const auto ui = RE::UI::GetSingleton();
@@ -18,7 +19,7 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 		}
 
 		auto button = static_cast<RE::ButtonEvent*>(event);
-		if (button->IsDown()) {
+		if (button) {
 			auto key = button->idCode;
 			switch (button->device.get()) {
 			case DeviceType::kMouse:
@@ -34,14 +35,15 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 				continue;
 			}
 
-			auto ui = RE::UI::GetSingleton();
-			auto controlMap = RE::ControlMap::GetSingleton();
-			if (ui->GameIsPaused() || !controlMap->IsMovementControlsEnabled()) {
-				continue;
-			}
-
 			if (key == settings::uExecutionKey) {
-				DEBUG("execution key triggered, doing raycast");
+				if (button->IsDown()) {
+					RE::DebugNotification("execution activated");
+					executionHandler::GetSingleton()->playerCanExecute = true;
+				}
+				if (button->IsUp()) {
+					RE::DebugNotification("execution deactivated");
+					executionHandler::GetSingleton()->playerCanExecute = false;
+				}
 
 				break;
 			}
