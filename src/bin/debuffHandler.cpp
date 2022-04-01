@@ -17,7 +17,7 @@ void debuffHandler::update() {
 			//DEBUG("Actor no longer loaded");
 			it = actorDebuffMap.erase(it);//erase actor from debuff set.
 			if (actorDebuffMap.size() == 0) {
-				ValhallaCombat::GetSingleton()->update_DebuffHandler == false;
+				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
 			}
 			continue;
 		}
@@ -25,12 +25,11 @@ void debuffHandler::update() {
 			actor->GetPermanentActorValue(RE::ActorValue::kStamina) 
 			+ actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina)) { //offset max stamina based on modifier
 			//DEBUG("{}'s stamina has fully recovered.", actor->GetName());
-			debuffHandler::stopStaminaDebuff(actor);
+			stopStaminaDebuff(actor);
 			//DEBUG("erasing actor");
 			it = actorDebuffMap.erase(it);
-			//switch off update.
 			if (actorDebuffMap.size() == 0) {
-				ValhallaCombat::GetSingleton()->update_DebuffHandler == false;
+				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
 			}
 			continue;
 		}
@@ -66,13 +65,13 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 	if (settings::bUIAlert) {
 		greyOutStaminaMeter(actor);
 	}
-	ValhallaCombat::GetSingleton()->update_DebuffHandler = true;
+	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::debuffHandler);
 }
 
 /*Stamina the actor's stamina debuff, remove their debuff perk, and revert their UI meter.
 @param actor actor whose stamina debuff will stop.*/
 void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
-	DEBUG("Stopping stamina debuff for {}", actor->GetName());
+	//DEBUG("Stopping stamina debuff for {}", actor->GetName());
 	removeDebuffPerk(actor);
 	if (settings::bUIAlert) {
 		revertStaminaMeter(actor);
@@ -83,7 +82,7 @@ void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
 	mtx.lock();
 	actorDebuffMap.erase(actor);
 	if (actorDebuffMap.size() == 0) {
-		ValhallaCombat::GetSingleton()->update_DebuffHandler == false;
+		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
 	}
 	mtx.unlock();
 	stopStaminaDebuff(actor);

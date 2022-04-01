@@ -16,7 +16,7 @@ void stunHandler::update() {
 			actorStunMap.erase(actor);
 			it = stunRegenQueue.erase(it); 
 			if (stunRegenQueue.size() == 0) {
-				ValhallaCombat::GetSingleton()->update_StunHandler = false;
+				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
 			}
 			continue;
 		}
@@ -26,7 +26,7 @@ void stunHandler::update() {
 				if (actorStunMap.find(actor) == actorStunMap.end()) {//oops, somehow the actor is not found in the stun map.
 					it = stunRegenQueue.erase(it); 
 					if (stunRegenQueue.size() == 0) {
-						ValhallaCombat::GetSingleton()->update_StunHandler = false;
+						ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
 					}
 					continue; 
 				}
@@ -38,7 +38,7 @@ void stunHandler::update() {
 					else {
 						it = stunRegenQueue.erase(it); 
 						if (stunRegenQueue.size() == 0) {
-							ValhallaCombat::GetSingleton()->update_StunHandler = false;
+							ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
 						}
 						continue; //regeneration complete.
 					}
@@ -92,12 +92,13 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 			it->second.second -= damage;
 			if (it->second.second <= 0) {
 				ValhallaUtils::playSound(actor, data::GetSingleton()->soundStunBreakD->GetFormID());
-				reactionHandler::triggerKnockBack(aggressor, actor);
+				//reactionHandler::triggerKnockBack(aggressor, actor);
 			}
 		}
 		mtx.lock();
-		stunRegenQueue.emplace(actor, 3); //3 seconds cooldown to regenerate stun.
+		stunRegenQueue[actor] = 3; //3 seconds cooldown to regenerate stun.
 		mtx.unlock();
+		ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::stunHandler);
 	}
 
 }
