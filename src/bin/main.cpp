@@ -128,6 +128,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	}
 	Hooks::install();
 	Papyrus::Register();
+	srand(std::chrono::system_clock::now().time_since_epoch().count());
 	return true;
 }
 
