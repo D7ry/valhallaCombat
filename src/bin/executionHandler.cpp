@@ -4,7 +4,7 @@
 #define DATA data::GetSingleton()
 using namespace Utils;
 void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
-	DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());
+	//DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());
 
 	//check if victim can be executed
 	if (!settings::bStunToggle
@@ -12,10 +12,9 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		|| !executor->Is3DLoaded() || !victim->Is3DLoaded()
 		|| executor->IsInKillMove() || victim->IsInKillMove()
 		|| (!settings::bPlayerExecution && (victim->IsPlayerTeammate() || victim->IsPlayer()))
-		|| (!settings::bEssentialExecution && victim->IsEssential())
 		|| executor->IsOnMount() || victim->IsOnMount()
 		|| victim->HasEffectWithArchetype(RE::MagicTarget::Archetype::kParalysis)) {
-		DEBUG("Execution preconditions not met, terminating execution.");
+		//DEBUG("Execution preconditions not met, terminating execution.");
 		return;
 	}
 
@@ -24,8 +23,10 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	if (!executorRace || !victimRace) {
 		return;
 	}
-	auto it1 = DATA->ExecutionRaceMap.find(executorRace);
-	if (it1 == DATA->ExecutionRaceMap.end()) {
+
+	auto data = data::GetSingleton();
+	auto it1 = data->ExecutionRaceMap.find(executorRace);
+	if (it1 == data->ExecutionRaceMap.end()) {
 		return;
 	}
 	if (it1->second != data::raceCatagory::Humanoid) {
@@ -34,19 +35,20 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	}
 	
 	if (executor->IsPlayerRef()
-		&& !playerCanExecute) {
-		DEBUG("Player cannot execute");
+		&& !settings::bAutoExecution 
+		&& !executionKeyDown) {//if auto execution is disabled, execution key must be pressed to allow player execution.
+		RE::DebugNotification("Execution key not pressed");
 		return;
 	}
-	auto it2 = DATA->ExecutionRaceMap.find(victimRace);
-	if (it2 == DATA->ExecutionRaceMap.end()) {
+	auto it2 = data->ExecutionRaceMap.find(victimRace);
+	if (it2 == data->ExecutionRaceMap.end()) {
 		DEBUG("Victim race not found on race map.");
 		return;
 	}
 	auto victimRaceType = it2->second;
 
-	if (activeExecutor.find(executor) != activeExecutor.end() //executor is executing
-		|| activeExecutor.find(victim) != activeExecutor.end()) { //victim is executing
+	if (executionMap.find(executor) != executionMap.end() //executor is executing
+		|| executionMap.find(victim) != executionMap.end()) { //victim is executing
 		return;
 	}
 
@@ -63,7 +65,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		return;
 	}
 
-	DEBUG("weapon type is {}", weaponType);
+	//DEBUG("weapon type is {}", weaponType);
 #define RACE data::raceCatagory
 	switch (victimRaceType) {
 	case RACE::Humanoid: executeHumanoid(executor, victim, weaponType); break;
@@ -92,7 +94,8 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 
 	/*Set the executor as ghost and start tracking them.*/
 	setIsGhost(executor, true);
-	activeExecutor.emplace(executor);
+	setIsGhost(victim, true);
+	executionMap[executor] = victim;
 	victim->SetGraphVariableBool("bIdlePlaying", true); //DHAF compatibility
 };
 
@@ -100,9 +103,17 @@ void executionHandler::concludeExecution(RE::Actor* executor) {
 	if (!executor) {
 		return;
 	}
-	if (activeExecutor.find(executor) != activeExecutor.end()) {
+
+	if (executionMap.find(executor) != executionMap.end()) {
+		if (executor->IsPlayerRef()) {
+			RE::DebugNotification("Concluding player execution");
+		}
 		Utils::setIsGhost(executor, false);
-		activeExecutor.erase(executor);
+		auto victim = executionMap.find(executor)->second;
+		if (victim) {
+			Utils::setIsGhost(victim, false);
+		}
+		executionMap.erase(executor);
 	}
 }
 
@@ -113,7 +124,6 @@ void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim,
 
 void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim, std::vector<RE::TESIdleForm*> executionIdleV) {
 	DEBUG("playing execution idle!");
-	DEBUG(executionIdleV.size());
 	if (executionIdleV.size() == 0) {
 		DEBUG("error: no idle present in vector");
 		return;

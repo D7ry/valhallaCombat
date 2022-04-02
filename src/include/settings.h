@@ -39,7 +39,6 @@ public:
 	static inline float fMeleeCostHeavyMiss_Percent = 0.333;
 	static inline float fMeleeCostHeavyHit_Percent = 0.199;
 
-	static inline uint32_t uExecutionKey = 35; //H for now
 #pragma endregion
 #pragma region PerfectBlockingSettings
 	/*perfect blocking*/
@@ -80,8 +79,9 @@ public:
 	/*Toggle for player teammate to be executed.*/
 	static inline bool bPlayerTeammateExecution = false;
 	/*Toggle for essential NPCs to be executed.*/
-	static inline bool bEssentialExecution = false;
 	static inline bool bExecutionLimit = true; //NPCs with level higher than player cannot be executed unless under certain health threshold.
+	static inline bool bAutoExecution = false; //automatically execute on hit.
+	static inline uint32_t uExecutionKey = -1;
 #pragma endregion
 #pragma region Compatibility
 	static inline bool bPoiseCompatibility = false;

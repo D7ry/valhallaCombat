@@ -38,6 +38,9 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		if (settings::bAttackStaminaToggle) {
 			attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
 		}
+
+		break;
+	case "tailcombatidle"_h:
 		if (settings::bStunToggle) {
 			executionHandler::GetSingleton()->concludeExecution(a_event.holder->As<RE::Actor>());
 		}

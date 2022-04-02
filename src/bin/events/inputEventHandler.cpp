@@ -38,11 +38,11 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 			if (key == settings::uExecutionKey) {
 				if (button->IsDown()) {
 					RE::DebugNotification("execution activated");
-					executionHandler::GetSingleton()->playerCanExecute = true;
+					executionHandler::GetSingleton()->executionKeyDown = true;
 				}
 				if (button->IsUp()) {
 					RE::DebugNotification("execution deactivated");
-					executionHandler::GetSingleton()->playerCanExecute = false;
+					executionHandler::GetSingleton()->executionKeyDown = false;
 				}
 
 				break;

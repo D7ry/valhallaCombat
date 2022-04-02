@@ -13,6 +13,7 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	else if (aggressor->IsPlayerRef() || aggressor->IsPlayerTeammate()) {
 		Utils::offsetRealDamage(realDamage, true);
 	}
+	
 	int hitFlag = (int)hitData.flags;
 	if (hitFlag & (int)HITFLAG::kBlocked) {
 		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData, realDamage)) {
@@ -25,6 +26,8 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 				attackHandler::GetSingleton()->registerHit(aggressor);
 			}
 		}
+		RE::DebugNotification("sending conuter!");
+		victim->NotifyAnimationGraph("Val_GuardCounter_Trigger");
 		return;
 	}
 
@@ -54,13 +57,12 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	else {
 		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
-
 	//TODO: a better execution module
 	//Temporary execution module
 	if (settings::bStunToggle && //stun must be toggled to trigger execution.
 		!victim->IsPlayerRef() && !victim->IsPlayerTeammate() && !victim->IsEssential() && !victim->IsInKillMove()) {
-		DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
-		if (stunHandler::GetSingleton()->getStun(victim) <= 0) {
+		//DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
+		if (stunHandler::GetSingleton()->getStun(victim) <= 0 && hitData.weapon->IsMelee()) {
 			executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
 		}
 	}

@@ -15,6 +15,8 @@ public:
 	/*Load all game data and store their pointers for later use.*/
 	void loadData();
 
+	const static inline std::string AnimEvent_GuardCounter = "Val_GuardCounter_Trigger";
+
 #pragma region Perk
 	RE::BGSPerk* debuffPerk;
 #pragma endregion

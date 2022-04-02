@@ -80,8 +80,6 @@ void settings::readSettings() {
 	/*Read stun section*/
 	ReadBoolSetting(ini, "Stun", "bStunToggle", bStunToggle);
 	ReadBoolSetting(ini, "Stun", "bStunMeterToggle", bStunMeterToggle);
-	ReadBoolSetting(ini, "Stun", "bPlayerExecution", bPlayerExecution);
-	ReadBoolSetting(ini, "Stun", "bEssentialExecution", bEssentialExecution);
 	ReadBoolSetting(ini, "Stun", "bExecutionLimit", bExecutionLimit);
 
 	ReadFloatSetting(ini, "Stun", "fStunParryMult", fStunParryMult);
@@ -98,6 +96,7 @@ void settings::readSettings() {
 	ReadFloatSetting(ini, "Stun", "fStunGreatSwordMult", fStunGreatSwordMult);
 	ReadFloatSetting(ini, "Stun", "fStun2HBluntMult", fStun2HBluntMult);
 
+	ReadBoolSetting(ini, "Stun", "bAutoExecution", bAutoExecution);
 	ReadIntSetting(ini, "Stun", "uExecutionKey", uExecutionKey);
 	ReadBoolSetting(ini, "Compatibility", "bPoiseCompatibility", bPoiseCompatibility);
 	INFO("Ini settings read.");

@@ -4,9 +4,9 @@
 class executionHandler {
 public:
 
-	bool playerCanExecute;
+	bool executionKeyDown;
 	/*Mapping of all active executors -> people being executed.*/
-	robin_hood::unordered_set<RE::Actor*> activeExecutor;
+	robin_hood::unordered_map<RE::Actor*, RE::Actor*> executionMap;
 	static executionHandler* GetSingleton()
 	{
 		static executionHandler singleton;
