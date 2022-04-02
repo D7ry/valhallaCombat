@@ -4,6 +4,7 @@
 #include "include/executionHandler.h"
 #include "include/settings.h"
 #include "include/reactionHandler.h"
+#include "include/AI.h"
 void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitData& hitData) {
 	//offset damage from hitdata, based on player difficulty setting.
 	float realDamage = hitData.totalDamage;
@@ -18,16 +19,18 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	if (hitFlag & (int)HITFLAG::kBlocked) {
 		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData, realDamage)) {
 			debuffHandler::GetSingleton()->quickStopStaminaDebuff(victim);
+			if (!victim->IsPlayerRef()) {
+				AI::GetSingleton()->action_PerformEldenCounter(victim);
+			}
 			return; //if the hit is perfect blocked, no hit registration
 		}
 		// if not perfect blocked, regenerate stamina only if set so.
 		if (settings::bBlockedHitRegenStamina && !(hitFlag & (int)HITFLAG::kBash)) {
 			if (settings::bAttackStaminaToggle) {
 				attackHandler::GetSingleton()->registerHit(aggressor);
+				
 			}
 		}
-		RE::DebugNotification("sending conuter!");
-		victim->NotifyAnimationGraph("Val_GuardCounter_Trigger");
 		return;
 	}
 
