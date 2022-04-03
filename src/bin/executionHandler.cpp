@@ -4,7 +4,7 @@
 #define DATA data::GetSingleton()
 using namespace Utils;
 void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
-	//DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());
+	DEBUG("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());
 
 	//check if victim can be executed
 	if (!settings::bStunToggle
@@ -14,7 +14,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		|| (!settings::bPlayerExecution && (victim->IsPlayerTeammate() || victim->IsPlayer()))
 		|| executor->IsOnMount() || victim->IsOnMount()
 		|| victim->HasEffectWithArchetype(RE::MagicTarget::Archetype::kParalysis)) {
-		//DEBUG("Execution preconditions not met, terminating execution.");
+		DEBUG("Execution preconditions not met, terminating execution.");
 		return;
 	}
 
@@ -65,7 +65,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		return;
 	}
 
-	//DEBUG("weapon type is {}", weaponType);
+	DEBUG("weapon type is {}", weaponType);
 #define RACE data::raceCatagory
 	switch (victimRaceType) {
 	case RACE::Humanoid: executeHumanoid(executor, victim, weaponType); break;
@@ -95,7 +95,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	/*Set the executor as ghost and start tracking them.*/
 	//setIsGhost(executor, true);
 	//setIsGhost(victim, true);
-	executionMap[executor] = victim;
+	//executionMap[executor] = victim;
 	victim->SetGraphVariableBool("bIdlePlaying", true); //DHAF compatibility
 };
 

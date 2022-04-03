@@ -14,6 +14,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
 		INFO("Data loaded");
+		settings::init();
 		settings::readSettings();
 		animEventHandler::hookAllActors();
 		//TODO:dedicated execution
@@ -24,10 +25,12 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Post load");
 		ValhallaCombat::GetSingleton()->g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
 		if (ValhallaCombat::GetSingleton()->g_trueHUD) {
-			INFO("Obtained Ersh stuff - {0:x}", (uintptr_t)ValhallaCombat::GetSingleton()->g_trueHUD);
+			INFO("Obtained TruehudAPI - {0:x}", (uintptr_t)ValhallaCombat::GetSingleton()->g_trueHUD);
+			settings::TrueHudAPI = true;
 		}
 		else {
-			INFO("WTF Ersh");
+			INFO("Failed to obtain TrueHudAPI.");
+			settings::TrueHudAPI = false;
 		}
 		break;
 		/*Old trueHud stuff
@@ -47,6 +50,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Post load game");
 		debuffHandler::GetSingleton()->quickStopStaminaDebuff(RE::PlayerCharacter::GetSingleton());
 		stunHandler::GetSingleton()->refreshStun();
+		settings::updateGlobals();
 		INFO("debuff cleared");
 		break;
 	case SKSE::MessagingInterface::kPostPostLoad:

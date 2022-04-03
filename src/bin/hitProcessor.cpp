@@ -40,7 +40,6 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	if (hitFlag & (int)HITFLAG::kBash) {
 		if (hitFlag & (int)HITFLAG::kPowerAttack) {
 			stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerBash, nullptr, aggressor, victim, 0);
-
 		}
 		else {
 			stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::bash, nullptr, aggressor, victim, 0);
@@ -55,6 +54,10 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	//DEBUG("test execution");
 	//executionHandler::GetSingleton()->playExecutionIdle(aggressor, victim, data::testIdle);
 	if (hitFlag & (int)HITFLAG::kPowerAttack) {
+		bool b;
+		if (aggressor->GetGraphVariableBool(data::GraphBool_IsGuardCountering, b) && b) {
+			realDamage *= 1.5;
+		}
 		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
 	else {
@@ -64,8 +67,9 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	//Temporary execution module
 	if (settings::bStunToggle && //stun must be toggled to trigger execution.
 		!victim->IsPlayerRef() && !victim->IsPlayerTeammate() && !victim->IsEssential() && !victim->IsInKillMove()) {
-		//DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
+		DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
 		if (stunHandler::GetSingleton()->getStun(victim) <= 0 && hitData.weapon->IsMelee()) {
+			DEBUG("attempt execution");
 			executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
 		}
 	}

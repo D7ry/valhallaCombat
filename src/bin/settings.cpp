@@ -1,5 +1,6 @@
 #include "include/stunHandler.h"
 #include "include/settings.h"
+#include "ValhallaCombat.hpp"
 using namespace Utils;
 void settings::ReadIntSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, uint32_t& a_setting) {
 	const char* bFound = nullptr;
@@ -38,81 +39,118 @@ void settings::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, co
 		INFO("failed to find {}, using default value", a_settingName);
 	}
 }
+
+
+void settings::init() {
+	INFO("Initilize settings...");
+	auto dataHandler = RE::TESDataHandler::GetSingleton();
+	if (dataHandler) {
+#define LOOKGLOBAL dataHandler->LookupForm<RE::TESGlobal>
+		glob_Nemesis_EldenCounter_Damage = LOOKGLOBAL(0x56A23, "ValhallaCombat.esp");
+		glob_Nemesis_EldenCounter_NPC = LOOKGLOBAL(0x56A24, "ValhallaCombat.esp");
+		glob_TrueHudAPI = LOOKGLOBAL(0x56A25, "ValhallaCombat.esp");
+		glob_TrueHudAPI_SpecialMeter = LOOKGLOBAL(0x56A26, "ValhallaCombat.esp");
+	}
+	INFO("...done");
+}
+void settings::updateGlobals() {
+	INFO("Update globals...");
+	if (glob_TrueHudAPI) {
+		glob_TrueHudAPI->value = ValhallaCombat::GetSingleton()->g_trueHUD != nullptr ? 1.f : 0.f;
+	}
+	if (glob_TrueHudAPI_SpecialMeter) {
+		glob_TrueHudAPI_SpecialMeter->value = TrueHudAPI_HasSpecialBarControl ? 1.f : 0.f;
+	}
+	auto pc = RE::PlayerCharacter::GetSingleton();
+	if (pc) {
+		if (glob_Nemesis_EldenCounter_Damage) {
+			bool bDummy;
+			glob_Nemesis_EldenCounter_Damage->value = pc->GetGraphVariableBool(data::GraphBool_IsGuardCountering, bDummy);
+		}
+		/*if (glob_Nemesis_EldenCounter_NPC) {
+			bool bDummy;
+			glob_Nemesis_EldenCounter_NPC->value = pc->GetGraphVariableBool("360HorseGen", bDummy);
+		}*/
+	}
+	INFO("...done");
+}
 /*read settings from ini, and update them into game settings.*/
 void settings::readSettings() {
-	INFO("Reading ini settings...");
-	CSimpleIniA ini;
+	INFO("Read ini settings...");
+	CSimpleIniA mcm;
 #define SETTINGFILE_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
-	ini.LoadFile(SETTINGFILE_PATH);
+	mcm.LoadFile(SETTINGFILE_PATH);
 	std::list<CSimpleIniA::Entry> ls;
 	/*Read stamina section*/
-	ReadBoolSetting(ini, "Stamina", "bUIalert", bUIAlert);
-	ReadBoolSetting(ini, "Stamina", "bNonCombatStaminaDebuff", bNonCombatStaminaDebuff);
-	ReadFloatSetting(ini, "Stamina", "fStaminaRegenMult", fStaminaRegenMult);
-	ReadFloatSetting(ini, "Stamina", "fStaminaRegenLimit", fStaminaRegenLimit);
-	ReadFloatSetting(ini, "Stamina", "fCombatStaminaRegenMult", fCombatStaminaRegenMult);
-	ReadFloatSetting(ini, "Stamina", "fStaminaRegenDelay", fStaminaRegenDelay);
+	ReadBoolSetting(mcm, "Stamina", "bUIalert", bUIAlert);
+	ReadBoolSetting(mcm, "Stamina", "bNonCombatStaminaDebuff", bNonCombatStaminaDebuff);
+	ReadFloatSetting(mcm, "Stamina", "fStaminaRegenMult", fStaminaRegenMult);
+	ReadFloatSetting(mcm, "Stamina", "fStaminaRegenLimit", fStaminaRegenLimit);
+	ReadFloatSetting(mcm, "Stamina", "fCombatStaminaRegenMult", fCombatStaminaRegenMult);
+	ReadFloatSetting(mcm, "Stamina", "fStaminaRegenDelay", fStaminaRegenDelay);
 
-	ReadBoolSetting(ini, "Stamina", "bBlockStaminaToggle", bBlockStaminaToggle);
-	ReadBoolSetting(ini, "Stamina", "bGuardBreak", bGuardBreak);
-	ReadFloatSetting(ini, "Stamina", "fBckShdStaminaMult_NPC_Block_NPC", fBckShdStaminaMult_NPC_Block_NPC);
-	ReadFloatSetting(ini, "Stamina", "fBckShdStaminaMult_NPC_Block_PC", fBckShdStaminaMult_NPC_Block_PC);
-	ReadFloatSetting(ini, "Stamina", "fBckShdStaminaMult_PC_Block_NPC", fBckShdStaminaMult_PC_Block_NPC);
-	ReadFloatSetting(ini, "Stamina", "fBckWpnStaminaMult_NPC_Block_NPC", fBckWpnStaminaMult_NPC_Block_NPC);
-	ReadFloatSetting(ini, "Stamina", "fBckWpnStaminaMult_NPC_Block_PC", fBckWpnStaminaMult_NPC_Block_PC);
-	ReadFloatSetting(ini, "Stamina", "fBckWpnStaminaMult_PC_Block_NPC", fBckWpnStaminaMult_PC_Block_NPC);
+	ReadBoolSetting(mcm, "Stamina", "bBlockStaminaToggle", bBlockStaminaToggle);
+	ReadBoolSetting(mcm, "Stamina", "bGuardBreak", bGuardBreak);
+	ReadFloatSetting(mcm, "Stamina", "fBckShdStaminaMult_NPC_Block_NPC", fBckShdStaminaMult_NPC_Block_NPC);
+	ReadFloatSetting(mcm, "Stamina", "fBckShdStaminaMult_NPC_Block_PC", fBckShdStaminaMult_NPC_Block_PC);
+	ReadFloatSetting(mcm, "Stamina", "fBckShdStaminaMult_PC_Block_NPC", fBckShdStaminaMult_PC_Block_NPC);
+	ReadFloatSetting(mcm, "Stamina", "fBckWpnStaminaMult_NPC_Block_NPC", fBckWpnStaminaMult_NPC_Block_NPC);
+	ReadFloatSetting(mcm, "Stamina", "fBckWpnStaminaMult_NPC_Block_PC", fBckWpnStaminaMult_NPC_Block_PC);
+	ReadFloatSetting(mcm, "Stamina", "fBckWpnStaminaMult_PC_Block_NPC", fBckWpnStaminaMult_PC_Block_NPC);
 
-	ReadBoolSetting(ini, "Stamina", "bAttackStaminaToggle", bAttackStaminaToggle);
-	ReadBoolSetting(ini, "Stamina", "bBlockedHitRegenStamina", bBlockedHitRegenStamina);
-	ReadFloatSetting(ini, "Stamina", "fMeleeCostLightMiss_Point", fMeleeCostLightMiss_Point); 
-	ReadFloatSetting(ini, "Stamina", "fMeleeRewardLightHit_Percent", fMeleeRewardLightHit_Percent);
-	ReadFloatSetting(ini, "Stamina", "fMeleeCostHeavyMiss_Percent", fMeleeCostHeavyMiss_Percent);
-	ReadFloatSetting(ini, "Stamina", "fMeleeCostHeavyHit_Percent", fMeleeCostHeavyHit_Percent);
+	ReadBoolSetting(mcm, "Stamina", "bAttackStaminaToggle", bAttackStaminaToggle);
+	ReadBoolSetting(mcm, "Stamina", "bBlockedHitRegenStamina", bBlockedHitRegenStamina);
+	ReadFloatSetting(mcm, "Stamina", "fMeleeCostLightMiss_Point", fMeleeCostLightMiss_Point); 
+	ReadFloatSetting(mcm, "Stamina", "fMeleeRewardLightHit_Percent", fMeleeRewardLightHit_Percent);
+	ReadFloatSetting(mcm, "Stamina", "fMeleeCostHeavyMiss_Percent", fMeleeCostHeavyMiss_Percent);
+	ReadFloatSetting(mcm, "Stamina", "fMeleeCostHeavyHit_Percent", fMeleeCostHeavyHit_Percent);
 
 	/*Read perfect blocking section*/
-	ReadBoolSetting(ini, "Parrying", "bPerfectBlockToggle", bPerfectBlockToggle);
-	ReadBoolSetting(ini, "Parrying", "bPerfectBlockScreenShake", bPerfectBlockScreenShake);
-	ReadBoolSetting(ini, "Parrying", "bPerfectBlockSFX", bPerfectBlockSFX);
-	ReadBoolSetting(ini, "Blocking", "bPerfectBlockVFX", bPerfectBlockVFX);
-	ReadFloatSetting(ini, "Parrying", "fPerfectBlockTime", fPerfectBlockTime);
-	ReadFloatSetting(ini, "Parrying", "fPerfectBlockCoolDownTime", fPerfectBlockCoolDownTime);
+	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockToggle", bPerfectBlockToggle);
+	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockScreenShake", bPerfectBlockScreenShake);
+	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockSFX", bPerfectBlockSFX);
+	ReadBoolSetting(mcm, "Blocking", "bPerfectBlockVFX", bPerfectBlockVFX);
+	ReadFloatSetting(mcm, "Parrying", "fPerfectBlockTime", fPerfectBlockTime);
+	ReadFloatSetting(mcm, "Parrying", "fPerfectBlockCoolDownTime", fPerfectBlockCoolDownTime);
 
 	/*Read stun section*/
-	ReadBoolSetting(ini, "Stun", "bStunToggle", bStunToggle);
-	ReadBoolSetting(ini, "Stun", "bStunMeterToggle", bStunMeterToggle);
-	ReadBoolSetting(ini, "Stun", "bExecutionLimit", bExecutionLimit);
+	ReadBoolSetting(mcm, "Stun", "bStunToggle", bStunToggle);
+	ReadBoolSetting(mcm, "Stun", "bStunMeterToggle", bStunMeterToggle);
+	ReadBoolSetting(mcm, "Stun", "bExecutionLimit", bExecutionLimit);
 
-	ReadFloatSetting(ini, "Stun", "fStunParryMult", fStunParryMult);
-	ReadFloatSetting(ini, "Stun", "fStunBashMult", fStunBashMult);
-	ReadFloatSetting(ini, "Stun", "fStunPowerBashMult", fStunPowerBashMult);
-	ReadFloatSetting(ini, "Stun", "fStunNormalAttackMult", fStunNormalAttackMult);
-	ReadFloatSetting(ini, "Stun", "fStunPowerAttackMult", fStunPowerAttackMult);
+	ReadFloatSetting(mcm, "Stun", "fStunParryMult", fStunParryMult);
+	ReadFloatSetting(mcm, "Stun", "fStunBashMult", fStunBashMult);
+	ReadFloatSetting(mcm, "Stun", "fStunPowerBashMult", fStunPowerBashMult);
+	ReadFloatSetting(mcm, "Stun", "fStunNormalAttackMult", fStunNormalAttackMult);
+	ReadFloatSetting(mcm, "Stun", "fStunPowerAttackMult", fStunPowerAttackMult);
 
-	ReadFloatSetting(ini, "Stun", "fStunUnarmedMult", fStunUnarmedMult);
-	ReadFloatSetting(ini, "Stun", "fStunDaggerMult", fStunDaggerMult);
-	ReadFloatSetting(ini, "Stun", "fStunSwordMult", fStunSwordMult);
-	ReadFloatSetting(ini, "Stun", "fStunWarAxeMult", fStunWarAxeMult);
-	ReadFloatSetting(ini, "Stun", "fStunMaceMult", fStunMaceMult);
-	ReadFloatSetting(ini, "Stun", "fStunGreatSwordMult", fStunGreatSwordMult);
-	ReadFloatSetting(ini, "Stun", "fStun2HBluntMult", fStun2HBluntMult);
+	ReadFloatSetting(mcm, "Stun", "fStunUnarmedMult", fStunUnarmedMult);
+	ReadFloatSetting(mcm, "Stun", "fStunDaggerMult", fStunDaggerMult);
+	ReadFloatSetting(mcm, "Stun", "fStunSwordMult", fStunSwordMult);
+	ReadFloatSetting(mcm, "Stun", "fStunWarAxeMult", fStunWarAxeMult);
+	ReadFloatSetting(mcm, "Stun", "fStunMaceMult", fStunMaceMult);
+	ReadFloatSetting(mcm, "Stun", "fStunGreatSwordMult", fStunGreatSwordMult);
+	ReadFloatSetting(mcm, "Stun", "fStun2HBluntMult", fStun2HBluntMult);
 
-	ReadBoolSetting(ini, "Stun", "bAutoExecution", bAutoExecution);
-	ReadIntSetting(ini, "Stun", "uExecutionKey", uExecutionKey);
-	ReadBoolSetting(ini, "Compatibility", "bPoiseCompatibility", bPoiseCompatibility);
-	INFO("Ini settings read.");
+	ReadBoolSetting(mcm, "Stun", "bAutoExecution", bAutoExecution);
+	ReadIntSetting(mcm, "Stun", "uExecutionKey", uExecutionKey);
+	ReadBoolSetting(mcm, "Compatibility", "bPoiseCompatibility", bPoiseCompatibility);
+	INFO("...done");
 
+
+	INFO("Apply game settings...");
 	/*Set some game settings*/
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
 	multStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
-
+	
 	/*Release truehud meter if set so.*/
-	if (bStunToggle && bStunMeterToggle) {
-		stunHandler::GetSingleton()->initTrueHUDStunMeter();
+	if (bStunMeterToggle) {
+		ValhallaCombat::GetSingleton()->requestTrueHudSpecialBarControl();
 	}
 	else {
-		stunHandler::GetSingleton()->releaseTrueHUDStunMeter();
+		ValhallaCombat::GetSingleton()->releaseTrueHudSpecialBarControl();
 	}
-	INFO("Game settings applied.");
+	INFO("...done");
 }
 

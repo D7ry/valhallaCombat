@@ -3,6 +3,7 @@
 #include "include/blockHandler.h"
 #include "include/stunHandler.h"
 #include "include/lib/TrueHUDAPI.h"
+#include "include/settings.h"
 /*Combat tweaks to make Skyrim's melee combat feel like AC:Valhalla.*/
 class ValhallaCombat
 {
@@ -61,6 +62,36 @@ public:
 		stunHandler::GetSingleton()->update();
 	}
 
+	}
+
+	/*Request special bar control from truehud API. 
+	If successful, set the truehud specialmeter global value to true.*/
+	void requestTrueHudSpecialBarControl() {
+		INFO("Request trueHUD API special bar control...");
+		if (g_trueHUD) {
+			if (g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
+				g_trueHUD->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getStun, stunHandler::getMaxStun , true, false);
+				settings::TrueHudAPI_HasSpecialBarControl = true;
+				settings::updateGlobals();
+				INFO("...Success");
+			}
+			else {
+				INFO("...Failure");
+			}
+		}
+	}
+
+	void releaseTrueHudSpecialBarControl() {
+		INFO("Release trueHUD API special bar control...");
+		if (ValhallaCombat::GetSingleton()->g_trueHUD
+			->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
+			settings::TrueHudAPI_HasSpecialBarControl = false;
+			settings::updateGlobals();
+			INFO("...Success");
+		}
+		else {
+			INFO("...Failure");
+		}
 	}
 
 private:

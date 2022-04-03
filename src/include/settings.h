@@ -8,7 +8,14 @@
 class settings
 {
 public:
-
+#pragma region GlobalSettings
+	static inline RE::TESGlobal* glob_TrueHudAPI;
+	static inline RE::TESGlobal* glob_TrueHudAPI_SpecialMeter;
+	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_NPC;
+	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_Damage;
+	static inline bool TrueHudAPI_HasSpecialBarControl;
+	static inline bool TrueHudAPI;
+#pragma endregion
 #pragma region StaminSettings
 	static inline bool bUIAlert = true;
 	static inline bool bNonCombatStaminaDebuff = true;
@@ -36,8 +43,8 @@ public:
 	
 	static inline float fMeleeCostLightMiss_Point = 30;
 	static inline float fMeleeRewardLightHit_Percent = 0.2;
-	static inline float fMeleeCostHeavyMiss_Percent = 0.333;
-	static inline float fMeleeCostHeavyHit_Percent = 0.199;
+	static inline float fMeleeCostHeavyMiss_Percent = 0.4;
+	static inline float fMeleeCostHeavyHit_Percent = 0.333;
 
 #pragma endregion
 #pragma region PerfectBlockingSettings
@@ -90,7 +97,8 @@ public:
 	//TODO: add new settings
 
 	static void readSettings();
-	
+	static void updateGlobals();
+	static void init();
 private:
 	static void ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, bool& a_setting);
 	static void ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting);

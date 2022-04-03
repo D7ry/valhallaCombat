@@ -235,28 +235,5 @@ void stunHandler::refreshStun() {
 	mtx.unlock();
 }
 
-void stunHandler::initTrueHUDStunMeter() {
-	auto ptr = ValhallaCombat::GetSingleton();
-	if (ptr->g_trueHUD) {
-		if (ptr->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-			ptr->g_trueHUD->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, true, false);
-		}
-	}/*
-	auto result = ValhallaCombat::GetSingleton()->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle());
-	if (result != TRUEHUD_API::APIResult::AlreadyTaken || result != TRUEHUD_API::APIResult::AlreadyGiven) {
-		INFO("TrueHUD special bar request success.");
-		if (
-			ValhallaCombat::GetSingleton()->g_trueHUD
-			->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), getStun, getMaxStun, true) == TRUEHUD_API::APIResult::OK) {
-			INFO("TrueHUD special bar init success.");
-		}
-	}*/
-}
 
-void stunHandler::releaseTrueHUDStunMeter() {
-	if (ValhallaCombat::GetSingleton()->g_trueHUD
-		->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-		INFO("TrueHUD special bar release success.");
-	}
-}
 #pragma endregion

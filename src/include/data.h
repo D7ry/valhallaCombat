@@ -16,7 +16,7 @@ public:
 	void loadData();
 
 	const static inline std::string AnimEvent_GuardCounter = "Val_GuardCounter_Trigger";
-
+	const static inline std::string GraphBool_IsGuardCountering = "is_Guard_Countering";
 #pragma region Perk
 	RE::BGSPerk* debuffPerk;
 #pragma endregion

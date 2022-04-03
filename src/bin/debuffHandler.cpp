@@ -33,9 +33,12 @@ void debuffHandler::update() {
 			}
 			continue;
 		}
-		if (settings::bUIAlert){ //flash the actor's meter
+		if (settings::bUIAlert
+			&& settings::TrueHudAPI){ //flash the actor's meter
 			if (it->second <= 0) {
-				ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
+				if (settings::TrueHudAPI) {
+					ValhallaCombat::GetSingleton()->g_trueHUD->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
+				}
 				it->second = 0.5;
 			}
 			else {
@@ -62,7 +65,7 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 	actorDebuffMap.emplace(actor, 0);
 	mtx.unlock();
 	addDebuffPerk(actor);
-	if (settings::bUIAlert) {
+	if (settings::bUIAlert && settings::TrueHudAPI) {
 		greyOutStaminaMeter(actor);
 	}
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::debuffHandler);
@@ -73,7 +76,7 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 	//DEBUG("Stopping stamina debuff for {}", actor->GetName());
 	removeDebuffPerk(actor);
-	if (settings::bUIAlert) {
+	if (settings::bUIAlert && settings::TrueHudAPI) {
 		revertStaminaMeter(actor);
 	}
 }

@@ -74,12 +74,6 @@ public:
 	static float getMaxStun(RE::Actor* actor);
 
 
-	/*Initialize stun meter, linking stun data to trueHud API.*/
-	void initTrueHUDStunMeter();
-
-	/*Uninitialize stun meter.*/
-	void releaseTrueHUDStunMeter();
-
 	/*Clears all records from StunMap.*/
 	void refreshStun();
 
