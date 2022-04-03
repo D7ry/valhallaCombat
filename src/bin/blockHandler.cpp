@@ -11,7 +11,7 @@
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
-	auto deltaTime = *RE::Offset::g_deltaTimeRealTime;
+	auto deltaTime = *RE::Offset::g_deltaTime;
 	mtx.lock();
 	auto it1 = actorsPerfectBlocking.begin();
 	while (it1 != actorsPerfectBlocking.end()) {

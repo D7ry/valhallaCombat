@@ -42,7 +42,7 @@ void debuffHandler::update() {
 				it->second = 0.5;
 			}
 			else {
-				it->second -= *RE::Offset::g_deltaTimeRealTime;
+				it->second -= *RE::Offset::g_deltaTime;
 			}
 		}
 		++it;
