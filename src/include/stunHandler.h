@@ -34,6 +34,10 @@ private:
 	failed to block a heavy attack*/
 	void knockDown(RE::Actor* aggressor, RE::Actor* victim);
 
+	inline void greyOutStunMeter(RE::Actor* a_actor);
+
+	inline void revertStunMeter(RE::Actor* a_actor);
+
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
 	robin_hood::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 
@@ -41,6 +45,8 @@ private:
 	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
 	robin_hood::unordered_map <RE::Actor*, float> stunRegenQueue;
 
+	/*Set of all actors stunned.*/
+	robin_hood::unordered_set <RE::Actor*> stunnedActors;
 
 public:
 	static stunHandler* GetSingleton()

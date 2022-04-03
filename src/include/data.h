@@ -117,9 +117,9 @@ public:
 		Lurker,
 		Dragon
 	};
-	/*Mapping of all executable races -> catagory of those races.*/
+	/*Mapping of all loaded races -> catagory of those races.*/
 	//Note: catagorization of execution races has to be done manually.
-	robin_hood::unordered_map<RE::TESRace*, raceCatagory> ExecutionRaceMap;
+	robin_hood::unordered_map<RE::TESRace*, raceCatagory> raceMapping;
 #pragma endregion
 #pragma region sounds
 	RE::BGSSoundDescriptorForm* soundParryShieldD;

@@ -180,7 +180,7 @@ bool data::pairUpRace(RE::TESDataHandler* DATA, RE::FormID form, std::string plu
 	if (!race) {
 		return false;
 	}
-	ExecutionRaceMap.emplace(race, raceType);
+	raceMapping.emplace(race, raceType);
 	INFO("Mapped {} from {} to race catagory {}", race->GetName(), pluginName, raceType);
 	return true;
 }

@@ -37,5 +37,12 @@ public:
 	static void triggerKnockBack(RE::Actor* causer, RE::Actor* reactor);
 
 
+	/*Initialize a downed state for an actor.
+	@param a_actor: actor to enter downed state*/
+	static void triggerDownedState(RE::Actor* a_actor);
+
+	/*Recover an actor from the downed state.
+	@param a_actor: actor to recover from downed state.*/
+	static void recoverDownedState(RE::Actor* a_actor);
 	
 };

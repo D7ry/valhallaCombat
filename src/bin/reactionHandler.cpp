@@ -1,6 +1,7 @@
 #include "include/reactionHandler.h"
 #include "include/settings.h"
 #include "include/Utils.h"
+#include "include/data.h"
 static inline const RE::BSFixedString poise_largest = "poise_largest_start";
 static inline const RE::BSFixedString poise_largest_fwd = "poise_largest_start_fwd";
 static inline const RE::BSFixedString poise_large = "poise_large_start";
@@ -13,6 +14,10 @@ static inline const RE::BSFixedString poise_small_fwd = "poise_small_start_fwd";
 static inline const RE::BSFixedString staggerDirection = "staggerDirection";
 static inline const RE::BSFixedString staggerMagnitude = "staggerType";
 static inline const RE::BSFixedString staggerStart = "staggerStart";
+
+static inline const RE::BSFixedString bleedOutStart = "BleedoutStart";
+static inline const RE::BSFixedString bleedOutStop = "BleedOutStop";
+static inline const RE::BSFixedString bleedOutGraphBool = "IsBleedingOut";
 
 void reactionHandler::triggerStagger(RE::Actor* aggressor, RE::Actor* reactor, float magnitude) {
 	if (reactor->IsSwimming()) {
@@ -82,5 +87,37 @@ void reactionHandler::triggerReactionSmall(RE::Actor* causer, RE::Actor* reactor
 	}
 	else {
 		triggerPoiseReaction(causer, reactor, poiseReactionType::kSmall);
+	}
+}
+
+void reactionHandler::triggerDownedState(RE::Actor* a_actor) {
+	auto raceMapping = data::GetSingleton()->raceMapping;
+	auto it = raceMapping.find(a_actor->GetRace());
+	if (it != raceMapping.end()) {
+		switch (it->second) {
+		case data::Humanoid:
+		case data::Undead:			
+			if (a_actor->IsInKillMove()) {
+				return;
+			}
+			a_actor->SetGraphVariableBool(bleedOutGraphBool, true);
+			a_actor->NotifyAnimationGraph(bleedOutStart);
+		}
+	}
+}
+
+void reactionHandler::recoverDownedState(RE::Actor* a_actor) {
+	auto raceMapping = data::GetSingleton()->raceMapping;
+	auto it = raceMapping.find(a_actor->GetRace());
+	if (it != raceMapping.end()) {
+		switch (it->second) {
+		case data::Humanoid:
+		case data::Undead:
+			if (a_actor->IsInKillMove()) {
+				return;
+			}
+			a_actor->SetGraphVariableBool(bleedOutGraphBool, false);
+			a_actor->NotifyAnimationGraph(bleedOutStop);
+		}
 	}
 }

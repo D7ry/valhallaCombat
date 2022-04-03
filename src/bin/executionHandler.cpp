@@ -25,8 +25,8 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	}
 
 	auto data = data::GetSingleton();
-	auto it1 = data->ExecutionRaceMap.find(executorRace);
-	if (it1 == data->ExecutionRaceMap.end()) {
+	auto it1 = data->raceMapping.find(executorRace);
+	if (it1 == data->raceMapping.end()) {
 		return;
 	}
 	if (it1->second != data::raceCatagory::Humanoid) {
@@ -40,8 +40,8 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		RE::DebugNotification("Execution key not pressed");
 		return;
 	}
-	auto it2 = data->ExecutionRaceMap.find(victimRace);
-	if (it2 == data->ExecutionRaceMap.end()) {
+	auto it2 = data->raceMapping.find(victimRace);
+	if (it2 == data->raceMapping.end()) {
 		DEBUG("Victim race not found on race map.");
 		return;
 	}

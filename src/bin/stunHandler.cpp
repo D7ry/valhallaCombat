@@ -7,11 +7,11 @@
 #include "include/Utils.h"
 void stunHandler::update() {
 	mtx.lock();
-	auto deltaTime = *RE::Offset::g_deltaTimeRealTime;
+	auto deltaTime = *RE::Offset::g_deltaTime;
 	auto it = stunRegenQueue.begin();
 	while (it != stunRegenQueue.end()) {
 		auto actor = it->first;
-		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {
+		if (!actor || !actor->currentProcess) {
 			//if an actor is no longer present=>remove actor.
 			actorStunMap.erase(actor);
 			it = stunRegenQueue.erase(it); 
@@ -20,7 +20,8 @@ void stunHandler::update() {
 			}
 			continue;
 		}
-		if (!actor->IsInCombat()) {//no regen during combat.
+		if (!actor->IsInCombat() ||//no regular regen during combat.
+			stunnedActors.contains(actor)) {//however, when in down state, regen.
 			if (it->second <= 0) {//timer reached zero, time to regen.
 				//start regenerating stun from actorStunMap.
 				if (actorStunMap.find(actor) == actorStunMap.end()) {//oops, somehow the actor is not found in the stun map.
@@ -33,10 +34,17 @@ void stunHandler::update() {
 				else {
 					if (actorStunMap.find(actor)->second.second < actorStunMap.find(actor)->second.first) {
 						actorStunMap.find(actor)->second.second += 
-							deltaTime * 1 / 10 * actorStunMap.find(actor)->second.first;
+							deltaTime * 1 / 5 * actorStunMap.find(actor)->second.first;
 					}
 					else {
-						it = stunRegenQueue.erase(it); 
+						//actor's stun fully regenerated. recovering its downed state and consider the actor no longer stunned.
+						it = stunRegenQueue.erase(it);
+						if (stunnedActors.contains(actor)) {
+							stunnedActors.erase(actor);
+							revertStunMeter(actor);
+							reactionHandler::recoverDownedState(actor);
+						}
+
 						if (stunRegenQueue.size() == 0) {
 							ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
 						}
@@ -88,12 +96,21 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 		damageStun(aggressor, actor, damage);
 	}
 	else {
-		if (it->second.second > 0) { //no need to damage 0 stun
+		//prevent stun from getting below 0
+		if (it->second.second - damage <= 0) {
+			it->second.second = 0;
+		}
+		else {
 			it->second.second -= damage;
-			if (it->second.second <= 0) {
+		}
+		//actor has 0 stun
+		if (it->second.second <= 0) {
+			if (!stunnedActors.contains(actor)) {
 				ValhallaUtils::playSound(actor, data::GetSingleton()->soundStunBreakD->GetFormID());
-				//reactionHandler::triggerKnockBack(aggressor, actor);
+				stunnedActors.insert(actor);
+				greyOutStunMeter(actor);
 			}
+			reactionHandler::triggerDownedState(actor);
 		}
 		mtx.lock();
 		stunRegenQueue[actor] = 3; //3 seconds cooldown to regenerate stun.
@@ -236,4 +253,17 @@ void stunHandler::refreshStun() {
 }
 
 
+void stunHandler::greyOutStunMeter(RE::Actor* a_actor) {
+	auto ersh = ValhallaCombat::GetSingleton()->g_trueHUD;
+	ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
+	ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
+	ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
+}
+
+void stunHandler::revertStunMeter(RE::Actor* a_actor) {
+	auto ersh = ValhallaCombat::GetSingleton()->g_trueHUD;
+	ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor);
+	ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
+	ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor);
+}
 #pragma endregion
