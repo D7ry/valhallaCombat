@@ -51,6 +51,14 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	if (settings::bAttackStaminaToggle) {
 		attackHandler::GetSingleton()->registerHit(aggressor);
 	}
+	//Temporary execution module
+	if (settings::bAutoExecution && //stun must be toggled to trigger execution.
+		!victim->IsPlayerRef() && !victim->IsPlayerTeammate() && !victim->IsEssential() && !victim->IsInKillMove()) {
+		if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
+			DEBUG("attempt execution");
+			executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
+		}
+	}
 	//DEBUG("test execution");
 	//executionHandler::GetSingleton()->playExecutionIdle(aggressor, victim, data::testIdle);
 	if (hitFlag & (int)HITFLAG::kPowerAttack) {
@@ -64,13 +72,5 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
 	//TODO: a better execution module
-	//Temporary execution module
-	if (settings::bStunToggle && //stun must be toggled to trigger execution.
-		!victim->IsPlayerRef() && !victim->IsPlayerTeammate() && !victim->IsEssential() && !victim->IsInKillMove()) {
-		DEBUG("Victim stun is {}", stunHandler::GetSingleton()->getStun(victim));
-		if (stunHandler::GetSingleton()->getStun(victim) <= 0 && hitData.weapon->IsMelee()) {
-			DEBUG("attempt execution");
-			executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
-		}
-	}
+
 }

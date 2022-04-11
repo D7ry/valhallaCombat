@@ -65,12 +65,12 @@ void settings::updateGlobals() {
 	if (pc) {
 		if (glob_Nemesis_EldenCounter_Damage) {
 			bool bDummy;
-			glob_Nemesis_EldenCounter_Damage->value = pc->GetGraphVariableBool(data::GraphBool_IsGuardCountering, bDummy);
+			glob_Nemesis_EldenCounter_Damage->value = pc->GetGraphVariableBool("is_Guard_Countering", bDummy);
 		}
-		/*if (glob_Nemesis_EldenCounter_NPC) {
+		if (glob_Nemesis_EldenCounter_NPC) {
 			bool bDummy;
-			glob_Nemesis_EldenCounter_NPC->value = pc->GetGraphVariableBool("360HorseGen", bDummy);
-		}*/
+			glob_Nemesis_EldenCounter_NPC->value = pc->GetGraphVariableBool("IsValGC", bDummy);
+		}
 	}
 	INFO("...done");
 }

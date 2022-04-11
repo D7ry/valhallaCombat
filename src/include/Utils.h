@@ -16,26 +16,6 @@ namespace Utils
 			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
 		}
 	}
-
-	inline bool wieldingOneHanded(RE::Actor* a) {
-		if (!a->GetEquippedObject(false)) {
-			return true;
-		}
-		RE::WEAPON_TYPE wpnType = a->GetEquippedObject(false)->As<RE::TESObjectWEAP>()->GetWeaponType();
-		if (wpnType >= RE::WEAPON_TYPE::kHandToHandMelee && wpnType <= RE::WEAPON_TYPE::kOneHandMace) {
-			DEBUG("player wielding one handed weapon!");
-			return true;
-		}
-		else {
-			DEBUG("player wielding two handed weapon!");
-			return false;
-		}
-	}
-
-
-
-
-
 };
 
 class ValhallaUtils

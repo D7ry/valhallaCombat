@@ -2,6 +2,7 @@
 #include "include/data.h"
 #include "include/settings.h"
 #include "include/executionHandler.h"
+#include "include/stunHandler.h"
 using EventType = RE::INPUT_EVENT_TYPE;
 using DeviceType = RE::INPUT_DEVICE;
 const auto ui = RE::UI::GetSingleton();
@@ -39,11 +40,21 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 				if (button->IsDown()) {
 					RE::DebugNotification("execution activated");
 					executionHandler::GetSingleton()->executionKeyDown = true;
+					if (RE::CrosshairPickData::GetSingleton()->targetActor) {
+						auto actor = RE::CrosshairPickData::GetSingleton()->targetActor.get()->As<RE::Actor>();
+						if (actor && !actor->IsDead()) {
+							if (stunHandler::GetSingleton()->isActorStunned(actor)) {
+								DEBUG("attempt execution");
+								executionHandler::GetSingleton()->
+									attemptExecute(RE::PlayerCharacter::GetSingleton(), actor);
+							}
+						}
+					}
 				}
-				if (button->IsUp()) {
+				/*if (button->IsUp()) {
 					RE::DebugNotification("execution deactivated");
 					executionHandler::GetSingleton()->executionKeyDown = false;
-				}
+				}*/
 
 				break;
 			}

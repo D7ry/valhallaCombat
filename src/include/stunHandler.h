@@ -38,16 +38,17 @@ private:
 
 	inline void revertStunMeter(RE::Actor* a_actor);
 
+	inline void flashHealthBar(RE::Actor* a_actor);
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
 	robin_hood::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 
-	/*Mapping of actors whose stun has been damaged recently => timer before their stun start regenerate.
+	/*Mapping of actors whose stun has been damaged recently => their stun regen cooldown.
 	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
 	robin_hood::unordered_map <RE::Actor*, float> stunRegenQueue;
 
-	/*Set of all actors stunned.*/
+	/*Mapping of actors who are completely stunned => their stun meter blinking timer.*/
 	robin_hood::unordered_set <RE::Actor*> stunnedActors;
-
+	float stunMeterFlashTimer;
 public:
 	static stunHandler* GetSingleton()
 	{
@@ -80,6 +81,8 @@ public:
 	static float getMaxStun(RE::Actor* actor);
 
 
+	/*Return if the actor is completely stunned and ready for execution.*/
+	bool isActorStunned(RE::Actor* actor);
 	/*Clears all records from StunMap.*/
 	void refreshStun();
 

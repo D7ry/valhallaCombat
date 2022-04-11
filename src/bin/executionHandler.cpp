@@ -11,7 +11,6 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		|| executor->IsDead() || victim->IsDead()
 		|| !executor->Is3DLoaded() || !victim->Is3DLoaded()
 		|| executor->IsInKillMove() || victim->IsInKillMove()
-		|| (!settings::bPlayerExecution && (victim->IsPlayerTeammate() || victim->IsPlayer()))
 		|| executor->IsOnMount() || victim->IsOnMount()
 		|| victim->HasEffectWithArchetype(RE::MagicTarget::Archetype::kParalysis)) {
 		DEBUG("Execution preconditions not met, terminating execution.");
@@ -42,15 +41,10 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	}
 	auto it2 = data->raceMapping.find(victimRace);
 	if (it2 == data->raceMapping.end()) {
-		DEBUG("Victim race not found on race map.");
+		RE::DebugNotification("victim race not found on race map.");
 		return;
 	}
 	auto victimRaceType = it2->second;
-
-	if (executionMap.find(executor) != executionMap.end() //executor is executing
-		|| executionMap.find(victim) != executionMap.end()) { //victim is executing
-		return;
-	}
 
 	RE::WEAPON_TYPE weaponType;
 	auto weapon = executor->getWieldingWeapon();
@@ -61,6 +55,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	else {
 		weaponType = weapon->GetWeaponType();
 	}
+
 	if (weaponType == RE::WEAPON_TYPE::kBow || weaponType == RE::WEAPON_TYPE::kCrossbow) {
 		return;
 	}
@@ -133,7 +128,7 @@ void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim,
 		DEBUG("Error! no idle received");
 	}
 	else {
-		DEBUG("received idle with name {}", idle->GetName());
+		INFO("received idle with name {}", idle->GetFormID());
 		playExecutionIdle(executor, victim, idle);
 	}
 
