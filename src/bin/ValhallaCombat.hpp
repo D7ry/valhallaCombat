@@ -9,8 +9,8 @@ class ValhallaCombat
 {
 public:
 
-	TRUEHUD_API::IVTrueHUD3* g_trueHUD = nullptr;
-
+	TRUEHUD_API::IVTrueHUD3* ersh = nullptr;
+	
 	static ValhallaCombat* GetSingleton()
 	{
 		static ValhallaCombat singleton;
@@ -68,9 +68,9 @@ public:
 	If successful, set the truehud specialmeter global value to true.*/
 	void requestTrueHudSpecialBarControl() {
 		INFO("Request trueHUD API special bar control...");
-		if (g_trueHUD) {
-			if (g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-				g_trueHUD->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getStun, stunHandler::getMaxStun , true, false);
+		if (ersh) {
+			if (ersh->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
+				ersh->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getStun, stunHandler::getMaxStun , true, false);
 				settings::TrueHudAPI_HasSpecialBarControl = true;
 				settings::updateGlobals();
 				INFO("...Success");
@@ -83,7 +83,7 @@ public:
 
 	void releaseTrueHudSpecialBarControl() {
 		INFO("Release trueHUD API special bar control...");
-		if (ValhallaCombat::GetSingleton()->g_trueHUD
+		if (ValhallaCombat::GetSingleton()->ersh
 			->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
 			settings::TrueHudAPI_HasSpecialBarControl = false;
 			settings::updateGlobals();

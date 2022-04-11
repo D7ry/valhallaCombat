@@ -11,16 +11,16 @@ void attackHandler::registerAtk(RE::Actor* actor) {
 				return; //bash attacks won't get registered
 			}
 			if (attckData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)) {
-				mtx.lock();
+				mtx_attackerHeap.lock();
 				attackerHeap.emplace(actor, ATTACKTYPE::power);
-				mtx.unlock();
+				mtx_attackerHeap.unlock();
 				//DEBUG("registered power attack");
 			}
 			else {
 				//DEBUG("registered light attack");
-				mtx.lock();
+				mtx_attackerHeap.lock();
 				attackerHeap.emplace(actor, ATTACKTYPE::light);
-				mtx.unlock();
+				mtx_attackerHeap.unlock();
 				//DEBUG("attack heap size: {}", attackerHeap.size());
 			}
 
@@ -41,9 +41,9 @@ void attackHandler::registerHit(RE::Actor* actor) {
 	else { //register power hit
 		staminaHandler::staminaHeavyHit(actor);
 	}
-	mtx.lock();
+	mtx_attackerHeap.lock();
 	attackerHeap.erase(actor); //erase the actor from heap i.e. checking out the attack without damaging stamina.
-	mtx.unlock();
+	mtx_attackerHeap.unlock();
 }
 
 
@@ -58,7 +58,7 @@ void attackHandler::checkout(RE::Actor* actor) {
 	else {
 		staminaHandler::staminaHeavyMiss(actor);
 	}
-	mtx.lock();
+	mtx_attackerHeap.lock();
 	attackerHeap.erase(actor);
-	mtx.unlock();
+	mtx_attackerHeap.unlock();
 }

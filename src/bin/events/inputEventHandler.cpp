@@ -39,6 +39,7 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 			if (key == settings::uExecutionKey) {
 				if (button->IsDown()) {
 					RE::DebugNotification("execution activated");
+					/*
 					executionHandler::GetSingleton()->executionKeyDown = true;
 					if (RE::CrosshairPickData::GetSingleton()->targetActor) {
 						auto actor = RE::CrosshairPickData::GetSingleton()->targetActor.get()->As<RE::Actor>();
@@ -49,7 +50,7 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 									attemptExecute(RE::PlayerCharacter::GetSingleton(), actor);
 							}
 						}
-					}
+					}*/
 				}
 				/*if (button->IsUp()) {
 					RE::DebugNotification("execution deactivated");

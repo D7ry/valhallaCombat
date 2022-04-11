@@ -33,19 +33,6 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 			settings::TrueHudAPI = false;
 		}
 		break;
-		/*Old trueHud stuff
-		if (!TRUEHUD_API::RegisterInterfaceLoaderCallback(
-			SKSE::GetMessagingInterface(),
-			[](void* interfaceInstance, TRUEHUD_API::InterfaceVersion interfaceVersion) {
-				if (interfaceVersion == TRUEHUD_API::InterfaceVersion::V2) {
-					ValhallaCombat::GetSingleton()->g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD2*>(interfaceInstance);
-					INFO("Obtained TrueHUD API");
-				}
-				else
-					INFO("Unable to acquire requested TrueHUD API interface version");
-			}))
-			INFO("TRUEHUD_API::RegisterInterfaceLoaderCallback reported an error");
-			*/
 	case SKSE::MessagingInterface::kPostLoadGame:
 		INFO("Post load game");
 		debuffHandler::GetSingleton()->quickStopStaminaDebuff(RE::PlayerCharacter::GetSingleton());
@@ -55,15 +42,6 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		break;
 	case SKSE::MessagingInterface::kPostPostLoad:
 		INFO("Post post load");
-		//Old trueHud stuff
-		/*if (!TRUEHUD_API::RequestInterface(
-			SKSE::GetMessagingInterface(),
-			TRUEHUD_API::InterfaceVersion::V2)) {
-			INFO("TrueHUD API::RequestInterface reported an error.");
-		}
-		else {
-			INFO("TrueHUD API interface request success");
-		}*/
 		break;
 	}
 }

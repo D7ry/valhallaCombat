@@ -6,25 +6,32 @@
 #include "include/offsets.h"
 #include "include/Utils.h"
 void stunHandler::update() {
-	mtx.lock();
+	//mtx.lock();
 	auto deltaTime = *RE::Offset::g_deltaTime;
+	mtx_StunRegenQueue.lock();
 	auto it_StunRegenQueue = stunRegenQueue.begin();
 	while (it_StunRegenQueue != stunRegenQueue.end()) {
 		auto actor = it_StunRegenQueue->first;
 		if (!actor || !actor->currentProcess) {
 			//if an actor is no longer present=>remove actor.
+			mtx_ActorStunMap.lock();
 			actorStunMap.erase(actor);
+			mtx_ActorStunMap.unlock();
 			it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); 
 			if (stunRegenQueue.size() == 0) {
 				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
 			}
 			continue;
 		}
+
+
 		if (!actor->IsInCombat()//no regular regen during combat.
 			|| stunnedActors.contains(actor)) {//however, when in down state, regen.
 			if (it_StunRegenQueue->second <= 0) {//timer reached zero, time to regen.
 				//start regenerating stun from actorStunMap.
+				mtx_ActorStunMap.lock();
 				if (actorStunMap.find(actor) == actorStunMap.end()) {//oops, somehow the actor is not found in the stun map.
+					mtx_ActorStunMap.unlock(); //unlock mtx here, no longer needed.
 					it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); 
 					if (stunRegenQueue.size() == 0) {
 						ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
@@ -35,8 +42,10 @@ void stunHandler::update() {
 					if (actorStunMap.find(actor)->second.second < actorStunMap.find(actor)->second.first) {
 						actorStunMap.find(actor)->second.second += 
 							deltaTime * 1 / 7 * actorStunMap.find(actor)->second.first;
+						mtx_ActorStunMap.unlock();
 					}
 					else {
+						mtx_ActorStunMap.unlock();
 						//actor's stun fully regenerated. recovering its downed state and consider the actor no longer stunned.
 						it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue);
 						if (stunnedActors.contains(actor)) {
@@ -57,7 +66,11 @@ void stunHandler::update() {
 		}
 		++it_StunRegenQueue;
 	}
-	if (!stunnedActors.empty()) {
+	mtx_StunRegenQueue.unlock();
+
+
+
+	if (!stunnedActors.empty()) { //crosshair meter flash
 		if (timer_StunMeterFlash <= 0) {
 			RE::Actor* crossHairTarget = nullptr;
 			if (RE::CrosshairPickData::GetSingleton()
@@ -76,7 +89,7 @@ void stunHandler::update() {
 		}
 
 	}
-	mtx.unlock();
+	//mtx.unlock();
 	//flash special meter for stunned actors, if they're being pointed at.
 
 }
@@ -85,11 +98,14 @@ void stunHandler::update() {
 
 float stunHandler::getMaxStun(RE::Actor* actor) {
 	auto actorStunMap = stunHandler::GetSingleton()->actorStunMap;
+	mtx_ActorStunMap.lock();
 	auto it = actorStunMap.find(actor);
 	if (it != actorStunMap.end()) {
+		mtx_ActorStunMap.unlock();
 		return it->second.first;
 	}
 	else {
+		mtx_ActorStunMap.unlock();
 		stunHandler::GetSingleton()->trackStun(actor);
 		return getMaxStun(actor);
 	}
@@ -97,11 +113,14 @@ float stunHandler::getMaxStun(RE::Actor* actor) {
 
 float stunHandler::getStun(RE::Actor* actor) {
 	auto actorStunMap = stunHandler::GetSingleton()->actorStunMap;
+	mtx_ActorStunMap.lock();
 	auto it = actorStunMap.find(actor);
 	if (it != actorStunMap.end()) {
+		mtx_ActorStunMap.unlock();
 		return it->second.second;
 	}
 	else {
+		mtx_ActorStunMap.unlock();
 		stunHandler::GetSingleton()->trackStun(actor);
 		return getStun(actor);
 	}
@@ -110,10 +129,12 @@ float stunHandler::getStun(RE::Actor* actor) {
 
 void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damage) {
 	//DEBUG("Damaging {}'s stun by {} points.", actor->GetName(), damage);
+	mtx_ActorStunMap.lock();
 	auto it = actorStunMap.find(actor);
 	if (it == actorStunMap.end()) { //actor's stun is not yet tracked.
+		mtx_ActorStunMap.unlock();
 		trackStun(actor);
-		damageStun(aggressor, actor, damage);
+		damageStun(aggressor, actor, damage);//recursively call itself, once stun is tracked.
 	}
 	else {
 		//prevent stun from getting below 0
@@ -123,9 +144,10 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 		else {
 			it->second.second -= damage;
 		}
-		//actor has 0 stun
 
+		//actor has 0 stun
 		if (it->second.second <= 0) {
+			mtx_ActorStunMap.unlock();
 			if (!stunnedActors.contains(actor)) {
 				ValhallaUtils::playSound(actor, data::GetSingleton()->soundStunBreakD->GetFormID());
 				actor->AllowBleedoutDialogue(true);
@@ -134,13 +156,17 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 				greyOutStunMeter(actor);
 			}
 		}
+		else {
+			mtx_ActorStunMap.unlock();
+		}
+
 		if (stunnedActors.contains(actor)
 			&& !actor->IsInKillMove()) {
 			reactionHandler::triggerDownedState(actor);
 		}
-		mtx.lock();
+		mtx_StunRegenQueue.lock();
 		stunRegenQueue[actor] = 3; //3 seconds cooldown to regenerate stun.
-		mtx.unlock();
+		mtx_StunRegenQueue.unlock();
 		ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::stunHandler);
 	}
 
@@ -229,37 +255,39 @@ void stunHandler::calculateStunDamage(
 #pragma region stunUtils
 void stunHandler::trackStun(RE::Actor* actor) {
 	float maxStun = calcMaxStun(actor);
-	mtx.lock();
+	mtx_ActorStunMap.lock();
 	actorStunMap.emplace(actor, std::pair<float, float>(maxStun, maxStun));
-	mtx.unlock();
-	DEBUG("Start tracking {}'s stun. Max Stun: {}.", actor->GetName(), maxStun);
+	mtx_ActorStunMap.unlock();
+	//DEBUG("Start tracking {}'s stun. Max Stun: {}.", actor->GetName(), maxStun);
 };
 void stunHandler::untrackStun(RE::Actor* actor) {
-	mtx.lock();
+	mtx_ActorStunMap.lock();
 	actorStunMap.erase(actor);
-	mtx.unlock();
+	mtx_ActorStunMap.unlock();
 }
 float stunHandler::calcMaxStun(RE::Actor* actor) {
 	return (actor->GetPermanentActorValue(RE::ActorValue::kHealth) + actor->GetPermanentActorValue(RE::ActorValue::kStamina)) / 2;
 }
 void stunHandler::refillStun(RE::Actor* actor) {
-	mtx.lock();
+	mtx_ActorStunMap.lock();
 	auto it = actorStunMap.find(actor);
 	if (it != actorStunMap.end()) {
 		it->second.second = it->second.first;
 	}
-	mtx.unlock();
+	mtx_ActorStunMap.unlock();
 }
 
 void stunHandler::refreshStun() {
-	mtx.lock();
+	mtx_StunRegenQueue.lock();
 	stunRegenQueue.clear();
+	mtx_StunRegenQueue.unlock();
+	mtx_ActorStunMap.lock();
 	actorStunMap.clear();
-	mtx.unlock();
+	mtx_ActorStunMap.unlock();
 }
 void stunHandler::cleanUpStunMap() {
 	INFO("Cleaning up stun map...");
-	mtx.lock();
+	mtx_ActorStunMap.lock();
 	auto it = actorStunMap.begin();
 	while (it != actorStunMap.end()) {
 		auto actor = it->first;
@@ -268,7 +296,7 @@ void stunHandler::cleanUpStunMap() {
 		}
 		it++;
 	}
-	mtx.unlock();
+	mtx_ActorStunMap.unlock();
 	INFO("...done");
 }
 

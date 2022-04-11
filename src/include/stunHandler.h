@@ -13,7 +13,9 @@ public:
 	@return this actor's max sun.*/
 	float calcMaxStun(RE::Actor* actor);
 private:
-	static inline std::mutex mtx;
+	static inline std::mutex mtx_ActorStunMap;
+	static inline std::mutex mtx_StunRegenQueue;
+	static inline std::mutex mtx_StunnedActors;
 	/*Start tracking this Actor's stun.
 	@param actor: actor whose stun will be tracked.*/
 	void trackStun(RE::Actor* actor);

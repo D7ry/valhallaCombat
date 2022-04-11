@@ -7,7 +7,7 @@ class attackHandler
 {
 
 public:
-	static inline std::mutex mtx;
+	static inline std::mutex mtx_attackerHeap;
 	static attackHandler* GetSingleton()
 	{
 		static attackHandler singleton;
@@ -52,15 +52,15 @@ iff the actor is not stored in the map, return false.
 @param atkType: address to store attack type*/
 	inline bool getAtkType(RE::Actor* actor, attackHandler::ATTACKTYPE& atkType) {
 		//DEBUG("Getting {}'s attack from attack heap", actor->GetName());
-		mtx.lock();
+		mtx_attackerHeap.lock();
 		auto it = attackerHeap.find(actor); //check if the actor's attack is registered
 		if (it == attackerHeap.end()) {
-			mtx.unlock();
+			mtx_attackerHeap.unlock();
 			//DEBUG("{} not found in attackState map", actor->GetName());
 			return false;
 		}
 		atkType = it->second;
-		mtx.unlock();
+		mtx_attackerHeap.unlock();
 		return true;
 	}
 };
