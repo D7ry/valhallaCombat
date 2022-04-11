@@ -58,7 +58,7 @@ void stunHandler::update() {
 		++it_StunRegenQueue;
 	}
 	if (!stunnedActors.empty()) {
-		if (stunMeterFlashTimer <= 0) {
+		if (timer_StunMeterFlash <= 0) {
 			RE::Actor* crossHairTarget = nullptr;
 			if (RE::CrosshairPickData::GetSingleton()
 				&& RE::CrosshairPickData::GetSingleton()->targetActor
@@ -69,10 +69,10 @@ void stunHandler::update() {
 					flashHealthBar(crossHairTarget);
 				}
 			}
-			stunMeterFlashTimer = 1;
+			timer_StunMeterFlash = 1;
 		}
 		else {
-			stunMeterFlashTimer -= deltaTime;
+			timer_StunMeterFlash -= deltaTime;
 		}
 
 	}
@@ -221,18 +221,7 @@ void stunHandler::calculateStunDamage(
 	damageStun(aggressor, victim, stunDamage);
 }
 
-void stunHandler::cleanUp() { //no longer used
-	mtx.lock();
-	auto it = actorStunMap.begin();
-	while (it != actorStunMap.end()) {
-		auto actor = it->first;
-		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {
-			it = actorStunMap.erase(it); continue;
-		}
-		it++;
-	}
-	mtx.unlock();
-}
+
 
 
 
@@ -267,6 +256,31 @@ void stunHandler::refreshStun() {
 	stunRegenQueue.clear();
 	actorStunMap.clear();
 	mtx.unlock();
+}
+void stunHandler::cleanUpStunMap() {
+	INFO("Cleaning up stun map...");
+	mtx.lock();
+	auto it = actorStunMap.begin();
+	while (it != actorStunMap.end()) {
+		auto actor = it->first;
+		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {
+			it = actorStunMap.erase(it); continue;
+		}
+		it++;
+	}
+	mtx.unlock();
+	INFO("...done");
+}
+
+void stunHandler::stunMapCleanUpTask() {
+	while (true) {
+		std::this_thread::sleep_for(std::chrono::minutes(5));
+		stunHandler::GetSingleton()->cleanUpStunMap();
+	}
+}
+void stunHandler::launchStunMapCleaner() {
+	std::jthread cleanUpThread(stunMapCleanUpTask);
+	cleanUpThread.detach();
 }
 
 

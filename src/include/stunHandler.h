@@ -48,7 +48,7 @@ private:
 
 	/*Mapping of actors who are completely stunned => their stun meter blinking timer.*/
 	robin_hood::unordered_set <RE::Actor*> stunnedActors;
-	float stunMeterFlashTimer;
+	float timer_StunMeterFlash;
 public:
 	static stunHandler* GetSingleton()
 	{
@@ -86,10 +86,15 @@ public:
 	/*Clears all records from StunMap.*/
 	void refreshStun();
 
-	/*Iterate over actor stun map and clears off all unloaded actors.
-	* Also recalculates everybody's max stun.
+	/*Iterate over actor stun map and clears off all unloaded actors. To make sure stun map contains recent loaded actors.
 	*/
-	void houseKeeping();
+	void cleanUpStunMap();
+
+	/*Launch the cleaner thread that cleans up stun map every 5 minutes.*/
+	static void launchStunMapCleaner();
+
+	/*Perform a clean up every 5 minutes in a separate thread.*/
+	static void stunMapCleanUpTask();
 
 	/*Calculate a stun damage for the actor, and immediately apply the stun damage.
 	Stun calculation go as follows:
