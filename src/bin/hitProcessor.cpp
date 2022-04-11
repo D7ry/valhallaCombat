@@ -51,16 +51,15 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	if (settings::bAttackStaminaToggle) {
 		attackHandler::GetSingleton()->registerHit(aggressor);
 	}
-	//Temporary execution module
-	if (aggressor->IsPlayerRef()) {
-		if (settings::bAutoExecution) {
-			if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
+
+	//try execution
+	if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
+		if (aggressor->IsPlayerRef()) {
+			if (settings::bAutoExecution) {//player only auto-execute if auto execution is on
 				executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
 			}
 		}
-	}
-	else {
-		if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
+		else { //NPC auto-execute always.
 			executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
 		}
 	}
