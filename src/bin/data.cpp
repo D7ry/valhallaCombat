@@ -94,7 +94,7 @@ void data::loadIdle() {
 
 	loadIdleSection(DATA, &KM_Humanoid_1hm_Back, ini, "Humanoid-1HM-Back");
 	loadIdleSection(DATA, &KM_Humanoid_2hm_Back, ini, "Humanoid-2HM-Back");
-	loadIdleSection(DATA, &KM_Humanoid_2hw_Back, ini, "Humanoid - 2HW - Back");
+	loadIdleSection(DATA, &KM_Humanoid_2hw_Back, ini, "Humanoid-2HW-Back");
 	loadIdleSection(DATA, &KM_Humanoid_H2H_Back, ini, "Humanoid-Unarmed-Back");
 
 	loadIdleSection(DATA, &KM_Undead_1hm, ini, "Undead-1HM");

@@ -291,7 +291,7 @@ void stunHandler::cleanUpStunMap() {
 	auto it = actorStunMap.begin();
 	while (it != actorStunMap.end()) {
 		auto actor = it->first;
-		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {
+		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess() || actor->IsDead()) {
 			it = actorStunMap.erase(it); continue;
 		}
 		it++;
@@ -302,7 +302,7 @@ void stunHandler::cleanUpStunMap() {
 
 void stunHandler::stunMapCleanUpTask() {
 	while (true) {
-		std::this_thread::sleep_for(std::chrono::minutes(5));
+		std::this_thread::sleep_for(std::chrono::minutes(3));
 		stunHandler::GetSingleton()->cleanUpStunMap();
 	}
 }
@@ -313,7 +313,7 @@ void stunHandler::launchStunMapCleaner() {
 
 
 void stunHandler::greyOutStunMeter(RE::Actor* a_actor) {
-	auto ersh = ValhallaCombat::GetSingleton()->g_trueHUD;
+	auto ersh = ValhallaCombat::GetSingleton()->ersh;
 	ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
 	ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
 	ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
@@ -321,7 +321,7 @@ void stunHandler::greyOutStunMeter(RE::Actor* a_actor) {
 }
 
 void stunHandler::revertStunMeter(RE::Actor* a_actor) {
-	auto ersh = ValhallaCombat::GetSingleton()->g_trueHUD;
+	auto ersh = ValhallaCombat::GetSingleton()->ersh;
 	ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor);
 	ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
 	ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor);
@@ -329,7 +329,7 @@ void stunHandler::revertStunMeter(RE::Actor* a_actor) {
 }
 
 void stunHandler::flashHealthBar(RE::Actor* a_actor) {
-	auto ersh = ValhallaCombat::GetSingleton()->g_trueHUD;
+	auto ersh = ValhallaCombat::GetSingleton()->ersh;
 	ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, true);
 	//ersh->FlashActorSpecialBar(SKSE::GetPluginHandle(), a_actor->GetHandle(), true);
 }

@@ -48,10 +48,12 @@ private:
 	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
 	robin_hood::unordered_map <RE::Actor*, float> stunRegenQueue;
 
-	/*Mapping of actors who are completely stunned => their stun meter blinking timer.*/
-	robin_hood::unordered_set <RE::Actor*> stunnedActors;
+
 	float timer_StunMeterFlash;
 public:
+	/*Mapping of actors who are completely stunned => their stun meter blinking timer.*/
+	robin_hood::unordered_set <RE::Actor*> stunnedActors;
+
 	static stunHandler* GetSingleton()
 	{
 		static stunHandler singleton;

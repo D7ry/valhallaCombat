@@ -39,6 +39,7 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 			if (key == settings::uExecutionKey) {
 				if (button->IsDown()) {
 					RE::DebugNotification("execution activated");
+					executionHandler::GetSingleton()->getExecutableTarget();
 					/*
 					executionHandler::GetSingleton()->executionKeyDown = true;
 					if (RE::CrosshairPickData::GetSingleton()->targetActor) {

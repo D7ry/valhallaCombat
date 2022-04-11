@@ -56,7 +56,7 @@ void settings::init() {
 void settings::updateGlobals() {
 	INFO("Update globals...");
 	if (glob_TrueHudAPI) {
-		glob_TrueHudAPI->value = ValhallaCombat::GetSingleton()->g_trueHUD != nullptr ? 1.f : 0.f;
+		glob_TrueHudAPI->value = ValhallaCombat::GetSingleton()->ersh != nullptr ? 1.f : 0.f;
 	}
 	if (glob_TrueHudAPI_SpecialMeter) {
 		glob_TrueHudAPI_SpecialMeter->value = TrueHudAPI_HasSpecialBarControl ? 1.f : 0.f;

@@ -96,5 +96,21 @@ public:
 			sub_140BED530(&handle);
 		}
 	}
+
+	/*Returns if actor a and actor b's relative distance does not exceed certain distance.*/
+	static bool inRange(RE::Actor* a, RE::Actor* b, float radius) {
+		auto aPos = a->GetPosition();
+		INFO("{}'s position: {}, {}, {}", a->GetName(), aPos.x, aPos.y, aPos.z);
+		auto bPos = b->GetPosition();
+		INFO("{}'s position: {}, {}, {}", b->GetName(), bPos.x, bPos.y, bPos.z);
+		if ((abs(aPos.x - bPos.x) < radius && abs(aPos.y - bPos.y) < radius)) {
+			INFO("in range");
+			return true;
+		}
+		else {
+			INFO("not in range");
+			return false;
+		}
+	}
 #pragma endregion
 };

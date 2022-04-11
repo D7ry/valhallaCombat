@@ -52,10 +52,15 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 		attackHandler::GetSingleton()->registerHit(aggressor);
 	}
 	//Temporary execution module
-	if (settings::bAutoExecution && //stun must be toggled to trigger execution.
-		!victim->IsPlayerRef() && !victim->IsPlayerTeammate() && !victim->IsEssential() && !victim->IsInKillMove()) {
+	if (aggressor->IsPlayerRef()) {
+		if (settings::bAutoExecution) {
+			if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
+				executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
+			}
+		}
+	}
+	else {
 		if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
-			DEBUG("attempt execution");
 			executionHandler::GetSingleton()->attemptExecute(aggressor, victim);
 		}
 	}

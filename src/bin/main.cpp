@@ -23,9 +23,9 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
 		INFO("Post load");
-		ValhallaCombat::GetSingleton()->g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
-		if (ValhallaCombat::GetSingleton()->g_trueHUD) {
-			INFO("Obtained TruehudAPI - {0:x}", (uintptr_t)ValhallaCombat::GetSingleton()->g_trueHUD);
+		ValhallaCombat::GetSingleton()->ersh = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
+		if (ValhallaCombat::GetSingleton()->ersh) {
+			INFO("Obtained TruehudAPI - {0:x}", (uintptr_t)ValhallaCombat::GetSingleton()->ersh);
 			settings::TrueHudAPI = true;
 		}
 		else {

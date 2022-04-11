@@ -13,6 +13,9 @@ public:
 		return  std::addressof(singleton);
 	}
 
+	/*Try to get a target in front of the player that's executable, and attempt to execute the target.*/
+	void getExecutableTarget();
+
 	/*Play an execution idle animation.
 	@param executor: the actor the execute.
 	@param victim: the actor to be executed.
