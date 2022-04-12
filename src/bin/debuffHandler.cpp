@@ -9,7 +9,7 @@ Iterate through the set of actors debuffing.
 Check the actors' stamina. If the actor's stamina has fully recovered, remove the actor from the set.
 Check the actor's UI counter, if the counter is less than 0, flash the actor's UI.*/
 void debuffHandler::update() {
-	mtx.lock();
+	mtx_actorInDebuff.lock();
 	auto it = actorInDebuff.begin();
 	while (it != actorInDebuff.end()) {
 		auto actor = *it;
@@ -33,22 +33,10 @@ void debuffHandler::update() {
 			}
 			continue;
 		}
-		if (settings::bUIAlert
-			&& settings::TrueHudAPI){ //flash the actor's meter
-			if (it->second <= 0) {
-				if (settings::TrueHudAPI) {
-					ValhallaCombat::GetSingleton()->ersh->FlashActorValue(actor->GetHandle(), RE::ActorValue::kStamina, true);
-				}
-				it->second = 0.5;
-			}
-			else {
-				it->second -= *RE::Offset::g_deltaTime;
-			}
-		}
 		++it;
 	}
 
-	mtx.unlock();
+	mtx_actorInDebuff.unlock();
 	
 }
 
@@ -56,17 +44,22 @@ void debuffHandler::update() {
 If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
 @param actor actor who will receive debuff.*/
 void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
-	mtx.lock();
-	if (actorInDebuff.find(actor) != actorInDebuff.end()) {
+	mtx_actorInDebuff.lock();
+	if (actorInDebuff.contains(actor)) {
 		//DEBUG("{} is already in debuff", actor->GetName());
-		mtx.unlock();
+		mtx_actorInDebuff.unlock();
 		return;
 	}
-	actorInDebuff.emplace(actor, 0);
-	mtx.unlock();
+	actorInDebuff.insert(actor);
+	mtx_actorInDebuff.unlock();
 	addDebuffPerk(actor);
-	if (settings::bUIAlert && settings::TrueHudAPI) {
+	if (settings::bUIAlert && settings::TrueHudAPI_Obtained) {
 		greyOutStaminaMeter(actor);
+		if (actor->IsPlayerRef()) {
+			std::jthread t(async_FlashPCStamina);
+			t.detach();
+			flashPCStamina = true;
+		}
 	}
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::debuffHandler);
 }
@@ -76,18 +69,21 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 	//DEBUG("Stopping stamina debuff for {}", actor->GetName());
 	removeDebuffPerk(actor);
-	if (settings::bUIAlert && settings::TrueHudAPI) {
+	if (settings::bUIAlert && settings::TrueHudAPI_Obtained) {
+		if (actor->IsPlayerRef()) {
+			flashPCStamina = false;
+		}
 		revertStaminaMeter(actor);
 	}
 }
 
 void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
-	mtx.lock();
+	mtx_actorInDebuff.lock();
 	actorInDebuff.erase(actor);
 	if (actorInDebuff.size() == 0) {
 		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
 	}
-	mtx.unlock();
+	mtx_actorInDebuff.unlock();
 	stopStaminaDebuff(actor);
 }
 
@@ -105,12 +101,12 @@ void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
 	
 
 bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
-	mtx.lock();
-	if (actorInDebuff.find(a_actor) != actorInDebuff.end()) {
-		mtx.unlock();
+	mtx_actorInDebuff.lock();
+	if (actorInDebuff.contains(a_actor)) {
+		mtx_actorInDebuff.unlock();
 		return true;
 	}
-	mtx.unlock();
+	mtx_actorInDebuff.unlock();
 	return false;
 } 
 
@@ -128,6 +124,18 @@ void debuffHandler::revertStaminaMeter(RE::Actor* actor) {
 	ValhallaCombat::GetSingleton()->ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor);
 	ValhallaCombat::GetSingleton()->ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor);
 	//DEBUG("{}s stamia meter reverted", actor->GetName());
+}
+
+void debuffHandler::async_FlashPCStamina() {
+	while (true) {
+		if (flashPCStamina) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(RE::PlayerCharacter::GetSingleton()->GetHandle(), RE::ActorValue::kStamina, true);
+		}
+		else {
+			return;
+		}
+	}
 }
 
 #pragma endregion

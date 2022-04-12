@@ -6,9 +6,9 @@ class debuffHandler
 {
 
 public:
-	/*Mapping of a set of actors currently in stamina debuff to their stamina blinking timer.*/
-	robin_hood::unordered_map<RE::Actor*, float> actorDebuffMap;
-	static inline std::mutex mtx;
+	/*Set of all actors currently in debuff*/
+	robin_hood::unordered_set<RE::Actor*> actorInDebuff;
+	static inline std::mutex mtx_actorInDebuff;
 	static debuffHandler* GetSingleton()
 	{
 		static debuffHandler singleton;
@@ -31,9 +31,13 @@ public:
 	void quickStopStaminaDebuff(RE::Actor* actor);
 private:
 
+
 	void addDebuffPerk(RE::Actor* a_actor);
 
 	void removeDebuffPerk(RE::Actor* a_actor);
+
+	static void async_FlashPCStamina();
+	static inline std::atomic<bool> flashPCStamina;
 
 	RE::BGSPerk* debuffPerk;
 
