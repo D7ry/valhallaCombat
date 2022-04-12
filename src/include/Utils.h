@@ -104,15 +104,29 @@ public:
 	static float getInRadius(RE::Actor* a, RE::Actor* b, float radius) {
 		auto aPos = a->GetPosition();
 		auto bPos = b->GetPosition();
-		inline float xDiff = abs(aPos.x - bPos.x);
-		inline float yDiff = abs(aPos.y - bPos.y);
-		inline float dist = sqrt(pow(xDiff, 2) + pow(yDiff, 2));
+		float xDiff = abs(aPos.x - bPos.x);
+		float yDiff = abs(aPos.y - bPos.y);
+		float dist = sqrt(pow(xDiff, 2) + pow(yDiff, 2));
 		if (dist <= radius) {
 			return dist;
 		}
 		else {
 			return -1;
 		}
+	}
+
+	static void queueMessageBox(RE::BSFixedString a_message) {
+		auto factoryManager = RE::MessageDataFactoryManager::GetSingleton();
+		auto uiStrHolder = RE::InterfaceStrings::GetSingleton();
+		auto factory = factoryManager->GetCreator<RE::MessageBoxData>(uiStrHolder->messageBoxData);
+		auto messageBox = factory->Create();
+		messageBox->unk4C = 4;
+		messageBox->unk38 = 10;
+		messageBox->bodyText = a_message;
+		auto gameSettings = RE::GameSettingCollection::GetSingleton();
+		auto sOk = gameSettings->GetSetting("sOk");
+		messageBox->buttonText.push_back(sOk->GetString());
+		messageBox->QueueMessage();
 	}
 #pragma endregion
 };
