@@ -5,26 +5,37 @@
 #include "include/Utils.h"
 #define DATA data::GetSingleton()
 using namespace Utils;
-
 void executionHandler::getExecutableTarget() {
 	auto possibleTargets = stunHandler::GetSingleton()->stunnedActors;
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	if (!pc) {
 		return;
 	}
-	auto pcPos = pc->GetPosition();
+
+	RE::Actor* optimalVictim = nullptr; //optimal target to execute
+	float minRange = -1; //minimum range to the optimal victim so far
+
 	for (auto actor : possibleTargets) {
-		if (actor->Is3DLoaded() || !actor->IsDead()) {
-			if (ValhallaUtils::inRange(pc, actor, 100)) {
-				attemptExecute(pc, actor);
-				return;
+		if (!actor->Is3DLoaded() || actor->IsDead()) {
+			//remove actor from stunned map.
+			stunHandler::GetSingleton()->untrackStun(actor);
+		}
+		auto range = ValhallaUtils::getInRadius(pc, actor, 150);
+		if (range > 0) { //actor is in range.
+			if (minRange < 0  //min range not set yet
+				|| minRange > range) {
+				minRange = range;
+				optimalVictim = actor;
 			}
 		}
+	}
 
+	if (optimalVictim) {
+		attemptExecute(pc, optimalVictim);
 	}
 }
 void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
-	INFO("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());
+	//INFO("attempting to execute {}, executor: {}", victim->GetName(), executor->GetName());
 
 	//check if victim can be executed
 	if (!settings::bStunToggle
@@ -35,31 +46,30 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		|| victim->IsPlayerRef() || victim->IsPlayerTeammate()
 		|| victim->IsEssential() || victim->IsInKillMove()
 		|| victim->HasEffectWithArchetype(RE::MagicTarget::Archetype::kParalysis)) {
-		INFO("Execution preconditions not met, terminating execution.");
+		//INFO("Execution preconditions not met, terminating execution.");
 		return;
 	}
 
 	auto executorRace = executor->GetRace();
 	auto victimRace = victim->GetRace();
 	if (!executorRace || !victimRace) {
-		INFO("race not found, terminating execution");
+		//INFO("race not found, terminating execution");
 		return;
 	}
 
 	auto data = data::GetSingleton();
 	auto it1 = data->raceMapping.find(executorRace);
 	if (it1 == data->raceMapping.end()) {
-		INFO("race not found, terminating execution");
+		//INFO("race not found, terminating execution");
 		return;
 	}
 	if (it1->second != data::raceCatagory::Humanoid) {
-		INFO("executor is not human");
+		//INFO("executor is not human");
 		return;
 	}
 	
 	auto it2 = data->raceMapping.find(victimRace);
 	if (it2 == data->raceMapping.end()) {
-		RE::DebugNotification("victim race not found on race map.");
 		return;
 	}
 	auto victimRaceType = it2->second;
@@ -67,7 +77,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	RE::WEAPON_TYPE weaponType;
 	auto weapon = executor->getWieldingWeapon();
 	if (!weapon) {
-		DEBUG("Executor weapon not found, using unarmed as weapon type.");
+		//DEBUG("Executor weapon not found, using unarmed as weapon type.");
 		weaponType = RE::WEAPON_TYPE::kHandToHandMelee;
 	}
 	else {
@@ -78,7 +88,7 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		return;
 	}
 
-	INFO("weapon type is {}", weaponType);
+	//INFO("weapon type is {}", weaponType);
 #define RACE data::raceCatagory
 	switch (victimRaceType) {
 	case RACE::Humanoid: executeHumanoid(executor, victim, weaponType); break;
@@ -104,11 +114,6 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 	default: return; //iff no body part match, no need to set ghost.
 	}
 
-
-	/*Set the executor as ghost and start tracking them.*/
-	//setIsGhost(executor, true);
-	//setIsGhost(victim, true);
-	//executionMap[executor] = victim;
 	victim->SetGraphVariableBool("bIdlePlaying", true); //DHAF compatibility
 };
 
@@ -132,12 +137,12 @@ void executionHandler::concludeExecution(RE::Actor* executor) {
 
 
 void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim, RE::TESIdleForm* executionIdle) {
-	INFO("playing execution idle: {}", executionIdle->GetFormID());
+	//INFO("playing execution idle: {}", executionIdle->GetFormID());
 	playPairedIdle(executor->currentProcess, executor, RE::DEFAULT_OBJECT::kActionIdle, executionIdle, true, false, victim);
 }
 
 void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim, std::vector<RE::TESIdleForm*> executionIdleV) {
-	INFO("playing execution idle!");
+	//INFO("playing execution idle!");
 	if (executionIdleV.size() == 0) {
 		INFO("error: no idle present in vector");
 		return;
@@ -147,7 +152,7 @@ void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim,
 		INFO("Error! no idle received");
 	}
 	else {
-		INFO("received idle with name {}", idle->GetFormID());
+		//INFO("received idle with name {}", idle->GetFormID());
 		playExecutionIdle(executor, victim, idle);
 	}
 
@@ -155,13 +160,13 @@ void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim,
 
 
 void executionHandler::executeHumanoid(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
-	INFO("executing humanoid!");
+	//INFO("executing humanoid!");
 	if (executor->isDualWielding()) {
-		INFO("dual wielding!");
+		//INFO("dual wielding!");
 		playExecutionIdle(executor, victim, DATA->KM_Humanoid_DW);
 	}
 	else if (isBackFacing(victim, executor)) {
-		INFO("backstab!");
+		//INFO("backstab!");
 		switch (weaponType) {
 		case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Humanoid_2hw_Back); break;
 		case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Humanoid_2hm_Back); break;

@@ -13,7 +13,9 @@ public:
 		return  std::addressof(singleton);
 	}
 
-	/*Try to get a target in front of the player that's executable, and attempt to execute the target.*/
+	/*Iterate through every actor that can be excuted, check their range to the player.
+	* attempt to execute the actor closest to the player.
+	* */
 	void getExecutableTarget();
 
 	/*Play an execution idle animation.
@@ -93,10 +95,10 @@ namespace Utils
 	@param in the vector containing strings.
 	@return a random element from the vector.*/
 	inline RE::TESIdleForm* getRandomIdle(std::vector<RE::TESIdleForm*> in) {
-		DEBUG("getting random idle");
-		DEBUG("in size: {}", in.size());
+		//DEBUG("getting random idle");
+		//DEBUG("in size: {}", in.size());
 		auto i = rand() % in.size();
-		INFO(i);
+		//INFO(i);
 		return in[i];
 	}
 

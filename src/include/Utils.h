@@ -1,5 +1,6 @@
 #pragma once
 #include "offsets.h"
+#include <cmath>
 //TODO:clear this up a bit
 namespace Utils
 {
@@ -97,19 +98,20 @@ public:
 		}
 	}
 
-	/*Returns if actor a and actor b's relative distance does not exceed certain distance.*/
-	static bool inRange(RE::Actor* a, RE::Actor* b, float radius) {
+	/*
+	@return actor a and actor b's absolute distance, if the radius is bigger than distance.
+	@return -1, if the distance exceeds radius.*/
+	static float getInRadius(RE::Actor* a, RE::Actor* b, float radius) {
 		auto aPos = a->GetPosition();
-		INFO("{}'s position: {}, {}, {}", a->GetName(), aPos.x, aPos.y, aPos.z);
 		auto bPos = b->GetPosition();
-		INFO("{}'s position: {}, {}, {}", b->GetName(), bPos.x, bPos.y, bPos.z);
-		if ((abs(aPos.x - bPos.x) < radius && abs(aPos.y - bPos.y) < radius)) {
-			INFO("in range");
-			return true;
+		inline float xDiff = abs(aPos.x - bPos.x);
+		inline float yDiff = abs(aPos.y - bPos.y);
+		inline float dist = sqrt(pow(xDiff, 2) + pow(yDiff, 2));
+		if (dist <= radius) {
+			return dist;
 		}
 		else {
-			INFO("not in range");
-			return false;
+			return -1;
 		}
 	}
 #pragma endregion

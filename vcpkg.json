@@ -1,6 +1,6 @@
 {
     "name":  "valhallacombat",
-    "version-string":  "0.9.0",
+    "version-string":  "0.9.5",
     "description":  "",
     "license":  "MIT",
     "dependencies":  [

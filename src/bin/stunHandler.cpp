@@ -72,15 +72,9 @@ void stunHandler::update() {
 
 	if (!stunnedActors.empty()) { //crosshair meter flash
 		if (timer_StunMeterFlash <= 0) {
-			RE::Actor* crossHairTarget = nullptr;
-			if (RE::CrosshairPickData::GetSingleton()
-				&& RE::CrosshairPickData::GetSingleton()->targetActor
-				&& RE::CrosshairPickData::GetSingleton()->targetActor.get()) {
-				crossHairTarget = RE::CrosshairPickData::GetSingleton()->targetActor.get()->As<RE::Actor>();
-				//DEBUG("obtained crosshaird target: {}", crossHairTarget->GetName());
-				if (stunnedActors.contains(crossHairTarget)) {
-					flashHealthBar(crossHairTarget);
-				}
+			auto a_set = stunnedActors;
+			for (auto a_actor : a_set) {
+				flashHealthBar(a_actor);
 			}
 			timer_StunMeterFlash = 1;
 		}
@@ -97,30 +91,24 @@ void stunHandler::update() {
 
 
 float stunHandler::getMaxStun(RE::Actor* actor) {
-	auto actorStunMap = stunHandler::GetSingleton()->actorStunMap;
-	mtx_ActorStunMap.lock();
-	auto it = actorStunMap.find(actor);
-	if (it != actorStunMap.end()) {
-		mtx_ActorStunMap.unlock();
+	auto temp_ActorStunMap = stunHandler::GetSingleton()->actorStunMap;
+	auto it = temp_ActorStunMap.find(actor);
+	if (it != temp_ActorStunMap.end()) {
 		return it->second.first;
 	}
 	else {
-		mtx_ActorStunMap.unlock();
 		stunHandler::GetSingleton()->trackStun(actor);
 		return getMaxStun(actor);
 	}
 }
 
 float stunHandler::getStun(RE::Actor* actor) {
-	auto actorStunMap = stunHandler::GetSingleton()->actorStunMap;
-	mtx_ActorStunMap.lock();
-	auto it = actorStunMap.find(actor);
-	if (it != actorStunMap.end()) {
-		mtx_ActorStunMap.unlock();
+	auto temp_ActorStunMap = stunHandler::GetSingleton()->actorStunMap;
+	auto it = temp_ActorStunMap.find(actor);
+	if (it != temp_ActorStunMap.end()) {
 		return it->second.second;
 	}
 	else {
-		mtx_ActorStunMap.unlock();
 		stunHandler::GetSingleton()->trackStun(actor);
 		return getStun(actor);
 	}
@@ -264,6 +252,9 @@ void stunHandler::untrackStun(RE::Actor* actor) {
 	mtx_ActorStunMap.lock();
 	actorStunMap.erase(actor);
 	mtx_ActorStunMap.unlock();
+	mtx_StunnedActors.lock();
+	stunnedActors.erase(actor);
+	mtx_StunnedActors.unlock();
 }
 float stunHandler::calcMaxStun(RE::Actor* actor) {
 	return (actor->GetPermanentActorValue(RE::ActorValue::kHealth) + actor->GetPermanentActorValue(RE::ActorValue::kStamina)) / 2;

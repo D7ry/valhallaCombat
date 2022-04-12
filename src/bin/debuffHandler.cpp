@@ -10,13 +10,13 @@ Check the actors' stamina. If the actor's stamina has fully recovered, remove th
 Check the actor's UI counter, if the counter is less than 0, flash the actor's UI.*/
 void debuffHandler::update() {
 	mtx.lock();
-	auto it = actorDebuffMap.begin();
-	while (it != actorDebuffMap.end()) {
-		auto actor = it->first;
+	auto it = actorInDebuff.begin();
+	while (it != actorInDebuff.end()) {
+		auto actor = *it;
 		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {//actor no longer loaded
 			//DEBUG("Actor no longer loaded");
-			it = actorDebuffMap.erase(it);//erase actor from debuff set.
-			if (actorDebuffMap.size() == 0) {
+			it = actorInDebuff.erase(it);//erase actor from debuff set.
+			if (actorInDebuff.size() == 0) {
 				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
 			}
 			continue;
@@ -27,8 +27,8 @@ void debuffHandler::update() {
 			//DEBUG("{}'s stamina has fully recovered.", actor->GetName());
 			stopStaminaDebuff(actor);
 			//DEBUG("erasing actor");
-			it = actorDebuffMap.erase(it);
-			if (actorDebuffMap.size() == 0) {
+			it = actorInDebuff.erase(it);
+			if (actorInDebuff.size() == 0) {
 				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
 			}
 			continue;
@@ -57,12 +57,12 @@ If the actor is already in the debuff map(i.e. they are already experiencing deb
 @param actor actor who will receive debuff.*/
 void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 	mtx.lock();
-	if (actorDebuffMap.find(actor) != actorDebuffMap.end()) {
+	if (actorInDebuff.find(actor) != actorInDebuff.end()) {
 		//DEBUG("{} is already in debuff", actor->GetName());
 		mtx.unlock();
 		return;
 	}
-	actorDebuffMap.emplace(actor, 0);
+	actorInDebuff.emplace(actor, 0);
 	mtx.unlock();
 	addDebuffPerk(actor);
 	if (settings::bUIAlert && settings::TrueHudAPI) {
@@ -83,8 +83,8 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 
 void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
 	mtx.lock();
-	actorDebuffMap.erase(actor);
-	if (actorDebuffMap.size() == 0) {
+	actorInDebuff.erase(actor);
+	if (actorInDebuff.size() == 0) {
 		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
 	}
 	mtx.unlock();
@@ -106,7 +106,7 @@ void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
 
 bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
 	mtx.lock();
-	if (actorDebuffMap.find(a_actor) != actorDebuffMap.end()) {
+	if (actorInDebuff.find(a_actor) != actorInDebuff.end()) {
 		mtx.unlock();
 		return true;
 	}
