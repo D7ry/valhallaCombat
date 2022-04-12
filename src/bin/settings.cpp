@@ -77,9 +77,17 @@ void settings::updateGlobals() {
 /*read settings from ini, and update them into game settings.*/
 void settings::readSettings() {
 	INFO("Read ini settings...");
-	CSimpleIniA mcm;
+#if JL_AntiPiracy
+#define anti_PiracyMsg_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
+	CSimpleIniA anti_PiracyMsg;
+	anti_PiracyMsg.LoadFile(anti_PiracyMsg_PATH);
+	JueLun_LoadMsg = anti_PiracyMsg.GetValue("load", "msg");
+#endif
+
 #define SETTINGFILE_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
+	CSimpleIniA mcm;
 	mcm.LoadFile(SETTINGFILE_PATH);
+
 	std::list<CSimpleIniA::Entry> ls;
 	/*Read stamina section*/
 	ReadBoolSetting(mcm, "Stamina", "bUIalert", bUIAlert);

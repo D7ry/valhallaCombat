@@ -8,7 +8,22 @@
 #include "include/PCH.h"
 #include "ValhallaCombat.hpp"
 #include "include/settings.h"
+#include "include/Utils.h"
+std::string wstring2string(const std::wstring& wstr, UINT CodePage)
 
+{
+
+	std::string ret;
+
+	int len = WideCharToMultiByte(CodePage, 0, wstr.c_str(), (int)wstr.size(), NULL, 0, NULL, NULL);
+
+	ret.resize((size_t)len, 0);
+
+	WideCharToMultiByte(CodePage, 0, wstr.c_str(), (int)wstr.size(), &ret[0], len, NULL, NULL);
+
+	return ret;
+
+}
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
@@ -26,11 +41,11 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		ValhallaCombat::GetSingleton()->ersh = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
 		if (ValhallaCombat::GetSingleton()->ersh) {
 			INFO("Obtained TruehudAPI - {0:x}", (uintptr_t)ValhallaCombat::GetSingleton()->ersh);
-			settings::TrueHudAPI = true;
+			settings::TrueHudAPI_Obtained = true;
 		}
 		else {
 			INFO("Failed to obtain TrueHudAPI.");
-			settings::TrueHudAPI = false;
+			settings::TrueHudAPI_Obtained = false;
 		}
 		break;
 	case SKSE::MessagingInterface::kPostLoadGame:
@@ -43,6 +58,13 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	case SKSE::MessagingInterface::kPostPostLoad:
 		INFO("Post post load");
 		break;
+#if JL_AntiPiracy
+
+	case SKSE::MessagingInterface::kNewGame:
+		INFO("new game");
+		ValhallaUtils::queueMessageBox(settings::JueLun_LoadMsg);
+		break;
+#endif
 	}
 }
 #if ANNIVERSARY_EDITION

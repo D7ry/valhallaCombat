@@ -3,18 +3,21 @@
 #include "lib/robin_hood.h"
 #include "lib/SimpleIni.h"
 
-
+#define JL_AntiPiracy 1;
 /*All the settings of Valhalla combat*/
 class settings
 {
 public:
+#if JL_AntiPiracy
+	static inline std::string JueLun_LoadMsg;
+#endif
 #pragma region GlobalSettings
 	static inline RE::TESGlobal* glob_TrueHudAPI;
 	static inline RE::TESGlobal* glob_TrueHudAPI_SpecialMeter;
 	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_NPC;
 	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_Damage;
 	static inline bool TrueHudAPI_HasSpecialBarControl;
-	static inline bool TrueHudAPI;
+	static inline bool TrueHudAPI_Obtained;
 #pragma endregion
 #pragma region StaminSettings
 	static inline bool bUIAlert = true;
