@@ -5,6 +5,21 @@
 #include "include/reactionHandler.h"
 #include "include/offsets.h"
 #include "include/Utils.h"
+void stunHandler::safeErase_ActorStunMap(RE::Actor* actor) {
+	mtx_ActorStunMap.lock();
+	actorStunMap.erase(actor);
+	mtx_ActorStunMap.unlock();
+}
+void stunHandler::safeErase_StunnedActors(RE::Actor* actor) {
+	mtx_StunnedActors.lock();
+	stunnedActors.erase(actor);
+	mtx_StunnedActors.unlock();
+}
+void stunHandler::safeErase_StunRegenQueue(RE::Actor* actor) {
+	mtx_StunRegenQueue.lock();
+	stunRegenQueue.erase(actor);
+	mtx_StunRegenQueue.unlock();
+}
 void stunHandler::update() {
 	//mtx.lock();
 	auto deltaTime = *RE::Offset::g_deltaTime;
@@ -14,12 +29,12 @@ void stunHandler::update() {
 		auto actor = it_StunRegenQueue->first;
 		if (!actor || !actor->currentProcess) {
 			//if an actor is no longer present=>remove actor.
-			mtx_ActorStunMap.lock();
-			actorStunMap.erase(actor);
-			mtx_ActorStunMap.unlock();
+			safeErase_ActorStunMap(actor);
+			safeErase_StunnedActors(actor);
 			it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); 
 			if (stunRegenQueue.size() == 0) {
 				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
+				async_stunMeterFlashTaskOn = false;
 			}
 			continue;
 		}
@@ -32,9 +47,11 @@ void stunHandler::update() {
 				mtx_ActorStunMap.lock();
 				if (actorStunMap.find(actor) == actorStunMap.end()) {//oops, somehow the actor is not found in the stun map.
 					mtx_ActorStunMap.unlock(); //unlock mtx here, no longer needed.
+					safeErase_StunnedActors(actor);
 					it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); 
 					if (stunRegenQueue.size() == 0) {
 						ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
+						async_stunMeterFlashTaskOn = false;
 					}
 					continue; 
 				}
@@ -48,13 +65,19 @@ void stunHandler::update() {
 						mtx_ActorStunMap.unlock();
 						//actor's stun fully regenerated. recovering its downed state and consider the actor no longer stunned.
 						it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue);
+						mtx_StunnedActors.lock();
 						if (stunnedActors.contains(actor)) {
 							stunnedActors.erase(actor);
+							mtx_StunnedActors.unlock();
 							revertStunMeter(actor);
 							reactionHandler::recoverDownedState(actor);
 						}
+						else {
+							mtx_StunnedActors.unlock();
+						}
 						if (stunRegenQueue.size() == 0) {
 							ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
+							async_stunMeterFlashTaskOn = false;
 						}
 						continue; //regeneration complete.
 					}
@@ -67,28 +90,25 @@ void stunHandler::update() {
 		++it_StunRegenQueue;
 	}
 	mtx_StunRegenQueue.unlock();
-
-
-
-	if (!stunnedActors.empty()) { //crosshair meter flash
-		if (timer_StunMeterFlash <= 0) {
-			auto a_set = stunnedActors;
-			for (auto a_actor : a_set) {
-				flashHealthBar(a_actor);
-			}
-			timer_StunMeterFlash = 1;
-		}
-		else {
-			timer_StunMeterFlash -= deltaTime;
-		}
-
-	}
 	//mtx.unlock();
 	//flash special meter for stunned actors, if they're being pointed at.
 
 }
 
-
+void stunHandler::async_StunMeterFlash() {
+	while (true) {
+		if (async_stunMeterFlashTaskOn) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			auto temp_StunnedActors = stunHandler::GetSingleton()->stunnedActors;
+			for (auto actor : temp_StunnedActors) {
+				flashHealthBar(actor);
+			}
+		}
+		else {
+			return;
+		}
+	}
+}
 
 float stunHandler::getMaxStun(RE::Actor* actor) {
 	auto temp_ActorStunMap = stunHandler::GetSingleton()->actorStunMap;
@@ -141,6 +161,11 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 				actor->AllowBleedoutDialogue(true);
 				actor->AllowPCDialogue(true);
 				stunnedActors.insert(actor);
+				if (!async_stunMeterFlashTaskOn) {
+					std::jthread stunMeterFlashThread(async_StunMeterFlash);
+					stunMeterFlashThread.detach();
+					async_stunMeterFlashTaskOn = true;
+				}
 				greyOutStunMeter(actor);
 			}
 		}
@@ -249,12 +274,9 @@ void stunHandler::trackStun(RE::Actor* actor) {
 	//DEBUG("Start tracking {}'s stun. Max Stun: {}.", actor->GetName(), maxStun);
 };
 void stunHandler::untrackStun(RE::Actor* actor) {
-	mtx_ActorStunMap.lock();
-	actorStunMap.erase(actor);
-	mtx_ActorStunMap.unlock();
-	mtx_StunnedActors.lock();
-	stunnedActors.erase(actor);
-	mtx_StunnedActors.unlock();
+	safeErase_ActorStunMap(actor);
+	safeErase_StunnedActors(actor);
+	safeErase_StunRegenQueue(actor);
 }
 float stunHandler::calcMaxStun(RE::Actor* actor) {
 	return (actor->GetPermanentActorValue(RE::ActorValue::kHealth) + actor->GetPermanentActorValue(RE::ActorValue::kStamina)) / 2;
@@ -275,6 +297,9 @@ void stunHandler::refreshStun() {
 	mtx_ActorStunMap.lock();
 	actorStunMap.clear();
 	mtx_ActorStunMap.unlock();
+	mtx_StunnedActors.lock();
+	stunnedActors.clear();
+	mtx_StunnedActors.unlock();
 }
 void stunHandler::cleanUpStunMap() {
 	INFO("Cleaning up stun map...");
@@ -283,7 +308,10 @@ void stunHandler::cleanUpStunMap() {
 	while (it != actorStunMap.end()) {
 		auto actor = it->first;
 		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess() || actor->IsDead()) {
-			it = actorStunMap.erase(it); continue;
+			safeErase_StunnedActors(actor);
+			safeErase_StunRegenQueue(actor);
+			it = actorStunMap.erase(it);
+			continue;
 		}
 		it++;
 	}
@@ -321,7 +349,7 @@ void stunHandler::revertStunMeter(RE::Actor* a_actor) {
 
 void stunHandler::flashHealthBar(RE::Actor* a_actor) {
 	auto ersh = ValhallaCombat::GetSingleton()->ersh;
-	ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, true);
+	ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
 	//ersh->FlashActorSpecialBar(SKSE::GetPluginHandle(), a_actor->GetHandle(), true);
 }
 #pragma endregion
