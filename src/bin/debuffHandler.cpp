@@ -130,7 +130,7 @@ void debuffHandler::async_FlashPCStamina() {
 	while (true) {
 		if (flashPCStamina) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(RE::PlayerCharacter::GetSingleton()->GetHandle(), RE::ActorValue::kStamina, true);
+			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(RE::PlayerCharacter::GetSingleton()->GetHandle(), RE::ActorValue::kStamina, false);
 		}
 		else {
 			return;
