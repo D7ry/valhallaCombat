@@ -23,7 +23,13 @@ private:
 	static inline std::mutex mtx_ActorStunMap;
 	static inline std::mutex mtx_StunRegenQueue;
 	static inline std::mutex mtx_StunnedActors;
+	inline void safeErase_ActorStunMap(RE::Actor* actor);
+	inline void safeErase_StunRegenQueue(RE::Actor* actor);
+	inline void safeErase_StunnedActors(RE::Actor* actor);
 
+
+	static void async_StunMeterFlash();
+	static inline std::atomic<bool> async_stunMeterFlashTaskOn;
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
 	void refillStun(RE::Actor* actor);
@@ -37,7 +43,7 @@ private:
 
 	inline void revertStunMeter(RE::Actor* a_actor);
 
-	inline void flashHealthBar(RE::Actor* a_actor);
+	static inline void flashHealthBar(RE::Actor* a_actor);
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
 	robin_hood::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 
