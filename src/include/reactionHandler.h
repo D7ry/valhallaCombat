@@ -1,14 +1,36 @@
 /*Handle all hit reactions: triggerStagger, knock back, guard break etc*/
 class reactionHandler {
-private:
-	static enum poiseReactionType
+public:
+	static enum reactionType
 	{
 		kSmall = 0,
 		kMedium,
 		kLarge,
 		kLargest //knockBack
 	};
+	/*Stagger the actor with magnitude and correct stagger direction, 0.1 seconds after sending a staggerStop event.*/
+	static void triggerContinuousStagger(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType);
+	/*Trigger a stagger reaction.
+	@param causer: actor that causes the stagger.
+	@param reactor: actor receiving the stagger.
+	@param reactionType: type of the reaction the actor receives.*/
+	static void triggerReaction(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType);
 
+	/*Initialize a downed state for an actor.
+	@param a_actor: actor to enter downed state*/
+	static void triggerDownedState(RE::Actor* a_actor);
+
+	/*Recover an actor from the downed state.
+	@param a_actor: actor to recover from downed state.*/
+	static void recoverDownedState(RE::Actor* a_actor);
+private:
+	/*Asynchronous function to trigger a stagger after 0.1 sec of waiting time, to ensure the previous "staggerstop" event is received.*/
+	static void async_triggerContinuousStagger(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType);
+
+	/*Initialize a knockback.
+	@param causer: actor to cause the knockback.
+	@param reactor: actor to be knocked back.*/
+	static void triggerKnockBack(RE::Actor* causer, RE::Actor* reactor);
 	/*Stagger the reactor with magnitude and correct stagger direction.
 	@param causer: the cause of the stagger.
 	@param reactor: actor who staggers.
@@ -19,30 +41,7 @@ private:
 	@param causer: the cause of the reaction.
 	@param reactor: actor who react.
 	@param reactionType: type of the poise reaction.*/
-	static void triggerPoiseReaction(RE::Actor* causer, RE::Actor* reactor, poiseReactionType reactionType);
-public:
+	static void triggerPoiseReaction(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType);
 
-	/*Initialize a small reaction.*/
-	static void triggerReactionSmall(RE::Actor* causer, RE::Actor* reactor);
-
-	/*Initialize a medium reaction.*/
-	static void triggerReactionMedium(RE::Actor* causer, RE::Actor* reactor);
-
-	/*Initialize a large reaction. */
-	static void triggerReactionLarge(RE::Actor* causer, RE::Actor* reactor);
-
-	/*Initialize a knockback.
-	@param causer: actor to cause the knockback.
-	@param reactor: actor to be knocked back.*/
-	static void triggerKnockBack(RE::Actor* causer, RE::Actor* reactor);
-
-
-	/*Initialize a downed state for an actor.
-	@param a_actor: actor to enter downed state*/
-	static void triggerDownedState(RE::Actor* a_actor);
-
-	/*Recover an actor from the downed state.
-	@param a_actor: actor to recover from downed state.*/
-	static void recoverDownedState(RE::Actor* a_actor);
 	
 };

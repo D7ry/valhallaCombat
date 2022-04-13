@@ -34,7 +34,7 @@ void stunHandler::update() {
 			it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); 
 			if (stunRegenQueue.size() == 0) {
 				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
-				async_stunMeterFlashTaskOn = false;
+				async_StunMeterFlash_b = false;
 			}
 			continue;
 		}
@@ -51,7 +51,7 @@ void stunHandler::update() {
 					it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); 
 					if (stunRegenQueue.size() == 0) {
 						ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
-						async_stunMeterFlashTaskOn = false;
+						async_StunMeterFlash_b = false;
 					}
 					continue; 
 				}
@@ -77,7 +77,7 @@ void stunHandler::update() {
 						}
 						if (stunRegenQueue.size() == 0) {
 							ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
-							async_stunMeterFlashTaskOn = false;
+							async_StunMeterFlash_b = false;
 						}
 						continue; //regeneration complete.
 					}
@@ -97,11 +97,17 @@ void stunHandler::update() {
 
 void stunHandler::async_StunMeterFlash() {
 	while (true) {
-		if (async_stunMeterFlashTaskOn) {
+		if (async_StunMeterFlash_b) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			auto temp_StunnedActors = stunHandler::GetSingleton()->stunnedActors;
-			for (auto actor : temp_StunnedActors) {
-				flashHealthBar(actor);
+			auto ersh = ValhallaCombat::GetSingleton()->ersh;
+			auto temp_set = stunHandler::GetSingleton()->stunnedActors;
+			for (auto a_actor : temp_set) {
+				if (!a_actor->IsDead()) {
+					ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
+				}
+				else {
+					stunHandler::GetSingleton()->safeErase_StunnedActors(a_actor);//erase this actor if dead.
+				}
 			}
 		}
 		else {
@@ -158,13 +164,11 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 			mtx_ActorStunMap.unlock();
 			if (!stunnedActors.contains(actor)) {
 				ValhallaUtils::playSound(actor, data::GetSingleton()->soundStunBreakD->GetFormID());
-				actor->AllowBleedoutDialogue(true);
-				actor->AllowPCDialogue(true);
 				stunnedActors.insert(actor);
-				if (!async_stunMeterFlashTaskOn) {
+				if (!async_StunMeterFlash_b) {
 					std::jthread stunMeterFlashThread(async_StunMeterFlash);
 					stunMeterFlashThread.detach();
-					async_stunMeterFlashTaskOn = true;
+					async_StunMeterFlash_b = true;
 				}
 				greyOutStunMeter(actor);
 			}
@@ -348,8 +352,7 @@ void stunHandler::revertStunMeter(RE::Actor* a_actor) {
 }
 
 void stunHandler::flashHealthBar(RE::Actor* a_actor) {
-	auto ersh = ValhallaCombat::GetSingleton()->ersh;
-	ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
+	ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
 	//ersh->FlashActorSpecialBar(SKSE::GetPluginHandle(), a_actor->GetHandle(), true);
 }
 #pragma endregion

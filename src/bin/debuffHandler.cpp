@@ -56,9 +56,9 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 	if (settings::bUIAlert && settings::TrueHudAPI_Obtained) {
 		greyOutStaminaMeter(actor);
 		if (actor->IsPlayerRef()) {
-			std::jthread t(async_FlashPCStamina);
+			std::jthread t(async_pcStaminaMeterFlash);
 			t.detach();
-			flashPCStamina = true;
+			async_pcStaminaMeterFlash_b = true;
 		}
 	}
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::debuffHandler);
@@ -71,7 +71,7 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 	removeDebuffPerk(actor);
 	if (settings::bUIAlert && settings::TrueHudAPI_Obtained) {
 		if (actor->IsPlayerRef()) {
-			flashPCStamina = false;
+			async_pcStaminaMeterFlash_b = false;
 		}
 		revertStaminaMeter(actor);
 	}
@@ -114,23 +114,25 @@ bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
 
 /*Turn flashColor red, turn barcolor and phantom color grey.*/
 void debuffHandler::greyOutStaminaMeter(RE::Actor* actor) {
-	ValhallaCombat::GetSingleton()->ersh->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
-	ValhallaCombat::GetSingleton()->ersh->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
-	ValhallaCombat::GetSingleton()->ersh->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
+	auto ersh = ValhallaCombat::GetSingleton()->ersh;
+	ersh->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
+	ersh->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
+	ersh->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
 }
 
 void debuffHandler::revertStaminaMeter(RE::Actor* actor) {
-	ValhallaCombat::GetSingleton()->ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor);
-	ValhallaCombat::GetSingleton()->ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor);
-	ValhallaCombat::GetSingleton()->ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor);
+	auto ersh = ValhallaCombat::GetSingleton()->ersh;
+	ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor);
+	ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor);
+	ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor);
 	//DEBUG("{}s stamia meter reverted", actor->GetName());
 }
 
-void debuffHandler::async_FlashPCStamina() {
+void debuffHandler::async_pcStaminaMeterFlash() {
 	while (true) {
-		if (flashPCStamina) {
+		if (async_pcStaminaMeterFlash_b) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(RE::PlayerCharacter::GetSingleton()->GetHandle(), RE::ActorValue::kStamina, false);
+			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(RE::PlayerCharacter::GetSingleton()->GetHandle(), RE::ActorValue::kStamina, true);
 		}
 		else {
 			return;

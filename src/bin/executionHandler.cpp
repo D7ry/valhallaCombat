@@ -20,7 +20,7 @@ void executionHandler::getExecutableTarget() {
 			//remove actor from stunned map.
 			stunHandler::GetSingleton()->untrackStun(actor);
 		}
-		auto range = ValhallaUtils::getInRadius(pc, actor, 150);
+		auto range = ValhallaUtils::getInRange(pc, actor, 200);
 		if (range > 0) { //actor is in range.
 			if (minRange < 0  //min range not set yet
 				|| minRange > range) {

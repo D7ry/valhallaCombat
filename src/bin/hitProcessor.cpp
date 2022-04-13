@@ -51,7 +51,7 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	if (settings::bAttackStaminaToggle) {
 		attackHandler::GetSingleton()->registerHit(aggressor);
 	}
-
+	reactionHandler::triggerContinuousStagger(aggressor, victim, 10);
 	//try execution
 	if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
 		if (aggressor->IsPlayerRef()) {
@@ -67,6 +67,7 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	//executionHandler::GetSingleton()->playExecutionIdle(aggressor, victim, data::testIdle);
 	if (hitFlag & (int)HITFLAG::kPowerAttack) {
 		bool b;
+		//TODO:redo stun damage for elden counter
 		if (aggressor->GetGraphVariableBool(data::GraphBool_IsGuardCountering, b) && b) {
 			realDamage *= 1.5;
 		}
@@ -75,6 +76,5 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	else {
 		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
-	//TODO: a better execution module
 
 }

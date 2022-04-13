@@ -36,8 +36,8 @@ private:
 
 	void removeDebuffPerk(RE::Actor* a_actor);
 
-	static void async_FlashPCStamina();
-	static inline std::atomic<bool> flashPCStamina;
+	static void async_pcStaminaMeterFlash();
+	static inline std::atomic<bool> async_pcStaminaMeterFlash_b;
 
 	RE::BGSPerk* debuffPerk;
 

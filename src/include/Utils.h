@@ -1,5 +1,7 @@
 #pragma once
 #include "offsets.h"
+#include "bin/ValhallaCombat.hpp"
+#include "include/lib/robin_hood.h"
 #include <cmath>
 //TODO:clear this up a bit
 namespace Utils
@@ -16,6 +18,26 @@ namespace Utils
 		if (a) {
 			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
 		}
+	}
+};
+
+class TrueHUDUtils
+{
+public:
+	static void flashHealthMeter(robin_hood::unordered_set<RE::Actor*> actors) {
+		auto ersh = ValhallaCombat::GetSingleton()->ersh;
+		auto temp_set = actors;
+		for (auto a_actor : actors) {
+			if (!a_actor->IsDead()) {
+				ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
+			}
+		}
+	}
+	static void flashHealthMeter(RE::Actor* a_actor) {
+		ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
+	}
+	static void flashStaminaMeter(RE::Actor* a_actor) {
+
 	}
 };
 
@@ -46,11 +68,26 @@ public:
 	}
 
 #pragma region playSound
-	static inline int sub_140BEEE70(void* manager, RE::BSSoundHandle* a2, int a3, int a4)
+	static inline int soundHelper_a(void* manager, RE::BSSoundHandle* a2, int a3, int a4) //sub_140BEEE70
 	{
-		using func_t = decltype(&sub_140BEEE70);
+		using func_t = decltype(&soundHelper_a);
 		REL::Relocation<func_t> func{ REL::ID(66401) };
 		return func(manager, a2, a3, a4);
+	}
+
+
+	static inline void soundHelper_b(RE::BSSoundHandle* a1, RE::NiAVObject* source_node) //sub_140BEDB10
+	{
+		using func_t = decltype(&soundHelper_b);
+		REL::Relocation<func_t> func{ REL::ID(66375) };
+		return func(a1, source_node);
+	}
+
+	static inline char __fastcall soundHelper_c(RE::BSSoundHandle* a1) //sub_140BED530
+	{
+		using func_t = decltype(&soundHelper_c);
+		REL::Relocation<func_t> func{ REL::ID(66355) };
+		return func(a1);
 	}
 
 	static inline char set_sound_position(RE::BSSoundHandle* a1, float x, float y, float z)
@@ -58,20 +95,6 @@ public:
 		using func_t = decltype(&set_sound_position);
 		REL::Relocation<func_t> func{ REL::ID(66370) };
 		return func(a1, x, y, z);
-	}
-
-	static inline void sub_140BEDB10(RE::BSSoundHandle* a1, RE::NiAVObject* source_node)
-	{
-		using func_t = decltype(&sub_140BEDB10);
-		REL::Relocation<func_t> func{ REL::ID(66375) };
-		return func(a1, source_node);
-	}
-
-	static inline char __fastcall sub_140BED530(RE::BSSoundHandle* a1)
-	{
-		using func_t = decltype(&sub_140BED530);
-		REL::Relocation<func_t> func{ REL::ID(66355) };
-		return func(a1);
 	}
 
 	static inline void* BSAudioManager__GetSingleton()
@@ -91,23 +114,27 @@ public:
 		*(uint32_t*)&handle.state = 0;
 
 		auto manager = BSAudioManager__GetSingleton();
-		sub_140BEEE70(manager, &handle, formid, 16);
+		soundHelper_a(manager, &handle, formid, 16);
 		if (set_sound_position(&handle, a->data.location.x, a->data.location.y, a->data.location.z)) {
-			sub_140BEDB10(&handle, a->Get3D());
-			sub_140BED530(&handle);
+			soundHelper_b(&handle, a->Get3D());
+			soundHelper_c(&handle);
 		}
 	}
 
 	/*
 	@return actor a and actor b's absolute distance, if the radius is bigger than distance.
 	@return -1, if the distance exceeds radius.*/
-	static float getInRadius(RE::Actor* a, RE::Actor* b, float radius) {
+	static float getInRange(RE::Actor* a, RE::Actor* b, float maxRange) {
 		auto aPos = a->GetPosition();
 		auto bPos = b->GetPosition();
 		float xDiff = abs(aPos.x - bPos.x);
 		float yDiff = abs(aPos.y - bPos.y);
-		float dist = sqrt(pow(xDiff, 2) + pow(yDiff, 2));
-		if (dist <= radius) {
+		float zDiff = abs(aPos.z - bPos.z);
+		float dist = sqrt(
+			pow(xDiff, 2) + pow(yDiff, 2) //horizontal dist ^ 2
+			+ pow(zDiff, 2) //vertical dist ^ 2
+		);
+		if (dist <= maxRange) {
 			return dist;
 		}
 		else {

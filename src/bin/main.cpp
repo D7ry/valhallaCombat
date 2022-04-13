@@ -59,7 +59,6 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		INFO("Post post load");
 		break;
 #if JL_AntiPiracy
-
 	case SKSE::MessagingInterface::kNewGame:
 		INFO("new game");
 		ValhallaUtils::queueMessageBox(settings::JueLun_LoadMsg);

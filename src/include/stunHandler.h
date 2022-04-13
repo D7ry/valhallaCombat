@@ -23,13 +23,17 @@ private:
 	static inline std::mutex mtx_ActorStunMap;
 	static inline std::mutex mtx_StunRegenQueue;
 	static inline std::mutex mtx_StunnedActors;
+	/*Erase actor from actorStunMap with mutex.*/
 	inline void safeErase_ActorStunMap(RE::Actor* actor);
+	/*Erase actor from stunRegenQueue with mutex.*/
 	inline void safeErase_StunRegenQueue(RE::Actor* actor);
+	/*Erase actor from stunnedActors with mutex.*/
 	inline void safeErase_StunnedActors(RE::Actor* actor);
 
-
+	/*Asynchronous function to constantly flash the actor's stun.*/
 	static void async_StunMeterFlash();
-	static inline std::atomic<bool> async_stunMeterFlashTaskOn;
+	static inline std::atomic<bool> async_StunMeterFlash_b;
+
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
 	void refillStun(RE::Actor* actor);

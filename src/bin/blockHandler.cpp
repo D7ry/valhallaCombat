@@ -137,10 +137,10 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
 			if (iHitflag & (int)HITFLAG::kPowerAttack) {
-				reactionHandler::triggerReactionLarge(aggressor, blocker);
+				reactionHandler::triggerReaction(aggressor, blocker, reactionHandler::kLarge);
 			}
 			else {
-				reactionHandler::triggerReactionMedium(aggressor, blocker);
+				reactionHandler::triggerReaction(aggressor, blocker, reactionHandler::kMedium);
 			}
 		}
 		hitData.totalDamage =

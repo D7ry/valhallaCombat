@@ -3,7 +3,7 @@
 #include "lib/robin_hood.h"
 #include "lib/SimpleIni.h"
 
-#define JL_AntiPiracy 1;
+#define JL_AntiPiracy 0;
 /*All the settings of Valhalla combat*/
 class settings
 {

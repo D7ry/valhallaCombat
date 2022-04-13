@@ -78,10 +78,15 @@ void settings::updateGlobals() {
 void settings::readSettings() {
 	INFO("Read ini settings...");
 #if JL_AntiPiracy
-#define anti_PiracyMsg_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
+#define anti_PiracyMsg_PATH "Data\\Val_Config.ini"
 	CSimpleIniA anti_PiracyMsg;
 	anti_PiracyMsg.LoadFile(anti_PiracyMsg_PATH);
 	JueLun_LoadMsg = anti_PiracyMsg.GetValue("load", "msg");
+	auto hash = std::hash<std::string>{}(JueLun_LoadMsg);
+	INFO(hash);
+	if (hash != 13375109384697678453) {
+		ERROR("Error: Mod Piracy detected");
+	}
 #endif
 
 #define SETTINGFILE_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
