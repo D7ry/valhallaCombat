@@ -34,9 +34,6 @@ void reactionHandler::async_triggerContinuousStagger(RE::Actor* aggressor, RE::A
 };
 	
 void reactionHandler::triggerStagger(RE::Actor* aggressor, RE::Actor* reactor, float magnitude) {
-	if (reactor->IsSwimming()) {
-		return;
-	}
 	auto headingAngle = reactor->GetHeadingAngle(aggressor->GetPosition(), false);
 	auto direction = (headingAngle >= 0.0f) ? headingAngle / 360.0f : (360.0f + headingAngle) / 360.0f;
 	reactor->SetGraphVariableFloat(staggerDirection, direction);
@@ -45,18 +42,10 @@ void reactionHandler::triggerStagger(RE::Actor* aggressor, RE::Actor* reactor, f
 }
 
 void reactionHandler::triggerKnockBack(RE::Actor* aggressor, RE::Actor* reactor) {
-	if (!settings::bPoiseCompatibility) {
-		ValhallaUtils::PushActorAway(aggressor, reactor, 7);
-	}
-	else {
-		triggerPoiseReaction(aggressor, reactor, reactionType::kLargest);
-	}
+	ValhallaUtils::PushActorAway(aggressor, reactor, 7);
 }
 
 void reactionHandler::triggerPoiseReaction(RE::Actor* aggressor, RE::Actor* reactor, reactionType reactionType) {
-	if (reactor->IsSwimming()) {
-		return;
-	}
 	RE::BSFixedString reaction;
 	if (ValhallaUtils::isBackFacing(reactor, aggressor)) {
 		switch (reactionType) {
@@ -80,16 +69,19 @@ void reactionHandler::triggerPoiseReaction(RE::Actor* aggressor, RE::Actor* reac
 
 
 void reactionHandler::triggerReaction(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType) {
+	if (reactor->IsSwimming()) {
+		return;
+	}
 	if (!settings::bPoiseCompatibility) {
-		triggerPoiseReaction(causer, reactor, reactionType);
+		switch (reactionType) {
+		case kSmall: triggerStagger(causer, reactor, 0.1); break;
+		case kMedium: triggerStagger(causer, reactor, 0.8); break;
+		case kLarge: triggerStagger(causer, reactor, 5); break;
+		case kLargest: triggerKnockBack(causer, reactor); break;
+		}
 	}
 	else {
-		switch (reactionType) {
-		case kSmall: triggerStagger(causer, reactor, 0.1);
-		case kMedium: triggerStagger(causer, reactor, 0.8);
-		case kLarge: triggerStagger(causer, reactor, 5);
-		case kLargest: triggerKnockBack(causer, reactor);
-		}
+		triggerPoiseReaction(causer, reactor, reactionType);
 	}
 
 }
