@@ -51,7 +51,7 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	if (settings::bAttackStaminaToggle) {
 		attackHandler::GetSingleton()->registerHit(aggressor);
 	}
-	reactionHandler::triggerContinuousStagger(aggressor, victim, 10);
+	reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kMedium);
 	//try execution
 	if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
 		if (aggressor->IsPlayerRef()) {

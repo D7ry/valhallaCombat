@@ -177,7 +177,7 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	hitData.totalDamage = 0;
 	bool blockBrokeGuard = false;
 	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
-		reactionHandler::triggerKnockBack(blocker, aggressor);
+		reactionHandler::triggerReaction(blocker, aggressor, reactionHandler::kLarge);
 		blockBrokeGuard = true;
 	}
 	if (settings::bPerfectBlockVFX) {
