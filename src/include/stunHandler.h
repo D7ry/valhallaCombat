@@ -20,6 +20,13 @@ public:
 	@param actor: actor whose stun will no longer be tracked.*/
 	void untrackStun(RE::Actor* actor);
 private:
+	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
+	robin_hood::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
+
+	/*Mapping of actors whose stun has been damaged recently => their stun regen cooldown.
+	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
+	robin_hood::unordered_map <RE::Actor*, float> stunRegenQueue;
+
 	static inline std::mutex mtx_ActorStunMap;
 	static inline std::mutex mtx_StunRegenQueue;
 	static inline std::mutex mtx_StunnedActors;
@@ -30,14 +37,14 @@ private:
 	/*Erase actor from stunnedActors with mutex.*/
 	inline void safeErase_StunnedActors(RE::Actor* actor);
 
-	/*Asynchronous function to constantly flash the actor's stun.*/
-	static void async_StunMeterFlash();
-	static inline std::atomic<bool> async_StunMeterFlash_b;
 
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
 	void refillStun(RE::Actor* actor);
-	/*Damage this actor's stun. If the actor does not exist on the stunmap, track their stun first.
+
+	/*Damage this actor's stun. Actor's stun won't get damaged below zero.
+	If the actor does not exist on the stunmap, track their stun first.
+	If the damage gets the actor's stun below 0, and the actor is not yet stunned, play a special stun sound effect; for humanoid actors, trigger their downed state.
 	@param aggressor: actor who will apply stun damage.
 	@param actor: actor whose stun will be damaged.
 	@param damage: stun damage applied onto this actor.*/
@@ -47,16 +54,11 @@ private:
 
 	inline void revertStunMeter(RE::Actor* a_actor);
 
+	/*Asynchronous function to constantly flash the actor's stun.*/
+	static void async_HealthBarFlash();
+	static inline std::atomic<bool> async_HealthBarFlash_b;
 	static inline void flashHealthBar(RE::Actor* a_actor);
-	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
-	robin_hood::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 
-	/*Mapping of actors whose stun has been damaged recently => their stun regen cooldown.
-	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
-	robin_hood::unordered_map <RE::Actor*, float> stunRegenQueue;
-
-
-	float timer_StunMeterFlash;
 public:
 	/*Mapping of actors who are completely stunned => their stun meter blinking timer.*/
 	robin_hood::unordered_set <RE::Actor*> stunnedActors;

@@ -24,80 +24,82 @@ void stunHandler::update() {
 	//mtx.lock();
 	auto deltaTime = *RE::Offset::g_deltaTime;
 	mtx_StunRegenQueue.lock();
+	//stop update if there is nothing in the queue.
+	if (stunRegenQueue.empty()) {
+		mtx_StunRegenQueue.unlock();
+		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
+		async_HealthBarFlash_b = false;
+		return;
+	}
+
 	auto it_StunRegenQueue = stunRegenQueue.begin();
 	while (it_StunRegenQueue != stunRegenQueue.end()) {
 		auto actor = it_StunRegenQueue->first;
-		if (!actor || !actor->currentProcess) {
+		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {//edge case: actor not loaded or no longer in high process.
 			//if an actor is no longer present=>remove actor.
 			safeErase_ActorStunMap(actor);
 			safeErase_StunnedActors(actor);
 			it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); 
-			if (stunRegenQueue.size() == 0) {
-				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
-				async_StunMeterFlash_b = false;
-			}
 			continue;
 		}
 
+		/*---------------------------Regen area-------------------------------------*/
+		if (!actor->IsInCombat()
+			|| stunnedActors.contains(actor)) {
 
-		if (!actor->IsInCombat()//no regular regen during combat.
-			|| stunnedActors.contains(actor)) {//however, when in down state, regen.
+			//>>>>>>>>actor that can regen
 			if (it_StunRegenQueue->second <= 0) {//timer reached zero, time to regen.
-				//start regenerating stun from actorStunMap.
+				//>>>>>>>>>>actor whose regen timer has reached zero.
 				mtx_ActorStunMap.lock();
-				if (actorStunMap.find(actor) == actorStunMap.end()) {//oops, somehow the actor is not found in the stun map.
+				if (actorStunMap.contains(actor)) {//edge case: actorStunMap no longer contains this actor.
 					mtx_ActorStunMap.unlock(); //unlock mtx here, no longer needed.
 					safeErase_StunnedActors(actor);
 					it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); 
-					if (stunRegenQueue.size() == 0) {
-						ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
-						async_StunMeterFlash_b = false;
-					}
 					continue; 
 				}
-				else {
-					if (actorStunMap.find(actor)->second.second < actorStunMap.find(actor)->second.first) {
-						actorStunMap.find(actor)->second.second += 
-							deltaTime * 1 / 7 * actorStunMap.find(actor)->second.first;
-						mtx_ActorStunMap.unlock();
-					}
-					else {
-						mtx_ActorStunMap.unlock();
-						//actor's stun fully regenerated. recovering its downed state and consider the actor no longer stunned.
-						it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue);
-						mtx_StunnedActors.lock();
-						if (stunnedActors.contains(actor)) {
-							stunnedActors.erase(actor);
-							mtx_StunnedActors.unlock();
+				//>>>>>>>>>>>actually start regenerating stun.
+#define a_stunData actorStunMap.find(actor)->second
+				float a_regenVal = a_stunData.first * deltaTime * 1 / 7;
+				if (a_stunData.second + a_regenVal >= a_stunData.first) {//curren stun + regen exceeds max stun, meaning regen has complete.
+					//>>>>>>>>actor has finished regen.
+					a_stunData.second = a_stunData.first;
+					mtx_ActorStunMap.unlock();
+					it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue);
+					
+					//if the is currently stunned, actor will no longer be stunned, 
+					//their stun meter no longer flash, and they are recovered from downed state.
+					mtx_StunnedActors.lock();
+					if (stunnedActors.contains(actor)) {
+						stunnedActors.erase(actor);
+						if (settings::bStunMeterToggle && settings::TrueHudAPI_HasSpecialBarControl) {
 							revertStunMeter(actor);
-							reactionHandler::recoverDownedState(actor);
 						}
-						else {
-							mtx_StunnedActors.unlock();
-						}
-						if (stunRegenQueue.size() == 0) {
-							ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::stunHandler);
-							async_StunMeterFlash_b = false;
-						}
-						continue; //regeneration complete.
+						reactionHandler::recoverDownedState(actor);
 					}
+					mtx_StunnedActors.unlock();
+					continue; //regeneration complete.
 				}
+				else {
+					//>>>>>>>>>perform a simple regen.
+					a_stunData.second += a_regenVal;
+					mtx_ActorStunMap.unlock();
+				}
+
 			}
 			else {
 				it_StunRegenQueue->second -= deltaTime;//keep decrementing regen timer.
 			}
 		}
+		/*---------------------------Regen area-------------------------------------*/
+
 		++it_StunRegenQueue;
 	}
 	mtx_StunRegenQueue.unlock();
-	//mtx.unlock();
-	//flash special meter for stunned actors, if they're being pointed at.
-
 }
 
-void stunHandler::async_StunMeterFlash() {
+void stunHandler::async_HealthBarFlash() {
 	while (true) {
-		if (async_StunMeterFlash_b) {
+		if (async_HealthBarFlash_b) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			auto ersh = ValhallaCombat::GetSingleton()->ersh;
 			auto temp_set = stunHandler::GetSingleton()->stunnedActors;
@@ -106,7 +108,8 @@ void stunHandler::async_StunMeterFlash() {
 					ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
 				}
 				else {
-					stunHandler::GetSingleton()->safeErase_StunnedActors(a_actor);//erase this actor if dead.
+					//erase this actor if dead, so the actor does not need to be iterated over again.
+					stunHandler::GetSingleton()->safeErase_StunnedActors(a_actor);
 				}
 			}
 		}
@@ -144,13 +147,13 @@ float stunHandler::getStun(RE::Actor* actor) {
 void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damage) {
 	//DEBUG("Damaging {}'s stun by {} points.", actor->GetName(), damage);
 	mtx_ActorStunMap.lock();
-	auto it = actorStunMap.find(actor);
-	if (it == actorStunMap.end()) { //actor's stun is not yet tracked.
-		mtx_ActorStunMap.unlock();
+	if (!actorStunMap.contains(actor)) {
+		//mtx_ActorStunMap.unlock(); #no need to unlock, will be unlocked in trackStun()
 		trackStun(actor);
 		damageStun(aggressor, actor, damage);//recursively call itself, once stun is tracked.
 	}
 	else {
+		auto it = actorStunMap.find(actor);
 		//prevent stun from getting below 0
 		if (it->second.second - damage <= 0) {
 			it->second.second = 0;
@@ -165,12 +168,16 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 			if (!stunnedActors.contains(actor)) {
 				ValhallaUtils::playSound(actor, data::GetSingleton()->soundStunBreakD->GetFormID());
 				stunnedActors.insert(actor);
-				if (!async_StunMeterFlash_b) {
-					std::jthread stunMeterFlashThread(async_StunMeterFlash);
+				//launch health bar flash thread if not done so.
+				if (!async_HealthBarFlash_b) {
+					std::jthread stunMeterFlashThread(async_HealthBarFlash);
 					stunMeterFlashThread.detach();
-					async_StunMeterFlash_b = true;
+					async_HealthBarFlash_b = true;
 				}
-				greyOutStunMeter(actor);
+				//gray out this actor's stun meter.
+				if (settings::bStunMeterToggle && settings::TrueHudAPI_HasSpecialBarControl) {
+					greyOutStunMeter(actor);
+				}
 			}
 		}
 		else {
@@ -275,7 +282,6 @@ void stunHandler::trackStun(RE::Actor* actor) {
 	mtx_ActorStunMap.lock();
 	actorStunMap.emplace(actor, std::pair<float, float>(maxStun, maxStun));
 	mtx_ActorStunMap.unlock();
-	//DEBUG("Start tracking {}'s stun. Max Stun: {}.", actor->GetName(), maxStun);
 };
 void stunHandler::untrackStun(RE::Actor* actor) {
 	safeErase_ActorStunMap(actor);
