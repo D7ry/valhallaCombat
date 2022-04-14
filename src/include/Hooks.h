@@ -112,6 +112,47 @@ private:
 
 };
 
+class Hook_GetStaggerMagnitude
+{
+public:
+	static void install() {
+		auto& trampoline = SKSE::GetTrampoline();
+		REL::Relocation<uintptr_t> hook1{ REL::ID(42839) }; //Down	p	Character__sub_1407431D0+81	call    ActorValueOwner__sub_1403BEB10
+		_getStaggerMagnitude_Weapon = trampoline.write_call<5>(hook1.address() + 0x81, getStaggerMagnitude_Weapon);
+
+		REL::Relocation<uintptr_t> hook2{ REL::ID(42839) };	//Down	p	Character__sub_1407431D0+5B	call    sub_1403BE760
+		_getStaggerMagnitude_Weapon = trampoline.write_call<5>(hook2.address() + 0x5B, getStaggerMagnitude_Weapon);
+
+		// 
+		//Up	p	StaggerEffect__Func20_140563460+61	call    Character__sub_1407431D0 //34188	
+		//Up	p	sub_1407426F0 + 131	call    Character__sub_1407431D0 //42831
+		//Up	p	sub_140742850+2FC	call    Character__sub_1407431D0 //42832	
+		//Up	p	sub_140742C00+FE	call    Character__sub_1407431D0 //42833	
+		/*REL::Relocation<uintptr_t> hook1{REL::ID(42831)};
+		_initStagger1 = trampoline.write_call<5>(hook1.address() + 0x131, initStagger1);
+		REL::Relocation<uintptr_t> hook2{ REL::ID(42832) };
+		_initStagger2 = trampoline.write_call<5>(hook2.address() + 0x131, initStagger2);
+		REL::Relocation<uintptr_t> hook3{ REL::ID(42833) };
+		_initStagger3 = trampoline.write_call<5>(hook3.address() + 0x131, initStagger3);*/
+		INFO("Stagger magnitude hook installed.");
+	}
+private:
+	static float getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4); 
+	static inline REL::Relocation<decltype(getStaggerMagnitude_Weapon)> _getStaggerMagnitude_Weapon;
+
+	static float getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2);
+	static inline REL::Relocation<decltype(getStaggerManitude_Bash)> _getStaggerManitude_Bash;
+	/*
+	static void initStagger1(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5);
+	static inline REL::Relocation<decltype(initStagger1)> _initStagger1;
+
+	static void initStagger2(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5);
+	static inline REL::Relocation<decltype(initStagger2)> _initStagger2;
+
+	static void initStagger3(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5);
+	static inline REL::Relocation<decltype(initStagger3)> _initStagger3;*/
+};
+
 class Hook_MainUpdate
 {
 public:
@@ -153,6 +194,7 @@ public:
 		Hook_StaminaRegen::install();
 		Hook_MeleeHit::install();
 		Hook_MainUpdate::install();
+		Hook_GetStaggerMagnitude::install();
 	}
 };
 

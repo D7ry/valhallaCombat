@@ -80,6 +80,25 @@ bool Hook_StaminaRegen::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 }
 #pragma endregion
 
+#pragma region getStaggerMagnitude_Weapon
+float Hook_GetStaggerMagnitude::getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4) {
+	return 0;
+}
+
+float Hook_GetStaggerMagnitude::getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2) {
+	return 0;
+}
+/*
+void Hook_GetStaggerMagnitude::initStagger1(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5) {
+	return;
+}
+void Hook_GetStaggerMagnitude::initStagger2(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5) {
+	return;
+}
+void Hook_GetStaggerMagnitude::initStagger3(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5) {
+	return;
+}*/
+#pragma endregion
 #pragma region MeleeHit
 void Hook_MeleeHit::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	//hitDataProcessor::processHitData(hitData);
