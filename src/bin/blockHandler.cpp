@@ -79,7 +79,7 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 
 #pragma region Process Block
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
-	DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
+	//DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
 	if (settings::bPerfectBlockToggle) {
 		if (actorsPerfectBlocking.find(blocker) != actorsPerfectBlocking.end()) {
 			processPerfectBlock(blocker, aggressor, iHitflag, hitData);
@@ -94,14 +94,14 @@ bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iH
 /*Process a stamina block.
 Actor with enough stamina can negate all incoming health damage with stamina. Actor without enough stamina will triggerStagger and receive partial damage.*/
 void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
-	DEBUG("processing stamina block");
+	//DEBUG("processing stamina block");
 	using HITFLAG = RE::HitData::Flag;
 	//float staminaDamageBase = hitData.totalDamage;
 	float staminaDamageBase = realDamage;
 	float staminaDamageMult;
-	DEBUG("base stamina damage is {}", staminaDamageBase);
+	//DEBUG("base stamina damage is {}", staminaDamageBase);
 	if (iHitflag & (int)HITFLAG::kBlockWithWeapon) {
-		DEBUG("hit blocked with weapon");
+		//DEBUG("hit blocked with weapon");
 		if (blocker->IsPlayerRef()) {
 			staminaDamageMult = settings::fBckWpnStaminaMult_PC_Block_NPC;
 		}
@@ -115,7 +115,7 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		}
 	}
 	else {
-		DEBUG("hit blocked with shield");
+		//DEBUG("hit blocked with shield");
 		if (blocker->IsPlayerRef()) {
 			staminaDamageMult = settings::fBckShdStaminaMult_PC_Block_NPC;
 		}
@@ -134,7 +134,7 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 
 	//check whether there's enough stamina to block incoming attack
 	if (targetStamina < staminaDamage) {
-		DEBUG("not enough stamina to block, blocking part of damage!");
+		//DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
 			if (iHitflag & (int)HITFLAG::kPowerAttack) {
 				reactionHandler::triggerReaction(aggressor, blocker, reactionHandler::kLarge);
@@ -148,7 +148,7 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 			* (hitData.totalDamage) / realDamage; //offset real damage back into raw damage to be converted into real damage again later.
 		Utils::damageav(blocker, RE::ActorValue::kStamina,
 			targetStamina);
-		DEBUG("failed to block {} damage", hitData.totalDamage);
+		//DEBUG("failed to block {} damage", hitData.totalDamage);
 		debuffHandler::GetSingleton()->initStaminaDebuff(blocker); //initialize debuff for the failed blocking attempt
 	}
 	else {
@@ -164,7 +164,6 @@ Decrement aggressor's stamina.
 The blocker will not receive any block cooldown once the block timer ends, and may initialize another perfect block as they wish.
 Real damage from previous function is not passed in; instead it's being readjusted due to the swap of roles of attacker&defender.*/
 void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
-	DEBUG("Perfect Block!");
 	float reflectedDamage = hitData.totalDamage;
 	//when reflecting damage, blocker is the real "attacker". So the damage is readjusted here.
 	if (blocker->IsPlayerRef() || blocker->IsPlayerTeammate()) {
@@ -181,22 +180,22 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		blockBrokeGuard = true;
 	}
 	if (settings::bPerfectBlockVFX) {
-		DEBUG("vfx");
+		//DEBUG("vfx");
 		playPerfectBlockVFX(blocker, aggressor, iHitflag, blockBrokeGuard);
 	}
 	if ((blocker->IsPlayerRef() || aggressor->IsPlayerRef())
 		&& settings::bPerfectBlockScreenShake) {
-		DEBUG("screen shake");
+		//DEBUG("screen shake");
 		playPerfectBlockScreenShake(blocker, iHitflag, blockBrokeGuard);
 	}
 	if (settings::bPerfectBlockSFX) {
-		DEBUG("SFX");
+		//DEBUG("SFX");
 		playPerfectBlockSFX(blocker, iHitflag, blockBrokeGuard);
 	}
 	mtx.lock();
 	actorsPerfectblockSuccessful.emplace(blocker); //register the blocker as a successful blocker.
 	mtx.unlock();
-	DEBUG("perfect block process complete");
+	//DEBUG("perfect block process complete");
 }
 #pragma endregion
 
