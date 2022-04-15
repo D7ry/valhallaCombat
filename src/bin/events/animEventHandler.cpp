@@ -40,11 +40,6 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		}
 
 		break;
-	case "tailcombatidle"_h:
-		if (settings::bStunToggle) {
-			executionHandler::GetSingleton()->concludeExecution(a_event.holder->As<RE::Actor>());
-		}
-		break;
 	case "blockStartOut"_h:
 		//DEBUG("===========blockStartOut===========");
 		if (settings::bPerfectBlockToggle) {

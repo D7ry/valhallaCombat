@@ -10,9 +10,9 @@
 #pragma endregion
 #pragma region GetHeavyStaminaCost
 float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
-	DEBUG("hooked attack stamina cost!");
+	//DEBUG("hooked attack stamina cost!");
 	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
-	DEBUG("actor is {}", a_actor->GetName());
+	//DEBUG("actor is {}", a_actor->GetName());
 	if (settings::bAttackStaminaToggle) { //negate vanilla heavy attack stamina cost
 		if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)
 			&& !atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
@@ -24,7 +24,7 @@ float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGS
 float Hook_CacheAttackStaminaCost::cacheAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
 	
 	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
-	DEBUG("Cached attack stamina! Actor is {}.", a_actor->GetName());
+	//DEBUG("Cached attack stamina! Actor is {}.", a_actor->GetName());
 	return _cacheAttackStaminaCost(avOwner, atkData);
 }
 #pragma endregion

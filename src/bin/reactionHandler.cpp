@@ -14,12 +14,12 @@ static inline const RE::BSFixedString poise_small_fwd = "poise_small_start_fwd";
 static inline const RE::BSFixedString staggerDirection = "staggerDirection";
 static inline const RE::BSFixedString StaggerMagnitude = "StaggerMagnitude";
 static inline const RE::BSFixedString staggerStart = "staggerStart";
-
+static inline const RE::BSFixedString staggerStop = "staggerStop";
 static inline const RE::BSFixedString bleedOutStart = "BleedoutStart";
 static inline const RE::BSFixedString bleedOutStop = "BleedOutStop";
 static inline const RE::BSFixedString bleedOutGraphBool = "IsBleedingOut";
 void reactionHandler::triggerContinuousStagger(RE::Actor* aggressor, RE::Actor* reactor, reactionType reactionType) {
-	reactor->NotifyAnimationGraph("staggerStop");
+	reactor->NotifyAnimationGraph(staggerStop);
 	std::jthread asynStaggerThread(async_triggerContinuousStagger, aggressor, reactor, reactionType);
 	asynStaggerThread.detach();
 }
@@ -74,10 +74,11 @@ void reactionHandler::triggerReaction(RE::Actor* causer, RE::Actor* reactor, rea
 	}
 	if (!settings::bPoiseCompatibility) {
 		switch (reactionType) {
-		case kSmall: triggerStagger(causer, reactor, 0.1); break;
-		case kMedium: triggerStagger(causer, reactor, 0.8); break;
-		case kLarge: triggerStagger(causer, reactor, 5); break;
-		case kLargest: triggerKnockBack(causer, reactor); break;
+		case kSmall: triggerStagger(causer, reactor, 0); break;
+		case kMedium: triggerStagger(causer, reactor, 0.5); break;
+		case kLarge: triggerStagger(causer, reactor, 0.8); break;
+		case kLargest: triggerStagger(causer, reactor, 5); break;
+		case kKnockBack: triggerKnockBack(causer, reactor); break;
 		}
 	}
 	else {

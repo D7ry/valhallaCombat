@@ -6,7 +6,8 @@ public:
 		kSmall = 0,
 		kMedium,
 		kLarge,
-		kLargest //knockBack
+		kLargest,
+		kKnockBack,
 	};
 	/*Stagger the actor with magnitude and correct stagger direction, 0.1 seconds after sending a staggerStop event.*/
 	static void triggerContinuousStagger(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType);

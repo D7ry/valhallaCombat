@@ -3,6 +3,7 @@
 #include "bin/ValhallaCombat.hpp"
 #include "include/lib/robin_hood.h"
 #include <cmath>
+#define CONSOLELOG(msg) 	RE::ConsoleLog::GetSingleton()->Print(msg);
 //TODO:clear this up a bit
 namespace Utils
 {

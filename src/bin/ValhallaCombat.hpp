@@ -2,6 +2,7 @@
 #include "include/debuffHandler.h"
 #include "include/blockHandler.h"
 #include "include/stunHandler.h"
+#include "include/balanceHandler.h"
 #include "include/lib/TrueHUDAPI.h"
 #include "include/settings.h"
 /*Combat tweaks to make Skyrim's melee combat feel like AC:Valhalla.*/
@@ -22,6 +23,7 @@ public:
 		debuffHandler = 0,
 		blockHandler,
 		stunHandler,
+		balanceHandler,
 	};
 
 	/*Start updating a handler per tick.
@@ -35,6 +37,7 @@ public:
 			break;
 		case ValhallaCombat::stunHandler: update_StunHandler = true;
 			break;
+		case ValhallaCombat::balanceHandler: update_balanceHandler = true;
 		}
 	}
 	/*Stop updating a handler per tick.
@@ -47,6 +50,7 @@ public:
 			break;
 		case ValhallaCombat::stunHandler: update_StunHandler = false;
 			break;
+		case ValhallaCombat::balanceHandler: update_balanceHandler = false;
 		}
 	}
 
@@ -61,7 +65,9 @@ public:
 	if (update_StunHandler) {
 		stunHandler::GetSingleton()->update();
 	}
-
+	if (update_balanceHandler) {
+		balanceHandler::GetSingleton()->update();
+	}
 	}
 
 	/*Request special bar control from truehud API. 
@@ -98,5 +104,5 @@ private:
 	bool update_DebuffHandler;
 	bool update_BlockHandler;
 	bool update_StunHandler;
-
+	bool update_balanceHandler;
 };

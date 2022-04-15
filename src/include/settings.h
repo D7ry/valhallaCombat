@@ -82,16 +82,16 @@ public:
 	static inline float fStunGreatSwordMult = 1.2;
 	static inline float fStun2HBluntMult = 1.3;
 
-
-	//execute
 	/*Toggle for player to be executed.*/
 	static inline bool bPlayerExecution = false;
-	/*Toggle for player teammate to be executed.*/
-	static inline bool bPlayerTeammateExecution = false;
 	/*Toggle for essential NPCs to be executed.*/
 	static inline bool bExecutionLimit = true; //NPCs with level higher than player cannot be executed unless under certain health threshold.
 	static inline bool bAutoExecution = false; //automatically execute on hit.
 	static inline uint32_t uExecutionKey = -1;
+#pragma endregion
+#pragma region StaggerSettings
+	static inline bool bStaggerToggle = true;
+
 #pragma endregion
 #pragma region Compatibility
 	static inline bool bPoiseCompatibility = false;
@@ -123,6 +123,19 @@ namespace Utils
 		else {
 			INFO("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
 			setting->data.f = val;
+		}
+	}
+
+	static void setGameSettingb(const char* settingStr, bool val) {
+		RE::Setting* setting = nullptr;
+		RE::GameSettingCollection* _settingCollection = RE::GameSettingCollection::GetSingleton();
+		setting = _settingCollection->GetSetting(settingStr);
+		if (!setting) {
+			INFO("invalid setting: {}", settingStr);
+		}
+		else {
+			INFO("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
+			setting->data.b = false;
 		}
 	}
 

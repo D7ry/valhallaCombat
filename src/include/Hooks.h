@@ -112,6 +112,7 @@ private:
 
 };
 
+/*Remove vanilla stagger by setting return value of all vanilla stagger magnitude calculations to 0.*/
 class Hook_GetStaggerMagnitude
 {
 public:

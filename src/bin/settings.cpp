@@ -155,6 +155,17 @@ void settings::readSettings() {
 	/*Set some game settings*/
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
+	/*
+	setGameSettingf("fStaggerMin", 0);
+	setGameSettingf("fStaggerPlayerMassMult", 0);
+	setGameSettingf("fStaminaAttackWeaponBase", 0);
+	setGameSettingf("fStaggerAttackMult", 0);
+	setGameSettingf("fStaggerAttackBase", 0);
+	setGameSettingf("fStaggerMassBase", 0);
+	setGameSettingf("fStaggerMassMult", 0);
+	setGameSettingf("fStaggerMassOffsetBase", 0); 
+	setGameSettingf("fStaggerMassOffsetMult", 0);
+	setGameSettingb("bPlayStaggers:Combat", false);*/
 	multStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
 	
 	/*Release truehud meter if set so.*/

@@ -47,7 +47,7 @@ namespace Utils
 			case RE::DIFFICULTY::kLegendary: damage *= difficulty->fDiffMultHPToPCL; break;
 			}
 		}
-		DEBUG("real damage is {}", damage);
+		//DEBUG("real damage is {}", damage);
 	}
 
 }

@@ -1,6 +1,7 @@
 #include "include/hitProcessor.h"
 #include "include/attackHandler.h"
 #include "include/stunHandler.h"
+#include "include/balanceHandler.h"
 #include "include/executionHandler.h"
 #include "include/settings.h"
 #include "include/reactionHandler.h"
@@ -51,7 +52,8 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	if (settings::bAttackStaminaToggle) {
 		attackHandler::GetSingleton()->registerHit(aggressor);
 	}
-	reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kMedium);
+
+	//reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kMedium);
 	//try execution
 	if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
 		if (aggressor->IsPlayerRef()) {
@@ -72,9 +74,11 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 			realDamage *= 1.5;
 		}
 		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerAttack, hitData.weapon, aggressor, victim, realDamage);
+		balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::powerAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
 	else {
 		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
+		balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
 
 }
