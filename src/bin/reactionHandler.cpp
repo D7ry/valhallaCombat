@@ -75,9 +75,9 @@ void reactionHandler::triggerReaction(RE::Actor* causer, RE::Actor* reactor, rea
 	if (!settings::bPoiseCompatibility) {
 		switch (reactionType) {
 		case kSmall: triggerStagger(causer, reactor, 0); break;
-		case kMedium: triggerStagger(causer, reactor, 0.5); break;
-		case kLarge: triggerStagger(causer, reactor, 0.8); break;
-		case kLargest: triggerStagger(causer, reactor, 5); break;
+		case kMedium: triggerStagger(causer, reactor, 0.3); break;
+		case kLarge: triggerStagger(causer, reactor, 0.7); break;
+		case kLargest: triggerStagger(causer, reactor, 10); break;
 		case kKnockBack: triggerKnockBack(causer, reactor); break;
 		}
 	}
