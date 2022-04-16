@@ -52,7 +52,9 @@ void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
 	}
 	actorInDebuff.insert(actor);
 	mtx_actorInDebuff.unlock();
-	addDebuffPerk(actor);
+	if (actor->IsPlayerRef()) {
+		addDebuffPerk(actor);
+	}
 	if (settings::bUIAlert && settings::TrueHudAPI_Obtained) {
 		greyOutStaminaMeter(actor);
 		if (actor->IsPlayerRef()) {
