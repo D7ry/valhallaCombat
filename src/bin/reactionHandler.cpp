@@ -74,7 +74,9 @@ void reactionHandler::triggerStagger(RE::Actor* causer, RE::Actor* reactor, reac
 	}
 	if (settings::bStunToggle) {
 		if (data::GetSingleton()->raceMapping[reactor->GetRace()] == data::raceCatagory::Humanoid) {
-			if (stunHandler::GetSingleton()->isActorStunned(reactor)) {
+			bool isActorStunned;
+			stunHandler::GetSingleton()->isActorStunned(reactor, isActorStunned);
+			if (isActorStunned) {
 				return;//do not stagger stunned actors.
 			}
 		}

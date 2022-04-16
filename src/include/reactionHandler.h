@@ -15,7 +15,7 @@ public:
 	@param causer: actor that causes the stagger.
 	@param reactor: actor receiving the stagger.
 	@param reactionType: type of the reaction the actor receives.*/
-	static void triggerReaction(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType);
+	static void triggerStagger(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType);
 
 	/*Initialize a downed state for an actor.
 	@param a_actor: actor to enter downed state*/

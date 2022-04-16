@@ -25,7 +25,7 @@ void balanceHandler::update() {
 		}
 		//regen a single actor's balance.
 #define a_balanceData actorBalanceMap.find(*it)->second
-		float regenVal = a_balanceData.first * *RE::Offset::g_deltaTime * 1 / 4;//33% of all balance regened per sec.
+		float regenVal = a_balanceData.first * *RE::Offset::g_deltaTime * 1 / 3.5;//33% of all balance regened per sec.
 		//DEBUG(regenVal);
 		//DEBUG(a_balanceData.second);
 		//DEBUG(a_balanceData.first);
@@ -64,6 +64,13 @@ void balanceHandler::untrackBalance(RE::Actor* a_actor) {
 	mtx_actorBalanceMap.unlock();
 }
 
+bool balanceHandler::isBalanceBroken(RE::Actor* a_actor) {
+	bool isBalanceBroken;
+	mtx_balanceBrokenActors.lock();
+	isBalanceBroken = balanceBrokenActors.contains(a_actor);
+	mtx_balanceBrokenActors.unlock();
+	return isBalanceBroken;
+}
 
 void balanceHandler::damageBalance(RE::Actor* aggressor, RE::Actor* victim, float damage) {
 	DEBUG("damaging balance: aggressor: {}, victim: {}, damage: {}", aggressor->GetName(), victim->GetName(), damage);
@@ -101,10 +108,36 @@ void balanceHandler::damageBalance(RE::Actor* aggressor, RE::Actor* victim, floa
 		if (balanceBrokenActors.contains(victim)) {//if balance broken, trigger stagger.
 			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kMedium);
 		}
+		else {
+			auto victimAttackState = victim->GetAttackState();
+			//attack interrupt
+			if (victimAttackState > RE::ATTACK_STATE_ENUM::kNone && victimAttackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) {
+				if (Utils::isPowerAttacking(victim)) {
+					if (Utils::isPowerAttacking(aggressor)) {//only interrupt power attacking enemies with power attack
+						reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kSmall);
+					}
+				}
+				else {
+					reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kSmall);
+				}
+			}
+		}
 		mtx_balanceBrokenActors.unlock();
 	}
 }
 
 void balanceHandler::calculateBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
-	damageBalance(aggressor, victim, baseDamage * 3);
+	if (!settings::bBalanceToggle) {
+		return;
+	}
+	mtx_balanceBrokenActors.lock();
+	if (balanceBrokenActors.contains(victim)) {
+		//if balance broken, no damage mult.
+	}
+	else {
+		baseDamage *= 5;
+	}
+	mtx_balanceBrokenActors.unlock();
+	damageBalance(aggressor, victim, baseDamage);
+
 }

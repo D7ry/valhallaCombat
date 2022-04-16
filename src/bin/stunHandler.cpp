@@ -195,8 +195,10 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 	//DEBUG("damaging done");
 }
 
-bool stunHandler::isActorStunned(RE::Actor* a_actor) {
-	return stunnedActors.contains(a_actor);
+void stunHandler::isActorStunned(RE::Actor* a_actor, bool& isStunned) {
+	mtx_StunnedActors.lock();
+	isStunned = stunnedActors.contains(a_actor);
+	mtx_StunnedActors.unlock();
 }
 
 void stunHandler::calculateStunDamage(

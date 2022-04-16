@@ -89,8 +89,8 @@ public:
 	static inline bool bAutoExecution = false; //automatically execute on hit.
 	static inline uint32_t uExecutionKey = -1;
 #pragma endregion
-#pragma region StaggerSettings
-	static inline bool bStaggerToggle = true;
+#pragma region BalanceSettings
+	static inline bool bBalanceToggle = true;
 
 #pragma endregion
 #pragma region Compatibility

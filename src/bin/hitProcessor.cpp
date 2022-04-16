@@ -50,7 +50,9 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 
 	//reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kMedium);
 	//try execution
-	if (stunHandler::GetSingleton()->isActorStunned(victim) && hitData.weapon->IsMelee()) {
+	bool isActorStunned;
+	stunHandler::GetSingleton()->isActorStunned(victim, isActorStunned);
+	if (isActorStunned && hitData.weapon->IsMelee()) {
 		if (aggressor->IsPlayerRef()) {
 			if (settings::bAutoExecution) {//player only auto-execute if auto execution is on
 				executionHandler::GetSingleton()->attemptExecute(aggressor, victim);

@@ -218,26 +218,17 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* attacker, 
 	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
 	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
 	hitData.totalDamage = 0;
-	bool blockBrokeGuard = false;
-	if (attacker->GetActorValue(RE::ActorValue::kStamina) <= 0) {
-		blockBrokeGuard = true;
-	}
-	if (settings::bPerfectBlockVFX) {
-		//DEBUG("vfx");
-		playPerfectBlockVFX(blocker, attacker, iHitflag, blockBrokeGuard);
-	}
-	if ((blocker->IsPlayerRef() || attacker->IsPlayerRef())
-		&& settings::bPerfectBlockScreenShake) {
-		//DEBUG("screen shake");
-		playPerfectBlockScreenShake(blocker, iHitflag, blockBrokeGuard);
-	}
-	if (settings::bPerfectBlockSFX) {
-		//DEBUG("SFX");
-		playPerfectBlockSFX(blocker, iHitflag, blockBrokeGuard);
-	}
 	mtx_actors_PrevPerfectBlockingSuccessful.lock();
 	actors_PrevPerfectBlockingSuccessful.insert(blocker); //register the blocker as a successful blocker.
-	mtx_actors_PrevPerfectBlockingSuccessful.lock();
+	mtx_actors_PrevPerfectBlockingSuccessful.unlock();
+	if (settings::bBalanceToggle
+		&& balanceHandler::GetSingleton()->isBalanceBroken(blocker)) {
+		playerPerfectBlockEffects(blocker, attacker, iHitflag, true);
+	}
+	else {
+		playerPerfectBlockEffects(blocker, attacker, iHitflag, false);
+	}
+	
 	//DEBUG("perfect block process complete");
 }
 #pragma endregion
@@ -272,5 +263,18 @@ void blockHandler::playPerfectBlockScreenShake(RE::Actor* blocker, int iHitflag,
 	}
 	else {
 		RE::Offset::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
+	}
+}
+
+void blockHandler::playerPerfectBlockEffects(RE::Actor* blocker, RE::Actor* attacker, int iHitFlag, bool blockBrokeGuard) {
+	if (settings::bPerfectBlockVFX) {
+		playPerfectBlockVFX(blocker, attacker, iHitFlag, blockBrokeGuard);
+	}
+	if ((blocker->IsPlayerRef() || attacker->IsPlayerRef())
+		&& settings::bPerfectBlockScreenShake) {
+		playPerfectBlockScreenShake(blocker, iHitFlag, blockBrokeGuard);
+	}
+	if (settings::bPerfectBlockSFX) {
+		playPerfectBlockSFX(blocker, iHitFlag, blockBrokeGuard);
 	}
 }

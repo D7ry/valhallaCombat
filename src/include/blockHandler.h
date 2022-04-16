@@ -59,6 +59,9 @@ private:
 	inline void playPerfectBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, bool blockBrokeGuard);
 	inline void playPerfectBlockSFX(RE::Actor* blocker, int iHitFlag, bool blockBrokeGuard);
 	inline void playPerfectBlockScreenShake(RE::Actor* blocker, int iHitFlag, bool blockBrokeGuard);
+
+public:
+	void playerPerfectBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, bool blockBrokeGuard);
 };
 
 namespace Utils
