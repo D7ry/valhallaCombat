@@ -137,10 +137,10 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		//DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
 			if (iHitflag & (int)HITFLAG::kPowerAttack) {
-				reactionHandler::triggerReaction(aggressor, blocker, reactionHandler::kLarge);
+				reactionHandler::triggerStagger(aggressor, blocker, reactionHandler::kLarge);
 			}
 			else {
-				reactionHandler::triggerReaction(aggressor, blocker, reactionHandler::kMedium);
+				reactionHandler::triggerStagger(aggressor, blocker, reactionHandler::kMedium);
 			}
 		}
 		hitData.totalDamage =
@@ -158,32 +158,23 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	}
 }
 
-/*Process a perfect block.
-Play block spark effects & screen shake effects if enabled.
-Decrement aggressor's stamina.
-The blocker will not receive any block cooldown once the block timer ends, and may initialize another perfect block as they wish.
-Real damage from previous function is not passed in; instead it's being readjusted due to the swap of roles of attacker&defender.*/
-void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData) {
+
+void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData) {
 	float reflectedDamage = hitData.totalDamage;
 	//when reflecting damage, blocker is the real "attacker". So the damage is readjusted here.
-	if (blocker->IsPlayerRef() || blocker->IsPlayerTeammate()) {
-		Utils::offsetRealDamage(reflectedDamage, true);
-	}
-	else if (aggressor->IsPlayerRef() || aggressor->IsPlayerTeammate()) {
-		Utils::offsetRealDamage(reflectedDamage, false);
-	}
-	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, aggressor, reflectedDamage);
+	Utils::offsetRealDamage(reflectedDamage, blocker, attacker);
+	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
 	hitData.totalDamage = 0;
 	bool blockBrokeGuard = false;
-	if (aggressor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
-		reactionHandler::triggerReaction(blocker, aggressor, reactionHandler::kLarge);
+	if (attacker->GetActorValue(RE::ActorValue::kStamina) <= 0) {
+		reactionHandler::triggerStagger(blocker, attacker, reactionHandler::kLarge);
 		blockBrokeGuard = true;
 	}
 	if (settings::bPerfectBlockVFX) {
 		//DEBUG("vfx");
-		playPerfectBlockVFX(blocker, aggressor, iHitflag, blockBrokeGuard);
+		playPerfectBlockVFX(blocker, attacker, iHitflag, blockBrokeGuard);
 	}
-	if ((blocker->IsPlayerRef() || aggressor->IsPlayerRef())
+	if ((blocker->IsPlayerRef() || attacker->IsPlayerRef())
 		&& settings::bPerfectBlockScreenShake) {
 		//DEBUG("screen shake");
 		playPerfectBlockScreenShake(blocker, iHitflag, blockBrokeGuard);
