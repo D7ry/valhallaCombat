@@ -5,14 +5,6 @@
 class blockHandler {
 public:
 
-	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
-	robin_hood::unordered_map <RE::Actor*, float> actorsPerfectBlocking;
-
-	/*Mapping of all actors in perfect blocking cool down =>> remaining time of the cool down.*/
-	robin_hood::unordered_map <RE::Actor*, float> actorsInBlockingCoolDown;
-
-	/*Set of all actors who have successfully perfect blocked an attack.*/
-	robin_hood::unordered_set <RE::Actor*> actorsPerfectblockSuccessful;
 
 	static blockHandler* GetSingleton()
 	{
@@ -36,14 +28,32 @@ public:
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 private:
+
+	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
+	robin_hood::unordered_map <RE::Actor*, float> actors_PerfectBlocking;
+
+	/*Mapping of all actors in perfect blocking cool down =>> remaining time of the cool down.*/
+	robin_hood::unordered_map <RE::Actor*, float> actors_BlockingCoolDown;
+
+	/*Set of all actors who have successfully perfect blocked an attack.*/
+	robin_hood::unordered_set <RE::Actor*> actors_PrevPerfectBlockingSuccessful;
 	static inline std::mutex mtx;
+	static inline std::mutex mtx_actors_PerfectBlocking;
+	static inline std::mutex mtx_actors_BlockingCoolDown;
+	static inline std::mutex mtx_actors_PrevPerfectBlockingSuccessful;
 	/*Process a stamina block.
 	Actor with enough stamina can negate all incoming health damage with stamina. 
 	Actor without enough stamina will triggerStagger and receive partial damage.*/
 	void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
-	/*Process perfect block does not take in real damage, as parry damage is re-adjusted.*/
-	void processPerfectBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData);
+	/*Process a perfect block.
+	* Damage the attacker's stun, if stun is enabled.
+	Play block spark effects & screen shake effects if enabled.
+	The blocker will not receive any block cooldown once the block timer ends, and may initialize another perfect block as they wish.
+	@param blocker: actor performing the perfect block.
+	@param attacker: actor whose attack gets perfect blocked.
+	@param hitData: reference to the hitData of the blocked attack.*/
+	void processPerfectBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData);
 
 	/*Play VFX, SFX and screenShake for successful perfect block.*/
 	inline void playPerfectBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, bool blockBrokeGuard);
