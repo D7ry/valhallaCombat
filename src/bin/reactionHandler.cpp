@@ -28,7 +28,7 @@ void reactionHandler::async_triggerContinuousStagger(RE::Actor* aggressor, RE::A
 	const auto task = SKSE::GetTaskInterface();
 	if (task != nullptr) {
 		task->AddTask([aggressor, reactor, reactionType]() {
-			triggerReaction(aggressor, reactor, reactionType);
+			triggerStagger(aggressor, reactor, reactionType);
 			});
 	}
 };
@@ -68,9 +68,16 @@ void reactionHandler::triggerPoiseReaction(RE::Actor* aggressor, RE::Actor* reac
 
 
 
-void reactionHandler::triggerReaction(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType) {
+void reactionHandler::triggerStagger(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType) {
 	if (reactor->IsSwimming()) {
 		return;
+	}
+	if (settings::bStunToggle) {
+		if (data::GetSingleton()->raceMapping[reactor->GetRace()] == data::raceCatagory::Humanoid) {
+			if (stunHandler::GetSingleton()->isActorStunned(reactor)) {
+				return;//do not stagger stunned actors.
+			}
+		}
 	}
 	if (!settings::bPoiseCompatibility) {
 		switch (reactionType) {
