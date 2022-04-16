@@ -215,21 +215,11 @@ void stunHandler::calculateStunDamage(
 		break;
 	case STUNSOURCE::bash:
 		stunDamage = aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult;
-		if (aggressor->IsPlayerRef()) {
-			Utils::offsetRealDamage(stunDamage, true);
-		}
-		if (victim->IsPlayerRef()) {
-			Utils::offsetRealDamage(stunDamage, false);
-		}
+		Utils::offsetRealDamage(stunDamage, aggressor, victim);
 		break;
 	case STUNSOURCE::powerBash:
 		stunDamage = aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunPowerBashMult;
-		if (aggressor->IsPlayerRef()) {
-			Utils::offsetRealDamage(stunDamage, true);
-		}
-		if (victim->IsPlayerRef()) {
-			Utils::offsetRealDamage(stunDamage, false);
-		}
+		Utils::offsetRealDamage(stunDamage, aggressor, victim);
 		break;
 	case STUNSOURCE::lightAttack:
 		stunDamage = baseDamage * settings::fStunNormalAttackMult;

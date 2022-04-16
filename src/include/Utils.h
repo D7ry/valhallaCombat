@@ -7,6 +7,11 @@
 //TODO:clear this up a bit
 namespace Utils
 {
+	inline bool isPowerAttacking(RE::Actor* actor) {
+		return
+			actor->currentProcess && actor->currentProcess->high && actor->currentProcess->high->attackData
+			&& actor->currentProcess->high->attackData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack);
+	}
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
 		if (a) {
@@ -18,6 +23,37 @@ namespace Utils
 	{
 		if (a) {
 			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
+		}
+	}
+
+
+
+	/*Calculate the real hit damage based on game difficulty settings, and whether the player is aggressor/victim,
+	* assuming the damage is uncalculated raw damage.
+	@param damage: raw damage taken from hitdata.
+	@param aggressor: aggressor of this damage.
+	@param victim: victim of this damage.*/
+	inline void offsetRealDamage(float& damage, RE::Actor* aggressor, RE::Actor* victim) {
+		auto difficulty = data::GetSingleton();
+		if (aggressor->IsPlayerRef() || aggressor->IsPlayerTeammate()) {
+			switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
+			case RE::DIFFICULTY::kNovice: damage *= difficulty->fDiffMultHPByPCVE; break;
+			case RE::DIFFICULTY::kApprentice: damage *= difficulty->fDiffMultHPByPCE; break;
+			case RE::DIFFICULTY::kAdept: damage *= difficulty->fDiffMultHPByPCN; break;
+			case RE::DIFFICULTY::kExpert: damage *= difficulty->fDiffMultHPByPCH; break;
+			case RE::DIFFICULTY::kMaster: damage *= difficulty->fDiffMultHPByPCVH; break;
+			case RE::DIFFICULTY::kLegendary: damage *= difficulty->fDiffMultHPByPCL; break;
+			}
+		}
+		else if (victim->IsPlayerRef() || victim->IsPlayerTeammate()) {
+			switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
+			case RE::DIFFICULTY::kNovice: damage *= difficulty->fDiffMultHPToPCVE; break;
+			case RE::DIFFICULTY::kApprentice: damage *= difficulty->fDiffMultHPToPCE; break;
+			case RE::DIFFICULTY::kAdept: damage *= difficulty->fDiffMultHPToPCN; break;
+			case RE::DIFFICULTY::kExpert: damage *= difficulty->fDiffMultHPToPCH; break;
+			case RE::DIFFICULTY::kMaster: damage *= difficulty->fDiffMultHPToPCVH; break;
+			case RE::DIFFICULTY::kLegendary: damage *= difficulty->fDiffMultHPToPCL; break;
+			}
 		}
 	}
 };

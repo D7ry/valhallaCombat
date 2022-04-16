@@ -6,16 +6,11 @@
 #include "include/settings.h"
 #include "include/reactionHandler.h"
 #include "include/AI.h"
+#include "include/Utils.h"
 void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitData& hitData) {
 	//offset damage from hitdata, based on player difficulty setting.
 	float realDamage = hitData.totalDamage;
-	if (victim->IsPlayerRef() || victim->IsPlayerTeammate()) {
-		Utils::offsetRealDamage(realDamage, false);
-	}
-	else if (aggressor->IsPlayerRef() || aggressor->IsPlayerTeammate()) {
-		Utils::offsetRealDamage(realDamage, true);
-	}
-	
+	Utils::offsetRealDamage(realDamage, aggressor, victim);
 	int hitFlag = (int)hitData.flags;
 	if (hitFlag & (int)HITFLAG::kBlocked) {
 		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData, realDamage)) {
