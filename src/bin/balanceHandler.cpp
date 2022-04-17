@@ -72,36 +72,36 @@ bool balanceHandler::isBalanceBroken(RE::Actor* a_actor) {
 	return isBalanceBroken;
 }
 
-void balanceHandler::damageBalance(RE::Actor* aggressor, RE::Actor* victim, float damage) {
+void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE::Actor* victim, float damage) {
 	DEBUG("damaging balance: aggressor: {}, victim: {}, damage: {}", aggressor->GetName(), victim->GetName(), damage);
 	mtx_actorBalanceMap.lock();
 	if (!actorBalanceMap.contains(victim)) {
 		mtx_actorBalanceMap.unlock();
 		trackBalance(victim);
-		damageBalance(aggressor, victim, damage);
+		damageBalance(dmgSource, aggressor, victim, damage);
 		return;
 	}
 #define a_balanceData actorBalanceMap.find(victim)->second
-	DEBUG("curr balance: {}", a_balanceData.second);
+	//DEBUG("curr balance: {}", a_balanceData.second);
 	if (a_balanceData.second - damage <= 0) { //balance broken, ouch!
 		a_balanceData.second = 0;
 		mtx_actorBalanceMap.unlock();
 		mtx_balanceBrokenActors.lock();
 		if (!balanceBrokenActors.contains(victim)) {
-			DEBUG("{}'s balance has broken", victim->GetName());
+			//DEBUG("{}'s balance has broken", victim->GetName());
 			balanceBrokenActors.insert(victim);
 			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLarge);
 			ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::balanceHandler);
 		}
 		else {//balance already broken, yet broken again, ouch!
-			DEBUG("{}'s balance double broken", victim->GetName());
+			//DEBUG("{}'s balance double broken", victim->GetName());
 			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLargest);
 		}
 		mtx_balanceBrokenActors.unlock();
 		
 	}
 	else {
-		DEBUG("normal balance damage.");
+		//DEBUG("normal balance damage.");
 		a_balanceData.second -= damage;
 		mtx_actorBalanceMap.unlock();
 		mtx_balanceBrokenActors.lock();
@@ -109,18 +109,21 @@ void balanceHandler::damageBalance(RE::Actor* aggressor, RE::Actor* victim, floa
 			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kMedium);
 		}
 		else {
-			auto victimAttackState = victim->GetAttackState();
-			//attack interrupt
-			if (victimAttackState > RE::ATTACK_STATE_ENUM::kNone && victimAttackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) {
-				if (Utils::isPowerAttacking(victim)) {
-					if (Utils::isPowerAttacking(aggressor)) {//only interrupt power attacking enemies with power attack
+			if (dmgSource != DMGSOURCE::parry) {
+				//attack interruption
+				auto victimAttackState = victim->GetAttackState();
+				if (victimAttackState > RE::ATTACK_STATE_ENUM::kNone && victimAttackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) {
+					if (Utils::isPowerAttacking(victim)) {
+						if (Utils::isPowerAttacking(aggressor)) {//only interrupt power attacking enemies with power attack
+							reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kSmall);
+						}
+					}
+					else {
 						reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kSmall);
 					}
 				}
-				else {
-					reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kSmall);
-				}
 			}
+			
 		}
 		mtx_balanceBrokenActors.unlock();
 	}
@@ -138,6 +141,6 @@ void balanceHandler::calculateBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWE
 		baseDamage *= 5;
 	}
 	mtx_balanceBrokenActors.unlock();
-	damageBalance(aggressor, victim, baseDamage);
+	damageBalance(dmgSource, aggressor, victim, baseDamage);
 
 }

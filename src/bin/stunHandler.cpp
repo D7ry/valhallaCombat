@@ -201,6 +201,15 @@ void stunHandler::isActorStunned(RE::Actor* a_actor, bool& isStunned) {
 	mtx_StunnedActors.unlock();
 }
 
+bool stunHandler::isActorStunned(RE::Actor* a_actor) {
+	bool isActorStunned;
+	mtx_StunnedActors.lock();
+	isActorStunned = stunnedActors.contains(a_actor);
+	mtx_StunnedActors.unlock();
+	return isActorStunned;
+}
+
+
 void stunHandler::calculateStunDamage(
 	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
 	//DEBUG("Calculating stun damage");

@@ -193,4 +193,11 @@ public:
 		messageBox->QueueMessage();
 	}
 #pragma endregion
+	/*Clamp the raw damage to be no more than the aggressor's max raw melee damage output.*/
+	static void clampDmg(float& dmg, RE::Actor* aggressor) {
+		auto a_weapon = aggressor->getWieldingWeapon();
+		if (a_weapon) {
+			dmg = min(dmg, a_weapon->GetAttackDamage());
+		}
+	}
 };

@@ -45,7 +45,7 @@ private:
 	@param aggressor: actor that deals balance damage.
 	@param victim: actor that receives balance damage.
 	@param damage: balance damage.*/
-	void damageBalance(RE::Actor* aggressor, RE::Actor* victim, float damage);
+	void damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE::Actor* victim, float damage);
 
 	/*Calculate this actor's max balance.
 	@param a_actor: actor whose max possible balance will be returned.

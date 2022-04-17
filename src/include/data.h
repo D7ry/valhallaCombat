@@ -120,6 +120,10 @@ public:
 	/*Mapping of all loaded races -> catagory of those races.*/
 	//Note: catagorization of execution races has to be done manually.
 	robin_hood::unordered_map<RE::TESRace*, raceCatagory> raceMapping;
+	/*Look up the actor from race mapping, and return whether the actor belongs to a race catagory.
+	@param a_actor: actor whose race will be verified.
+	@param a_catagory: race catagory to match.*/
+	bool isRaceType(RE::Actor* a_actor, raceCatagory a_catagory);
 #pragma endregion
 #pragma region sounds
 	RE::BGSSoundDescriptorForm* soundParryShieldD;

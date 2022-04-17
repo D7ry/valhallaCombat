@@ -96,6 +96,7 @@ public:
 
 	/*Return if the actor is completely stunned and ready for execution.*/
 	void isActorStunned(RE::Actor* actor, bool& isStunned);
+	bool isActorStunned(RE::Actor* actor);
 	/*Clears all records from StunMap.*/
 	void refreshStun();
 

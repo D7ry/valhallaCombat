@@ -74,14 +74,16 @@ void reactionHandler::triggerStagger(RE::Actor* causer, RE::Actor* reactor, reac
 	}
 	if (settings::bStunToggle) {
 		if (data::GetSingleton()->raceMapping[reactor->GetRace()] == data::raceCatagory::Humanoid) {
-			bool isActorStunned;
-			stunHandler::GetSingleton()->isActorStunned(reactor, isActorStunned);
-			if (isActorStunned) {
+			if (stunHandler::GetSingleton()->isActorStunned(reactor)) {
 				return;//do not stagger stunned actors.
 			}
 		}
 	}
-	if (!settings::bPoiseCompatibility) {
+	if (settings::bPoiseCompatibility
+		&& data::GetSingleton()->isRaceType(reactor, data::raceCatagory::Humanoid)) {
+		triggerPoiseReaction(causer, reactor, reactionType);
+	}
+	else {
 		switch (reactionType) {
 		case kSmall: triggerStagger(causer, reactor, 0); break;
 		case kMedium: triggerStagger(causer, reactor, 0.3); break;
@@ -89,9 +91,6 @@ void reactionHandler::triggerStagger(RE::Actor* causer, RE::Actor* reactor, reac
 		case kLargest: triggerStagger(causer, reactor, 10); break;
 		case kKnockBack: triggerKnockBack(causer, reactor); break;
 		}
-	}
-	else {
-		triggerPoiseReaction(causer, reactor, reactionType);
 	}
 
 }

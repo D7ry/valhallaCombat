@@ -271,3 +271,13 @@ void data::loadDifficultySettings() {
 	fDiffMultHPToPCL = gameSettings->GetSetting("fDiffMultHPToPCL")->GetFloat();
 	INFO("Game difficulty multipliers loaded.");
 }
+
+bool data::isRaceType(RE::Actor* a_actor, raceCatagory a_catagory) {
+	auto it = raceMapping.find(a_actor->GetRace());
+	if (it != raceMapping.end()) {
+		return it->second == a_catagory;
+	}
+	else {
+		return false;
+	}
+}
