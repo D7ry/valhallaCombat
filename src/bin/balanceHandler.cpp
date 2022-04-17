@@ -64,6 +64,26 @@ void balanceHandler::untrackBalance(RE::Actor* a_actor) {
 	mtx_actorBalanceMap.unlock();
 }
 
+void balanceHandler::cleanUpBalanceMap() {
+	INFO("Cleaning up balance map...");
+	mtx_actorBalanceMap.lock();
+	int ct = 0;
+	auto it_balanceMap = actorBalanceMap.begin();
+	while (it_balanceMap != actorBalanceMap.end()) {
+		if (!it_balanceMap->first || !it_balanceMap->first->currentProcess || it_balanceMap->first->IsDead()) {
+			mtx_balanceBrokenActors.lock();
+			balanceBrokenActors.erase(it_balanceMap->first);
+			mtx_balanceBrokenActors.unlock();
+			it_balanceMap = actorBalanceMap.erase(it_balanceMap);
+			ct++;
+			continue;
+		}
+		it_balanceMap++;
+	}
+	mtx_actorBalanceMap.unlock();
+	INFO("...done; cleaned up {} inactive actors.", ct);
+}
+
 bool balanceHandler::isBalanceBroken(RE::Actor* a_actor) {
 	bool isBalanceBroken;
 	mtx_balanceBrokenActors.lock();
@@ -133,14 +153,19 @@ void balanceHandler::calculateBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWE
 	if (!settings::bBalanceToggle) {
 		return;
 	}
+	bool b_ActorBalanceBroke;
 	mtx_balanceBrokenActors.lock();
-	if (balanceBrokenActors.contains(victim)) {
-		//if balance broken, no damage mult.
-	}
-	else {
-		baseDamage *= 5;
-	}
+	b_ActorBalanceBroke = balanceBrokenActors.contains(victim);
 	mtx_balanceBrokenActors.unlock();
+	bool b_ActorInDebuff = debuffHandler::GetSingleton()->isInDebuff(victim);
+
+	if (!b_ActorBalanceBroke) {
+		baseDamage *= 3;
+	}
+	if (b_ActorInDebuff) {
+		baseDamage *= 2;
+	}
 	damageBalance(dmgSource, aggressor, victim, baseDamage);
 
 }
+

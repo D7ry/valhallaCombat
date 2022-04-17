@@ -70,6 +70,23 @@ public:
 	}
 	}
 
+	static void async_cleanUpTask() {
+		while (true) {
+			std::this_thread::sleep_for(std::chrono::minutes(10));
+			if (settings::bStunToggle) {
+				stunHandler::GetSingleton()->cleanUpStunMap();
+			}
+			if (settings::bBalanceToggle) {
+				balanceHandler::GetSingleton()->cleanUpBalanceMap();
+			}
+		}
+	}
+
+	void launchCleanUpThread() {
+		std::jthread cleanUpThread(async_cleanUpTask);
+		cleanUpThread.detach();
+	}
+
 	/*Request special bar control from truehud API. 
 	If successful, set the truehud specialmeter global value to true.*/
 	void requestTrueHudSpecialBarControl() {

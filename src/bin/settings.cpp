@@ -169,7 +169,7 @@ void settings::readSettings() {
 	multStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
 	
 	/*Release truehud meter if set so.*/
-	if (bStunMeterToggle) {
+	if (bStunMeterToggle && bStunToggle){
 		ValhallaCombat::GetSingleton()->requestTrueHudSpecialBarControl();
 	}
 	else {

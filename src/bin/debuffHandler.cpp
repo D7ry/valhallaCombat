@@ -108,8 +108,10 @@ bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
 		mtx_actorInDebuff.unlock();
 		return true;
 	}
-	mtx_actorInDebuff.unlock();
-	return false;
+	else {
+		mtx_actorInDebuff.unlock();
+		return false;
+	}
 } 
 
 #pragma region staminaBarTweak

@@ -37,6 +37,9 @@ public:
 
 	/*Return if this actor has their balance broken.*/
 	bool isBalanceBroken(RE::Actor* actor);
+
+	/*Clean up the balance up; get rid of actors no longer loaded to free up memory.*/
+	void cleanUpBalanceMap();
 private:
 	/*Damage an actor's balance; actor's balance cannot go below 0.
 	Break the actor's balance if the actor's balance hits 0 and the actor's balance is not currently broken.

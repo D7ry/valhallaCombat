@@ -34,7 +34,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		animEventHandler::hookAllActors();
 		inputEventHandler::Register();
 		data::loadData();
-		stunHandler::launchStunMapCleaner();
+		ValhallaCombat::GetSingleton()->launchCleanUpThread();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
 		INFO("Post load");

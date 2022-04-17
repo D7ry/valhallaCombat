@@ -209,7 +209,7 @@ bool stunHandler::isActorStunned(RE::Actor* a_actor) {
 	return isActorStunned;
 }
 
-
+//parry damage needs to be offset here, since it's not calculated.
 void stunHandler::calculateStunDamage(
 	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
 	//DEBUG("Calculating stun damage");
@@ -313,6 +313,7 @@ void stunHandler::refreshStun() {
 }
 void stunHandler::cleanUpStunMap() {
 	INFO("Cleaning up stun map...");
+	int ct = 0;
 	mtx_ActorStunMap.lock();
 	auto it = actorStunMap.begin();
 	while (it != actorStunMap.end()) {
@@ -321,17 +322,18 @@ void stunHandler::cleanUpStunMap() {
 			safeErase_StunnedActors(actor);
 			safeErase_StunRegenQueue(actor);
 			it = actorStunMap.erase(it);
+			ct++;
 			continue;
 		}
 		it++;
 	}
 	mtx_ActorStunMap.unlock();
-	INFO("...done");
+	INFO("...done; cleaned up {} inactive actors.", ct);
 }
 
 void stunHandler::stunMapCleanUpTask() {
 	while (true) {
-		std::this_thread::sleep_for(std::chrono::minutes(3));
+		std::this_thread::sleep_for(std::chrono::minutes(10));
 		stunHandler::GetSingleton()->cleanUpStunMap();
 	}
 }
