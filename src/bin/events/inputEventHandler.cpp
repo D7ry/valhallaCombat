@@ -41,8 +41,8 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 					executionHandler::GetSingleton()->getExecutableTarget();
 					/*
 					executionHandler::GetSingleton()->executionKeyDown = true;
-					if (RE::CrosshairPickData::GetSingleton()->targetActor) {
-						auto actor = RE::CrosshairPickData::GetSingleton()->targetActor.get()->As<RE::Actor>();
+					if (RE::CrosshairPickdata::targetActor) {
+						auto actor = RE::CrosshairPickdata::targetActor.get()->As<RE::Actor>();
 						if (actor && !actor->IsDead()) {
 							if (stunHandler::GetSingleton()->isActorStunned(actor)) {
 								DEBUG("attempt execution");

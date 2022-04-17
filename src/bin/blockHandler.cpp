@@ -239,20 +239,20 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* attacker, 
 void blockHandler::playPerfectBlockSFX(RE::Actor* blocker, int iHitflag, bool blockBrokeGuard) {
 	if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
 		if (blockBrokeGuard) {
-			ValhallaUtils::playSound(blocker, data::GetSingleton()->soundParryWeapon_gbD->GetFormID());
+			ValhallaUtils::playSound(blocker, data::soundParryWeapon_gbD->GetFormID());
 		}
 		else {
-			ValhallaUtils::playSound(blocker, data::GetSingleton()->soundParryWeaponD->GetFormID());
+			ValhallaUtils::playSound(blocker, data::soundParryWeaponD->GetFormID());
 			//RE::BSAudioManager::GetSingleton()->Play(data::soundParryWeaponD);
 		}
 	}
 	else {
 		if (blockBrokeGuard) {
-			ValhallaUtils::playSound(blocker, data::GetSingleton()->soundParryShield_gbD->GetFormID());
+			ValhallaUtils::playSound(blocker, data::soundParryShield_gbD->GetFormID());
 			//RE::BSAudioManager::GetSingleton()->Play(data::soundParryShield_gbD);
 		}
 		else {
-			ValhallaUtils::playSound(blocker, data::GetSingleton()->soundParryShieldD->GetFormID());
+			ValhallaUtils::playSound(blocker, data::soundParryShieldD->GetFormID());
 			//RE::BSAudioManager::GetSingleton()->Play(data::soundParryWeaponD);
 		}
 	}

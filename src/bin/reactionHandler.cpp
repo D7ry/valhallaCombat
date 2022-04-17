@@ -73,14 +73,14 @@ void reactionHandler::triggerStagger(RE::Actor* causer, RE::Actor* reactor, reac
 		return;
 	}
 	if (settings::bStunToggle) {
-		if (data::GetSingleton()->raceMapping[reactor->GetRace()] == data::raceCatagory::Humanoid) {
+		if (data::raceMapping[reactor->GetRace()] == data::raceCatagory::Humanoid) {
 			if (stunHandler::GetSingleton()->isActorStunned(reactor)) {
 				return;//do not stagger stunned actors.
 			}
 		}
 	}
 	if (settings::bPoiseCompatibility
-		&& data::GetSingleton()->isRaceType(reactor, data::raceCatagory::Humanoid)) {
+		&& data::isRaceType(reactor, data::raceCatagory::Humanoid)) {
 		triggerPoiseReaction(causer, reactor, reactionType);
 	}
 	else {
@@ -96,7 +96,7 @@ void reactionHandler::triggerStagger(RE::Actor* causer, RE::Actor* reactor, reac
 }
 
 void reactionHandler::triggerDownedState(RE::Actor* a_actor) {
-	auto raceMapping = data::GetSingleton()->raceMapping;
+	auto raceMapping = data::raceMapping;
 	auto it = raceMapping.find(a_actor->GetRace());
 	if (it != raceMapping.end()) {
 		switch (it->second) {
@@ -112,7 +112,7 @@ void reactionHandler::triggerDownedState(RE::Actor* a_actor) {
 }
 
 void reactionHandler::recoverDownedState(RE::Actor* a_actor) {
-	auto raceMapping = data::GetSingleton()->raceMapping;
+	auto raceMapping = data::raceMapping;
 	auto it = raceMapping.find(a_actor->GetRace());
 	if (it != raceMapping.end()) {
 		switch (it->second) {

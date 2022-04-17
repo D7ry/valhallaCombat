@@ -33,7 +33,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		settings::readSettings();
 		animEventHandler::hookAllActors();
 		inputEventHandler::Register();
-		data::GetSingleton()->loadData();
+		data::loadData();
 		stunHandler::launchStunMapCleaner();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:

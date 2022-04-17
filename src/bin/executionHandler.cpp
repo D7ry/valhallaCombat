@@ -57,9 +57,8 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		return;
 	}
 
-	auto data = data::GetSingleton();
-	auto it1 = data->raceMapping.find(executorRace);
-	if (it1 == data->raceMapping.end()) {
+	auto it1 = data::raceMapping.find(executorRace);
+	if (it1 == data::raceMapping.end()) {
 		//INFO("race not found, terminating execution");
 		return;
 	}
@@ -68,8 +67,8 @@ void executionHandler::attemptExecute(RE::Actor* executor, RE::Actor* victim) {
 		return;
 	}
 	
-	auto it2 = data->raceMapping.find(victimRace);
-	if (it2 == data->raceMapping.end()) {
+	auto it2 = data::raceMapping.find(victimRace);
+	if (it2 == data::raceMapping.end()) {
 		return;
 	}
 	auto victimRaceType = it2->second;
@@ -163,181 +162,179 @@ void executionHandler::executeHumanoid(RE::Actor* executor, RE::Actor* victim, R
 	//INFO("executing humanoid!");
 	if (executor->isDualWielding()) {
 		//INFO("dual wielding!");
-		playExecutionIdle(executor, victim, DATA->KM_Humanoid_DW);
+		playExecutionIdle(executor, victim, data::KM_Humanoid_DW);
 	}
 	else if (isBackFacing(victim, executor)) {
 		//INFO("backstab!");
 		switch (weaponType) {
-		case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Humanoid_2hw_Back); break;
-		case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Humanoid_2hm_Back); break;
-		case RE::WEAPON_TYPE::kHandToHandMelee: playExecutionIdle(executor, victim, DATA->KM_Humanoid_H2H_Back); break;
-		default: playExecutionIdle(executor, victim, DATA->KM_Humanoid_1hm_Back); break;
+		case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Humanoid_2hw_Back); break;
+		case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Humanoid_2hm_Back); break;
+		case RE::WEAPON_TYPE::kHandToHandMelee: playExecutionIdle(executor, victim, data::KM_Humanoid_H2H_Back); break;
+		default: playExecutionIdle(executor, victim, data::KM_Humanoid_1hm_Back); break;
 		}
 	}
 	else {
 		switch (weaponType) {
-		case RE::WEAPON_TYPE::kOneHandSword: playExecutionIdle(executor, victim, DATA->KM_Humanoid_Sword); break;
-		case RE::WEAPON_TYPE::kOneHandDagger: playExecutionIdle(executor, victim, DATA->KM_Humanoid_Dagger); break;
-		case RE::WEAPON_TYPE::kOneHandAxe:  playExecutionIdle(executor, victim, DATA->KM_Humanoid_Axe); break;
-		case RE::WEAPON_TYPE::kOneHandMace:  playExecutionIdle(executor, victim, DATA->KM_Humanoid_Mace); break;
-		case RE::WEAPON_TYPE::kTwoHandAxe:  playExecutionIdle(executor, victim, DATA->KM_Humanoid_2hw); break;
-		case RE::WEAPON_TYPE::kTwoHandSword:  playExecutionIdle(executor, victim, DATA->KM_Humanoid_GreatSword); break;
-		case RE::WEAPON_TYPE::kHandToHandMelee:  playExecutionIdle(executor, victim, DATA->KM_Humanoid_H2H); break;
+		case RE::WEAPON_TYPE::kOneHandSword: playExecutionIdle(executor, victim, data::KM_Humanoid_Sword); break;
+		case RE::WEAPON_TYPE::kOneHandDagger: playExecutionIdle(executor, victim, data::KM_Humanoid_Dagger); break;
+		case RE::WEAPON_TYPE::kOneHandAxe:  playExecutionIdle(executor, victim, data::KM_Humanoid_Axe); break;
+		case RE::WEAPON_TYPE::kOneHandMace:  playExecutionIdle(executor, victim, data::KM_Humanoid_Mace); break;
+		case RE::WEAPON_TYPE::kTwoHandAxe:  playExecutionIdle(executor, victim, data::KM_Humanoid_2hw); break;
+		case RE::WEAPON_TYPE::kTwoHandSword:  playExecutionIdle(executor, victim, data::KM_Humanoid_GreatSword); break;
+		case RE::WEAPON_TYPE::kHandToHandMelee:  playExecutionIdle(executor, victim, data::KM_Humanoid_H2H); break;
 		}
 	}
 };
 void executionHandler::executeDraugr(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
-	auto gameData = data::GetSingleton();
 	switch (weaponType) {
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Undead_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Undead_2hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Undead_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Undead_2hm); break;
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Undead_1hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Undead_1hm); break;
 	}
 };
 void executionHandler::executeFalmer(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
-	auto gameData = data::GetSingleton();
 	switch (weaponType) {
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Falmer_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Falmer_2hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Falmer_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Falmer_2hm); break;
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Falmer_1hm);
+	default: playExecutionIdle(executor, victim, data::KM_Falmer_1hm);
 	}
 };
 void executionHandler::executeSpider(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Spider_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Spider_2hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Spider_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Spider_2hm); break;
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Spider_1hm);
+	default: playExecutionIdle(executor, victim, data::KM_Spider_1hm);
 	}
 }
 void executionHandler::executeGargoyle(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Gargoyle_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Gargoyle_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Gargoyle_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Gargoyle_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Gargoyle_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Gargoyle_1hm); break;
 	}
 }
 void executionHandler::executeGiant(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Giant_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Giant_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Giant_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Giant_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Giant_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Giant_1hm); break;
 	}
 }
 void executionHandler::executeBear(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Bear_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Bear_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Bear_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Bear_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Bear_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Bear_1hm); break;
 	}
 }
 void executionHandler::executeSabreCat(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_SabreCat_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_SabreCat_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_SabreCat_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_SabreCat_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_SabreCat_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_SabreCat_1hm); break;
 	}
 }
 void executionHandler::executeWolf(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Wolf_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Wolf_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Wolf_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Wolf_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Wolf_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Wolf_1hm); break;
 	}
 }
 void executionHandler::executeTroll(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Troll_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Troll_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Troll_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Troll_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Troll_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Troll_1hm); break;
 	}
 }
 void executionHandler::executeHagraven(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Hagraven_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Hagraven_2hm);  break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Hagraven_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Hagraven_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Hagraven_2hm);  break;
+	default: playExecutionIdle(executor, victim, data::KM_Hagraven_1hm); break;
 	}
 }
 void executionHandler::executeSpriggan(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Spriggan_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Spriggan_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Spriggan_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Spriggan_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Spriggan_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Spriggan_1hm); break;
 	}
 }
 void executionHandler::executeBoar(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Boar_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Boar_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Boar_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Boar_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Boar_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Boar_1hm); break;
 	}
 }
 void executionHandler::executeRiekling(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Riekling_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Riekling_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Riekling_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Riekling_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Riekling_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Riekling_1hm); break;
 	}
 }
 void executionHandler::executeAshHopper(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_AshHopper_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_AshHopper_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_AshHopper_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_AshHopper_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_AshHopper_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_AshHopper_1hm); break;
 	}
 }
 void executionHandler::executeSteamCenturion(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Centurion_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Centurion_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Centurion_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Centurion_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Centurion_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Centurion_1hm); break;
 	}
 }
 void executionHandler::executeDwarvenBallista(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Ballista_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Ballista_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Ballista_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Ballista_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Ballista_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Ballista_1hm); break;
 	}
 }
 void executionHandler::executeChaurusFlyer(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_ChaurusFlyer_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_ChaurusFlyer_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_ChaurusFlyer_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_ChaurusFlyer_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_ChaurusFlyer_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_ChaurusFlyer_1hm); break;
 	}
 }
 void executionHandler::executeLurker(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Lurker_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Lurker_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Lurker_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Lurker_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Lurker_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Lurker_1hm); break;
 	}
 }
 void executionHandler::executeDragon(RE::Actor* executor, RE::Actor* victim, RE::WEAPON_TYPE weaponType) {
 	switch (weaponType) {
 	case RE::WEAPON_TYPE::kHandToHandMelee: break;
-	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, DATA->KM_Dragon_2hw); break;
-	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, DATA->KM_Dragon_2hm); break;
-	default: playExecutionIdle(executor, victim, DATA->KM_Dragon_1hm); break;
+	case RE::WEAPON_TYPE::kTwoHandAxe: playExecutionIdle(executor, victim, data::KM_Dragon_2hw); break;
+	case RE::WEAPON_TYPE::kTwoHandSword: playExecutionIdle(executor, victim, data::KM_Dragon_2hm); break;
+	default: playExecutionIdle(executor, victim, data::KM_Dragon_1hm); break;
 	}
 }
 

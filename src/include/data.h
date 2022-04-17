@@ -13,84 +13,84 @@ public:
 		return  std::addressof(singleton);
 	}
 	/*Load all game data and store their pointers for later use.*/
-	void loadData();
+	static void loadData();
 
 	const static inline std::string AnimEvent_GuardCounter = "Val_GuardCounter_Trigger";
 	const static inline std::string GraphBool_IsGuardCountering = "is_Guard_Countering";
 #pragma region Perk
-	RE::BGSPerk* debuffPerk;
+	static inline RE::BGSPerk* debuffPerk;
 #pragma endregion
 #pragma region ExecutionIdles
 	using KM = std::vector<RE::TESIdleForm*>;
-	KM KM_Humanoid_H2H = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_Dagger = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_Sword = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_Axe = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_Mace = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_GreatSword = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_2hw = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_DW = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_1hm_Back = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_2hm_Back = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_H2H_Back = std::vector<RE::TESIdleForm*>();
-	KM KM_Humanoid_2hw_Back = std::vector<RE::TESIdleForm*>();
-	KM KM_Falmer_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Falmer_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Falmer_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Undead_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Undead_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Undead_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Spider_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Spider_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Spider_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Gargoyle_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Gargoyle_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Gargoyle_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Giant_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Giant_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Giant_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Bear_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Bear_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Bear_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_SabreCat_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_SabreCat_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_SabreCat_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Wolf_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Wolf_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Wolf_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Troll_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Troll_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Troll_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Hagraven_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Hagraven_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Hagraven_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Spriggan_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Spriggan_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Spriggan_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Boar_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Boar_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Boar_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Riekling_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Riekling_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Riekling_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_AshHopper_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_AshHopper_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_AshHopper_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Centurion_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Centurion_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Centurion_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Ballista_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Ballista_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Ballista_2hw= std::vector<RE::TESIdleForm*>(); 
-	KM KM_ChaurusFlyer_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_ChaurusFlyer_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_ChaurusFlyer_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Lurker_1hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Lurker_2hm= std::vector<RE::TESIdleForm*>();
-	KM KM_Lurker_2hw= std::vector<RE::TESIdleForm*>();
-	KM KM_Dragon_1hm = std::vector<RE::TESIdleForm*>();
-	KM KM_Dragon_2hm = std::vector<RE::TESIdleForm*>();
-	KM KM_Dragon_2hw = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_H2H = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_Dagger = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_Sword = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_Axe = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_Mace = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_GreatSword = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_2hw = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_DW = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_1hm_Back = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_2hm_Back = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_H2H_Back = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Humanoid_2hw_Back = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Falmer_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Falmer_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Falmer_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Undead_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Undead_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Undead_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Spider_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Spider_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Spider_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Gargoyle_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Gargoyle_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Gargoyle_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Giant_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Giant_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Giant_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Bear_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Bear_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Bear_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_SabreCat_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_SabreCat_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_SabreCat_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Wolf_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Wolf_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Wolf_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Troll_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Troll_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Troll_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Hagraven_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Hagraven_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Hagraven_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Spriggan_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Spriggan_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Spriggan_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Boar_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Boar_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Boar_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Riekling_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Riekling_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Riekling_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_AshHopper_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_AshHopper_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_AshHopper_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Centurion_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Centurion_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Centurion_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Ballista_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Ballista_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Ballista_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_ChaurusFlyer_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_ChaurusFlyer_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_ChaurusFlyer_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Lurker_1hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Lurker_2hm= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Lurker_2hw= std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Dragon_1hm = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Dragon_2hm = std::vector<RE::TESIdleForm*>();
+	static inline KM KM_Dragon_2hw = std::vector<RE::TESIdleForm*>();
 
 #pragma endregion
 #pragma region ExecutionRaces
@@ -119,32 +119,32 @@ public:
 	};
 	/*Mapping of all loaded races -> catagory of those races.*/
 	//Note: catagorization of execution races has to be done manually.
-	robin_hood::unordered_map<RE::TESRace*, raceCatagory> raceMapping;
+	static inline robin_hood::unordered_map<RE::TESRace*, raceCatagory> raceMapping;
 	/*Look up the actor from race mapping, and return whether the actor belongs to a race catagory.
 	@param a_actor: actor whose race will be verified.
 	@param a_catagory: race catagory to match.*/
-	bool isRaceType(RE::Actor* a_actor, raceCatagory a_catagory);
+	static bool isRaceType(RE::Actor* a_actor, raceCatagory a_catagory);
 #pragma endregion
 #pragma region sounds
-	RE::BGSSoundDescriptorForm* soundParryShieldD;
-	RE::BGSSoundDescriptorForm* soundParryWeaponD;
-	RE::BGSSoundDescriptorForm* soundParryShield_gbD;
-	RE::BGSSoundDescriptorForm* soundParryWeapon_gbD;
-	RE::BGSSoundDescriptorForm* soundStunBreakD;
+	static inline RE::BGSSoundDescriptorForm* soundParryShieldD;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeaponD;
+	static inline RE::BGSSoundDescriptorForm* soundParryShield_gbD;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeapon_gbD;
+	static inline RE::BGSSoundDescriptorForm* soundStunBreakD;
 #pragma endregion
 #pragma region gameDifficultySettings
-	float fDiffMultHPByPCVE;
-	float fDiffMultHPByPCE;
-	float fDiffMultHPByPCN;
-	float fDiffMultHPByPCH;
-	float fDiffMultHPByPCVH;
-	float fDiffMultHPByPCL;
-	float fDiffMultHPToPCVE;
-	float fDiffMultHPToPCE;
-	float fDiffMultHPToPCN;
-	float fDiffMultHPToPCH;
-	float fDiffMultHPToPCVH;
-	float fDiffMultHPToPCL;
+	static inline float fDiffMultHPByPCVE;
+	static inline float fDiffMultHPByPCE;
+	static inline float fDiffMultHPByPCN;
+	static inline float fDiffMultHPByPCH;
+	static inline float fDiffMultHPByPCVH;
+	static inline float fDiffMultHPByPCL;
+	static inline float fDiffMultHPToPCVE;
+	static inline float fDiffMultHPToPCE;
+	static inline float fDiffMultHPToPCN;
+	static inline float fDiffMultHPToPCH;
+	static inline float fDiffMultHPToPCVH;
+	static inline float fDiffMultHPToPCL;
 
 #pragma endregion
 private:
@@ -159,18 +159,18 @@ private:
 	@param pluginName: name of the plugin storing idle.
 	@param idleContainer: Vector to store loaded idle.
 	@return Whether the idle exists and therefore can be loaded or not.*/
-	bool lookupIdle(RE::TESDataHandler* DATA, RE::FormID form, std::string pluginName, std::vector<RE::TESIdleForm*>* idleContainer);
+	static bool lookupIdle(RE::TESDataHandler* DATA, RE::FormID form, std::string pluginName, std::vector<RE::TESIdleForm*>* idleContainer);
 
 	/*Load a simpleIni section storing a set of idles belonging to that section.
 	@param DATA: pointer to TESDataHandler's singleton.
 	@param idleContainer: Vector to store loaded idles.
 	@param ini: ini storing idle sections.
 	@param section: a simpleIni's section, in string, to be loaded.*/
-	void loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm*>* idleContainer, 
+	static void loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm*>* idleContainer,
 		CSimpleIniA& ini, const char* section);
 
 	/*Load all execution animations.*/
-	void loadIdle();
+	static void loadIdle();
 
 	/*Read race from the plugin, and map it to an execution type through ExecutionRaceMap.
 	@param DATA: pointer to TESDataHandler's singleton.
@@ -178,29 +178,29 @@ private:
 	@param pluginName: name of the plugin storing the race.
 	@param raceCatagory: type of the execution race to be mapped to.
 	@return If the race form exists or not.*/
-	bool pairUpRace(RE::TESDataHandler* DATA, RE::FormID form, std::string pluginName, raceCatagory raceType);
+	static bool pairUpRace(RE::TESDataHandler* DATA, RE::FormID form, std::string pluginName, raceCatagory raceType);
 
 	/*Load a simpleIni section storing a set of races belonging to that section's corresponding killmove.
 	@param DATA: pointer to TESDataHandler's singleton.
 	@param raceType: type of the execution race to be mapped to.
 	@param ini: ini whose section to load.
 	@param section: a simpleIni's section, in string, to be loaded.*/
-	void loadRaceSection(RE::TESDataHandler* DATA, raceCatagory raceType, CSimpleIniA& ini, const char* section);
+	static void loadRaceSection(RE::TESDataHandler* DATA, raceCatagory raceType, CSimpleIniA& ini, const char* section);
 
 	/*Load a simpleIni file storing mapping of executable races.*/
-	void loadExecutableRaceIni(RE::TESDataHandler* DATA, const char* ini_path);
+	static void loadExecutableRaceIni(RE::TESDataHandler* DATA, const char* ini_path);
 
 	/*Load all executable races from all ini files by iterating over them.*/
-	void loadExecutableRace();
+	static void loadExecutableRace();
 
 	/*Load all sounds from game.*/
-	void loadSound();
+	static void loadSound();
 
 	/*Load all perks from game.*/
-	void loadPerk();
+	static void loadPerk();
 
 	/*Load all difficulty multiplier from game.*/
-	void loadDifficultySettings();
+	static void loadDifficultySettings();
 
 
 
