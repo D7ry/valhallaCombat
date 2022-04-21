@@ -2,6 +2,7 @@
 #include "include/reactionHandler.h"
 #include "include/offsets.h"
 #include "include/Utils.h"
+inline const float balanceRegenTime = 5;//time it takes for balance to regen, in seconds.
 void balanceHandler::update() {
 	//DEBUG("update");
 	mtx_balanceBrokenActors.lock();
@@ -25,7 +26,7 @@ void balanceHandler::update() {
 		}
 		//regen a single actor's balance.
 #define a_balanceData actorBalanceMap.find(*it)->second
-		float regenVal = a_balanceData.first * *RE::Offset::g_deltaTime * 1 / 3.5;//33% of all balance regened per sec.
+		float regenVal = a_balanceData.first * *RE::Offset::g_deltaTime * 1 / balanceRegenTime;
 		//DEBUG(regenVal);
 		//DEBUG(a_balanceData.second);
 		//DEBUG(a_balanceData.first);
@@ -66,13 +67,15 @@ void balanceHandler::untrackBalance(RE::Actor* a_actor) {
 
 void balanceHandler::cleanUpBalanceMap() {
 	INFO("Cleaning up balance map...");
-	mtx_actorBalanceMap.lock();
 	int ct = 0;
+	mtx_actorBalanceMap.lock();
 	auto it_balanceMap = actorBalanceMap.begin();
 	while (it_balanceMap != actorBalanceMap.end()) {
-		if (!it_balanceMap->first || !it_balanceMap->first->currentProcess || it_balanceMap->first->IsDead()) {
+		auto a_actor = it_balanceMap->first;
+		if (!a_actor || !a_actor->currentProcess || !a_actor->currentProcess->InHighProcess()
+			|| a_actor->IsDead()) {
 			mtx_balanceBrokenActors.lock();
-			balanceBrokenActors.erase(it_balanceMap->first);
+			balanceBrokenActors.erase(a_actor);
 			mtx_balanceBrokenActors.unlock();
 			it_balanceMap = actorBalanceMap.erase(it_balanceMap);
 			ct++;
@@ -85,11 +88,15 @@ void balanceHandler::cleanUpBalanceMap() {
 }
 
 bool balanceHandler::isBalanceBroken(RE::Actor* a_actor) {
-	bool isBalanceBroken;
 	mtx_balanceBrokenActors.lock();
-	isBalanceBroken = balanceBrokenActors.contains(a_actor);
-	mtx_balanceBrokenActors.unlock();
-	return isBalanceBroken;
+	if (balanceBrokenActors.contains(a_actor)) {
+		mtx_balanceBrokenActors.unlock();
+		return true;
+	}
+	else {
+		mtx_balanceBrokenActors.unlock();
+		return false;
+	}
 }
 
 void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE::Actor* victim, float damage) {
@@ -131,14 +138,12 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE
 		else {
 			if (dmgSource != DMGSOURCE::parry) {
 				//attack interruption
-				auto victimAttackState = victim->GetAttackState();
-				if (victimAttackState > RE::ATTACK_STATE_ENUM::kNone && victimAttackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) {
-					if (Utils::isPowerAttacking(victim)) {
-						if (Utils::isPowerAttacking(aggressor)) {//only interrupt power attacking enemies with power attack
-							reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kSmall);
-						}
-					}
-					else {
+				if (victim->IsRangedAttacking()) {
+					//ranged interrupt.
+					reactionHandler::triggerStagger(aggressor, victim, reactionHandler::reactionType::kSmall);
+				}
+				else if (victim->IsMeleeAttacking() && !Utils::isPowerAttacking(victim)) {
+					if (Utils::isPowerAttacking(aggressor)) {//interrupt regular attacks with power attack
 						reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kSmall);
 					}
 				}
@@ -153,17 +158,14 @@ void balanceHandler::calculateBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWE
 	if (!settings::bBalanceToggle) {
 		return;
 	}
-	bool b_ActorBalanceBroke;
-	mtx_balanceBrokenActors.lock();
-	b_ActorBalanceBroke = balanceBrokenActors.contains(victim);
-	mtx_balanceBrokenActors.unlock();
-	bool b_ActorInDebuff = debuffHandler::GetSingleton()->isInDebuff(victim);
-
-	if (!b_ActorBalanceBroke) {
-		baseDamage *= 3;
+	baseDamage *= 2;
+	if (isBalanceBroken(victim) && dmgSource < DMGSOURCE::bash) {
+		baseDamage *= -3.3;
 	}
-	if (b_ActorInDebuff) {
-		baseDamage *= 2;
+	else {
+		if (debuffHandler::GetSingleton()->isInDebuff(victim)) {
+			baseDamage *= 3.3;
+		}
 	}
 	damageBalance(dmgSource, aggressor, victim, baseDamage);
 

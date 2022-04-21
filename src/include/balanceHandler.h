@@ -18,7 +18,7 @@ public:
 	}
 	enum DMGSOURCE
 	{
-		lightAttack,
+		lightAttack = 0,
 		powerAttack,
 		bash,
 		powerBash,

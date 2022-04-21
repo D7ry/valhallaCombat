@@ -197,6 +197,7 @@ public:
 	static void clampDmg(float& dmg, RE::Actor* aggressor) {
 		auto a_weapon = aggressor->getWieldingWeapon();
 		if (a_weapon) {
+			//DEBUG("weapon to clamp damage: {}", a_weapon->GetName());
 			dmg = min(dmg, a_weapon->GetAttackDamage());
 		}
 	}

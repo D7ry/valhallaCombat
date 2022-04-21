@@ -69,7 +69,7 @@ void reactionHandler::triggerPoiseReaction(RE::Actor* aggressor, RE::Actor* reac
 
 
 void reactionHandler::triggerStagger(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType) {
-	if (reactor->IsSwimming()) {
+	if (reactor->IsSwimming() || reactor->IsInKillMove()) {
 		return;
 	}
 	if (settings::bStunToggle) {

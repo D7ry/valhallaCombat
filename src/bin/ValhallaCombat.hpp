@@ -70,21 +70,32 @@ public:
 	}
 	}
 
+	static void async_cleanUpFunc() {
+		if (settings::bStunToggle) {
+			stunHandler::GetSingleton()->cleanUpStunMap();
+		}
+		if (settings::bBalanceToggle) {
+			balanceHandler::GetSingleton()->cleanUpBalanceMap();
+		}
+	}
+
 	static void async_cleanUpTask() {
 		while (true) {
-			std::this_thread::sleep_for(std::chrono::minutes(10));
-			if (settings::bStunToggle) {
-				stunHandler::GetSingleton()->cleanUpStunMap();
-			}
-			if (settings::bBalanceToggle) {
-				balanceHandler::GetSingleton()->cleanUpBalanceMap();
+			std::this_thread::sleep_for(std::chrono::minutes(20));
+			const auto task = SKSE::GetTaskInterface();
+			if (task != nullptr) {
+				task->AddTask([]() {
+					async_cleanUpFunc();
+					});
 			}
 		}
 	}
 
 	void launchCleanUpThread() {
+		INFO("Launch clean up thread...");
 		std::jthread cleanUpThread(async_cleanUpTask);
 		cleanUpThread.detach();
+		INFO("..done");
 	}
 
 	/*Request special bar control from truehud API. 

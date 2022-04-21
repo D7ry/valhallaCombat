@@ -214,9 +214,7 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData) {
 	float reflectedDamage = hitData.totalDamage;
 	//when reflecting damage, blocker is the real "attacker". So the damage is readjusted here.
-	DEBUG("clamping damage: {}", reflectedDamage);
 	ValhallaUtils::clampDmg(reflectedDamage, blocker);
-	DEBUG("damage after clamping: {}", reflectedDamage);
 	Utils::offsetRealDamage(reflectedDamage, blocker, attacker);
 	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
 	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
