@@ -13,6 +13,7 @@ namespace RE
 		typedef void(_fastcall* _shakeCamera)(float strength, RE::NiPoint3 source, float duration);
 		inline static REL::Relocation<_shakeCamera> shakeCamera{ REL::ID(32275) };
 
+
 	}
 }
 

@@ -39,7 +39,10 @@ public:
 	bool isBalanceBroken(RE::Actor* actor);
 
 	/*Clean up the balance up; get rid of actors no longer loaded to free up memory.*/
-	void cleanUpBalanceMap();
+	void collectGarbage();
+
+	/*Reset all balance values by wiping all hashmap clean.*/
+	void reset();
 private:
 	/*Damage an actor's balance; actor's balance cannot go below 0.
 	Break the actor's balance if the actor's balance hits 0 and the actor's balance is not currently broken.
@@ -49,7 +52,8 @@ private:
 	@param victim: actor that receives balance damage.
 	@param damage: balance damage.*/
 	void damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE::Actor* victim, float damage);
-
+	/*Recovery this actor's balance.*/
+	void recoverBalance(RE::Actor* a_actor, float recovery);
 	/*Calculate this actor's max balance.
 	@param a_actor: actor whose max possible balance will be returned.
 	@return max possible balace of this actor.*/
@@ -60,5 +64,9 @@ private:
 
 	/*Stop tracking an actor's balance, removing it from 1.balance map and 2.balance broken actors.*/
 	inline void untrackBalance(RE::Actor* a_actor);
+
+
+	inline void safeErase_BalanceBrokenActors(RE::Actor* a_actor);
+	inline void safeErase_ActorBalanceMap(RE::Actor* a_actor);
 
 };

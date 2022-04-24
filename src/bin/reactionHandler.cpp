@@ -18,6 +18,9 @@ static inline const RE::BSFixedString staggerStop = "staggerStop";
 static inline const RE::BSFixedString bleedOutStart = "BleedoutStart";
 static inline const RE::BSFixedString bleedOutStop = "BleedOutStop";
 static inline const RE::BSFixedString bleedOutGraphBool = "IsBleedingOut";
+
+static inline const RE::BSFixedString recoilLargeStart = "recoilLargeStart";
+
 void reactionHandler::triggerContinuousStagger(RE::Actor* aggressor, RE::Actor* reactor, reactionType reactionType) {
 	reactor->NotifyAnimationGraph(staggerStop);
 	std::jthread asynStaggerThread(async_triggerContinuousStagger, aggressor, reactor, reactionType);
@@ -39,6 +42,10 @@ void reactionHandler::triggerStagger(RE::Actor* aggressor, RE::Actor* reactor, f
 	reactor->SetGraphVariableFloat(staggerDirection, direction);
 	reactor->SetGraphVariableFloat(StaggerMagnitude, magnitude);
 	reactor->NotifyAnimationGraph(staggerStart);
+}
+
+void reactionHandler::triggerRecoil(RE::Actor* reactor, reactionType reactionType) {
+	reactor->NotifyAnimationGraph(recoilLargeStart);
 }
 
 void reactionHandler::triggerKnockBack(RE::Actor* aggressor, RE::Actor* reactor) {

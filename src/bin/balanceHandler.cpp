@@ -2,7 +2,8 @@
 #include "include/reactionHandler.h"
 #include "include/offsets.h"
 #include "include/Utils.h"
-inline const float balanceRegenTime = 5;//time it takes for balance to regen, in seconds.
+inline const float balanceRegenTime = 6;//time it takes for balance to regen, in seconds.
+
 void balanceHandler::update() {
 	//DEBUG("update");
 	mtx_balanceBrokenActors.lock();
@@ -33,6 +34,7 @@ void balanceHandler::update() {
 		if (a_balanceData.second + regenVal >= a_balanceData.first) {//this regen exceeds actor's max balance.
 			DEBUG("{}'s balance has recovered", (*it)->GetName());
 			a_balanceData.second = a_balanceData.first;//reset balance.
+			debuffHandler::GetSingleton()->quickStopStaminaDebuff(*it);
 			it = balanceBrokenActors.erase(it);
 			continue;
 		}
@@ -65,7 +67,7 @@ void balanceHandler::untrackBalance(RE::Actor* a_actor) {
 	mtx_actorBalanceMap.unlock();
 }
 
-void balanceHandler::cleanUpBalanceMap() {
+void balanceHandler::collectGarbage() {
 	INFO("Cleaning up balance map...");
 	int ct = 0;
 	mtx_actorBalanceMap.lock();
@@ -74,9 +76,7 @@ void balanceHandler::cleanUpBalanceMap() {
 		auto a_actor = it_balanceMap->first;
 		if (!a_actor || !a_actor->currentProcess || !a_actor->currentProcess->InHighProcess()
 			|| a_actor->IsDead()) {
-			mtx_balanceBrokenActors.lock();
-			balanceBrokenActors.erase(a_actor);
-			mtx_balanceBrokenActors.unlock();
+			safeErase_BalanceBrokenActors(a_actor);
 			it_balanceMap = actorBalanceMap.erase(it_balanceMap);
 			ct++;
 			continue;
@@ -85,6 +85,17 @@ void balanceHandler::cleanUpBalanceMap() {
 	}
 	mtx_actorBalanceMap.unlock();
 	INFO("...done; cleaned up {} inactive actors.", ct);
+}
+
+void balanceHandler::reset() {
+	INFO("Reset all balance...");
+	mtx_actorBalanceMap.lock();
+	actorBalanceMap.clear();
+	mtx_actorBalanceMap.unlock();
+	mtx_balanceBrokenActors.lock();
+	balanceBrokenActors.clear();
+	mtx_balanceBrokenActors.unlock();
+	INFO("..done");
 }
 
 bool balanceHandler::isBalanceBroken(RE::Actor* a_actor) {
@@ -117,12 +128,17 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE
 		if (!balanceBrokenActors.contains(victim)) {
 			//DEBUG("{}'s balance has broken", victim->GetName());
 			balanceBrokenActors.insert(victim);
-			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLarge);
+			if (dmgSource == DMGSOURCE::parry) {
+				reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kLarge);
+			}
+			else {
+				reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLarge);
+			}
 			ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::balanceHandler);
 		}
 		else {//balance already broken, yet broken again, ouch!
 			//DEBUG("{}'s balance double broken", victim->GetName());
-			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLargest);
+			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLarge);
 		}
 		mtx_balanceBrokenActors.unlock();
 		
@@ -133,7 +149,7 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE
 		mtx_actorBalanceMap.unlock();
 		mtx_balanceBrokenActors.lock();
 		if (balanceBrokenActors.contains(victim)) {//if balance broken, trigger stagger.
-			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kMedium);
+			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLargest);
 		}
 		else {
 			if (dmgSource != DMGSOURCE::parry) {
@@ -154,20 +170,57 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE
 	}
 }
 
+void balanceHandler::recoverBalance(RE::Actor* a_actor, float recovery) {
+	mtx_actorBalanceMap.lock();
+	if (!actorBalanceMap.contains(a_actor)) {
+		mtx_actorBalanceMap.unlock();
+		return;
+	}
+	float attempedRecovery = actorBalanceMap[a_actor].second + recovery;
+	if (attempedRecovery >= actorBalanceMap[a_actor].first) {//balance fully recovered.
+		actorBalanceMap[a_actor].second = actorBalanceMap[a_actor].first;
+		mtx_actorBalanceMap.unlock();
+		if (isBalanceBroken(a_actor)) {
+			safeErase_BalanceBrokenActors(a_actor);
+			debuffHandler::GetSingleton()->quickStopStaminaDebuff(a_actor);
+		}
+	}
+	else {
+		actorBalanceMap[a_actor].second = attempedRecovery;
+		mtx_actorBalanceMap.unlock();
+	}
+
+
+}
+
 void balanceHandler::calculateBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
 	if (!settings::bBalanceToggle) {
 		return;
 	}
 	baseDamage *= 2;
 	if (isBalanceBroken(victim) && dmgSource < DMGSOURCE::bash) {
-		baseDamage *= -3.3;
+		recoverBalance(victim, baseDamage * 1);
+		baseDamage = 0;
 	}
 	else {
 		if (debuffHandler::GetSingleton()->isInDebuff(victim)) {
-			baseDamage *= 3.3;
+			baseDamage *= 1.5;
+		}
+		if (dmgSource == DMGSOURCE::parry) {
+			baseDamage *= 1.5;
 		}
 	}
 	damageBalance(dmgSource, aggressor, victim, baseDamage);
-
 }
 
+void balanceHandler::safeErase_ActorBalanceMap(RE::Actor* a_actor) {
+	mtx_actorBalanceMap.lock();
+	actorBalanceMap.erase(a_actor);
+	mtx_actorBalanceMap.unlock();
+}
+
+void balanceHandler::safeErase_BalanceBrokenActors(RE::Actor* a_actor) {
+	mtx_balanceBrokenActors.lock();
+	balanceBrokenActors.erase(a_actor);
+	mtx_balanceBrokenActors.unlock();
+}

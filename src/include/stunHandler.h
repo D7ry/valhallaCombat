@@ -98,11 +98,11 @@ public:
 	void isActorStunned(RE::Actor* actor, bool& isStunned);
 	bool isActorStunned(RE::Actor* actor);
 	/*Clears all records from StunMap.*/
-	void refreshStun();
+	void reset();
 
 	/*Iterate over actor stun map and clears off all unloaded actors. To make sure stun map contains recent loaded actors.
 	*/
-	void cleanUpStunMap();
+	void collectGarbage();
 
 	/*Launch the cleaner thread that cleans up stun map every 5 minutes.*/
 	static void launchStunMapCleaner();

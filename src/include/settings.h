@@ -58,9 +58,11 @@ public:
 	static inline bool bPerfectBlockScreenShake = true;
 	static inline bool bPerfectBlockSFX = true;
 	static inline bool bPerfectBlockVFX = true;
+	static inline bool bPerfectBlockSlowTime_GuardBreakOnly = true;
+	static inline bool bPerfectBlockSlowTime = true;
 	static inline float fPerfectBlockTime = 0.33;
 	static inline float fPerfectBlockCoolDownTime = 1;
-
+	static inline float fPerfectBlockStaminaCostMult = 1;
 #pragma endregion
 #pragma region StunSettings
 

@@ -9,9 +9,6 @@ void settings::ReadIntSetting(CSimpleIniA& a_ini, const char* a_sectionName, con
 		INFO("found {} with value {}", a_settingName, bFound);
 		a_setting = static_cast<int>(a_ini.GetDoubleValue(a_sectionName, a_settingName));
 	}
-	else {
-		INFO("failed to find {}, using default value", a_settingName);
-	}
 }
 void settings::ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting)
 {
@@ -20,9 +17,6 @@ void settings::ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, c
 	if (bFound) {
 		INFO("found {} with value {}", a_settingName, bFound);
 		a_setting = static_cast<float>(a_ini.GetDoubleValue(a_sectionName, a_settingName));
-	}
-	else {
-		INFO("failed to find {}, using default value", a_settingName);
 	}
 }
 
@@ -34,9 +28,6 @@ void settings::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, co
 	{
 		INFO("found {} with value {}", a_settingName, bFound);
 		a_setting = a_ini.GetBoolValue(a_sectionName, a_settingName);
-	}
-	else {
-		INFO("failed to find {}, using default value", a_settingName);
 	}
 }
 
@@ -122,9 +113,12 @@ void settings::readSettings() {
 	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockToggle", bPerfectBlockToggle);
 	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockScreenShake", bPerfectBlockScreenShake);
 	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockSFX", bPerfectBlockSFX);
-	ReadBoolSetting(mcm, "Blocking", "bPerfectBlockVFX", bPerfectBlockVFX);
+	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockVFX", bPerfectBlockVFX);
+	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockSlowTime_GuardBreakOnly", bPerfectBlockSlowTime_GuardBreakOnly);
+	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockSlowTime", bPerfectBlockSlowTime);
 	ReadFloatSetting(mcm, "Parrying", "fPerfectBlockTime", fPerfectBlockTime);
 	ReadFloatSetting(mcm, "Parrying", "fPerfectBlockCoolDownTime", fPerfectBlockCoolDownTime);
+	ReadFloatSetting(mcm, "Parrying", "fPerfectBlockStaminaCostMult", fPerfectBlockStaminaCostMult);
 
 	/*Read stun section*/
 	ReadBoolSetting(mcm, "Stun", "bStunToggle", bStunToggle);

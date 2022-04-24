@@ -81,6 +81,10 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 
 void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
 	mtx_actorInDebuff.lock();
+	if (!actorInDebuff.contains(actor)) {
+		mtx_actorInDebuff.unlock();
+		return;
+	}
 	actorInDebuff.erase(actor);
 	if (actorInDebuff.size() == 0) {
 		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);

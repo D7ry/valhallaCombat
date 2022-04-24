@@ -300,7 +300,7 @@ void stunHandler::refillStun(RE::Actor* actor) {
 	mtx_ActorStunMap.unlock();
 }
 
-void stunHandler::refreshStun() {
+void stunHandler::reset() {
 	mtx_StunRegenQueue.lock();
 	stunRegenQueue.clear();
 	mtx_StunRegenQueue.unlock();
@@ -308,10 +308,13 @@ void stunHandler::refreshStun() {
 	actorStunMap.clear();
 	mtx_ActorStunMap.unlock();
 	mtx_StunnedActors.lock();
+	for (auto actor : stunnedActors) {
+		revertStunMeter(actor);
+	}
 	stunnedActors.clear();
 	mtx_StunnedActors.unlock();
 }
-void stunHandler::cleanUpStunMap() {
+void stunHandler::collectGarbage() {
 	INFO("Cleaning up stun map...");
 	int ct = 0;
 	mtx_ActorStunMap.lock();
@@ -334,7 +337,7 @@ void stunHandler::cleanUpStunMap() {
 void stunHandler::stunMapCleanUpTask() {
 	while (true) {
 		std::this_thread::sleep_for(std::chrono::minutes(10));
-		stunHandler::GetSingleton()->cleanUpStunMap();
+		stunHandler::GetSingleton()->collectGarbage();
 	}
 }
 void stunHandler::launchStunMapCleaner() {

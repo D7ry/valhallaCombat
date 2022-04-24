@@ -14,6 +14,9 @@ namespace Utils
 	}
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
+		if (val = 0) {
+			return;
+		}
 		if (a) {
 			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
 		}
@@ -26,7 +29,20 @@ namespace Utils
 		}
 	}
 
-
+	inline void SGTM(float a_in) {
+#if ANNIVERSARY_EDITION
+		static float* g_SGTM = (float*)REL::ID(388443).address();
+		*g_SGTM = a_in;
+		using func_t = decltype(SGTM);
+		REL::Relocation<func_t> func{ REL::ID(68246) };
+#else
+		static float* g_SGTM = (float*)REL::ID(511883).address();
+		*g_SGTM = a_in;
+		using func_t = decltype(SGTM);
+		REL::Relocation<func_t> func{ REL::ID(66989) };
+#endif
+		return;
+	}
 
 	/*Calculate the real hit damage based on game difficulty settings, and whether the player is aggressor/victim,
 	* assuming the damage is uncalculated raw damage.

@@ -121,3 +121,11 @@ void Hook_MainUpdate::Update(RE::Main* a_this, float a2) {
 	_Update(a_this, a2);
 }
 #pragma endregion
+
+std::int32_t& Hook_GetWantBlock::GetWantBlock(void* unk_ptr, const RE::BSFixedString& a_channelName, std::uint8_t unk_int, RE::Actor* a_actor, std::int32_t& a_result) {
+	if (debuffHandler::GetSingleton()->isInDebuff(a_actor)) {
+		int32_t i = 0;
+		return i;
+	}
+	return _GetWantBlock(unk_ptr, a_channelName, unk_int, a_actor, a_result);
+}

@@ -51,6 +51,26 @@ private:
 	static inline REL::Relocation<decltype(getBlockChance)> _getBlockChance;
 };
 
+class Hook_GetWantBlock
+{
+public:
+
+	static void install()
+	{
+		REL::Relocation<std::uintptr_t> GetWantBlockBase{ REL::ID(37376) };
+
+		auto& trampoline = SKSE::GetTrampoline();
+		_GetWantBlock = trampoline.write_call<5>(GetWantBlockBase.address() + 0x23, GetWantBlock);
+
+
+		INFO("GetWantBlock hook installed.");
+	}
+private:
+	static std::int32_t& GetWantBlock(void* unk_ptr, const RE::BSFixedString& a_channelName, std::uint8_t unk_int, RE::Actor* a_actor, std::int32_t& a_result);
+
+	static inline REL::Relocation<decltype(GetWantBlock)> _GetWantBlock;
+};
+
 /*Returns NPC attack chance. Return 0 to deny NPC attack.*/
 class Hook_GetAttackChance1 {
 public:
@@ -122,7 +142,7 @@ public:
 		_getStaggerMagnitude_Weapon = trampoline.write_call<5>(hook1.address() + 0x81, getStaggerMagnitude_Weapon);
 
 		REL::Relocation<uintptr_t> hook2{ REL::ID(42839) };	//Down	p	Character__sub_1407431D0+5B	call    sub_1403BE760
-		_getStaggerMagnitude_Weapon = trampoline.write_call<5>(hook2.address() + 0x5B, getStaggerMagnitude_Weapon);
+		_getStaggerManitude_Bash = trampoline.write_call<5>(hook2.address() + 0x5B, getStaggerManitude_Bash);
 
 		// 
 		//Up	p	StaggerEffect__Func20_140563460+61	call    Character__sub_1407431D0 //34188	
@@ -193,6 +213,7 @@ public:
 		//Hook_GetAttackChance1::install();
 		//Hook_GetAttackChance2::install();
 		Hook_StaminaRegen::install();
+		//Hook_GetWantBlock::install();
 		Hook_MeleeHit::install();
 		Hook_MainUpdate::install();
 		Hook_GetStaggerMagnitude::install();

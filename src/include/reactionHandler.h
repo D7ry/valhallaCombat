@@ -17,6 +17,8 @@ public:
 	@param reactionType: type of the reaction the actor receives.*/
 	static void triggerStagger(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType);
 
+	/*Trigger a recoil reaction.*/
+	static void triggerRecoil(RE::Actor* reactor, reactionType);
 	/*Initialize a downed state for an actor.
 	@param a_actor: actor to enter downed state*/
 	static void triggerDownedState(RE::Actor* a_actor);

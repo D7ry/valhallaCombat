@@ -72,10 +72,10 @@ public:
 
 	static void async_cleanUpFunc() {
 		if (settings::bStunToggle) {
-			stunHandler::GetSingleton()->cleanUpStunMap();
+			stunHandler::GetSingleton()->collectGarbage();
 		}
 		if (settings::bBalanceToggle) {
-			balanceHandler::GetSingleton()->cleanUpBalanceMap();
+			balanceHandler::GetSingleton()->collectGarbage();
 		}
 	}
 
