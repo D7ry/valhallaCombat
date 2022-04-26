@@ -22,9 +22,9 @@ void blockHandler::update() {
 			//DEBUG("{}'s perfect block has ended, starting cool down", actor->GetName());
 			it1 = actors_PerfectBlocking.erase(it1);
 			//Cool down applies if the previous block fails; if successful no cooldown.
-			mtx_actors_PrevPerfectBlockingSuccessful.lock();
-			if (!actors_PrevPerfectBlockingSuccessful.contains(actor)) {
-				mtx_actors_PrevPerfectBlockingSuccessful.unlock();
+			mtx_actors_PrevTimeBlockingSuccessful.lock();
+			if (!actors_PrevTimeBlockingSuccessful.contains(actor)) {
+				mtx_actors_PrevTimeBlockingSuccessful.unlock();
 				//start cooling down
 				mtx_actors_BlockingCoolDown.lock();
 				actors_BlockingCoolDown[actor] = settings::fPerfectBlockCoolDownTime;
@@ -32,8 +32,8 @@ void blockHandler::update() {
 				//actorsInBlockingCoolDown.emplace(actor, settings::fPerfectBlockCoolDownTime);
 			}
 			else {
-				actors_PrevPerfectBlockingSuccessful.erase(actor);
-				mtx_actors_PrevPerfectBlockingSuccessful.unlock();
+				actors_PrevTimeBlockingSuccessful.erase(actor);
+				mtx_actors_PrevTimeBlockingSuccessful.unlock();
 
 				if (actors_PerfectBlocking.empty()) {
 					mtx_actors_BlockingCoolDown.lock();
@@ -87,10 +87,10 @@ void blockHandler::update() {
 void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 	//DEBUG("Registering perfect block for {}", actor->GetName());
 	//mtx.lock();
-	mtx_actors_PrevPerfectBlockingSuccessful.lock();
-	if (actors_PrevPerfectBlockingSuccessful.contains(actor)) { //has previously done a successful perfect block
-		actors_PrevPerfectBlockingSuccessful.erase(actor); //remove from the successful map.
-		mtx_actors_PrevPerfectBlockingSuccessful.unlock();
+	mtx_actors_PrevTimeBlockingSuccessful.lock();
+	if (actors_PrevTimeBlockingSuccessful.contains(actor)) { //has previously done a successful perfect block
+		actors_PrevTimeBlockingSuccessful.erase(actor); //remove from the successful map.
+		mtx_actors_PrevTimeBlockingSuccessful.unlock();
 
 		mtx_actors_PerfectBlocking.lock();
 		actors_PerfectBlocking[actor] = settings::fPerfectBlockTime; //reset perfect blocking timer
@@ -99,7 +99,7 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 		return;//register successful, no need to run the following.
 	}
 	else {
-		mtx_actors_PrevPerfectBlockingSuccessful.unlock();
+		mtx_actors_PrevTimeBlockingSuccessful.unlock();
 	}
 	
 	mtx_actors_BlockingCoolDown.lock();
@@ -127,11 +127,12 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 #pragma region Process Block
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	//DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
+	DEBUG("processing block. Real damage: {}", realDamage);
 	if (settings::bPerfectBlockToggle) {
 		mtx_actors_PerfectBlocking.lock();
 		if (actors_PerfectBlocking.contains(blocker)) {
 			mtx_actors_PerfectBlocking.unlock();
-			processPerfectBlock(blocker, aggressor, iHitflag, hitData, realDamage);
+			processTimedBlock(blocker, aggressor, iHitflag, hitData, realDamage);
 			return true;
 		}
 		else {
@@ -177,9 +178,11 @@ static inline float calculateBlockStaminaCostMult(RE::Actor* blocker, RE::Actor*
 
 void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	using HITFLAG = RE::HitData::Flag;
-
+	DEBUG("real damage: {}", realDamage);
 	float staminaDamageMult = calculateBlockStaminaCostMult(blocker, aggressor, iHitflag);
+	DEBUG("stamina damagem mult: {}", staminaDamageMult);
 	float staminaDamage = staminaDamageMult * realDamage;
+	DEBUG("stamina damage: {}", staminaDamage);
 
 	float targetStamina = blocker->GetActorValue(RE::ActorValue::kStamina);
 
@@ -210,28 +213,25 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 }
 
 
-void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage) {
+void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage) {
 	float reflectedDamage = 0;
 	auto a_weapon = blocker->getWieldingWeapon();
 	if (a_weapon) {
 		reflectedDamage = a_weapon->GetAttackDamage();//get attack damage of blocker's weapon
 	}
-	else {
-		reflectedDamage = hitData.totalDamage;
-	}
 	Utils::offsetRealDamage(reflectedDamage, blocker, attacker);
 	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
 	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
 	hitData.totalDamage = 0;
-	mtx_actors_PrevPerfectBlockingSuccessful.lock();
-	actors_PrevPerfectBlockingSuccessful.insert(blocker); //register the blocker as a successful blocker.
-	mtx_actors_PrevPerfectBlockingSuccessful.unlock();
+	mtx_actors_PrevTimeBlockingSuccessful.lock();
+	actors_PrevTimeBlockingSuccessful.insert(blocker); //register the blocker as a successful blocker.
+	mtx_actors_PrevTimeBlockingSuccessful.unlock();
 	if (balanceHandler::GetSingleton()->isBalanceBroken(attacker)
 		|| stunHandler::GetSingleton()->isActorStunned(attacker)) {
-		playerPerfectBlockEffects(blocker, attacker, iHitflag, true);
+		playerBlockEffects(blocker, attacker, iHitflag, blockType::guardBreaking);
 	}
 	else {
-		playerPerfectBlockEffects(blocker, attacker, iHitflag, false);
+		playerBlockEffects(blocker, attacker, iHitflag, blockType::timed);
 	}
 	
 	Utils::damageav(blocker, RE::ActorValue::kStamina, 
@@ -241,72 +241,64 @@ void blockHandler::processPerfectBlock(RE::Actor* blocker, RE::Actor* attacker, 
 }
 #pragma endregion
 
-void blockHandler::playPerfectBlockSFX(RE::Actor* blocker, int iHitflag, bool blockBrokeGuard) {
+void blockHandler::playBlockSFX(RE::Actor* blocker, int iHitflag, blockType blockType) {
 	if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
-		if (blockBrokeGuard) {
-			ValhallaUtils::playSound(blocker, data::soundParryWeapon_gbD->GetFormID());
-		}
-		else {
-			ValhallaUtils::playSound(blocker, data::soundParryWeaponD->GetFormID());
-			//RE::BSAudioManager::GetSingleton()->Play(data::soundParryWeaponD);
+		switch (blockType) {
+		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryWeapon_gbD->GetFormID()); break;
+		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryWeaponD->GetFormID()); break;
 		}
 	}
 	else {
-		if (blockBrokeGuard) {
-			ValhallaUtils::playSound(blocker, data::soundParryShield_gbD->GetFormID());
-			//RE::BSAudioManager::GetSingleton()->Play(data::soundParryShield_gbD);
-		}
-		else {
-			ValhallaUtils::playSound(blocker, data::soundParryShieldD->GetFormID());
-			//RE::BSAudioManager::GetSingleton()->Play(data::soundParryWeaponD);
+		switch (blockType) {
+		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryShield_gbD->GetFormID()); break;
+		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryShieldD->GetFormID()); break;
 		}
 	}
 }
-void blockHandler::playPerfectBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, bool blockBrokeGuard) {
+void blockHandler::playBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, blockType blockType) {
 	MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
 }
-void blockHandler::playPerfectBlockScreenShake(RE::Actor* blocker, int iHitflag, bool blockBrokeGuard) {
-	if (blockBrokeGuard) {
-		RE::Offset::shakeCamera(2.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.4f);
-	}
-	else {
-		RE::Offset::shakeCamera(1, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f);
+void blockHandler::playBlockScreenShake(RE::Actor* blocker, int iHitflag, blockType blockType) {
+	switch (blockType) {
+	case blockType::guardBreaking:RE::Offset::shakeCamera(1.7, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.8f); break;
+	case blockType::timed: RE::Offset::shakeCamera(1.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f); break;
 	}
 }
 
-void blockHandler::playerPerfectBlockSlowTime(bool blockBrokeGuard) {
-	if (!blockBrokeGuard && settings::bPerfectBlockSlowTime_GuardBreakOnly) {
-		return;//doesn't play slow time if the slow time is for guard break only.
+void blockHandler::playerBlockSlowTime(blockType blockType) {
+	if (blockType != blockType::guardBreaking && settings::bPerfectBlockSlowTime_GuardBreakOnly) {
+		return;
 	}
+	//DEBUG("start slow!");
 	Utils::SGTM(0.1); 
 	auto resetSlowTime = [](int stopTime_MS) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(stopTime_MS));
 		Utils::SGTM(1);
 	};
 	float a_time;
-	if (blockBrokeGuard) {
-		a_time = 0.5;
-	}
-	else {
-		a_time = 0.3;
+	switch (blockType) {
+	case blockType::guardBreaking: a_time = 500; break;
+	case blockType::timed: a_time = 200; break;
+	case blockType::perfect: a_time = 300; break;
 	}
 	std::jthread t(resetSlowTime, a_time);
 	t.detach();
 }
 
-void blockHandler::playerPerfectBlockEffects(RE::Actor* blocker, RE::Actor* attacker, int iHitFlag, bool blockBrokeGuard) {
+void blockHandler::playerBlockEffects(RE::Actor* blocker, RE::Actor* attacker, int iHitFlag, blockType blockType) {
+	DEBUG("playing effects");
 	if (settings::bPerfectBlockVFX) {
-		playPerfectBlockVFX(blocker, attacker, iHitFlag, blockBrokeGuard);
+		playBlockVFX(blocker, attacker, iHitFlag, blockType);
 	}
-	if ((blocker->IsPlayerRef() || attacker->IsPlayerRef())
-		&& settings::bPerfectBlockScreenShake) {
-		playPerfectBlockScreenShake(blocker, iHitFlag, blockBrokeGuard);
+	if (settings::bPerfectBlockScreenShake
+		&&(blocker->IsPlayerRef() || attacker->IsPlayerRef())) {
+		playBlockScreenShake(blocker, iHitFlag, blockType);
 	}
 	if (settings::bPerfectBlockSFX) {
-		playPerfectBlockSFX(blocker, iHitFlag, blockBrokeGuard);
+		playBlockSFX(blocker, iHitFlag, blockType);
 	}
-	if ((attacker->IsPlayerRef() || blocker->IsPlayerRef())
-		&& settings::bPerfectBlockSlowTime) {
-		playerPerfectBlockSlowTime(blockBrokeGuard);
+	if (settings::bPerfectBlockSlowTime
+		&&(attacker->IsPlayerRef() || blocker->IsPlayerRef())) {
+		playerBlockSlowTime(blockType);
 	}
 }

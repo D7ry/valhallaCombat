@@ -28,7 +28,12 @@ public:
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 private:
-
+	enum blockType {
+		regular = 1,
+		timed,
+		perfect,
+		guardBreaking
+	};
 	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
 	robin_hood::unordered_map <RE::Actor*, float> actors_PerfectBlocking;
 
@@ -46,23 +51,23 @@ private:
 	Actor without enough stamina will triggerStagger and receive partial damage.*/
 	void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
-	/*Process a perfect block.
-	* Damage the attacker's stun, if stun is enabled.
+	/*Process a timed block.
+	* Damage the attacker's stun and balance, enabled.
 	Play block spark effects & screen shake effects if enabled.
 	The blocker will not receive any block cooldown once the block timer ends, and may initialize another perfect block as they wish.
 	@param blocker: actor performing the perfect block.
 	@param attacker: actor whose attack gets perfect blocked.
 	@param hitData: reference to the hitData of the blocked attack.*/
-	void processPerfectBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage);
+	void processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage);
 
 	/*Play VFX, SFX and screenShake for successful perfect block.*/
-	inline void playPerfectBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, bool blockBrokeGuard);
-	inline void playPerfectBlockSFX(RE::Actor* blocker, int iHitFlag, bool blockBrokeGuard);
-	inline void playPerfectBlockScreenShake(RE::Actor* blocker, int iHitFlag, bool blockBrokeGuard);
-	inline void playerPerfectBlockSlowTime(bool blockBrokeGuard);
+	inline void playBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
+	inline void playBlockSFX(RE::Actor* blocker, int iHitFlag, blockType blockType);
+	inline void playBlockScreenShake(RE::Actor* blocker, int iHitFlag, blockType blockType);
+	inline void playerBlockSlowTime(blockType blockType);
 
-public:
-	void playerPerfectBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, bool blockBrokeGuard);
+	void playerBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
+
 };
 
 namespace Utils
