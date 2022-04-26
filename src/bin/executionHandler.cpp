@@ -146,7 +146,7 @@ void executionHandler::playExecutionIdle(RE::Actor* executor, RE::Actor* victim,
 		INFO("error: no idle present in vector");
 		return;
 	}
-	auto idle = getRandomIdle(executionIdleV);
+	auto idle = *Utils::select_randomly(executionIdleV.begin(), executionIdleV.end());
 	if (!idle) {
 		INFO("Error! no idle received");
 	}

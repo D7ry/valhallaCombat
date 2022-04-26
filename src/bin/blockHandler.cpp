@@ -27,7 +27,7 @@ void blockHandler::update() {
 				mtx_actors_PrevTimeBlockingSuccessful.unlock();
 				//start cooling down
 				mtx_actors_BlockingCoolDown.lock();
-				actors_BlockingCoolDown[actor] = settings::fPerfectBlockCoolDownTime;
+				actors_BlockingCoolDown[actor] = settings::fTimedBlockCooldownTime;
 				mtx_actors_BlockingCoolDown.unlock();
 				//actorsInBlockingCoolDown.emplace(actor, settings::fPerfectBlockCoolDownTime);
 			}
@@ -93,7 +93,7 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 		mtx_actors_PrevTimeBlockingSuccessful.unlock();
 
 		mtx_actors_PerfectBlocking.lock();
-		actors_PerfectBlocking[actor] = settings::fPerfectBlockTime; //reset perfect blocking timer
+		actors_PerfectBlocking[actor] = settings::fTimedBlockWindow; //reset perfect blocking timer
 		mtx_actors_PerfectBlocking.unlock();
 		ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::blockHandler);
 		return;//register successful, no need to run the following.
@@ -109,7 +109,7 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 		mtx_actors_PerfectBlocking.lock();
 		if (!actors_PerfectBlocking.contains(actor)) {//not perfect blocking now
 			mtx_actors_PerfectBlocking.unlock();
-			actors_PerfectBlocking[actor] = settings::fPerfectBlockTime;
+			actors_PerfectBlocking[actor] = settings::fTimedBlockWindow;
 			ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::blockHandler);
 		}
 		else {
@@ -128,7 +128,7 @@ void blockHandler::registerPerfectBlock(RE::Actor* actor) {
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	//DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
 	DEBUG("processing block. Real damage: {}", realDamage);
-	if (settings::bPerfectBlockToggle) {
+	if (settings::bTimedBlockToggle) {
 		mtx_actors_PerfectBlocking.lock();
 		if (actors_PerfectBlocking.contains(blocker)) {
 			mtx_actors_PerfectBlocking.unlock();
@@ -225,16 +225,28 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 	mtx_actors_PrevTimeBlockingSuccessful.lock();
 	actors_PrevTimeBlockingSuccessful.insert(blocker); //register the blocker as a successful blocker.
 	mtx_actors_PrevTimeBlockingSuccessful.unlock();
-	if (balanceHandler::GetSingleton()->isBalanceBroken(attacker)
-		|| stunHandler::GetSingleton()->isActorStunned(attacker)) {
-		playeBlockEffects(blocker, attacker, iHitflag, blockType::guardBreaking);
+
+	bool isPerfectblock = !isBlockButtonPressed && blocker->IsPlayerRef();
+	if (isPerfectblock) {//stagger opponent immediately on perfect block.
+		reactionHandler::triggerStagger(blocker, attacker, reactionHandler::reactionType::kMedium);
 	}
 	else {
-		playeBlockEffects(blocker, attacker, iHitflag, blockType::timed);
+		Utils::damageav(blocker, RE::ActorValue::kStamina,
+			realDamage * calculateBlockStaminaCostMult(blocker, attacker, iHitflag) * settings::fTimedBlockStaminaCostMult);
 	}
-	
-	Utils::damageav(blocker, RE::ActorValue::kStamina, 
-		realDamage * calculateBlockStaminaCostMult(blocker, attacker, iHitflag) * settings::fPerfectBlockStaminaCostMult);
+	if (balanceHandler::GetSingleton()->isBalanceBroken(attacker)
+		|| stunHandler::GetSingleton()->isActorStunned(attacker)) {
+		playBlockEffects(blocker, attacker, iHitflag, blockType::guardBreaking);
+	}
+	else {
+		if (isPerfectblock) {
+			playBlockEffects(blocker, attacker, iHitflag, blockType::perfect);
+		}
+		else {
+			playBlockEffects(blocker, attacker, iHitflag, blockType::timed);
+		}
+		
+	}
 	//damage blocker's stamina
 
 }
@@ -243,14 +255,16 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 void blockHandler::playBlockSFX(RE::Actor* blocker, int iHitflag, blockType blockType) {
 	if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
 		switch (blockType) {
-		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryWeapon_gbD->GetFormID()); break;
-		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryWeaponD->GetFormID()); break;
+		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryWeapon_gb); break;
+		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryWeaponV); break;
+		case blockType::perfect: ValhallaUtils::playSound(blocker, data::soundParryWeapon_perfect); break;
 		}
 	}
 	else {
 		switch (blockType) {
-		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryShield_gbD->GetFormID()); break;
-		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryShieldD->GetFormID()); break;
+		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryShield_gb); break;
+		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryShieldV); break;
+		case blockType::perfect: ValhallaUtils::playSound(blocker, data::soundParryShield_perfect); break;
 		}
 	}
 }
@@ -264,8 +278,8 @@ void blockHandler::playBlockScreenShake(RE::Actor* blocker, int iHitflag, blockT
 	}
 }
 
-void blockHandler::playerBlockSlowTime(blockType blockType) {
-	if (blockType != blockType::guardBreaking && settings::bPerfectBlockSlowTime_GuardBreakOnly) {
+void blockHandler::playBlockSlowTime(blockType blockType) {
+	if (blockType == blockType::timed && settings::bTimedBlockSlowTime_GuardBreakOnly) {
 		return;
 	}
 	//DEBUG("start slow!");
@@ -284,20 +298,20 @@ void blockHandler::playerBlockSlowTime(blockType blockType) {
 	t.detach();
 }
 
-void blockHandler::playeBlockEffects(RE::Actor* blocker, RE::Actor* attacker, int iHitFlag, blockType blockType) {
+void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, int iHitFlag, blockType blockType) {
 	DEBUG("playing effects");
-	if (settings::bPerfectBlockVFX) {
+	if (settings::bTimedBlockVFX) {
 		playBlockVFX(blocker, attacker, iHitFlag, blockType);
 	}
-	if (settings::bPerfectBlockScreenShake
+	if (settings::bTimedBlockScreenShake
 		&&(blocker->IsPlayerRef() || attacker->IsPlayerRef())) {
 		playBlockScreenShake(blocker, iHitFlag, blockType);
 	}
-	if (settings::bPerfectBlockSFX) {
+	if (settings::bTimeBlockSFX) {
 		playBlockSFX(blocker, iHitFlag, blockType);
 	}
-	if (settings::bPerfectBlockSlowTime
+	if (settings::bTimedBlockSlowTime
 		&&(attacker->IsPlayerRef() || blocker->IsPlayerRef())) {
-		playerBlockSlowTime(blockType);
+		playBlockSlowTime(blockType);
 	}
 }

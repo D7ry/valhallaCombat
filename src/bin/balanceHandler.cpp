@@ -154,11 +154,7 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE
 		else {
 			if (dmgSource != DMGSOURCE::parry) {
 				//attack interruption
-				if (victim->IsRangedAttacking()) {
-					//ranged interrupt.
-					reactionHandler::triggerStagger(aggressor, victim, reactionHandler::reactionType::kSmall);
-				}
-				else if (victim->IsMeleeAttacking() && !Utils::isPowerAttacking(victim)) {
+				if (victim->IsMeleeAttacking() && !Utils::isPowerAttacking(victim)) {
 					if (Utils::isPowerAttacking(aggressor)) {//interrupt regular attacks with power attack
 						reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kSmall);
 					}
@@ -208,6 +204,9 @@ void balanceHandler::calculateBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWE
 		}
 		if (dmgSource == DMGSOURCE::parry) {
 			baseDamage *= 1.5;
+		}
+		if (victim->IsRangedAttacking() || ValhallaUtils::isCasting(victim)) {
+			baseDamage * 2.25;
 		}
 	}
 	damageBalance(dmgSource, aggressor, victim, baseDamage);

@@ -3,10 +3,27 @@
 #include "bin/ValhallaCombat.hpp"
 #include "include/lib/robin_hood.h"
 #include <cmath>
+#include  <random>
+#include  <iterator>
 #define CONSOLELOG(msg) 	RE::ConsoleLog::GetSingleton()->Print(msg);
 //TODO:clear this up a bit
 namespace Utils
 {
+	template<typename Iter, typename RandomGenerator>
+	Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
+		std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+		std::advance(start, dis(g));
+		return start;
+	}
+
+	template<typename Iter>
+	Iter select_randomly(Iter start, Iter end) {
+		static std::random_device rd;
+		static std::mt19937 gen(rd());
+		return select_randomly(start, end, gen);
+	}
+
+
 	inline bool isPowerAttacking(RE::Actor* actor) {
 		return
 			actor->currentProcess && actor->currentProcess->high && actor->currentProcess->high->attackData
@@ -14,7 +31,7 @@ namespace Utils
 	}
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
-		if (val = 0) {
+		if (val == 0) {
 			return;
 		}
 		if (a) {
@@ -159,19 +176,25 @@ public:
 	/*Play sound with formid at a certain actor's position.
 	@param a: actor on which to play sonud.
 	@param formid: formid of the sound descriptor.*/
-	static void playSound(RE::Actor* a, int formid)
+	static void playSound(RE::Actor* a, RE::BGSSoundDescriptorForm* a_descriptor)
 	{
+
 		RE::BSSoundHandle handle;
 		handle.soundID = static_cast<uint32_t>(-1);
 		handle.assumeSuccess = false;
 		*(uint32_t*)&handle.state = 0;
 
 		auto manager = BSAudioManager__GetSingleton();
-		soundHelper_a(manager, &handle, formid, 16);
+		soundHelper_a(manager, &handle, a_descriptor->GetFormID(), 16);
 		if (set_sound_position(&handle, a->data.location.x, a->data.location.y, a->data.location.z)) {
 			soundHelper_b(&handle, a->Get3D());
 			soundHelper_c(&handle);
 		}
+	}
+
+	static void playSound(RE::Actor* a, std::vector<RE::BGSSoundDescriptorForm*> sounds)
+	{
+		playSound(a, *Utils::select_randomly(sounds.begin(), sounds.end()));
 	}
 
 	/*
@@ -216,5 +239,18 @@ public:
 			//DEBUG("weapon to clamp damage: {}", a_weapon->GetName());
 			dmg = min(dmg, a_weapon->GetAttackDamage());
 		}
+	}
+
+	static bool isCasting(RE::Actor* a_actor) {
+		for (int i = 0; i < 3; i++)
+		{
+			auto caster = a_actor->GetMagicCaster(RE::MagicSystem::CastingSource(i));
+			if (!caster)
+				continue;
+			if (caster->state) {
+				return true;
+			}
+		}
+		return false;
 	}
 };

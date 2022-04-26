@@ -1,5 +1,6 @@
 #include "include/staminaHandler.h"
 #include "include/attackHandler.h"
+
 void attackHandler::registerAtk(RE::Actor* actor) {
 	checkout(actor);
 	//TODO:fix bash implementation

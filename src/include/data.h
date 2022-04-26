@@ -126,11 +126,25 @@ public:
 	static bool isRaceType(RE::Actor* a_actor, raceCatagory a_catagory);
 #pragma endregion
 #pragma region sounds
-	static inline RE::BGSSoundDescriptorForm* soundParryShieldD;
-	static inline RE::BGSSoundDescriptorForm* soundParryWeaponD;
-	static inline RE::BGSSoundDescriptorForm* soundParryShield_gbD;
-	static inline RE::BGSSoundDescriptorForm* soundParryWeapon_gbD;
-	static inline RE::BGSSoundDescriptorForm* soundStunBreakD;
+	static inline RE::BGSSoundDescriptorForm* soundParryShield1;
+	static inline RE::BGSSoundDescriptorForm* soundParryShield2;
+	static inline RE::BGSSoundDescriptorForm* soundParryShield3;
+	static std::vector< RE::BGSSoundDescriptorForm*> soundParryShieldV;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeapon1;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeapon2;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeapon3;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeapon4;
+	static std::vector<RE::BGSSoundDescriptorForm*> soundParryWeaponV;
+
+	static inline RE::BGSSoundDescriptorForm* soundParryWeapon_perfect;
+	static inline RE::BGSSoundDescriptorForm* soundParryShield_perfect;
+
+	static inline RE::BGSSoundDescriptorForm* soundParryShield_gb;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeapon_gb;
+
+	static inline RE::BGSSoundDescriptorForm* soundStunBreak;
+	
+	
 #pragma endregion
 #pragma region gameDifficultySettings
 	static inline float fDiffMultHPByPCVE;

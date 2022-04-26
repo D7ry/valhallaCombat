@@ -54,15 +54,15 @@ public:
 	/*perfect blocking*/
 	//static inline bool bPoiseCompatibility = false;
 
-	static inline bool bPerfectBlockToggle = true;
-	static inline bool bPerfectBlockScreenShake = true;
-	static inline bool bPerfectBlockSFX = true;
-	static inline bool bPerfectBlockVFX = true;
-	static inline bool bPerfectBlockSlowTime_GuardBreakOnly = true;
-	static inline bool bPerfectBlockSlowTime = true;
-	static inline float fPerfectBlockTime = 0.33;
-	static inline float fPerfectBlockCoolDownTime = 1;
-	static inline float fPerfectBlockStaminaCostMult = 1;
+	static inline bool bTimedBlockToggle = true;
+	static inline bool bTimedBlockScreenShake = true;
+	static inline bool bTimeBlockSFX = true;
+	static inline bool bTimedBlockVFX = true;
+	static inline bool bTimedBlockSlowTime_GuardBreakOnly = true;
+	static inline bool bTimedBlockSlowTime = true;
+	static inline float fTimedBlockWindow = 0.33;
+	static inline float fTimedBlockCooldownTime = 1;
+	static inline float fTimedBlockStaminaCostMult = 1;
 #pragma endregion
 #pragma region StunSettings
 

@@ -3,10 +3,28 @@
 #include "include/settings.h"
 #include "include/executionHandler.h"
 #include "include/stunHandler.h"
+#include "include/blockHandler.h"
 using EventType = RE::INPUT_EVENT_TYPE;
 using DeviceType = RE::INPUT_DEVICE;
 const auto ui = RE::UI::GetSingleton();
-
+uint32_t inputEventHandler::getBlockKey(RE::INPUT_DEVICE a_device){
+	using DeviceType = RE::INPUT_DEVICE;
+	const auto controlMap = RE::ControlMap::GetSingleton();
+	auto key = controlMap->GetMappedKey(RE::UserEvents::GetSingleton()->blockStop, a_device);
+	switch (a_device) {
+	case DeviceType::kMouse:
+		key += kMouseOffset;
+		break;
+	case DeviceType::kKeyboard:
+		key += kKeyboardOffset;
+		break;
+	case DeviceType::kGamepad:
+		key = GetGamepadIndex((RE::BSWin32GamepadDevice::Key)key);
+		break;
+	}
+	DEBUG("block key is {}", key);
+	return key;
+}
 EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>*)
 {
 	if (!a_event) {
@@ -35,31 +53,20 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 			default:
 				continue;
 			}
-
 			if (key == settings::uExecutionKey) {
 				if (button->IsDown()) {
 					executionHandler::GetSingleton()->getExecutableTarget();
-					/*
-					executionHandler::GetSingleton()->executionKeyDown = true;
-					if (RE::CrosshairPickdata::targetActor) {
-						auto actor = RE::CrosshairPickdata::targetActor.get()->As<RE::Actor>();
-						if (actor && !actor->IsDead()) {
-							if (stunHandler::GetSingleton()->isActorStunned(actor)) {
-								DEBUG("attempt execution");
-								executionHandler::GetSingleton()->
-									attemptExecute(RE::PlayerCharacter::GetSingleton(), actor);
-							}
-						}
-					}*/
 				}
-				/*if (button->IsUp()) {
-					RE::DebugNotification("execution deactivated");
-					executionHandler::GetSingleton()->executionKeyDown = false;
-				}*/
-
 				break;
 			}
-
+			if (button->QUserEvent() == "Left Attack/Block") {
+				if (button->IsDown()) {
+					blockHandler::GetSingleton()->isBlockButtonPressed = true;
+				}
+				else if (button->IsUp()) {
+					blockHandler::GetSingleton()->isBlockButtonPressed = false;
+				}
+			}
 		}
 
 	}

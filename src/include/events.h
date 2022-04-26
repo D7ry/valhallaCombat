@@ -91,6 +91,8 @@ private:
         static inputEventHandler singleton;
         return std::addressof(singleton);
     }
+    std::uint32_t getBlockKey(RE::INPUT_DEVICE a_device);
+
 
     static std::uint32_t GetGamepadIndex(RE::BSWin32GamepadDevice::Key a_key);
 };

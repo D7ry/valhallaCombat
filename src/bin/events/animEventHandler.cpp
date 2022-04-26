@@ -42,7 +42,7 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		break;
 	case "blockStartOut"_h:
 		//DEBUG("===========blockStartOut===========");
-		if (settings::bPerfectBlockToggle) {
+		if (settings::bTimedBlockToggle) {
 			blockHandler::GetSingleton()->registerPerfectBlock(a_event.holder->As<RE::Actor>());
 		}
 		break;

@@ -27,7 +27,10 @@ public:
 	@return if the block is a perfect block.*/
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
+	bool isBlockButtonPressed;
 private:
+	
+
 	enum blockType {
 		regular = 1,
 		timed,
@@ -41,11 +44,11 @@ private:
 	robin_hood::unordered_map <RE::Actor*, float> actors_BlockingCoolDown;
 
 	/*Set of all actors who have successfully perfect blocked an attack.*/
-	robin_hood::unordered_set <RE::Actor*> actors_PrevPerfectBlockingSuccessful;
+	robin_hood::unordered_set <RE::Actor*> actors_PrevTimeBlockingSuccessful;
 	static inline std::mutex mtx;
 	static inline std::mutex mtx_actors_PerfectBlocking;
 	static inline std::mutex mtx_actors_BlockingCoolDown;
-	static inline std::mutex mtx_actors_PrevPerfectBlockingSuccessful;
+	static inline std::mutex mtx_actors_PrevTimeBlockingSuccessful;
 	/*Process a stamina block.
 	Actor with enough stamina can negate all incoming health damage with stamina. 
 	Actor without enough stamina will triggerStagger and receive partial damage.*/
@@ -64,9 +67,9 @@ private:
 	inline void playBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
 	inline void playBlockSFX(RE::Actor* blocker, int iHitFlag, blockType blockType);
 	inline void playBlockScreenShake(RE::Actor* blocker, int iHitFlag, blockType blockType);
-	inline void playerBlockSlowTime(blockType blockType);
+	inline void playBlockSlowTime(blockType blockType);
 
-	void playerBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
+	void playBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
 
 };
 

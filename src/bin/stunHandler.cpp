@@ -166,7 +166,7 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 	if (it->second.second <= 0) {
 		mtx_ActorStunMap.unlock();
 		if (!stunnedActors.contains(actor)) {
-			ValhallaUtils::playSound(actor, data::soundStunBreakD->GetFormID());
+			ValhallaUtils::playSound(actor, data::soundStunBreak);
 			stunnedActors.insert(actor);
 			//launch health bar flash thread if not done so.
 			if (!async_HealthBarFlash_b) {
