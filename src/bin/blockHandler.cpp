@@ -145,7 +145,8 @@ bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iH
 	return false;
 }
 
-static inline float calculateBlockStaminaCostMult(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag) {
+/*Return the final stamina cost multiplier based on the blocker and aggressor.*/
+inline float calculateBlockStaminaCostMult(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag) {
 	if (iHitflag & (int)HITFLAG::kBlockWithWeapon) {
 		//DEBUG("hit blocked with weapon");
 		if (blocker->IsPlayerRef()) {
@@ -188,7 +189,6 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 
 	//check whether there's enough stamina to block incoming attack
 	if (targetStamina < staminaDamage) {
-		//DEBUG("not enough stamina to block, blocking part of damage!");
 		if (settings::bGuardBreak) {
 			if (iHitflag & (int)HITFLAG::kPowerAttack) {
 				reactionHandler::triggerStagger(aggressor, blocker, reactionHandler::kLarge);
@@ -202,7 +202,6 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 			* (hitData.totalDamage) / realDamage; //offset real damage back into raw damage to be converted into real damage again later.
 		Utils::damageav(blocker, RE::ActorValue::kStamina,
 			targetStamina);
-		//DEBUG("failed to block {} damage", hitData.totalDamage);
 		debuffHandler::GetSingleton()->initStaminaDebuff(blocker); //initialize debuff for the failed blocking attempt
 	}
 	else {
@@ -228,10 +227,10 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 	mtx_actors_PrevTimeBlockingSuccessful.unlock();
 	if (balanceHandler::GetSingleton()->isBalanceBroken(attacker)
 		|| stunHandler::GetSingleton()->isActorStunned(attacker)) {
-		playerBlockEffects(blocker, attacker, iHitflag, blockType::guardBreaking);
+		playeBlockEffects(blocker, attacker, iHitflag, blockType::guardBreaking);
 	}
 	else {
-		playerBlockEffects(blocker, attacker, iHitflag, blockType::timed);
+		playeBlockEffects(blocker, attacker, iHitflag, blockType::timed);
 	}
 	
 	Utils::damageav(blocker, RE::ActorValue::kStamina, 
@@ -285,7 +284,7 @@ void blockHandler::playerBlockSlowTime(blockType blockType) {
 	t.detach();
 }
 
-void blockHandler::playerBlockEffects(RE::Actor* blocker, RE::Actor* attacker, int iHitFlag, blockType blockType) {
+void blockHandler::playeBlockEffects(RE::Actor* blocker, RE::Actor* attacker, int iHitFlag, blockType blockType) {
 	DEBUG("playing effects");
 	if (settings::bPerfectBlockVFX) {
 		playBlockVFX(blocker, attacker, iHitFlag, blockType);

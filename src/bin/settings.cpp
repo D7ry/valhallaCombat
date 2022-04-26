@@ -110,15 +110,15 @@ void settings::readSettings() {
 	ReadFloatSetting(mcm, "Stamina", "fMeleeCostHeavyHit_Percent", fMeleeCostHeavyHit_Percent);
 
 	/*Read perfect blocking section*/
-	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockToggle", bPerfectBlockToggle);
-	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockScreenShake", bPerfectBlockScreenShake);
-	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockSFX", bPerfectBlockSFX);
-	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockVFX", bPerfectBlockVFX);
-	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockSlowTime_GuardBreakOnly", bPerfectBlockSlowTime_GuardBreakOnly);
-	ReadBoolSetting(mcm, "Parrying", "bPerfectBlockSlowTime", bPerfectBlockSlowTime);
-	ReadFloatSetting(mcm, "Parrying", "fPerfectBlockTime", fPerfectBlockTime);
-	ReadFloatSetting(mcm, "Parrying", "fPerfectBlockCoolDownTime", fPerfectBlockCoolDownTime);
-	ReadFloatSetting(mcm, "Parrying", "fPerfectBlockStaminaCostMult", fPerfectBlockStaminaCostMult);
+	ReadBoolSetting(mcm, "Parrying", "bTimedBlockToggle", bTimedBlockToggle);
+	ReadBoolSetting(mcm, "Parrying", "bTimedBlockScreenShake", bTimedBlockScreenShake);
+	ReadBoolSetting(mcm, "Parrying", "bTimeBlockSFX", bTimeBlockSFX);
+	ReadBoolSetting(mcm, "Parrying", "bTimedBlockVFX", bTimedBlockVFX);
+	ReadBoolSetting(mcm, "Parrying", "bTimedBlockSlowTime_GuardBreakOnly", bTimedBlockSlowTime_GuardBreakOnly);
+	ReadBoolSetting(mcm, "Parrying", "bTimedBlockSlowTime", bTimedBlockSlowTime);
+	ReadFloatSetting(mcm, "Parrying", "fTimedBlockWindow", fTimedBlockWindow);
+	ReadFloatSetting(mcm, "Parrying", "fTimedBlockCooldownTime", fTimedBlockCooldownTime);
+	ReadFloatSetting(mcm, "Parrying", "fTimedBlockStaminaCostMult", fTimedBlockStaminaCostMult);
 
 	/*Read stun section*/
 	ReadBoolSetting(mcm, "Stun", "bStunToggle", bStunToggle);
