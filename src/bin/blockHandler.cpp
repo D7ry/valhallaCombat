@@ -226,14 +226,9 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 	actors_PrevTimeBlockingSuccessful.insert(blocker); //register the blocker as a successful blocker.
 	mtx_actors_PrevTimeBlockingSuccessful.unlock();
 
+
 	bool isPerfectblock = !isBlockButtonPressed && blocker->IsPlayerRef();
-	if (isPerfectblock) {//stagger opponent immediately on perfect block.
-		reactionHandler::triggerStagger(blocker, attacker, reactionHandler::reactionType::kMedium);
-	}
-	else {
-		Utils::damageav(blocker, RE::ActorValue::kStamina,
-			realDamage * calculateBlockStaminaCostMult(blocker, attacker, iHitflag) * settings::fTimedBlockStaminaCostMult);
-	}
+
 	if (balanceHandler::GetSingleton()->isBalanceBroken(attacker)
 		|| stunHandler::GetSingleton()->isActorStunned(attacker)) {
 		playBlockEffects(blocker, attacker, iHitflag, blockType::guardBreaking);
@@ -246,6 +241,15 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 			playBlockEffects(blocker, attacker, iHitflag, blockType::timed);
 		}
 		
+	}
+
+	
+	if (isPerfectblock) {//stagger opponent immediately on perfect block.
+		reactionHandler::triggerStagger(blocker, attacker, reactionHandler::reactionType::kMedium);
+	}
+	else {
+		Utils::damageav(blocker, RE::ActorValue::kStamina,
+			realDamage * calculateBlockStaminaCostMult(blocker, attacker, iHitflag) * settings::fTimedBlockStaminaCostMult);
 	}
 	//damage blocker's stamina
 
@@ -275,6 +279,7 @@ void blockHandler::playBlockScreenShake(RE::Actor* blocker, int iHitflag, blockT
 	switch (blockType) {
 	case blockType::guardBreaking:RE::Offset::shakeCamera(1.7, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.8f); break;
 	case blockType::timed: RE::Offset::shakeCamera(1.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f); break;
+	case blockType::perfect: RE::Offset::shakeCamera(1.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.5f); break;
 	}
 }
 

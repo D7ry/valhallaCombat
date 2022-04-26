@@ -129,12 +129,12 @@ public:
 	static inline RE::BGSSoundDescriptorForm* soundParryShield1;
 	static inline RE::BGSSoundDescriptorForm* soundParryShield2;
 	static inline RE::BGSSoundDescriptorForm* soundParryShield3;
-	static std::vector< RE::BGSSoundDescriptorForm*> soundParryShieldV;
+	static inline std::vector< RE::BGSSoundDescriptorForm*> soundParryShieldV;
 	static inline RE::BGSSoundDescriptorForm* soundParryWeapon1;
 	static inline RE::BGSSoundDescriptorForm* soundParryWeapon2;
 	static inline RE::BGSSoundDescriptorForm* soundParryWeapon3;
 	static inline RE::BGSSoundDescriptorForm* soundParryWeapon4;
-	static std::vector<RE::BGSSoundDescriptorForm*> soundParryWeaponV;
+	static inline std::vector<RE::BGSSoundDescriptorForm*> soundParryWeaponV;
 
 	static inline RE::BGSSoundDescriptorForm* soundParryWeapon_perfect;
 	static inline RE::BGSSoundDescriptorForm* soundParryShield_perfect;
@@ -184,7 +184,7 @@ private:
 		CSimpleIniA& ini, const char* section);
 
 	/*Load all execution animations.*/
-	static void loadIdle();
+	static void loadIdle(RE::TESDataHandler* data);
 
 	/*Read race from the plugin, and map it to an execution type through ExecutionRaceMap.
 	@param DATA: pointer to TESDataHandler's singleton.
@@ -205,16 +205,16 @@ private:
 	static void loadExecutableRaceIni(RE::TESDataHandler* DATA, const char* ini_path);
 
 	/*Load all executable races from all ini files by iterating over them.*/
-	static void loadExecutableRace();
+	static void loadExecutableRace(RE::TESDataHandler* data);
 
 	/*Load all sounds from game.*/
-	static void loadSound();
+	static void loadSound(RE::TESDataHandler* data);
 
 	/*Load all perks from game.*/
-	static void loadPerk();
+	static void loadPerk(RE::TESDataHandler* data);
 
 	/*Load all difficulty multiplier from game.*/
-	static void loadDifficultySettings();
+	static void loadDifficultySettings(RE::GameSettingCollection* gameSettings);
 
 
 

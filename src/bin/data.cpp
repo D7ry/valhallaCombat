@@ -1,43 +1,91 @@
 #include "include/data.h"
 #include "include/stunHandler.h"
 using namespace Utils;
-
+/*
+template <class formType> 
+void lookUpFromData(RE::TESDataHandler* data, RE::FormID a_formID, formType& a_reference) {
+	a_reference = data->LookupForm<formType>(a_formID, "ValhallaCombat.esp");
+	if (a_reference) {
+		INFO("Loaded formID {}", a_formID);
+	}
+	else {
+		INFO("Failed to load formID {}", a_formID);
+	}
+}*/
+/*
+inline void lookUpFromData(RE::TESDataHandler* data, RE::FormID a_formID, formType& a_reference) {
+	a_reference = data->LookupForm<formType>(a_formID, "ValhallaCombat.esp");
+	if (a_reference) {
+		INFO("Loaded formID {}", a_formID);
+	}
+	else {
+		INFO("Failed to load formID {}", a_formID);
+	}
+}*/
 void data::loadData() {
 	INFO("Loading data from game...");
-	loadSound();
-	loadPerk();
-	loadDifficultySettings();
-	loadIdle();
-	loadExecutableRace();
+	auto data = RE::TESDataHandler::GetSingleton();
+	if (!data) {
+		ERROR("Error: TESDataHandler not found.");
+		return;
+	}
+	loadSound(data);
+	loadPerk(data);
+	loadIdle(data);
+	loadExecutableRace(data);
+
+	auto gameSettings = RE::GameSettingCollection::GetSingleton();
+	if (!gameSettings) {
+		ERROR("Error: GameSettingCollection not found.");
+		return;
+	}
+	loadDifficultySettings(gameSettings);
+
 	INFO("Data fetched.");
 	
 }
 
-void data::loadSound() {
+void data::loadSound(RE::TESDataHandler* data) {
 	INFO("Loading sound descriptors...");
-	auto DATA = RE::TESDataHandler::GetSingleton();
-	soundParryShieldD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X433C, "ValhallaCombat.esp");
-	soundParryWeaponD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X3DD9, "ValhallaCombat.esp");
-	soundParryShield_gbD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X47720, "ValhallaCombat.esp");
-	soundParryWeapon_gbD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X47721, "ValhallaCombat.esp");
-	soundStunBreakD = DATA->LookupForm<RE::BGSSoundDescriptorForm>(0X56A22, "ValhallaCombat.esp");
-	if (soundParryShieldD && soundParryWeaponD && soundParryShield_gbD && soundParryWeapon_gbD) {
-		INFO("Sound descriptors successfully loaded!");
-	}
+	auto fetch = [&](RE::FormID a_formID, RE::BGSSoundDescriptorForm*& a_sound)
+	{
+		a_sound = data->LookupForm<RE::BGSSoundDescriptorForm>(a_formID, "ValhallaCombat.esp");
+		if (a_sound) {
+			INFO("loaded {}", a_sound->GetFormID());
+		}
+		else {
+			ERROR("Error: Failed to load sound descriptor with formID {}", a_formID);
+		}
+	};
+	fetch(0X433C, soundParryShield1);
+	fetch(0X60C28, soundParryShield2);
+	fetch(0X60C29, soundParryShield3);
+	soundParryShieldV.insert(soundParryShieldV.end(), { soundParryShield1 , soundParryShield2 ,soundParryShield3 });
+	fetch(0X60C2E, soundParryShield_perfect);
+	fetch(0X47720, soundParryShield_gb);
 
+	fetch(0X3DD9, soundParryWeapon1);
+	fetch(0X60C2A, soundParryWeapon2);
+	fetch(0X60C2B, soundParryWeapon3);
+	fetch(0X60C2C, soundParryWeapon4);
+	soundParryWeaponV.insert(soundParryWeaponV.end(), { soundParryWeapon1, soundParryWeapon2, soundParryWeapon3, soundParryWeapon4 });
+
+	fetch(0X60C2D, soundParryWeapon_perfect);
+	fetch(0X47721, soundParryWeapon_gb);
+	fetch(0X56A22, soundStunBreak);
+	INFO("..done");
 }
 
-void data::loadPerk() {
+void data::loadPerk(RE::TESDataHandler* data) {
 	INFO("Loading perk...");
+	//lookUpFromData(data, 0x2DB2, debuffPerk);
 	debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
-	if (debuffPerk) {
-		INFO("Debuff perk successfully loaded!");
-	}
+	INFO("..done");
 }
 
-bool data::lookupIdle(RE::TESDataHandler* DATA, RE::FormID form, std::string pluginName, 
+bool data::lookupIdle(RE::TESDataHandler* data, RE::FormID form, std::string pluginName, 
 	std::vector<RE::TESIdleForm*>* idleContainer) {
-	auto idle = DATA->LookupForm<RE::TESIdleForm>(form, pluginName);
+	auto idle = data->LookupForm<RE::TESIdleForm>(form, pluginName);
 	if (!idle) {
 		return false;
 	}
@@ -77,7 +125,7 @@ void data::loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm
 	INFO("Loaded {} idles from section {}.", idlesLoaded, section);
 }
 
-void data::loadIdle() {
+void data::loadIdle(RE::TESDataHandler* data) {
 	CSimpleIniA ini;
 	ini.LoadFile(kmFilePath);
 	INFO("Loading idle...");
@@ -241,21 +289,19 @@ void data::loadExecutableRaceIni(RE::TESDataHandler* DATA, const char* ini_path)
 	loadRaceSection(DATA, raceCatagory::Dragon, ini, "Dragon");
 }
 
-void data::loadExecutableRace() {
-	auto DATA = RE::TESDataHandler::GetSingleton();
+void data::loadExecutableRace(RE::TESDataHandler* data) {
 	for (const auto& entry : std::filesystem::directory_iterator(kmRaceDir)) { //iterates through all .ini files
 		std::string pathStr = entry.path().string();
 		INFO("Reading from {}", pathStr);
 		const char* cstr = pathStr.c_str();
-		loadExecutableRaceIni(DATA, cstr);
+		loadExecutableRaceIni(data, cstr);
 	}
 }
 
 
 
-void data::loadDifficultySettings() {
+void data::loadDifficultySettings(RE::GameSettingCollection* gameSettings) {
 	INFO("Loading difficulty settings...");
-	auto gameSettings = RE::GameSettingCollection::GetSingleton();
 	fDiffMultHPByPCVE = gameSettings->GetSetting("fDiffMultHPByPCVE")->GetFloat();
 	fDiffMultHPByPCE = gameSettings->GetSetting("fDiffMultHPByPCE")->GetFloat();
 	fDiffMultHPByPCN = gameSettings->GetSetting("fDiffMultHPByPCN")->GetFloat();
