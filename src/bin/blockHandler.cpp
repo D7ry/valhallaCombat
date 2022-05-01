@@ -6,6 +6,7 @@
 #include "include/balanceHandler.h"
 #include "include/hitProcessor.h"
 #include "include/reactionHandler.h"
+#include "include/AI.h"
 #include "include/lib/BlockSpark.h"
 #include "include/offsets.h"
 #include "ValhallaCombat.hpp"
@@ -130,9 +131,15 @@ bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iH
 	DEBUG("processing block. Real damage: {}", realDamage);
 	if (settings::bTimedBlockToggle) {
 		mtx_actors_PerfectBlocking.lock();
-		if (actors_PerfectBlocking.contains(blocker)) {
+		if (actors_PerfectBlocking.contains(blocker)
+			//|| (!blocker->IsPlayerRef() && AI::GetSingleton()->getShouldTimedBlock(blocker))
+			) {
+			float timePassed = actors_PerfectBlocking[blocker];
 			mtx_actors_PerfectBlocking.unlock();
-			processTimedBlock(blocker, aggressor, iHitflag, hitData, realDamage);
+			mtx_actors_PrevTimeBlockingSuccessful.lock();
+			actors_PrevTimeBlockingSuccessful.insert(blocker); //register the blocker as a successful blocker.
+			mtx_actors_PrevTimeBlockingSuccessful.unlock();
+			processTimedBlock(blocker, aggressor, iHitflag, hitData, realDamage, timePassed);
 			return true;
 		}
 		else {
@@ -212,7 +219,7 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 }
 
 
-void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage) {
+void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timePassed) {
 	float reflectedDamage = 0;
 	auto a_weapon = blocker->getWieldingWeapon();
 	if (a_weapon) {
@@ -222,15 +229,12 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
 	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
 	hitData.totalDamage = 0;
-	mtx_actors_PrevTimeBlockingSuccessful.lock();
-	actors_PrevTimeBlockingSuccessful.insert(blocker); //register the blocker as a successful blocker.
-	mtx_actors_PrevTimeBlockingSuccessful.unlock();
-
 
 	bool isPerfectblock = !isBlockButtonPressed && blocker->IsPlayerRef();
+	bool isEnemyStunBroken = balanceHandler::GetSingleton()->isBalanceBroken(attacker)
+		|| stunHandler::GetSingleton()->isActorStunned(attacker);
 
-	if (balanceHandler::GetSingleton()->isBalanceBroken(attacker)
-		|| stunHandler::GetSingleton()->isActorStunned(attacker)) {
+	if (isEnemyStunBroken) {
 		playBlockEffects(blocker, attacker, iHitflag, blockType::guardBreaking);
 	}
 	else {
@@ -240,12 +244,11 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 		else {
 			playBlockEffects(blocker, attacker, iHitflag, blockType::timed);
 		}
-		
 	}
 
-	
-	if (isPerfectblock) {//stagger opponent immediately on perfect block.
-		reactionHandler::triggerStagger(blocker, attacker, reactionHandler::reactionType::kMedium);
+	if (isPerfectblock || isEnemyStunBroken) {//stagger opponent immediately on perfect block.
+		reactionHandler::triggerStagger(blocker, attacker, reactionHandler::reactionType::kLarge);
+		debuffHandler::GetSingleton()->quickStopStaminaDebuff(blocker);
 	}
 	else {
 		Utils::damageav(blocker, RE::ActorValue::kStamina,
@@ -284,7 +287,7 @@ void blockHandler::playBlockScreenShake(RE::Actor* blocker, int iHitflag, blockT
 }
 
 void blockHandler::playBlockSlowTime(blockType blockType) {
-	if (blockType == blockType::timed && settings::bTimedBlockSlowTime_GuardBreakOnly) {
+	if (blockType == blockType::timed) {
 		return;
 	}
 	//DEBUG("start slow!");
@@ -296,7 +299,6 @@ void blockHandler::playBlockSlowTime(blockType blockType) {
 	float a_time;
 	switch (blockType) {
 	case blockType::guardBreaking: a_time = 500; break;
-	case blockType::timed: a_time = 200; break;
 	case blockType::perfect: a_time = 300; break;
 	}
 	std::jthread t(resetSlowTime, a_time);

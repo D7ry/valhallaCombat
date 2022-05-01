@@ -58,7 +58,6 @@ public:
 	static inline bool bTimedBlockScreenShake = true;
 	static inline bool bTimeBlockSFX = true;
 	static inline bool bTimedBlockVFX = true;
-	static inline bool bTimedBlockSlowTime_GuardBreakOnly = true;
 	static inline bool bTimedBlockSlowTime = true;
 	static inline float fTimedBlockWindow = 0.33;
 	static inline float fTimedBlockCooldownTime = 1;

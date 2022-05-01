@@ -17,4 +17,6 @@ public:
 	void calculateCounterChance(RE::Actor* actor);
 
 	void action_PerformEldenCounter(RE::Actor* actor);
+
+	bool getShouldTimedBlock(RE::Actor* actor);
 };

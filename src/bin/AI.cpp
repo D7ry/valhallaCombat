@@ -1,8 +1,16 @@
 #include "include/AI.h"
 #include "include/data.h"
 #include "include/debuffHandler.h"
+#include "include/stunHandler.h"
 void AI::action_PerformEldenCounter(RE::Actor* a_actor) {
 	a_actor->NotifyAnimationGraph(data::AnimEvent_GuardCounter);
+}
+
+bool AI::getShouldTimedBlock(RE::Actor* actor) {
+	if (debuffHandler::GetSingleton()->isInDebuff(actor) || stunHandler::GetSingleton()->isActorStunned(actor)) {
+		return false;
+	}
+	return true;
 }
 
 void AI::calculateCounterChance(RE::Actor* actor) {

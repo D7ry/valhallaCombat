@@ -14,7 +14,6 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	int hitFlag = (int)hitData.flags;
 	if (hitFlag & (int)HITFLAG::kBlocked) {
 		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData, realDamage)) {
-			debuffHandler::GetSingleton()->quickStopStaminaDebuff(victim);
 			if (!victim->IsPlayerRef()) {
 				AI::GetSingleton()->action_PerformEldenCounter(victim);
 			}

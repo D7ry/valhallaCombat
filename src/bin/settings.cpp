@@ -114,7 +114,6 @@ void settings::readSettings() {
 	ReadBoolSetting(mcm, "Parrying", "bTimedBlockScreenShake", bTimedBlockScreenShake);
 	ReadBoolSetting(mcm, "Parrying", "bTimeBlockSFX", bTimeBlockSFX);
 	ReadBoolSetting(mcm, "Parrying", "bTimedBlockVFX", bTimedBlockVFX);
-	ReadBoolSetting(mcm, "Parrying", "bTimedBlockSlowTime_GuardBreakOnly", bTimedBlockSlowTime_GuardBreakOnly);
 	ReadBoolSetting(mcm, "Parrying", "bTimedBlockSlowTime", bTimedBlockSlowTime);
 	ReadFloatSetting(mcm, "Parrying", "fTimedBlockWindow", fTimedBlockWindow);
 	ReadFloatSetting(mcm, "Parrying", "fTimedBlockCooldownTime", fTimedBlockCooldownTime);

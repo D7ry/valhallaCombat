@@ -61,7 +61,7 @@ private:
 	@param blocker: actor performing the perfect block.
 	@param attacker: actor whose attack gets perfect blocked.
 	@param hitData: reference to the hitData of the blocked attack.*/
-	void processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage);
+	void processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timePassed);
 
 	/*Play VFX, SFX and screenShake for successful perfect block.*/
 	inline void playBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
