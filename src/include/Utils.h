@@ -201,6 +201,14 @@ public:
 	@return actor a and actor b's absolute distance, if the radius is bigger than distance.
 	@return -1, if the distance exceeds radius.*/
 	static float getInRange(RE::Actor* a, RE::Actor* b, float maxRange) {
+		float dist = a->GetPosition().GetDistance(b->GetPosition());
+		if (dist <= maxRange) {
+			return dist;
+		}
+		else {
+			return -1;
+		}
+		/*
 		auto aPos = a->GetPosition();
 		auto bPos = b->GetPosition();
 		float xDiff = abs(aPos.x - bPos.x);
@@ -215,7 +223,7 @@ public:
 		}
 		else {
 			return -1;
-		}
+		}*/
 	}
 
 	static void queueMessageBox(RE::BSFixedString a_message) {

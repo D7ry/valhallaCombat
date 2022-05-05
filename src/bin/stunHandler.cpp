@@ -120,6 +120,9 @@ void stunHandler::async_HealthBarFlash() {
 }
 
 float stunHandler::getMaxStun(RE::Actor* actor) {
+	if (actor->IsDead()) {
+		return 0;
+	}
 	auto temp_ActorStunMap = stunHandler::GetSingleton()->actorStunMap;
 	auto it = temp_ActorStunMap.find(actor);
 	if (it != temp_ActorStunMap.end()) {
@@ -132,6 +135,9 @@ float stunHandler::getMaxStun(RE::Actor* actor) {
 }
 
 float stunHandler::getStun(RE::Actor* actor) {
+	if (actor->IsDead()) {
+		return 0;
+	}
 	auto temp_ActorStunMap = stunHandler::GetSingleton()->actorStunMap;
 	auto it = temp_ActorStunMap.find(actor);
 	if (it != temp_ActorStunMap.end()) {

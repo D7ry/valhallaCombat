@@ -76,7 +76,7 @@ void reactionHandler::triggerPoiseReaction(RE::Actor* aggressor, RE::Actor* reac
 
 
 void reactionHandler::triggerStagger(RE::Actor* causer, RE::Actor* reactor, reactionType reactionType) {
-	if (reactor->IsSwimming() || reactor->IsInKillMove()) {
+	if (reactor->IsSwimming() || reactor->IsInKillMove() || !reactor->Is3DLoaded()) {
 		return;
 	}
 	if (settings::bStunToggle) {
@@ -119,6 +119,9 @@ void reactionHandler::triggerDownedState(RE::Actor* a_actor) {
 }
 
 void reactionHandler::recoverDownedState(RE::Actor* a_actor) {
+	if (a_actor->IsSwimming() || a_actor->IsInKillMove() || !a_actor->Is3DLoaded()) {
+		return;
+	}
 	auto raceMapping = data::raceMapping;
 	auto it = raceMapping.find(a_actor->GetRace());
 	if (it != raceMapping.end()) {

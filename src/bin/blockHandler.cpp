@@ -134,12 +134,12 @@ bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iH
 		if (actors_PerfectBlocking.contains(blocker)
 			//|| (!blocker->IsPlayerRef() && AI::GetSingleton()->getShouldTimedBlock(blocker))
 			) {
-			float timePassed = actors_PerfectBlocking[blocker];
+			float timeLeft = actors_PerfectBlocking[blocker]; //time left for perfect block
 			mtx_actors_PerfectBlocking.unlock();
 			mtx_actors_PrevTimeBlockingSuccessful.lock();
 			actors_PrevTimeBlockingSuccessful.insert(blocker); //register the blocker as a successful blocker.
 			mtx_actors_PrevTimeBlockingSuccessful.unlock();
-			processTimedBlock(blocker, aggressor, iHitflag, hitData, realDamage, timePassed);
+			processTimedBlock(blocker, aggressor, iHitflag, hitData, realDamage, timeLeft);
 			return true;
 		}
 		else {
@@ -219,18 +219,22 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 }
 
 
-void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timePassed) {
+void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timeLeft) {
 	float reflectedDamage = 0;
 	auto a_weapon = blocker->getWieldingWeapon();
+	bool isPerfectblock = !isBlockButtonPressed && blocker->IsPlayerRef() && timeLeft >= settings::fTimedBlockWindow - 0.1;
 	if (a_weapon) {
 		reflectedDamage = a_weapon->GetAttackDamage();//get attack damage of blocker's weapon
 	}
 	Utils::offsetRealDamage(reflectedDamage, blocker, attacker);
-	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
-	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, reflectedDamage);
+	float stunDmg = reflectedDamage;
+	float balanceDmg = reflectedDamage;
+	if (isPerfectblock) {
+		balanceDmg += realDamage; //reflect attacker's damage back as balance dmg
+	}
+	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, stunDmg);
+	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, balanceDmg);
 	hitData.totalDamage = 0;
-
-	bool isPerfectblock = !isBlockButtonPressed && blocker->IsPlayerRef();
 	bool isEnemyStunBroken = balanceHandler::GetSingleton()->isBalanceBroken(attacker)
 		|| stunHandler::GetSingleton()->isActorStunned(attacker);
 
@@ -255,7 +259,6 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 			realDamage * calculateBlockStaminaCostMult(blocker, attacker, iHitflag) * settings::fTimedBlockStaminaCostMult);
 	}
 	//damage blocker's stamina
-
 }
 #pragma endregion
 
@@ -276,7 +279,7 @@ void blockHandler::playBlockSFX(RE::Actor* blocker, int iHitflag, blockType bloc
 	}
 }
 void blockHandler::playBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, blockType blockType) {
-	MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(aggressor, blocker);
+	MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(blocker);
 }
 void blockHandler::playBlockScreenShake(RE::Actor* blocker, int iHitflag, blockType blockType) {
 	switch (blockType) {

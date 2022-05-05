@@ -37,7 +37,7 @@ private:
 	/*Erase actor from stunnedActors with mutex.*/
 	inline void safeErase_StunnedActors(RE::Actor* actor);
 
-
+	void async_untrackStun(float delay, RE::Actor* actor);
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
 	void refillStun(RE::Actor* actor);

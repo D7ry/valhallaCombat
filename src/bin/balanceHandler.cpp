@@ -154,10 +154,8 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE
 		else {
 			if (dmgSource != DMGSOURCE::parry) {
 				//attack interruption
-				if (victim->IsMeleeAttacking() && !Utils::isPowerAttacking(victim)) {
-					if (Utils::isPowerAttacking(aggressor)) {//interrupt regular attacks with power attack
-						reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kSmall);
-					}
+				if (victim->IsMeleeAttacking() && Utils::isPowerAttacking(aggressor)) {
+					reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kMedium);
 				}
 			}
 			

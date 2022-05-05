@@ -6,17 +6,18 @@
 #define DATA data::GetSingleton()
 using namespace Utils;
 void executionHandler::getExecutableTarget() {
+
 	auto possibleTargets = stunHandler::GetSingleton()->stunnedActors;
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	if (!pc) {
 		return;
 	}
-
 	RE::Actor* optimalVictim = nullptr; //optimal target to execute
 	float minRange = -1; //minimum range to the optimal victim so far
 
 	for (auto actor : possibleTargets) {
-		if (!actor->Is3DLoaded() || actor->IsDead()) {
+		if (!actor || !actor->Is3DLoaded() || actor->IsDead() || 
+			!actor->currentProcess || !actor->currentProcess->InHighProcess()) {
 			//remove actor from stunned map.
 			stunHandler::GetSingleton()->untrackStun(actor);
 		}
