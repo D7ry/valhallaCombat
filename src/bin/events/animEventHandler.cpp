@@ -40,12 +40,16 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		}
 
 		break;
-	case "blockStartOut"_h:
-		//DEBUG("===========blockStartOut===========");
+	case "BlockStop"_h:
 		if (settings::bTimedBlockToggle) {
+			blockHandler::GetSingleton()->blockStop();
+		}
+	//case "blockStartOut"_h:
+		//DEBUG("===========blockStartOut===========");
+		/*\if (settings::bTimedBlockToggle) {
 			blockHandler::GetSingleton()->registerPerfectBlock(a_event.holder->As<RE::Actor>());
 		}
-		break;
+		break;*/
 	//case "tailcombatidle"_h:
 		/*Unghost the executor on finish*/
 		//break;

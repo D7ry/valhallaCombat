@@ -14,10 +14,15 @@ public:
 
 	void update();
 
+	bool getIsPcTimedBlocking();
 	/*Register a perfect block when an actor tries to block. Put the blocker into the active perfect blocker set and start timing.
 	@param actor actor whose block is registered as a perfect block.*/
-	void registerPerfectBlock(RE::Actor* actor);
+	void blockKeyDown(RE::Actor* actor);
 
+	/*Register perfect block but only for pc.*/
+	void blockKeyDown();
+	void blockKeyUp();
+	void blockStop();
 	/*Process a single block.
 	@param blocker: Actor who blocks.
 	@param aggressor: Actor whose attack gets blocked.
@@ -28,8 +33,6 @@ public:
 	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
 
 	bool isBlockButtonPressed;
-private:
-	
 
 	enum blockType {
 		regular = 1,
@@ -37,14 +40,28 @@ private:
 		perfect,
 		guardBreaking
 	};
-	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
-	robin_hood::unordered_map <RE::Actor*, float> actors_PerfectBlocking;
+private:
+	enum blockWindowPenaltyLevel {
+		none = 0,
+		light, //70% of regular timing
+		medium, //50% of regular timing
+		heavy //20% of regular timing
+	};
 
+	blockWindowPenaltyLevel pcBlockWindowPenalty;
+	std::atomic<float> pcBlockTimer = 0;
+	std::atomic<float> pcCoolDownTimer = 0;
+
+	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
+	//robin_hood::unordered_map <RE::Actor*, float> actors_PerfectBlocking;
+	std::atomic<bool> isPcTimedBlocking;
+	std::atomic<bool> isPcBlockingCoolDown;
+	std::atomic<bool> isPcTimedBlockSuccess;
 	/*Mapping of all actors in perfect blocking cool down =>> remaining time of the cool down.*/
 	robin_hood::unordered_map <RE::Actor*, float> actors_BlockingCoolDown;
 
 	/*Set of all actors who have successfully perfect blocked an attack.*/
-	robin_hood::unordered_set <RE::Actor*> actors_PrevTimeBlockingSuccessful;
+	//robin_hood::unordered_set <RE::Actor*> actors_PrevTimeBlockingSuccessful;
 	static inline std::mutex mtx;
 	static inline std::mutex mtx_actors_PerfectBlocking;
 	static inline std::mutex mtx_actors_BlockingCoolDown;
@@ -64,11 +81,12 @@ private:
 	void processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timePassed);
 
 	/*Play VFX, SFX and screenShake for successful perfect block.*/
-	inline void playBlockVFX(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
+	inline void playBlockVFX(RE::Actor* blocker, int iHitFlag, blockType blockType);
 	inline void playBlockSFX(RE::Actor* blocker, int iHitFlag, blockType blockType);
 	inline void playBlockScreenShake(RE::Actor* blocker, int iHitFlag, blockType blockType);
 	inline void playBlockSlowTime(blockType blockType);
 
+public:
 	void playBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
 
 };

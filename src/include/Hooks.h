@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SKSE/Trampoline.h"
-
+#include "include/blockHandler.h"
 class Hook_GetAttackStaminaCost //Actor__sub_140627930+16E	call ActorValueOwner__sub_1403BEC90
 {
 	/*to cancel out vanilla power attack stamina consumption.*/
@@ -174,6 +174,38 @@ private:
 	static inline REL::Relocation<decltype(initStagger3)> _initStagger3;*/
 };
 
+class Hook_MagicHit {
+public:
+	static void install()
+	{
+		auto& trampoline = SKSE::GetTrampoline();
+		REL::Relocation<uintptr_t> hook{ REL::ID(43015) };  // 5AF3D0, main loop
+		_processMagicHit = trampoline.write_call<5>(hook.address() + 0x216, processMagicHit);
+		DEBUG("Magic hit hook installed");
+	}
+private:
+	static void __fastcall processMagicHit([[maybe_unused]] RE::ActorMagicCaster* attacker, [[maybe_unused]] RE::NiPoint3* rdx0, [[maybe_unused]] RE::Projectile* proj, [[maybe_unused]] RE::TESObjectREFR* victim, [[maybe_unused]] float a5, [[maybe_unused]] float a6, [[maybe_unused]] char a7, [[maybe_unused]] char a8)
+	{
+		DEBUG("hooked process magic hit");
+		if (!attacker || !victim) {
+			_processMagicHit(attacker, rdx0, proj, victim, a5, a6, a7, a8);
+		}
+		if (victim && victim->IsPlayerRef()) {
+			DEBUG("hooked process magic hit. victim: {}", victim->GetName());
+			//TODO:a new hitProcessor function that deals with magic hit, migrate everything there.
+			//TODO:get game setting of block angle and change it
+			
+			if (blockHandler::GetSingleton()->getIsPcTimedBlocking()) {
+				DEBUG("timed block");
+				blockHandler::GetSingleton()->playBlockEffects(victim->As<RE::Actor>(), nullptr, 2, blockHandler::blockType::timed);
+				return;
+			}
+		}
+		_processMagicHit(attacker, rdx0, proj, victim, a5, a6, a7, a8);
+	}
+	static inline REL::Relocation<decltype(processMagicHit)> _processMagicHit;
+};
+
 class Hook_MainUpdate
 {
 public:
@@ -215,6 +247,7 @@ public:
 		Hook_StaminaRegen::install();
 		//Hook_GetWantBlock::install();
 		Hook_MeleeHit::install();
+		Hook_MagicHit::install();
 		Hook_MainUpdate::install();
 		Hook_GetStaggerMagnitude::install();
 	}

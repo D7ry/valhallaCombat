@@ -56,18 +56,21 @@ public:
 
 	/*Runs every frame*/
 	void update() {
-	if (update_DebuffHandler) {
-		debuffHandler::GetSingleton()->update();
-	}
-	if (update_BlockHandler) {
-		blockHandler::GetSingleton()->update();
-	}
-	if (update_StunHandler) {
-		stunHandler::GetSingleton()->update();
-	}
-	if (update_balanceHandler) {
-		balanceHandler::GetSingleton()->update();
-	}
+		if (RE::UI::GetSingleton()->GameIsPaused()) {
+			return;
+		}
+		if (update_DebuffHandler) {
+			debuffHandler::GetSingleton()->update();
+		}
+		if (update_BlockHandler) {
+			blockHandler::GetSingleton()->update();
+		}
+		if (update_StunHandler) {
+			stunHandler::GetSingleton()->update();
+		}
+		if (update_balanceHandler) {
+			balanceHandler::GetSingleton()->update();
+		}
 	}
 
 	static void async_cleanUpFunc() {
