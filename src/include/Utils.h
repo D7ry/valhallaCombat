@@ -6,9 +6,26 @@
 #include  <random>
 #include  <iterator>
 #define CONSOLELOG(msg) 	RE::ConsoleLog::GetSingleton()->Print(msg);
+#define PI 3.1415926535897932384626
 //TODO:clear this up a bit
 namespace Utils
 {
+	inline void SetRotationMatrix(RE::NiMatrix3& a_matrix, float sacb, float cacb, float sb)
+	{
+		float cb = std::sqrtf(1 - sb * sb);
+		float ca = cacb / cb;
+		float sa = sacb / cb;
+		a_matrix.entry[0][0] = ca;
+		a_matrix.entry[0][1] = -sacb;
+		a_matrix.entry[0][2] = sa * sb;
+		a_matrix.entry[1][0] = sa;
+		a_matrix.entry[1][1] = cacb;
+		a_matrix.entry[1][2] = -ca * sb;
+		a_matrix.entry[2][0] = 0.0;
+		a_matrix.entry[2][1] = sb;
+		a_matrix.entry[2][2] = cb;
+	}
+
 	template<typename Iter, typename RandomGenerator>
 	Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
 		std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
@@ -260,5 +277,67 @@ public:
 			}
 		}
 		return false;
+	}
+
+	/*Set the projectile's cause to a new actor; reset the projectile's collision mask.
+	@param a_projectile: projectile to be reset.
+	@param a_actor: new owner of the projectile.
+	@param a_projectile_collidable: pointer to the projectile collidable to rset its collision mask.*/
+	static void setProjectileCause(RE::Projectile* a_projectile, RE::Actor* a_actor, RE::hkpCollidable* a_projectile_collidable) {
+		a_projectile->actorCause.get()->actor = a_actor->GetHandle();
+		a_projectile->desiredTarget = a_actor->currentCombatTarget;
+		a_projectile->shooter = a_actor->GetHandle();
+		uint32_t a_collisionFilterInfo;
+		a_actor->GetCollisionFilterInfo(a_collisionFilterInfo);
+		a_projectile_collidable->broadPhaseHandle.collisionFilterInfo &= (0x0000FFFF);
+		a_projectile_collidable->broadPhaseHandle.collisionFilterInfo |= (a_collisionFilterInfo << 16);
+
+	}
+	static void DeflectProjectile(RE::Projectile* a_projectile) {
+		a_projectile->linearVelocity *= -1.f;
+		auto projectileNode = a_projectile->Get3D2();
+		if (projectileNode)
+		{
+			RE::NiPoint3 direction = a_projectile->linearVelocity;
+			direction.Unitize();
+
+			a_projectile->data.angle.x = asin(direction.z);
+			a_projectile->data.angle.z = atan2(direction.x, direction.y);
+
+			if (a_projectile->data.angle.z < 0.0) {
+				a_projectile->data.angle.z += PI;
+			}
+
+			if (direction.x < 0.0) {
+				a_projectile->data.angle.z += PI;
+			}
+
+			Utils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
+		}
+	}
+	static void ReflectProjectile(RE::Projectile* a_projectile)
+	{
+		a_projectile->linearVelocity *= -1.f;
+
+		// rotate model
+		auto projectileNode = a_projectile->Get3D2();
+		if (projectileNode)
+		{
+			RE::NiPoint3 direction = a_projectile->linearVelocity;
+			direction.Unitize();
+
+			a_projectile->data.angle.x = asin(direction.z);
+			a_projectile->data.angle.z = atan2(direction.x, direction.y);
+
+			if (a_projectile->data.angle.z < 0.0) {
+				a_projectile->data.angle.z += PI;
+			}
+
+			if (direction.x < 0.0) {
+				a_projectile->data.angle.z += PI;
+			}
+
+			Utils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
+		}
 	}
 };

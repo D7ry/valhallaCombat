@@ -15,7 +15,7 @@ void executionHandler::getExecutableTarget() {
 	RE::Actor* optimalVictim = nullptr; //optimal target to execute
 	float minRange = -1; //minimum range to the optimal victim so far
 
-	for (auto actor : possibleTargets) {
+	for (auto& actor : possibleTargets) {
 		if (!actor || !actor->Is3DLoaded() || actor->IsDead() || 
 			!actor->currentProcess || !actor->currentProcess->InHighProcess()) {
 			//remove actor from stunned map.

@@ -315,6 +315,8 @@ void data::loadDifficultySettings(RE::GameSettingCollection* gameSettings) {
 	fDiffMultHPToPCH = gameSettings->GetSetting("fDiffMultHPToPCH")->GetFloat();
 	fDiffMultHPToPCVH = gameSettings->GetSetting("fDiffMultHPToPCVH")->GetFloat();
 	fDiffMultHPToPCL = gameSettings->GetSetting("fDiffMultHPToPCL")->GetFloat();
+
+	fCombatHitConeAngle = gameSettings->GetSetting("fCombatHitConeAngle")->GetFloat();
 	INFO("Game difficulty multipliers loaded.");
 }
 

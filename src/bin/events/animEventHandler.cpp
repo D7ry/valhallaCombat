@@ -40,10 +40,10 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		}
 
 		break;
-	case "BlockStop"_h:
-		if (settings::bTimedBlockToggle) {
-			blockHandler::GetSingleton()->blockStop();
-		}
+	//case "BlockStop"_h:
+		//if (settings::bTimedBlockToggle) {
+			//blockHandler::GetSingleton()->blockStop();
+		///}
 	//case "blockStartOut"_h:
 		//DEBUG("===========blockStartOut===========");
 		/*\if (settings::bTimedBlockToggle) {

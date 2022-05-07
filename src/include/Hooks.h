@@ -2,6 +2,7 @@
 
 #include "SKSE/Trampoline.h"
 #include "include/blockHandler.h"
+#include "include/Utils.h"
 class Hook_GetAttackStaminaCost //Actor__sub_140627930+16E	call ActorValueOwner__sub_1403BEC90
 {
 	/*to cancel out vanilla power attack stamina consumption.*/
@@ -184,11 +185,11 @@ public:
 		DEBUG("Magic hit hook installed");
 	}
 private:
-	static void __fastcall processMagicHit([[maybe_unused]] RE::ActorMagicCaster* attacker, [[maybe_unused]] RE::NiPoint3* rdx0, [[maybe_unused]] RE::Projectile* proj, [[maybe_unused]] RE::TESObjectREFR* victim, [[maybe_unused]] float a5, [[maybe_unused]] float a6, [[maybe_unused]] char a7, [[maybe_unused]] char a8)
+	static void __fastcall processMagicHit([[maybe_unused]] RE::ActorMagicCaster* attacker, [[maybe_unused]] RE::NiPoint3* rdx0, [[maybe_unused]] RE::Projectile* a_projectile, [[maybe_unused]] RE::TESObjectREFR* victim, [[maybe_unused]] float a5, [[maybe_unused]] float a6, [[maybe_unused]] char a7, [[maybe_unused]] char a8)
 	{
 		DEBUG("hooked process magic hit");
 		if (!attacker || !victim) {
-			_processMagicHit(attacker, rdx0, proj, victim, a5, a6, a7, a8);
+			_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
 		}
 		if (victim && victim->IsPlayerRef()) {
 			DEBUG("hooked process magic hit. victim: {}", victim->GetName());
@@ -196,12 +197,20 @@ private:
 			//TODO:get game setting of block angle and change it
 			
 			if (blockHandler::GetSingleton()->getIsPcTimedBlocking()) {
-				DEBUG("timed block");
+				/*DEBUG("timed block");
+				DEBUG("coords: {}, {}, {}", rdx0->x, rdx0->y, rdx0->z);
+				DEBUG(a5);
+				DEBUG(a6);
+				DEBUG(a7);
+				DEBUG(a8);*/
 				blockHandler::GetSingleton()->playBlockEffects(victim->As<RE::Actor>(), nullptr, 2, blockHandler::blockType::timed);
+				
+				ValhallaUtils::ReflectProjectile(a_projectile);
+				
 				return;
 			}
 		}
-		_processMagicHit(attacker, rdx0, proj, victim, a5, a6, a7, a8);
+		_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
 	}
 	static inline REL::Relocation<decltype(processMagicHit)> _processMagicHit;
 };
@@ -224,6 +233,48 @@ private:
 
 };
 
+class Hook_PlayerUpdate
+{
+public:
+	static void install() {
+#if ANNIVERSARY_EDITION
+		REL::Relocation<std::uintptr_t> PlayerCharacterVtbl{ RE::VTABLE_PlayerCharacter[0] };
+#else
+		REL::Relocation<std::uintptr_t> PlayerCharacterVtbl{ RE::Offset::PlayerCharacter::Vtbl };
+
+#endif
+		_Update = PlayerCharacterVtbl.write_vfunc(0xAD, Update);
+		INFO("Player update hook installed");
+	}
+private:
+
+	static void Update(RE::PlayerCharacter* a_this, float a_delta) {
+		//DEBUG("PLAYER update");
+		ValhallaCombat::GetSingleton()->update();
+		_Update(a_this, a_delta);
+	}
+	static inline REL::Relocation<decltype(Update)> _Update;
+};
+
+class Hook_ProjectileHit {
+public:
+	static void install() {
+#if ANNIVERSARY_EDITION
+		REL::Relocation<std::uintptr_t> projectileHitVtbl{ RE::VTABLE_PlayerCharacter[0] };
+#else
+		REL::Relocation<std::uintptr_t> arrowProjectileVtbl{ REL::ID(263776) };
+		REL::Relocation<std::uintptr_t> missileProjectileVtbl{ REL::ID(263942) };
+#endif
+		_arrowCollission = arrowProjectileVtbl.write_vfunc(190, arrowCollission);
+		_missileCollission = missileProjectileVtbl.write_vfunc(190, missileCollission);
+	};
+private:
+	static void arrowCollission(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector);
+
+	static void missileCollission(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector);
+	static inline REL::Relocation<decltype(arrowCollission)> _arrowCollission;
+	static inline REL::Relocation<decltype(missileCollission)> _missileCollission;
+};
 /*class Hook_GetFallbackChance {
 public:
 	static void install() {
@@ -238,6 +289,7 @@ public:
 class Hooks {
 public:
 	static void install() {
+		INFO("Installing hooks...");
 		SKSE::AllocTrampoline(1 << 8);
 		Hook_GetAttackStaminaCost::install();
 		//Hook_CacheAttackStaminaCost::install();
@@ -247,8 +299,10 @@ public:
 		Hook_StaminaRegen::install();
 		//Hook_GetWantBlock::install();
 		Hook_MeleeHit::install();
-		Hook_MagicHit::install();
-		Hook_MainUpdate::install();
+		//Hook_MagicHit::install();
+		//Hook_MainUpdate::install();
+		Hook_PlayerUpdate::install();
+		Hook_ProjectileHit::install();
 		Hook_GetStaggerMagnitude::install();
 	}
 };

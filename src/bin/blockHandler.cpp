@@ -142,9 +142,6 @@ void blockHandler::blockKeyDown() {
 
 void blockHandler::blockKeyUp() {
 	isBlockButtonPressed = false;
-	/*auto exitBlock = [&]() {
-		DEBUG("block stop");
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		if (!isPcTimedBlockSuccess) {//apply penalty only if the current block is not a successful timed block.
 			DEBUG("prev timed block not successful; applying penalty");
 			isPcBlockingCoolDown = true; //not a successful timed block, start penalty cool down.
@@ -163,9 +160,6 @@ void blockHandler::blockKeyUp() {
 		}
 		isPcTimedBlocking = false;
 		pcBlockTimer = 0;
-	};
-	std::jthread t(exitBlock);
-	t.detach();*/
 }
 
 void blockHandler::blockStop() {
@@ -230,8 +224,25 @@ void blockHandler::blockStop() {
 	}
 	//mtx.unlock();
 }*/
-/*Make an actor break their guard through a animation event.*/
 
+
+bool blockHandler::inBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj) {
+	auto angle = blocker->GetHeadingAngle(a_obj->GetPosition(), false);
+	auto desiredAngle = data::fCombatHitConeAngle / 2;
+	return (angle <= desiredAngle && angle >= -desiredAngle);
+}
+
+bool blockHandler::tryDeflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+	if (a_blocker->IsPlayerRef() && isPcTimedBlocking && inBlockAngle(a_blocker, a_projectile)) {
+		isPcTimedBlockSuccess = true;
+		pcBlockWindowPenalty = blockWindowPenaltyLevel::none;
+		ValhallaUtils::setProjectileCause(a_projectile, a_blocker, a_projectile_collidable);
+		ValhallaUtils::ReflectProjectile(a_projectile);
+		playBlockEffects(a_blocker, nullptr, 2, blockHandler::blockType::timed);
+		return true;
+	}
+	return false;
+}
 
 #pragma region Process Block
 bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
@@ -336,7 +347,7 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timeLeft) {
 	float reflectedDamage = 0;
 	auto a_weapon = blocker->getWieldingWeapon();
-	bool isPerfectblock = timeLeft >= 0.4 || isBlockButtonPressed == false;
+	bool isPerfectblock = timeLeft >= 0.4;
 	if (a_weapon) {
 		reflectedDamage = a_weapon->GetAttackDamage();//get attack damage of blocker's weapon
 	}

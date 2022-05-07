@@ -80,6 +80,9 @@ private:
 	@param hitData: reference to the hitData of the blocked attack.*/
 	void processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timePassed);
 
+	/*Return: whether the object is within the blocker's block angle and thus can be blocked.*/
+	inline bool inBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj);
+
 	/*Play VFX, SFX and screenShake for successful perfect block.*/
 	inline void playBlockVFX(RE::Actor* blocker, int iHitFlag, blockType blockType);
 	inline void playBlockSFX(RE::Actor* blocker, int iHitFlag, blockType blockType);
@@ -89,12 +92,11 @@ private:
 public:
 	void playBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
 
+	/*Initialize an attempt to block the incoming projectile. If the deflection is successful, return true.
+	@param a_blocker: a_blocker: actor attempting to deflect the projectlile
+	@param a_projectile: projectile to be deflected.
+	@param a_projectile_collidable: the collidable of the projectile, whose collision group will be reset if the deflection
+	is successful.
+	@return whether the deflection is successful.*/
+	bool tryDeflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
 };
-
-namespace Utils
-{
-	namespace sound
-	{
-
-	}
-}

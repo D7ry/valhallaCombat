@@ -159,7 +159,8 @@ public:
 	static inline float fDiffMultHPToPCH;
 	static inline float fDiffMultHPToPCVH;
 	static inline float fDiffMultHPToPCL;
-
+	
+	static inline float fCombatHitConeAngle;
 #pragma endregion
 private:
 	/*Directory storing all executable race and the mapping to their killmoves.*/

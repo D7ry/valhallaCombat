@@ -122,6 +122,44 @@ void Hook_MainUpdate::Update(RE::Main* a_this, float a2) {
 }
 #pragma endregion
 
+
+#pragma region projectileHit
+/*Decide whether the collision is a actor-projectile collision. If it is, initialize a deflection attempt by the actor.
+@param a_projectile: the projectile to be deflected.
+@param a_AllCdPointCollector: pointer to the container storing all collision points.
+@return whether a successful deflection is performed by the actor.*/
+inline bool initDeflection(RE::Projectile* a_projectile, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
+	if (a_AllCdPointCollector) {
+		for (auto& hit : a_AllCdPointCollector->hits) {
+			auto refrA = RE::TESHavokUtilities::FindCollidableRef(*hit.rootCollidableA);
+			auto refrB = RE::TESHavokUtilities::FindCollidableRef(*hit.rootCollidableB);
+			if (refrA && refrA->formType == RE::FormType::ActorCharacter) {
+				return blockHandler::GetSingleton()->tryDeflectProjectile(refrA->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableB));
+			}
+			if (refrB && refrB->formType == RE::FormType::ActorCharacter) {
+				return blockHandler::GetSingleton()->tryDeflectProjectile(refrB->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableA));
+			}
+		}
+	}
+	return false;
+}
+void Hook_ProjectileHit::arrowCollission(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
+	DEBUG("hooked arrow collission vfunc");
+	if (initDeflection(a_this, a_AllCdPointCollector)) {
+		return;
+	};
+	_arrowCollission(a_this, a_AllCdPointCollector);
+};
+
+void Hook_ProjectileHit::missileCollission(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
+	DEBUG("hooked missile collission vfunc");
+	if (initDeflection(a_this, a_AllCdPointCollector)) {
+		return;
+	};
+	_missileCollission(a_this, a_AllCdPointCollector);
+}
+#pragma endregion
+
 std::int32_t& Hook_GetWantBlock::GetWantBlock(void* unk_ptr, const RE::BSFixedString& a_channelName, std::uint8_t unk_int, RE::Actor* a_actor, std::int32_t& a_result) {
 	if (debuffHandler::GetSingleton()->isInDebuff(a_actor)) {
 		int32_t i = 0;
