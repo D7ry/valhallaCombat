@@ -12,8 +12,9 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	float realDamage = hitData.totalDamage;
 	Utils::offsetRealDamage(realDamage, aggressor, victim);
 	int hitFlag = (int)hitData.flags;
-	if (hitFlag & (int)HITFLAG::kBlocked) {
-		if (blockHandler::GetSingleton()->processBlock(victim, aggressor, hitFlag, hitData, realDamage)) {
+	if (
+		(hitFlag & (int)HITFLAG::kBlocked)) {
+		if (blockHandler::GetSingleton()->processPhysicalBlock(victim, aggressor, hitFlag, hitData, realDamage)) {
 			if (!victim->IsPlayerRef()) {
 				AI::GetSingleton()->action_PerformEldenCounter(victim);
 			}
@@ -47,8 +48,7 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 		attackHandler::GetSingleton()->registerHit(aggressor);
 	}
 
-	//reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kMedium);
-	//try execution
+
 	bool isActorStunned;
 	stunHandler::GetSingleton()->isActorStunned(victim, isActorStunned);
 	if (isActorStunned && hitData.weapon->IsMelee()) {

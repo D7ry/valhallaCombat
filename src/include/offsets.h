@@ -13,7 +13,11 @@ namespace RE
 		typedef void(_fastcall* _shakeCamera)(float strength, RE::NiPoint3 source, float duration);
 		inline static REL::Relocation<_shakeCamera> shakeCamera{ REL::ID(32275) };
 
+		typedef void(_fastcall* _destroyProjectile)(RE::Projectile* a_projectile);
+		inline static REL::Relocation<_destroyProjectile> destroyProjectile{ REL::ID(42930) };
 
+		//static float* g_worldScaleInverse = (float*)RELOCATION_ID(230692, 187407).address();
+		static float* g_worldScaleInverse = (float*)REL::ID(230692).address();
 	}
 }
 

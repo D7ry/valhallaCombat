@@ -7,14 +7,7 @@ namespace MaxsuBlockSpark
 	class blockSpark
 	{
 	public:
-
-		static blockSpark* GetSingleton()
-		{
-			static blockSpark singleton;
-			return  std::addressof(singleton);
-		}
-
-		void playPerfectBlockSpark(RE::Actor* defender) {
+		static void playPerfectBlockSpark(RE::Actor* defender) {
 			if (!defender || !defender->currentProcess || !defender->currentProcess->high || !defender->Get3D()) {
 				return;
 			}
@@ -44,13 +37,14 @@ namespace MaxsuBlockSpark
 				return RE::BIPED_OBJECT::kNone;
 			};
 			RE::BIPED_OBJECT BipeObjIndex;
-			auto defenderLeftEquipped = defender->currentProcess->GetEquippedLeftHand();
-			auto defenderData = defender->currentProcess->high->attackData;
+			auto defenderLeftEquipped = defender->GetEquippedObject(true);
 
-			if (defenderData)	//To compatible with "Simple Weapon Swing Parry" while attacking.
-				BipeObjIndex = defenderData->IsLeftAttack() && defenderLeftEquipped ? GetBipeObjIndex(defenderLeftEquipped, false) : GetBipeObjIndex(defender->currentProcess->GetEquippedRightHand(), true);
-			else
-				BipeObjIndex = defenderLeftEquipped && (defenderLeftEquipped->IsWeapon() || defenderLeftEquipped->IsArmor()) ? GetBipeObjIndex(defenderLeftEquipped, false) : GetBipeObjIndex(defender->currentProcess->GetEquippedRightHand(), true);
+			if (defenderLeftEquipped && (defenderLeftEquipped->IsWeapon() || defenderLeftEquipped->IsArmor())) {
+				BipeObjIndex = GetBipeObjIndex(defenderLeftEquipped, false);
+			}
+			else {
+				BipeObjIndex = GetBipeObjIndex(defender->GetEquippedObject(false), true);
+			}
 
 			if (BipeObjIndex == RE::BIPED_OBJECT::kNone) {
 				return;
@@ -63,7 +57,8 @@ namespace MaxsuBlockSpark
 
 			auto cell = defender->GetParentCell();
 
-			const auto modelName = BipeObjIndex == RE::BIPED_OBJECT::kShield && defenderLeftEquipped && defenderLeftEquipped->IsArmor() ? "ValhallaCombat\\impactShieldRoot.nif" : "ValhallaCombat\\impactWeaponRoot.nif";
+			const auto modelName = 
+				BipeObjIndex == RE::BIPED_OBJECT::kShield && defenderLeftEquipped && defenderLeftEquipped->IsArmor() ? "ValhallaCombat\\impactShieldRoot.nif" : "ValhallaCombat\\impactWeaponRoot.nif";
 			
 			RE::NiPoint3 sparkPos = defenderNode->worldBound.center;
 

@@ -9,7 +9,7 @@
 #include "include/attackHandler.h"
 #pragma endregion
 #pragma region GetHeavyStaminaCost
-float Hook_GetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
+float Hook_OnGetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
 	//DEBUG("hooked attack stamina cost!");
 	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
 	//DEBUG("actor is {}", a_actor->GetName());
@@ -62,7 +62,7 @@ uintptr_t Hook_GetAttackChance2::getAttackChance(RE::Actor* actor, RE::Actor* ta
 #pragma region StaminaRegen
 /*function generating conditions for stamina regen. Iff returned value is true, no regen.
 used to block stamina regen in certain situations.*/
-bool Hook_StaminaRegen::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
+bool Hook_OnStaminaRegen::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 {
 	//if bResult is true, prevents regen.
 	bool bResult = _HasFlags1(a_this, a_flags); // is sprinting?
@@ -81,11 +81,11 @@ bool Hook_StaminaRegen::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 #pragma endregion
 
 #pragma region getStaggerMagnitude_Weapon
-float Hook_GetStaggerMagnitude::getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4) {
+float Hook_OnGetStaggerMagnitude::getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4) {
 	return 0;
 }
 
-float Hook_GetStaggerMagnitude::getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2) {
+float Hook_OnGetStaggerMagnitude::getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2) {
 	return 0;
 }
 /*
@@ -100,7 +100,7 @@ void Hook_GetStaggerMagnitude::initStagger3(uintptr_t a1, RE::Actor* a2, uintptr
 }*/
 #pragma endregion
 #pragma region MeleeHit
-void Hook_MeleeHit::processHit(RE::Actor* victim, RE::HitData& hitData) {
+void Hook_OnPhysicalHit::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	//hitDataProcessor::processHitData(hitData);
 	
 	using HITFLAG = RE::HitData::Flag;
@@ -128,32 +128,32 @@ void Hook_MainUpdate::Update(RE::Main* a_this, float a2) {
 @param a_projectile: the projectile to be deflected.
 @param a_AllCdPointCollector: pointer to the container storing all collision points.
 @return whether a successful deflection is performed by the actor.*/
-inline bool initDeflection(RE::Projectile* a_projectile, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
+inline bool initProjectileBlock(RE::Projectile* a_projectile, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
 	if (a_AllCdPointCollector) {
 		for (auto& hit : a_AllCdPointCollector->hits) {
 			auto refrA = RE::TESHavokUtilities::FindCollidableRef(*hit.rootCollidableA);
 			auto refrB = RE::TESHavokUtilities::FindCollidableRef(*hit.rootCollidableB);
 			if (refrA && refrA->formType == RE::FormType::ActorCharacter) {
-				return blockHandler::GetSingleton()->tryDeflectProjectile(refrA->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableB));
+				return blockHandler::GetSingleton()->processProjectileBlock(refrA->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableB));
 			}
 			if (refrB && refrB->formType == RE::FormType::ActorCharacter) {
-				return blockHandler::GetSingleton()->tryDeflectProjectile(refrB->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableA));
+				return blockHandler::GetSingleton()->processProjectileBlock(refrB->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableA));
 			}
 		}
 	}
 	return false;
 }
-void Hook_ProjectileHit::arrowCollission(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
+void Hook_OnProjectileCollision::OnArrowCollision(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
 	DEBUG("hooked arrow collission vfunc");
-	if (initDeflection(a_this, a_AllCdPointCollector)) {
+	if (initProjectileBlock(a_this, a_AllCdPointCollector)) {
 		return;
 	};
 	_arrowCollission(a_this, a_AllCdPointCollector);
 };
 
-void Hook_ProjectileHit::missileCollission(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
+void Hook_OnProjectileCollision::OnMissileCollision(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
 	DEBUG("hooked missile collission vfunc");
-	if (initDeflection(a_this, a_AllCdPointCollector)) {
+	if (initProjectileBlock(a_this, a_AllCdPointCollector)) {
 		return;
 	};
 	_missileCollission(a_this, a_AllCdPointCollector);

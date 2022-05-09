@@ -49,123 +49,7 @@ void blockHandler::update() {
 	}
 	
 }
-
-bool blockHandler::getIsPcTimedBlocking() {
-	return isPcTimedBlocking;
-}
-/*
-void blockHandler::update() {
-	auto deltaTime = *RE::Offset::g_deltaTime;
-	//mtx.lock();
-	mtx_actors_PerfectBlocking.lock();
-	auto it1 = actors_PerfectBlocking.begin();
-	while (it1 != actors_PerfectBlocking.end()) {
-		auto actor = it1->first;
-		if (it1->second <= 0) {
-			//DEBUG("{}'s perfect block has ended, starting cool down", actor->GetName());
-			it1 = actors_PerfectBlocking.erase(it1);
-			//Cool down applies if the previous block fails; if successful no cooldown.
-			mtx_actors_PrevTimeBlockingSuccessful.lock();
-			if (!actors_PrevTimeBlockingSuccessful.contains(actor)) {
-				mtx_actors_PrevTimeBlockingSuccessful.unlock();
-				//start cooling down
-				mtx_actors_BlockingCoolDown.lock();
-				actors_BlockingCoolDown[actor] = settings::fTimedBlockCooldownTime;
-				mtx_actors_BlockingCoolDown.unlock();
-				//actorsInBlockingCoolDown.emplace(actor, settings::fPerfectBlockCoolDownTime);
-			}
-			else {
-				actors_PrevTimeBlockingSuccessful.erase(actor);
-				mtx_actors_PrevTimeBlockingSuccessful.unlock();
-
-				if (actors_PerfectBlocking.empty()) {
-					mtx_actors_BlockingCoolDown.lock();
-					if (actors_BlockingCoolDown.empty()) {
-						mtx_actors_BlockingCoolDown.unlock();
-						ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::blockHandler);
-					}
-					else {
-						mtx_actors_BlockingCoolDown.unlock();
-					}
-				}
-			}
-			continue;
-		}
-		it1->second -= deltaTime;
-		++it1;
-	}
-	mtx_actors_PerfectBlocking.unlock();
-
-
-	mtx_actors_BlockingCoolDown.lock();
-	auto it2 = actors_BlockingCoolDown.begin();
-	while (it2 != actors_BlockingCoolDown.end()) {
-		auto actor = it2->first;
-		if (it2->second <= 0) {
-			//exit cooling down phase
-			//DEBUG("{}'s cool down has ended", actor->GetName());
-			it2 = actors_BlockingCoolDown.erase(it2);
-			if (actors_BlockingCoolDown.empty()) {
-				mtx_actors_PerfectBlocking.lock();
-				if (actors_PerfectBlocking.empty()) {
-					mtx_actors_PerfectBlocking.unlock();
-					ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::blockHandler);
-				}
-				else {
-					mtx_actors_PerfectBlocking.unlock();
-				}
-				
-			}
-			continue;
-		}
-		it2->second -= deltaTime;
-		++it2;
-	}
-	mtx_actors_BlockingCoolDown.unlock();
-	//mtx.unlock();
-}*/
-void blockHandler::blockKeyDown() {
-	isPcTimedBlocking = true;
-	isBlockButtonPressed = true;
-	float blockWindow = settings::fTimedBlockWindow;
-	
-	switch (pcBlockWindowPenalty) {
-	case blockWindowPenaltyLevel::none: break;
-	case blockWindowPenaltyLevel::light: blockWindow *= 0.7; break;
-	case blockWindowPenaltyLevel::medium: blockWindow *= 0.4; break;
-	case blockWindowPenaltyLevel::heavy: blockWindow *= 0.2; break;
-	}
-	pcBlockTimer = blockWindow;
-	DEBUG("block start with window {}", blockWindow);
-	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::blockHandler);
-}
-
-void blockHandler::blockKeyUp() {
-	isBlockButtonPressed = false;
-		if (!isPcTimedBlockSuccess) {//apply penalty only if the current block is not a successful timed block.
-			DEBUG("prev timed block not successful; applying penalty");
-			isPcBlockingCoolDown = true; //not a successful timed block, start penalty cool down.
-			pcCoolDownTimer = 0.5;
-			//increment penalty.
-			switch (pcBlockWindowPenalty) {
-			case blockWindowPenaltyLevel::none: pcBlockWindowPenalty = light; DEBUG("light"); break;
-			case blockWindowPenaltyLevel::light: pcBlockWindowPenalty = medium; DEBUG("medium"); break;
-			case blockWindowPenaltyLevel::medium: pcBlockWindowPenalty = heavy; DEBUG("heavy"); break;
-			}
-			ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::blockHandler);
-
-		}
-		else {//previous timed block is successful
-			isPcTimedBlockSuccess = false; //reset success state.
-		}
-		isPcTimedBlocking = false;
-		pcBlockTimer = 0;
-}
-
-void blockHandler::blockStop() {
-	if (isBlockButtonPressed) {
-		return;
-	}
+void blockHandler::checkoutPcBlock() {
 	if (!isPcTimedBlockSuccess) {//apply penalty only if the current block is not a successful timed block.
 		DEBUG("prev timed block not successful; applying penalty");
 		isPcBlockingCoolDown = true; //not a successful timed block, start penalty cool down.
@@ -185,46 +69,42 @@ void blockHandler::blockStop() {
 	isPcTimedBlocking = false;
 	pcBlockTimer = 0;
 }
-/*Register a perfect block when an actor tries to block. Put the blocker into the active perfect blocker set and start timing.
-@param actor actor whose block is registered as a perfect block.*/
-/*void blockHandler::blockStart(RE::Actor* actor) {
-	//DEBUG("Registering perfect block for {}", actor->GetName());
-	//mtx.lock();
-	mtx_actors_PrevTimeBlockingSuccessful.lock();
-	if (actors_PrevTimeBlockingSuccessful.contains(actor)) { //has previously done a successful perfect block
-		actors_PrevTimeBlockingSuccessful.erase(actor); //remove from the successful map.
-		mtx_actors_PrevTimeBlockingSuccessful.unlock();
 
-		mtx_actors_PerfectBlocking.lock();
-		actors_PerfectBlocking[actor] = settings::fTimedBlockWindow; //reset perfect blocking timer
-		mtx_actors_PerfectBlocking.unlock();
-		ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::blockHandler);
-		return;//register successful, no need to run the following.
+void blockHandler::blockKeyDown() {
+	if (isBlockKeyUp_and_still_blocking) {
+		checkoutPcBlock();
+		isBlockKeyUp_and_still_blocking = false;
 	}
-	else {
-		mtx_actors_PrevTimeBlockingSuccessful.unlock();
-	}
+
+	isPcTimedBlocking = true;
+	isBlockButtonPressed = true;
+	isPcTimedBlockSuccess = false; //reset success state
+	float blockWindow = settings::fTimedBlockWindow;
 	
-	mtx_actors_BlockingCoolDown.lock();
-	if (!actors_BlockingCoolDown.contains(actor)) { //not cooling down
-		mtx_actors_BlockingCoolDown.unlock();
-
-		mtx_actors_PerfectBlocking.lock();
-		if (!actors_PerfectBlocking.contains(actor)) {//not perfect blocking now
-			mtx_actors_PerfectBlocking.unlock();
-			actors_PerfectBlocking[actor] = settings::fTimedBlockWindow;
-			ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::blockHandler);
-		}
-		else {
-			mtx_actors_PerfectBlocking.unlock();
-		}
+	switch (pcBlockWindowPenalty) {
+	case blockWindowPenaltyLevel::none: break;
+	case blockWindowPenaltyLevel::light: blockWindow *= 0.6; break;
+	case blockWindowPenaltyLevel::medium: blockWindow *= 0.3; break;
+	case blockWindowPenaltyLevel::heavy: blockWindow *= 0.15; break;
 	}
-	else {
-		mtx_actors_BlockingCoolDown.unlock();
-	}
-	//mtx.unlock();
-}*/
+	pcBlockTimer = blockWindow;
+	DEBUG("block start with window {}", blockWindow);
+	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::blockHandler);
+}
 
+void blockHandler::blockKeyUp() {
+	isBlockButtonPressed = false;
+	auto pc = RE::PlayerCharacter::GetSingleton();
+	if (pc && pc->IsBlocking()) {
+		isBlockKeyUp_and_still_blocking = true;
+	}
+}
+
+void blockHandler::blockStop() {
+	isBlockKeyUp_and_still_blocking = false;
+	DEBUG("process block stop");
+	checkoutPcBlock();
+}
 
 bool blockHandler::inBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj) {
 	auto angle = blocker->GetHeadingAngle(a_obj->GetPosition(), false);
@@ -232,37 +112,83 @@ bool blockHandler::inBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj) {
 	return (angle <= desiredAngle && angle >= -desiredAngle);
 }
 
-bool blockHandler::tryDeflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
-	if (a_blocker->IsPlayerRef() && isPcTimedBlocking && inBlockAngle(a_blocker, a_projectile)) {
-		isPcTimedBlockSuccess = true;
-		pcBlockWindowPenalty = blockWindowPenaltyLevel::none;
-		ValhallaUtils::setProjectileCause(a_projectile, a_blocker, a_projectile_collidable);
-		ValhallaUtils::ReflectProjectile(a_projectile);
-		playBlockEffects(a_blocker, nullptr, 2, blockHandler::blockType::timed);
-		return true;
+bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+	if (a_blocker->IsPlayerRef()) {
+		if (inBlockAngle(a_blocker, a_projectile)) {
+			bool isPcParrying = getIsPcParrying();
+			//Perfect block
+			if (getIsPcTimedBlocking() || isPcParrying) {
+				a_blocker->NotifyAnimationGraph("BlockHitStart");
+				isPcTimedBlockSuccess = true;
+				pcBlockWindowPenalty = blockWindowPenaltyLevel::none;
+
+				RE::TESObjectREFR* a_enemy = nullptr;
+				if (a_projectile->shooter && a_projectile->shooter.get()) {
+					a_enemy = a_projectile->shooter.get().get();
+					if (a_enemy->GetFormType() != RE::FormType::ActorCharacter) {
+						a_enemy = nullptr;
+					}
+				}
+				ValhallaUtils::resetProjectileOwner(a_projectile, a_blocker, a_projectile_collidable);
+				if (getIsPcPerfectBlocking() || isPcParrying) {//only deflect projectile on perfect block/parry
+					deflectProjectile(a_blocker, a_projectile, a_projectile_collidable, a_enemy->As<RE::Actor>());
+				}
+				else {
+					parryProjectile(a_blocker, a_projectile, a_projectile_collidable);
+				}
+				return true;
+			}
+			//none-perfect block
+			auto spell = a_projectile->spell;
+			if (spell) {
+				auto cost = spell->CalculateMagickaCost(a_blocker);
+				if (Utils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
+					parryProjectile(a_blocker, a_projectile, a_projectile_collidable);
+					return true;
+				}
+			}
+			else if (!a_blocker->isHoldingShield()) { //physical projectile blocking only applies to none-shield.
+				auto launcher = a_projectile->weaponSource;
+				auto ammo = a_projectile->ammoSource;
+				if (launcher && ammo) {
+					auto cost = launcher->GetAttackDamage() + ammo->data.damage;
+					if (Utils::tryDamageAv(a_blocker, RE::ActorValue::kStamina, cost)) {
+						parryProjectile(a_blocker, a_projectile, a_projectile_collidable);
+						return true;
+					}
+				}
+			}
+		}
+		
 	}
 	return false;
 }
 
+void blockHandler::deflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, RE::Actor* a_target) {
+	playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
+	if (a_target && a_target->Is3DLoaded()) {
+		ValhallaUtils::DeflectProjectile(a_blocker, a_projectile, a_target);
+	}
+	else {
+		ValhallaUtils::ReflectProjectile(a_projectile);
+	}
+}
+
+void blockHandler::parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+	playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
+	RE::Offset::destroyProjectile(a_projectile);
+}
+
 #pragma region Process Block
-bool blockHandler::processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
+bool blockHandler::processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
 	//DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
 	DEBUG("processing block. Real damage: {}", realDamage);
 	if (settings::bTimedBlockToggle) {
-		//mtx_actors_PerfectBlocking.lock();
-		//if (actors_PerfectBlocking.contains(blocker)
-			//|| (!blocker->IsPlayerRef() && AI::GetSingleton()->getShouldTimedBlock(blocker))
-			//) {
-			//float timeLeft = actors_PerfectBlocking[blocker]; //time left for perfect block
-			//mtx_actors_PerfectBlocking.unlock();
-			//mtx_actors_PrevTimeBlockingSuccessful.lock();
-			//actors_PrevTimeBlockingSuccessful.insert(blocker); //register the blocker as a successful blocker.
-			//mtx_actors_PrevTimeBlockingSuccessful.unlock();
 		if (blocker->IsPlayerRef()) {
-			if (isPcTimedBlocking) {
+			if (blockHandler::getIsPcTimedBlocking()) {
 				isPcTimedBlockSuccess = true;
 				pcBlockWindowPenalty = blockWindowPenaltyLevel::none;
-				processTimedBlock(blocker, aggressor, iHitflag, hitData, realDamage, pcBlockTimer);
+				processPhysicalTimedBlock(blocker, aggressor, iHitflag, hitData, realDamage, pcBlockTimer);
 				return true;
 			}
 		}
@@ -340,14 +266,25 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 		hitData.totalDamage = 0;
 		Utils::damageav(blocker, RE::ActorValue::kStamina,
 			staminaDamage);
+
 	}
 }
+bool blockHandler::getIsPcTimedBlocking() {
+	return (isPcTimedBlocking && RE::PlayerCharacter::GetSingleton()->IsBlocking());
+}
 
+bool blockHandler::getIsPcPerfectBlocking() {
+	return pcBlockTimer >= 0.4 || isBlockKeyUp_and_still_blocking;
+}
 
-void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timeLeft) {
+bool blockHandler::getIsPcParrying() {
+	return RE::PlayerCharacter::GetSingleton()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash;
+}
+
+void blockHandler::processPhysicalTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timeLeft) {
 	float reflectedDamage = 0;
 	auto a_weapon = blocker->getWieldingWeapon();
-	bool isPerfectblock = timeLeft >= 0.4;
+	bool isPerfectblock = blocker->IsPlayerRef() && getIsPcPerfectBlocking();
 	if (a_weapon) {
 		reflectedDamage = a_weapon->GetAttackDamage();//get attack damage of blocker's weapon
 	}
@@ -360,22 +297,22 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, stunDmg);
 	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, balanceDmg);
 	hitData.totalDamage = 0;
-	bool isEnemyStunBroken = balanceHandler::GetSingleton()->isBalanceBroken(attacker)
+	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(attacker)
 		|| stunHandler::GetSingleton()->isActorStunned(attacker);
 
-	if (isEnemyStunBroken) {
-		playBlockEffects(blocker, attacker, iHitflag, blockType::guardBreaking);
+	if (isAttackerGuardBroken) {
+		playBlockEffects(blocker, attacker, blockType::guardBreaking);
 	}
 	else {
 		if (isPerfectblock) {
-			playBlockEffects(blocker, attacker, iHitflag, blockType::perfect);
+			playBlockEffects(blocker, attacker, blockType::perfect);
 		}
 		else {
-			playBlockEffects(blocker, attacker, iHitflag, blockType::timed);
+			playBlockEffects(blocker, attacker, blockType::timed);
 		}
 	}
 
-	if (isPerfectblock || isEnemyStunBroken) {//stagger opponent immediately on perfect block.
+	if (isPerfectblock || isAttackerGuardBroken) {//stagger opponent immediately on perfect block.
 		reactionHandler::triggerStagger(blocker, attacker, reactionHandler::reactionType::kLarge);
 		debuffHandler::GetSingleton()->quickStopStaminaDebuff(blocker);
 	}
@@ -386,27 +323,49 @@ void blockHandler::processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, in
 	//damage blocker's stamina
 }
 #pragma endregion
+/*Unused for now. Reserved for souls like parry.*/
+void blockHandler::processMeleeParry(RE::Actor* a_blocker, RE::Actor* a_attacker) {
+	float reflectedDamage = 0;
+	auto a_weapon = a_blocker->getWieldingWeapon();
+	if (a_weapon) {
+		reflectedDamage = a_weapon->GetAttackDamage();//get attack damage of blocker's weapon
+	}
+	Utils::offsetRealDamage(reflectedDamage, a_blocker, a_attacker);
+	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
+	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
+	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(a_attacker)
+		|| stunHandler::GetSingleton()->isActorStunned(a_attacker);
 
-void blockHandler::playBlockSFX(RE::Actor* blocker, int iHitflag, blockType blockType) {
-	if (iHitflag & (int)RE::HitData::Flag::kBlockWithWeapon) {
+	if (isAttackerGuardBroken) {
+		playBlockEffects(a_blocker, a_attacker, blockType::guardBreaking);
+	}
+	else {
+		playBlockEffects(a_blocker, a_attacker, blockType::perfect);
+
+	}
+	debuffHandler::GetSingleton()->quickStopStaminaDebuff(a_blocker);
+	reactionHandler::triggerStagger(a_blocker, a_attacker, reactionHandler::reactionType::kLarge);
+}
+void blockHandler::playBlockSFX(RE::Actor* blocker, blockType blockType, bool blockedWithWeapon) {
+	if (blockedWithWeapon) {
 		switch (blockType) {
 		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryWeapon_gb); break;
-		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryWeaponV); break;
 		case blockType::perfect: ValhallaUtils::playSound(blocker, data::soundParryWeapon_perfect); break;
+		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryWeaponV); break;
 		}
 	}
 	else {
 		switch (blockType) {
 		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryShield_gb); break;
-		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryShieldV); break;
 		case blockType::perfect: ValhallaUtils::playSound(blocker, data::soundParryShield_perfect); break;
+		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryShieldV); break;
 		}
 	}
 }
-void blockHandler::playBlockVFX(RE::Actor* blocker, int iHitflag, blockType blockType) {
-	MaxsuBlockSpark::blockSpark::GetSingleton()->playPerfectBlockSpark(blocker);
+void blockHandler::playBlockVFX(RE::Actor* blocker, blockType blockType) {
+	MaxsuBlockSpark::blockSpark::playPerfectBlockSpark(blocker);
 }
-void blockHandler::playBlockScreenShake(RE::Actor* blocker, int iHitflag, blockType blockType) {
+void blockHandler::playBlockScreenShake(RE::Actor* blocker, blockType blockType) {
 	switch (blockType) {
 	case blockType::guardBreaking:RE::Offset::shakeCamera(1.7, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.8f); break;
 	case blockType::timed: RE::Offset::shakeCamera(1.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f); break;
@@ -433,17 +392,18 @@ void blockHandler::playBlockSlowTime(blockType blockType) {
 	t.detach();
 }
 
-void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, int iHitFlag, blockType blockType) {
+void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, blockType blockType) {
+
 	DEBUG("playing effects");
 	if (settings::bTimedBlockVFX) {
-		playBlockVFX(blocker, iHitFlag, blockType);
+		playBlockVFX(blocker, blockType);
 	}
 	if (settings::bTimedBlockScreenShake
 		&&(blocker->IsPlayerRef() || (attacker && attacker->IsPlayerRef()))) {
-		playBlockScreenShake(blocker, iHitFlag, blockType);
+		playBlockScreenShake(blocker, blockType);
 	}
 	if (settings::bTimeBlockSFX) {
-		playBlockSFX(blocker, iHitFlag, blockType);
+		playBlockSFX(blocker, blockType, !blocker->isHoldingShield());
 	}
 	if (settings::bTimedBlockSlowTime
 		&&((attacker && attacker->IsPlayerRef()) || blocker->IsPlayerRef())) {

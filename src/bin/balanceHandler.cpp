@@ -32,7 +32,7 @@ void balanceHandler::update() {
 		//DEBUG(a_balanceData.second);
 		//DEBUG(a_balanceData.first);
 		if (a_balanceData.second + regenVal >= a_balanceData.first) {//this regen exceeds actor's max balance.
-			DEBUG("{}'s balance has recovered", (*it)->GetName());
+			//DEBUG("{}'s balance has recovered", (*it)->GetName());
 			a_balanceData.second = a_balanceData.first;//reset balance.
 			debuffHandler::GetSingleton()->quickStopStaminaDebuff(*it);
 			it = balanceBrokenActors.erase(it);
@@ -111,7 +111,7 @@ bool balanceHandler::isBalanceBroken(RE::Actor* a_actor) {
 }
 
 void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE::Actor* victim, float damage) {
-	DEBUG("damaging balance: aggressor: {}, victim: {}, damage: {}", aggressor->GetName(), victim->GetName(), damage);
+	//DEBUG("damaging balance: aggressor: {}, victim: {}, damage: {}", aggressor->GetName(), victim->GetName(), damage);
 	mtx_actorBalanceMap.lock();
 	if (!actorBalanceMap.contains(victim)) {
 		mtx_actorBalanceMap.unlock();
@@ -128,12 +128,7 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE
 		if (!balanceBrokenActors.contains(victim)) {
 			//DEBUG("{}'s balance has broken", victim->GetName());
 			balanceBrokenActors.insert(victim);
-			if (dmgSource == DMGSOURCE::parry) {
-				reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kLarge);
-			}
-			else {
-				reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLarge);
-			}
+			reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kLarge);
 			ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::balanceHandler);
 		}
 		else {//balance already broken, yet broken again, ouch!

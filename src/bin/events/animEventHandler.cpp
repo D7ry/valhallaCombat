@@ -26,6 +26,7 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	if (a_event.holder == nullptr) {
 		return fn ? (this->*fn)(a_event, src) : RE::BSEventNotifyControl::kContinue;
 	}
+	//DEBUG(eventTag);
 	switch (hash(eventTag.data(), eventTag.size())) {
 	case "preHitFrame"_h:
 		//DEBUG("==========prehitFrame==========");
@@ -40,10 +41,12 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		}
 
 		break;
-	//case "BlockStop"_h:
-		//if (settings::bTimedBlockToggle) {
-			//blockHandler::GetSingleton()->blockStop();
-		///}
+	case "blockStop"_h:
+		DEBUG("blockstop");
+		if (settings::bTimedBlockToggle && a_event.holder->IsPlayerRef()) {
+			blockHandler::GetSingleton()->blockStop();
+		}
+		break;
 	//case "blockStartOut"_h:
 		//DEBUG("===========blockStartOut===========");
 		/*\if (settings::bTimedBlockToggle) {

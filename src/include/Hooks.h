@@ -3,7 +3,7 @@
 #include "SKSE/Trampoline.h"
 #include "include/blockHandler.h"
 #include "include/Utils.h"
-class Hook_GetAttackStaminaCost //Actor__sub_140627930+16E	call ActorValueOwner__sub_1403BEC90
+class Hook_OnGetAttackStaminaCost //Actor__sub_140627930+16E	call ActorValueOwner__sub_1403BEC90
 {
 	/*to cancel out vanilla power attack stamina consumption.*/
 public:
@@ -103,7 +103,7 @@ private:
 	static inline REL::Relocation<decltype(getAttackChance)> _getAttackChance;
 };
 
-class Hook_StaminaRegen //block stamina regen during weapon swing
+class Hook_OnStaminaRegen //block stamina regen during weapon swing
 {
 public:
 	static void install() {
@@ -117,15 +117,52 @@ private:
     static bool HasFlags1(RE::ActorState* a_this, uint16_t a_flags);
     static inline REL::Relocation<decltype(HasFlags1)> _HasFlags1;
 };
+class Hook_OnMeleeCollision
+{
+public:
+	static void install() {
+		REL::Relocation<uintptr_t> hook{ REL::ID(37650) };
+		auto& trampoline = SKSE::GetTrampoline();
+		_ProcessHit = trampoline.write_call<5>(hook.address() + 0x38B, processHit);
+		INFO("Melee Hit hook installed.");
+	}
+private:
+	static void processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, std::int64_t a_int1, bool a_bool, void* a_unkptr) {
+		DEBUG("hooked process hit. Aggressor: {}, Victim: {}", a_aggressor->GetName(), a_victim->GetName());
+		if (a_aggressor->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) {
+			DEBUG("nullifying bash");
+			return;
+		}
+		if (a_victim->IsPlayerRef()) {
+			auto atkState = a_victim->GetAttackState();
+			DEBUG(atkState);
+			if (atkState == RE::ATTACK_STATE_ENUM::kBash) {
+				auto atkData = a_victim->currentProcess->high->attackData->data.flags;
+				if (atkData.any(RE::AttackData::AttackFlag::kPowerAttack)) {
+					DEBUG("power bash");
+				}
+				else {
+					blockHandler::GetSingleton()->processMeleeParry(a_victim, a_aggressor);
+					return;
+				}
+				
+			}
+			
 
-class Hook_MeleeHit
+		}
+		_ProcessHit(a_aggressor, a_victim, a_int1, a_bool, a_unkptr);
+	}
+	static inline REL::Relocation<decltype(processHit)> _ProcessHit;
+};
+
+class Hook_OnPhysicalHit
 {
 public:
 	static void install() {
 		REL::Relocation<uintptr_t> hook{ REL::ID(37673) };
 		auto& trampoline = SKSE::GetTrampoline();
 		_ProcessHit = trampoline.write_call<5>(hook.address() + 0x3C0, processHit);
-		INFO("Melee Hit hook installed.");
+		INFO("Physical Hit hook installed.");
 	}
 private:
     static void processHit(RE::Actor* victim, RE::HitData& hitData);
@@ -134,7 +171,7 @@ private:
 };
 
 /*Remove vanilla stagger by setting return value of all vanilla stagger magnitude calculations to 0.*/
-class Hook_GetStaggerMagnitude
+class Hook_OnGetStaggerMagnitude
 {
 public:
 	static void install() {
@@ -144,18 +181,6 @@ public:
 
 		REL::Relocation<uintptr_t> hook2{ REL::ID(42839) };	//Down	p	Character__sub_1407431D0+5B	call    sub_1403BE760
 		_getStaggerManitude_Bash = trampoline.write_call<5>(hook2.address() + 0x5B, getStaggerManitude_Bash);
-
-		// 
-		//Up	p	StaggerEffect__Func20_140563460+61	call    Character__sub_1407431D0 //34188	
-		//Up	p	sub_1407426F0 + 131	call    Character__sub_1407431D0 //42831
-		//Up	p	sub_140742850+2FC	call    Character__sub_1407431D0 //42832	
-		//Up	p	sub_140742C00+FE	call    Character__sub_1407431D0 //42833	
-		/*REL::Relocation<uintptr_t> hook1{REL::ID(42831)};
-		_initStagger1 = trampoline.write_call<5>(hook1.address() + 0x131, initStagger1);
-		REL::Relocation<uintptr_t> hook2{ REL::ID(42832) };
-		_initStagger2 = trampoline.write_call<5>(hook2.address() + 0x131, initStagger2);
-		REL::Relocation<uintptr_t> hook3{ REL::ID(42833) };
-		_initStagger3 = trampoline.write_call<5>(hook3.address() + 0x131, initStagger3);*/
 		INFO("Stagger magnitude hook installed.");
 	}
 private:
@@ -174,7 +199,7 @@ private:
 	static void initStagger3(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5);
 	static inline REL::Relocation<decltype(initStagger3)> _initStagger3;*/
 };
-
+/*
 class Hook_MagicHit {
 public:
 	static void install()
@@ -193,16 +218,8 @@ private:
 		}
 		if (victim && victim->IsPlayerRef()) {
 			DEBUG("hooked process magic hit. victim: {}", victim->GetName());
-			//TODO:a new hitProcessor function that deals with magic hit, migrate everything there.
-			//TODO:get game setting of block angle and change it
 			
 			if (blockHandler::GetSingleton()->getIsPcTimedBlocking()) {
-				/*DEBUG("timed block");
-				DEBUG("coords: {}, {}, {}", rdx0->x, rdx0->y, rdx0->z);
-				DEBUG(a5);
-				DEBUG(a6);
-				DEBUG(a7);
-				DEBUG(a8);*/
 				blockHandler::GetSingleton()->playBlockEffects(victim->As<RE::Actor>(), nullptr, 2, blockHandler::blockType::timed);
 				
 				ValhallaUtils::ReflectProjectile(a_projectile);
@@ -213,7 +230,8 @@ private:
 		_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
 	}
 	static inline REL::Relocation<decltype(processMagicHit)> _processMagicHit;
-};
+};*/
+
 
 class Hook_MainUpdate
 {
@@ -233,7 +251,7 @@ private:
 
 };
 
-class Hook_PlayerUpdate
+class Hook_OnPlayerUpdate
 {
 public:
 	static void install() {
@@ -256,7 +274,7 @@ private:
 	static inline REL::Relocation<decltype(Update)> _Update;
 };
 
-class Hook_ProjectileHit {
+class Hook_OnProjectileCollision {
 public:
 	static void install() {
 #if ANNIVERSARY_EDITION
@@ -265,15 +283,15 @@ public:
 		REL::Relocation<std::uintptr_t> arrowProjectileVtbl{ REL::ID(263776) };
 		REL::Relocation<std::uintptr_t> missileProjectileVtbl{ REL::ID(263942) };
 #endif
-		_arrowCollission = arrowProjectileVtbl.write_vfunc(190, arrowCollission);
-		_missileCollission = missileProjectileVtbl.write_vfunc(190, missileCollission);
+		_arrowCollission = arrowProjectileVtbl.write_vfunc(190, OnArrowCollision);
+		_missileCollission = missileProjectileVtbl.write_vfunc(190, OnMissileCollision);
 	};
 private:
-	static void arrowCollission(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector);
+	static void OnArrowCollision(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector);
 
-	static void missileCollission(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector);
-	static inline REL::Relocation<decltype(arrowCollission)> _arrowCollission;
-	static inline REL::Relocation<decltype(missileCollission)> _missileCollission;
+	static void OnMissileCollision(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector);
+	static inline REL::Relocation<decltype(OnArrowCollision)> _arrowCollission;
+	static inline REL::Relocation<decltype(OnMissileCollision)> _missileCollission;
 };
 /*class Hook_GetFallbackChance {
 public:
@@ -291,19 +309,20 @@ public:
 	static void install() {
 		INFO("Installing hooks...");
 		SKSE::AllocTrampoline(1 << 8);
-		Hook_GetAttackStaminaCost::install();
+		Hook_OnGetAttackStaminaCost::install();
 		//Hook_CacheAttackStaminaCost::install();
 		//Hook_GetBlockChance::install();
 		//Hook_GetAttackChance1::install();
 		//Hook_GetAttackChance2::install();
-		Hook_StaminaRegen::install();
+		Hook_OnStaminaRegen::install();
 		//Hook_GetWantBlock::install();
-		Hook_MeleeHit::install();
+		Hook_OnPhysicalHit::install();
 		//Hook_MagicHit::install();
 		//Hook_MainUpdate::install();
-		Hook_PlayerUpdate::install();
-		Hook_ProjectileHit::install();
-		Hook_GetStaggerMagnitude::install();
+		Hook_OnPlayerUpdate::install();
+		Hook_OnProjectileCollision::install();
+		//Hook_OnMeleeCollision::install(); //not used. Reserved for souls-like shield parry.
+		Hook_OnGetStaggerMagnitude::install();
 	}
 };
 

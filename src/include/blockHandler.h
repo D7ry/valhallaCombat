@@ -15,6 +15,9 @@ public:
 	void update();
 
 	bool getIsPcTimedBlocking();
+	bool getIsPcPerfectBlocking();
+	/*Return if player character is in bashing state.*/
+	bool getIsPcParrying();
 	/*Register a perfect block when an actor tries to block. Put the blocker into the active perfect blocker set and start timing.
 	@param actor actor whose block is registered as a perfect block.*/
 	void blockKeyDown(RE::Actor* actor);
@@ -30,7 +33,9 @@ public:
 	@param hitData: hitdata of the blocked hit.
 	@param realDamage: real damage of this blocked hit.
 	@return if the block is a perfect block.*/
-	bool processBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
+	bool processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
+
+	void processMeleeParry(RE::Actor* a_blocker, RE::Actor* a_attacker);
 
 	bool isBlockButtonPressed;
 
@@ -40,6 +45,8 @@ public:
 		perfect,
 		guardBreaking
 	};
+
+	
 private:
 	enum blockWindowPenaltyLevel {
 		none = 0,
@@ -57,6 +64,8 @@ private:
 	std::atomic<bool> isPcTimedBlocking;
 	std::atomic<bool> isPcBlockingCoolDown;
 	std::atomic<bool> isPcTimedBlockSuccess;
+	std::atomic<bool> isBlockKeyUp_and_still_blocking;
+	inline void checkoutPcBlock();
 	/*Mapping of all actors in perfect blocking cool down =>> remaining time of the cool down.*/
 	robin_hood::unordered_map <RE::Actor*, float> actors_BlockingCoolDown;
 
@@ -78,19 +87,20 @@ private:
 	@param blocker: actor performing the perfect block.
 	@param attacker: actor whose attack gets perfect blocked.
 	@param hitData: reference to the hitData of the blocked attack.*/
-	void processTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timePassed);
+	void processPhysicalTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timePassed);
+
 
 	/*Return: whether the object is within the blocker's block angle and thus can be blocked.*/
 	inline bool inBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj);
 
 	/*Play VFX, SFX and screenShake for successful perfect block.*/
-	inline void playBlockVFX(RE::Actor* blocker, int iHitFlag, blockType blockType);
-	inline void playBlockSFX(RE::Actor* blocker, int iHitFlag, blockType blockType);
-	inline void playBlockScreenShake(RE::Actor* blocker, int iHitFlag, blockType blockType);
+	inline void playBlockVFX(RE::Actor* blocker, blockType blockType);
+	inline void playBlockSFX(RE::Actor* blocker, blockType blockType, bool blockedWithWeapon);
+	inline void playBlockScreenShake(RE::Actor* blocker, blockType blockType);
 	inline void playBlockSlowTime(blockType blockType);
 
 public:
-	void playBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, int iHitFlag, blockType blockType);
+	void playBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, blockType blockType);
 
 	/*Initialize an attempt to block the incoming projectile. If the deflection is successful, return true.
 	@param a_blocker: a_blocker: actor attempting to deflect the projectlile
@@ -98,5 +108,8 @@ public:
 	@param a_projectile_collidable: the collidable of the projectile, whose collision group will be reset if the deflection
 	is successful.
 	@return whether the deflection is successful.*/
-	bool tryDeflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
+	bool processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
+private:
+	inline void deflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, RE::Actor* a_target);
+	inline void parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
 };

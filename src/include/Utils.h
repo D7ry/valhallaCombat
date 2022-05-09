@@ -56,6 +56,16 @@ namespace Utils
 		}
 	}
 
+	/*Try to damage this actor's actorvalue. If the actor does not have enough value, do not damage and return false;*/
+	inline bool tryDamageAv(RE::Actor* a_actor, RE::ActorValue av, float val) {
+		auto currentAv = a_actor->GetActorValue(av);
+		if (currentAv - val <= 0) {
+			return false;
+		}
+		damageav(a_actor, av, val);
+		return true;
+	}
+
 	inline void restoreav(RE::Actor* a, RE::ActorValue av, float val)
 	{
 		if (a) {
@@ -283,7 +293,7 @@ public:
 	@param a_projectile: projectile to be reset.
 	@param a_actor: new owner of the projectile.
 	@param a_projectile_collidable: pointer to the projectile collidable to rset its collision mask.*/
-	static void setProjectileCause(RE::Projectile* a_projectile, RE::Actor* a_actor, RE::hkpCollidable* a_projectile_collidable) {
+	static void resetProjectileOwner(RE::Projectile* a_projectile, RE::Actor* a_actor, RE::hkpCollidable* a_projectile_collidable) {
 		a_projectile->actorCause.get()->actor = a_actor->GetHandle();
 		a_projectile->desiredTarget = a_actor->currentCombatTarget;
 		a_projectile->shooter = a_actor->GetHandle();
@@ -291,30 +301,104 @@ public:
 		a_actor->GetCollisionFilterInfo(a_collisionFilterInfo);
 		a_projectile_collidable->broadPhaseHandle.collisionFilterInfo &= (0x0000FFFF);
 		a_projectile_collidable->broadPhaseHandle.collisionFilterInfo |= (a_collisionFilterInfo << 16);
-
 	}
-	static void DeflectProjectile(RE::Projectile* a_projectile) {
-		a_projectile->linearVelocity *= -1.f;
-		auto projectileNode = a_projectile->Get3D2();
-		if (projectileNode)
-		{
-			RE::NiPoint3 direction = a_projectile->linearVelocity;
-			direction.Unitize();
 
-			a_projectile->data.angle.x = asin(direction.z);
-			a_projectile->data.angle.z = atan2(direction.x, direction.y);
+	static inline bool ApproximatelyEqual(float A, float B)
+	{
+		return ((A - B) < FLT_EPSILON) && ((B - A) < FLT_EPSILON);
+	}
 
-			if (a_projectile->data.angle.z < 0.0) {
-				a_projectile->data.angle.z += PI;
-			}
+	static bool PredictAimProjectile(RE::NiPoint3 a_projectilePos, RE::NiPoint3 a_targetPosition, RE::NiPoint3 a_targetVelocity, float a_gravity, RE::NiPoint3& a_projectileVelocity)
+	{
+		// http://ringofblades.com/Blades/Code/PredictiveAim.cs
 
-			if (direction.x < 0.0) {
-				a_projectile->data.angle.z += PI;
-			}
+		float projectileSpeedSquared = a_projectileVelocity.SqrLength();
+		float projectileSpeed = std::sqrtf(projectileSpeedSquared);
 
-			Utils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
+		if (projectileSpeed <= 0.f || a_projectilePos == a_targetPosition) {
+			return false;
 		}
+
+		float targetSpeedSquared = a_targetVelocity.SqrLength();
+		float targetSpeed = std::sqrtf(targetSpeedSquared);
+		RE::NiPoint3 targetToProjectile = a_projectilePos - a_targetPosition;
+		float distanceSquared = targetToProjectile.SqrLength();
+		float distance = std::sqrtf(distanceSquared);
+		RE::NiPoint3 direction = targetToProjectile;
+		direction.Unitize();
+		RE::NiPoint3 targetVelocityDirection = a_targetVelocity;
+		targetVelocityDirection.Unitize();
+
+		float cosTheta = (targetSpeedSquared > 0)
+			? direction.Dot(targetVelocityDirection)
+			: 1.0f;
+
+		bool bValidSolutionFound = true;
+		float t;
+
+		if (ApproximatelyEqual(projectileSpeedSquared, targetSpeedSquared)) {
+			// We want to avoid div/0 that can result from target and projectile traveling at the same speed
+			//We know that cos(theta) of zero or less means there is no solution, since that would mean B goes backwards or leads to div/0 (infinity)
+			if (cosTheta > 0) {
+				t = 0.5f * distance / (targetSpeed * cosTheta);
+			}
+			else {
+				bValidSolutionFound = false;
+				t = 1;
+			}
+		}
+		else {
+			float a = projectileSpeedSquared - targetSpeedSquared;
+			float b = 2.0f * distance * targetSpeed * cosTheta;
+			float c = -distanceSquared;
+			float discriminant = b * b - 4.0f * a * c;
+
+			if (discriminant < 0) {
+				// NaN
+				bValidSolutionFound = false;
+				t = 1;
+			}
+			else {
+				// a will never be zero
+				float uglyNumber = sqrtf(discriminant);
+				float t0 = 0.5f * (-b + uglyNumber) / a;
+				float t1 = 0.5f * (-b - uglyNumber) / a;
+
+				// Assign the lowest positive time to t to aim at the earliest hit
+				t = min(t0, t1);
+				if (t < FLT_EPSILON) {
+					t = max(t0, t1);
+				}
+
+				if (t < FLT_EPSILON) {
+					// Time can't flow backwards when it comes to aiming.
+					// No real solution was found, take a wild shot at the target's future location
+					bValidSolutionFound = false;
+					t = 1;
+				}
+			}
+		}
+
+		a_projectileVelocity = a_targetVelocity + (-targetToProjectile / t);
+
+		if (!bValidSolutionFound)
+		{
+			a_projectileVelocity.Unitize();
+			a_projectileVelocity *= projectileSpeed;
+		}
+
+		if (!ApproximatelyEqual(a_gravity, 0.f))
+		{
+			float netFallDistance = (a_projectileVelocity * t).z;
+			float gravityCompensationSpeed = (netFallDistance + 0.5f * a_gravity * t * t) / t;
+			a_projectileVelocity.z = gravityCompensationSpeed;
+		}
+
+		return bValidSolutionFound;
 	}
+
+
+
 	static void ReflectProjectile(RE::Projectile* a_projectile)
 	{
 		a_projectile->linearVelocity *= -1.f;
@@ -339,5 +423,56 @@ public:
 
 			Utils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
 		}
+	}
+	/*Deflect this projectile, aiming it at a_target.*/
+	static void DeflectProjectile(RE::Actor* a_actor, RE::Projectile* a_projectile, RE::Actor* a_target) {
+		auto projectileNode = a_projectile->Get3D2();
+		auto target = a_target->GetHandle();
+
+		RE::BGSBodyPart* bodyPart = a_target->race->bodyPartData->parts[0];
+		
+		auto targetPoint = a_target->GetNodeByName(bodyPart->targetName.c_str());
+		if (!targetPoint) {
+			ReflectProjectile(a_projectile);
+		}
+
+		RE::NiPoint3 targetPos = targetPoint->world.translate;
+		RE::NiPoint3 targetVelocity;
+		target.get()->GetLinearVelocity(targetVelocity);
+
+		float projectileGravity = 0.f;
+		if (auto ammo = a_projectile->ammoSource) {
+			if (auto bgsProjectile = ammo->data.projectile) {
+				projectileGravity = bgsProjectile->data.gravity;
+				if (auto bhkWorld = a_projectile->parentCell->GetbhkWorld()) {
+					if (auto hkpWorld = bhkWorld->GetWorld1()) {
+						auto vec4 = hkpWorld->gravity;
+						float quad[4];
+						_mm_store_ps(quad, vec4.quad);
+						float gravity = -quad[2] * *RE::Offset::g_worldScaleInverse;
+						projectileGravity *= gravity;
+					}
+				}
+			}
+		}
+
+		PredictAimProjectile(a_projectile->data.location, targetPos, targetVelocity, projectileGravity, a_projectile->linearVelocity);
+
+		// rotate
+		RE::NiPoint3 direction = a_projectile->linearVelocity;
+		direction.Unitize();
+
+		a_projectile->data.angle.x = asin(direction.z);
+		a_projectile->data.angle.z = atan2(direction.x, direction.y);
+
+		if (a_projectile->data.angle.z < 0.0) {
+			a_projectile->data.angle.z += PI;
+		}
+
+		if (direction.x < 0.0) {
+			a_projectile->data.angle.z += PI;
+		}
+
+		Utils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
 	}
 };
