@@ -134,10 +134,10 @@ inline bool initProjectileBlock(RE::Projectile* a_projectile, RE::hkpAllCdPointC
 			auto refrA = RE::TESHavokUtilities::FindCollidableRef(*hit.rootCollidableA);
 			auto refrB = RE::TESHavokUtilities::FindCollidableRef(*hit.rootCollidableB);
 			if (refrA && refrA->formType == RE::FormType::ActorCharacter) {
-				return blockHandler::GetSingleton()->processProjectileBlock(refrA->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableB));
+				return blockHandler::GetSingleton()->preProcessProjectileBlock(refrA->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableB));
 			}
 			if (refrB && refrB->formType == RE::FormType::ActorCharacter) {
-				return blockHandler::GetSingleton()->processProjectileBlock(refrB->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableA));
+				return blockHandler::GetSingleton()->preProcessProjectileBlock(refrB->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableA));
 			}
 		}
 	}

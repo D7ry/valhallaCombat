@@ -20,12 +20,12 @@ public:
 	bool getIsPcParrying();
 	/*Register a perfect block when an actor tries to block. Put the blocker into the active perfect blocker set and start timing.
 	@param actor actor whose block is registered as a perfect block.*/
-	void blockKeyDown(RE::Actor* actor);
+	void onBlockKeyDown(RE::Actor* actor);
 
 	/*Register perfect block but only for pc.*/
-	void blockKeyDown();
-	void blockKeyUp();
-	void blockStop();
+	void onBlockKeyDown();
+	void onBlockKeyUp();
+	void onBlockStop();
 	/*Process a single block.
 	@param blocker: Actor who blocks.
 	@param aggressor: Actor whose attack gets blocked.
@@ -58,6 +58,7 @@ private:
 	blockWindowPenaltyLevel pcBlockWindowPenalty;
 	std::atomic<float> pcBlockTimer = 0;
 	std::atomic<float> pcCoolDownTimer = 0;
+	inline void onSuccessfulTimedBlock();
 
 	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
 	//robin_hood::unordered_map <RE::Actor*, float> actors_PerfectBlocking;
@@ -65,7 +66,7 @@ private:
 	std::atomic<bool> isPcBlockingCoolDown;
 	std::atomic<bool> isPcTimedBlockSuccess;
 	std::atomic<bool> isBlockKeyUp_and_still_blocking;
-	inline void checkoutPcBlock();
+	inline void onPcTimedBlockEnd();
 	/*Mapping of all actors in perfect blocking cool down =>> remaining time of the cool down.*/
 	robin_hood::unordered_map <RE::Actor*, float> actors_BlockingCoolDown;
 
@@ -91,7 +92,7 @@ private:
 
 
 	/*Return: whether the object is within the blocker's block angle and thus can be blocked.*/
-	inline bool inBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj);
+	inline bool isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj);
 
 	/*Play VFX, SFX and screenShake for successful perfect block.*/
 	inline void playBlockVFX(RE::Actor* blocker, blockType blockType);
@@ -102,14 +103,22 @@ private:
 public:
 	void playBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, blockType blockType);
 
+	bool processRegularSpellBlock(RE::Actor* a_blocker, RE::MagicItem* a_spell, RE::Projectile* a_projectile);
 	/*Initialize an attempt to block the incoming projectile. If the deflection is successful, return true.
 	@param a_blocker: a_blocker: actor attempting to deflect the projectlile
 	@param a_projectile: projectile to be deflected.
 	@param a_projectile_collidable: the collidable of the projectile, whose collision group will be reset if the deflection
 	is successful.
 	@return whether the deflection is successful.*/
-	bool processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
+	bool preProcessProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
+	
 private:
+	bool processProjectileBlock_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile);
+	bool processProjectileBlock_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::MagicItem* a_spell);
+	void processProjectileParry(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
+
+	/*Deflect the projectile back at the sender of the projectile.*/
 	inline void deflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, RE::Actor* a_target);
-	inline void parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
+	/*Destroy the projectile by parrying.*/
+	inline void parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile);
 };

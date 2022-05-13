@@ -2,6 +2,7 @@
 #include "include/data.h"
 #include "include/settings.h"
 #include "include/offsets.h"
+#include "include/Utils.h"
 #include "valhallaCombat.hpp"
 //TODO:make sure to resume the debuff state on reloading the actor i.e. the actor has debuff perk, but it's no longer in the debuff map, so they have to be put back onto the map.
 /*Called every frame.
@@ -43,21 +44,21 @@ void debuffHandler::update() {
 /*Initialize a stmaina debuff for actor, giving them exhaustion perk, and putting them into the debuff map.
 If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
 @param actor actor who will receive debuff.*/
-void debuffHandler::initStaminaDebuff(RE::Actor* actor) {
+void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {
 	mtx_actorInDebuff.lock();
-	if (actorInDebuff.contains(actor)) {
+	if (actorInDebuff.contains(a_actor)) {
 		//DEBUG("{} is already in debuff", actor->GetName());
 		mtx_actorInDebuff.unlock();
 		return;
 	}
-	actorInDebuff.insert(actor);
+	actorInDebuff.insert(a_actor);
 	mtx_actorInDebuff.unlock();
-	if (actor->IsPlayerRef()) {
-		addDebuffPerk(actor);
+	if (a_actor->IsPlayerRef()) {
+		addDebuffPerk(a_actor);
 	}
 	if (settings::bUIAlert && settings::TrueHudAPI_Obtained) {
-		greyOutStaminaMeter(actor);
-		if (actor->IsPlayerRef()) {
+		TrueHUDUtils::greyoutAvMeter(a_actor, RE::ActorValue::kStamina);
+		if (a_actor->IsPlayerRef()) {
 			std::jthread t(async_pcStaminaMeterFlash);
 			t.detach();
 			async_pcStaminaMeterFlash_b = true;
@@ -75,7 +76,7 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
 		if (actor->IsPlayerRef()) {
 			async_pcStaminaMeterFlash_b = false;
 		}
-		revertStaminaMeter(actor);
+		TrueHUDUtils::revertAvMeter(actor, RE::ActorValue::kStamina);
 	}
 }
 
@@ -118,34 +119,15 @@ bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
 	}
 } 
 
-#pragma region staminaBarTweak
-
-/*Turn flashColor red, turn barcolor and phantom color grey.*/
-void debuffHandler::greyOutStaminaMeter(RE::Actor* actor) {
-	auto ersh = ValhallaCombat::GetSingleton()->ersh;
-	ersh->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
-	ersh->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
-	ersh->OverrideBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
-}
-
-void debuffHandler::revertStaminaMeter(RE::Actor* actor) {
-	auto ersh = ValhallaCombat::GetSingleton()->ersh;
-	ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::FlashColor);
-	ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::BarColor);
-	ersh->RevertBarColor(actor->GetHandle(), RE::ActorValue::kStamina, TRUEHUD_API::BarColorType::PhantomColor);
-	//DEBUG("{}s stamia meter reverted", actor->GetName());
-}
 
 void debuffHandler::async_pcStaminaMeterFlash() {
 	while (true) {
 		if (async_pcStaminaMeterFlash_b) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(RE::PlayerCharacter::GetSingleton()->GetHandle(), RE::ActorValue::kStamina, true);
+			TrueHUDUtils::flashActorValue(RE::PlayerCharacter::GetSingleton(), RE::ActorValue::kStamina);
 		}
 		else {
 			return;
 		}
 	}
 }
-
-#pragma endregion

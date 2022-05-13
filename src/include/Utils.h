@@ -94,26 +94,53 @@ namespace Utils
 	@param aggressor: aggressor of this damage.
 	@param victim: victim of this damage.*/
 	inline void offsetRealDamage(float& damage, RE::Actor* aggressor, RE::Actor* victim) {
-		auto difficulty = data::GetSingleton();
-		if (aggressor->IsPlayerRef() || aggressor->IsPlayerTeammate()) {
+		if ((aggressor) && (aggressor->IsPlayerRef() || aggressor->IsPlayerTeammate())) {
 			switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
-			case RE::DIFFICULTY::kNovice: damage *= difficulty->fDiffMultHPByPCVE; break;
-			case RE::DIFFICULTY::kApprentice: damage *= difficulty->fDiffMultHPByPCE; break;
-			case RE::DIFFICULTY::kAdept: damage *= difficulty->fDiffMultHPByPCN; break;
-			case RE::DIFFICULTY::kExpert: damage *= difficulty->fDiffMultHPByPCH; break;
-			case RE::DIFFICULTY::kMaster: damage *= difficulty->fDiffMultHPByPCVH; break;
-			case RE::DIFFICULTY::kLegendary: damage *= difficulty->fDiffMultHPByPCL; break;
+			case RE::DIFFICULTY::kNovice: damage *= data::fDiffMultHPByPCVE; break;
+			case RE::DIFFICULTY::kApprentice: damage *= data::fDiffMultHPByPCE; break;
+			case RE::DIFFICULTY::kAdept: damage *= data::fDiffMultHPByPCN; break;
+			case RE::DIFFICULTY::kExpert: damage *= data::fDiffMultHPByPCH; break;
+			case RE::DIFFICULTY::kMaster: damage *= data::fDiffMultHPByPCVH; break;
+			case RE::DIFFICULTY::kLegendary: damage *= data::fDiffMultHPByPCL; break;
 			}
 		}
-		else if (victim->IsPlayerRef() || victim->IsPlayerTeammate()) {
+		else if ((victim) && (victim->IsPlayerRef() || victim->IsPlayerTeammate())) {
 			switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
-			case RE::DIFFICULTY::kNovice: damage *= difficulty->fDiffMultHPToPCVE; break;
-			case RE::DIFFICULTY::kApprentice: damage *= difficulty->fDiffMultHPToPCE; break;
-			case RE::DIFFICULTY::kAdept: damage *= difficulty->fDiffMultHPToPCN; break;
-			case RE::DIFFICULTY::kExpert: damage *= difficulty->fDiffMultHPToPCH; break;
-			case RE::DIFFICULTY::kMaster: damage *= difficulty->fDiffMultHPToPCVH; break;
-			case RE::DIFFICULTY::kLegendary: damage *= difficulty->fDiffMultHPToPCL; break;
+			case RE::DIFFICULTY::kNovice: damage *= data::fDiffMultHPToPCVE; break;
+			case RE::DIFFICULTY::kApprentice: damage *= data::fDiffMultHPToPCE; break;
+			case RE::DIFFICULTY::kAdept: damage *= data::fDiffMultHPToPCN; break;
+			case RE::DIFFICULTY::kExpert: damage *= data::fDiffMultHPToPCH; break;
+			case RE::DIFFICULTY::kMaster: damage *= data::fDiffMultHPToPCVH; break;
+			case RE::DIFFICULTY::kLegendary: damage *= data::fDiffMultHPToPCL; break;
 			}
+		}
+	}
+
+	inline void offsetRealDamageForPc(float& damage) {
+		offsetRealDamage(damage, nullptr, RE::PlayerCharacter::GetSingleton());
+	}
+
+	inline void safeApplySpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
+		if (a_actor && a_spell) {
+			a_actor->AddSpell(a_spell);
+		}
+	}
+
+	inline void safeRemoveSpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
+		if (a_actor && a_spell) {
+			a_actor->RemoveSpell(a_spell);
+		}
+	}
+
+	inline void safeApplyPerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
+		if (a_actor && a_perk && !a_actor->HasPerk(a_perk)) {
+			a_actor->AddPerk(a_perk);
+		}
+	}
+
+	inline void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
+		if (a_actor && a_perk && a_actor->HasPerk(a_perk)) {
+			a_actor->RemovePerk(a_perk);
 		}
 	}
 };
@@ -133,8 +160,42 @@ public:
 	static void flashHealthMeter(RE::Actor* a_actor) {
 		ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
 	}
-	static void flashStaminaMeter(RE::Actor* a_actor) {
 
+	static void flashActorValue(RE::Actor* a_actor, RE::ActorValue actorValue) {
+		if (a_actor) {
+			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), actorValue, false);
+		}
+		
+	}
+
+	static void greyoutAvMeter(RE::Actor* a_actor, RE::ActorValue actorValue) {
+		auto ersh = ValhallaCombat::GetSingleton()->ersh;
+		ersh->OverrideBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
+		ersh->OverrideBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
+		ersh->OverrideBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
+	}
+
+	static void revertAvMeter(RE::Actor* a_actor, RE::ActorValue actorValue) {
+		auto ersh = ValhallaCombat::GetSingleton()->ersh;
+		ersh->RevertBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::FlashColor);
+		ersh->RevertBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::BarColor);
+		ersh->RevertBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::PhantomColor);
+	}
+
+	static void greyOutSpecialMeter(RE::Actor* a_actor) {
+		auto ersh = ValhallaCombat::GetSingleton()->ersh;
+		ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
+		ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
+		ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
+		ersh->OverrideBarColor(a_actor->GetHandle(), RE::ActorValue::kHealth, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
+	}
+
+	static void revertSpecialMeter(RE::Actor* a_actor) {
+		auto ersh = ValhallaCombat::GetSingleton()->ersh;
+		ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor);
+		ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
+		ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor);
+		ersh->RevertBarColor(a_actor->GetHandle(), RE::ActorValue::kHealth, TRUEHUD_API::BarColorType::FlashColor);
 	}
 };
 

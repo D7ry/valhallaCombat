@@ -58,11 +58,11 @@ void stunHandler::update() {
 					continue; 
 				}
 				//>>>>>>>>>>>actually start regenerating stun.
-#define a_stunData actorStunMap.find(actor)->second
-				float a_regenVal = a_stunData.first * deltaTime * 1 / 7;
-				if (a_stunData.second + a_regenVal >= a_stunData.first) {//curren stun + regen exceeds max stun, meaning regen has complete.
+				auto* stunData = &actorStunMap.find(actor)->second;
+				float regenVal = stunData->first * deltaTime * 1 / 7;
+				if (stunData->second + regenVal >= stunData->first) {//curren stun + regen exceeds max stun, meaning regen has complete.
 					//>>>>>>>>actor has finished regen.
-					a_stunData.second = a_stunData.first;
+					stunData->second = stunData->first;
 					mtx_ActorStunMap.unlock();
 					it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue);
 					
@@ -72,7 +72,7 @@ void stunHandler::update() {
 					if (stunnedActors.contains(actor)) {
 						stunnedActors.erase(actor);
 						if (settings::bStunMeterToggle && settings::TrueHudAPI_HasSpecialBarControl) {
-							revertStunMeter(actor);
+							TrueHUDUtils::revertSpecialMeter(actor);
 						}
 						reactionHandler::recoverDownedState(actor);
 					}
@@ -81,7 +81,7 @@ void stunHandler::update() {
 				}
 				else {
 					//>>>>>>>>>perform a simple regen.
-					a_stunData.second += a_regenVal;
+					stunData->second += regenVal;
 					mtx_ActorStunMap.unlock();
 				}
 
@@ -159,17 +159,17 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 		damageStun(aggressor, actor, damage);//recursively call itself, once stun is tracked.
 		return;
 	}
-	auto it = actorStunMap.find(actor);
+	std::pair<float, float>* actorStunData = &actorStunMap.find(actor)->second;
 	//prevent stun from getting below 0
-	if (it->second.second - damage <= 0) {
-		it->second.second = 0;
+	if (actorStunData->second - damage <= 0) {
+		actorStunData->second = 0;
 	}
 	else {
-		it->second.second -= damage;
+		actorStunData->second -= damage;
 	}
 
 	//actor has 0 stun
-	if (it->second.second <= 0) {
+	if (actorStunData->second <= 0) {
 		mtx_ActorStunMap.unlock();
 		if (!stunnedActors.contains(actor)) {
 			ValhallaUtils::playSound(actor, data::soundStunBreak);
@@ -182,7 +182,7 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 			}
 			//gray out this actor's stun meter.
 			if (settings::bStunMeterToggle && settings::TrueHudAPI_HasSpecialBarControl) {
-				greyOutStunMeter(actor);
+				TrueHUDUtils::greyOutSpecialMeter(actor);
 			}
 		}
 	}
@@ -315,7 +315,7 @@ void stunHandler::reset() {
 	mtx_ActorStunMap.unlock();
 	mtx_StunnedActors.lock();
 	for (auto actor : stunnedActors) {
-		revertStunMeter(actor);
+		TrueHUDUtils::revertSpecialMeter(actor);
 	}
 	stunnedActors.clear();
 	mtx_StunnedActors.unlock();
@@ -351,22 +351,6 @@ void stunHandler::launchStunMapCleaner() {
 	cleanUpThread.detach();
 }
 
-
-void stunHandler::greyOutStunMeter(RE::Actor* a_actor) {
-	auto ersh = ValhallaCombat::GetSingleton()->ersh;
-	ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
-	ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
-	ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
-	ersh->OverrideBarColor(a_actor->GetHandle(), RE::ActorValue::kHealth, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
-}
-
-void stunHandler::revertStunMeter(RE::Actor* a_actor) {
-	auto ersh = ValhallaCombat::GetSingleton()->ersh;
-	ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor);
-	ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
-	ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor);
-	ersh->RevertBarColor(a_actor->GetHandle(), RE::ActorValue::kHealth, TRUEHUD_API::BarColorType::FlashColor);
-}
 
 void stunHandler::flashHealthBar(RE::Actor* a_actor) {
 	ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);

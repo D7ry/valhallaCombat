@@ -61,10 +61,10 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 			}
 			if (button->QUserEvent() == "Left Attack/Block") {
 				if (button->IsDown()) {
-					blockHandler::GetSingleton()->blockKeyDown();
+					blockHandler::GetSingleton()->onBlockKeyDown();
 				}
 				else if (button->IsUp()) {
-					blockHandler::GetSingleton()->blockKeyUp();
+					blockHandler::GetSingleton()->onBlockKeyUp();
 				}
 			}
 		}

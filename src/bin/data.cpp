@@ -47,7 +47,7 @@ void data::loadData() {
 
 void data::loadSound(RE::TESDataHandler* data) {
 	INFO("Loading sound descriptors...");
-	auto fetch = [&](RE::FormID a_formID, RE::BGSSoundDescriptorForm*& a_sound)
+	auto loadValhallaSound = [&](RE::FormID a_formID, RE::BGSSoundDescriptorForm*& a_sound)
 	{
 		a_sound = data->LookupForm<RE::BGSSoundDescriptorForm>(a_formID, "ValhallaCombat.esp");
 		if (a_sound) {
@@ -57,22 +57,22 @@ void data::loadSound(RE::TESDataHandler* data) {
 			ERROR("Error: Failed to load sound descriptor with formID {}", a_formID);
 		}
 	};
-	fetch(0X433C, soundParryShield1);
-	fetch(0X60C28, soundParryShield2);
-	fetch(0X60C29, soundParryShield3);
+	loadValhallaSound(0X433C, soundParryShield1);
+	loadValhallaSound(0X60C28, soundParryShield2);
+	loadValhallaSound(0X60C29, soundParryShield3);
 	soundParryShieldV.insert(soundParryShieldV.end(), { soundParryShield1 , soundParryShield2 ,soundParryShield3 });
-	fetch(0X60C2E, soundParryShield_perfect);
-	fetch(0X47720, soundParryShield_gb);
+	loadValhallaSound(0X60C2E, soundParryShield_perfect);
+	loadValhallaSound(0X47720, soundParryShield_gb);
 
-	fetch(0X3DD9, soundParryWeapon1);
-	fetch(0X60C2A, soundParryWeapon2);
-	fetch(0X60C2B, soundParryWeapon3);
-	fetch(0X60C2C, soundParryWeapon4);
+	loadValhallaSound(0X3DD9, soundParryWeapon1);
+	loadValhallaSound(0X60C2A, soundParryWeapon2);
+	loadValhallaSound(0X60C2B, soundParryWeapon3);
+	loadValhallaSound(0X60C2C, soundParryWeapon4);
 	soundParryWeaponV.insert(soundParryWeaponV.end(), { soundParryWeapon1, soundParryWeapon2, soundParryWeapon3, soundParryWeapon4 });
 
-	fetch(0X60C2D, soundParryWeapon_perfect);
-	fetch(0X47721, soundParryWeapon_gb);
-	fetch(0X56A22, soundStunBreak);
+	loadValhallaSound(0X60C2D, soundParryWeapon_perfect);
+	loadValhallaSound(0X47721, soundParryWeapon_gb);
+	loadValhallaSound(0X56A22, soundStunBreak);
 	INFO("..done");
 }
 
@@ -206,6 +206,10 @@ void data::loadIdle(RE::TESDataHandler* data) {
 	loadIdleSection(DATA, &KM_Ballista_1hm, ini, "DwarvenBallista-1HM");
 	loadIdleSection(DATA, &KM_Ballista_2hm, ini, "DwarvenBallista-2HM");
 	loadIdleSection(DATA, &KM_Ballista_2hw, ini, "DwarvenBallista-2HW");
+
+	loadIdleSection(DATA, &KM_Centurion_1hm, ini, "SteamCenturion-1HM");
+	loadIdleSection(DATA, &KM_Centurion_2hm, ini, "SteamCenturion-2HM");
+	loadIdleSection(DATA, &KM_Centurion_2hw, ini, "SteamCenturion-2HW");
 
 	loadIdleSection(DATA, &KM_ChaurusFlyer_1hm, ini, "ChaurusFlyer-1HM");
 	loadIdleSection(DATA, &KM_ChaurusFlyer_2hm, ini, "ChaurusFlyer-2HM");

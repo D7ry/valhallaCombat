@@ -50,9 +50,6 @@ private:
 	@param damage: stun damage applied onto this actor.*/
 	void damageStun(RE::Actor* aggressor, RE::Actor* actor, float damage);
 
-	inline void greyOutStunMeter(RE::Actor* a_actor);
-
-	inline void revertStunMeter(RE::Actor* a_actor);
 
 	/*Asynchronous function to constantly flash the actor's stun.*/
 	static void async_HealthBarFlash();

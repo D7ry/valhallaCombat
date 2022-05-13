@@ -129,11 +129,12 @@ public:
 private:
 	static void processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, std::int64_t a_int1, bool a_bool, void* a_unkptr) {
 		DEBUG("hooked process hit. Aggressor: {}, Victim: {}", a_aggressor->GetName(), a_victim->GetName());
-		if (a_aggressor->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) {
+		/*if (a_aggressor->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) {
 			DEBUG("nullifying bash");
 			return;
-		}
+		}*/
 		if (a_victim->IsPlayerRef()) {
+			/*
 			auto atkState = a_victim->GetAttackState();
 			DEBUG(atkState);
 			if (atkState == RE::ATTACK_STATE_ENUM::kBash) {
@@ -146,8 +147,12 @@ private:
 					return;
 				}
 				
+			}*/
+			auto wardState = a_victim->currentProcess->middleHigh->wardState;
+			if (wardState == RE::MagicSystem::WardState::kNone) {
+				a_aggressor->NotifyAnimationGraph("recoillargestart");
+				return;
 			}
-			
 
 		}
 		_ProcessHit(a_aggressor, a_victim, a_int1, a_bool, a_unkptr);
@@ -199,7 +204,7 @@ private:
 	static void initStagger3(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5);
 	static inline REL::Relocation<decltype(initStagger3)> _initStagger3;*/
 };
-/*
+
 class Hook_MagicHit {
 public:
 	static void install()
@@ -219,18 +224,15 @@ private:
 		if (victim && victim->IsPlayerRef()) {
 			DEBUG("hooked process magic hit. victim: {}", victim->GetName());
 			
-			if (blockHandler::GetSingleton()->getIsPcTimedBlocking()) {
-				blockHandler::GetSingleton()->playBlockEffects(victim->As<RE::Actor>(), nullptr, 2, blockHandler::blockType::timed);
-				
-				ValhallaUtils::ReflectProjectile(a_projectile);
-				
+			if (blockHandler::GetSingleton()->processRegularSpellBlock(victim->As<RE::Actor>(), a_projectile->spell, a_projectile)) {
+
 				return;
 			}
 		}
 		_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
 	}
 	static inline REL::Relocation<decltype(processMagicHit)> _processMagicHit;
-};*/
+};
 
 
 class Hook_MainUpdate

@@ -44,7 +44,7 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	case "blockStop"_h:
 		DEBUG("blockstop");
 		if (settings::bTimedBlockToggle && a_event.holder->IsPlayerRef()) {
-			blockHandler::GetSingleton()->blockStop();
+			blockHandler::GetSingleton()->onBlockStop();
 		}
 		break;
 	//case "blockStartOut"_h:

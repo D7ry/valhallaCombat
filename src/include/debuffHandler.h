@@ -21,9 +21,6 @@ public:
 	/*@return whether this actor is in stamina debuff.*/
 	bool isInDebuff(RE::Actor* actor);
 
-	inline void greyOutStaminaMeter(RE::Actor* actor);
-	inline void revertStaminaMeter(RE::Actor* actor);
-
 	void initStaminaDebuff(RE::Actor* actor);
 	void stopStaminaDebuff(RE::Actor* actor);
 	/*Quickly stop stamina debuff without using the iterator.
@@ -44,30 +41,3 @@ private:
 };
 
 
-namespace Utils
-{
-
-	inline void safeApplySpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
-		if (a_actor && a_spell) {
-			a_actor->AddSpell(a_spell);
-		}
-	}
-
-	inline void safeRemoveSpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
-		if (a_actor && a_spell) {
-			a_actor->RemoveSpell(a_spell);
-		}
-	}
-
-	inline void safeApplyPerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
-		if (a_actor && a_perk && !a_actor->HasPerk(a_perk)) {
-			a_actor->AddPerk(a_perk);
-		}
-	}
-
-	inline void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
-		if (a_actor && a_perk && a_actor->HasPerk(a_perk)) {
-			a_actor->RemovePerk(a_perk);
-		}
-	}
-}

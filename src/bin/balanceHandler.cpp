@@ -26,21 +26,21 @@ void balanceHandler::update() {
 			continue;
 		}
 		//regen a single actor's balance.
-#define a_balanceData actorBalanceMap.find(*it)->second
-		float regenVal = a_balanceData.first * *RE::Offset::g_deltaTime * 1 / balanceRegenTime;
+		auto* balanceData = &actorBalanceMap.find(*it)->second;
+		float regenVal = balanceData->first * *RE::Offset::g_deltaTime * 1 / balanceRegenTime;
 		//DEBUG(regenVal);
 		//DEBUG(a_balanceData.second);
 		//DEBUG(a_balanceData.first);
-		if (a_balanceData.second + regenVal >= a_balanceData.first) {//this regen exceeds actor's max balance.
+		if (balanceData->second + regenVal >= balanceData->first) {//this regen exceeds actor's max balance.
 			//DEBUG("{}'s balance has recovered", (*it)->GetName());
-			a_balanceData.second = a_balanceData.first;//reset balance.
+			balanceData->second = balanceData->first;//reset balance.
 			debuffHandler::GetSingleton()->quickStopStaminaDebuff(*it);
 			it = balanceBrokenActors.erase(it);
 			continue;
 		}
 		else {
 			//DEBUG("normal regen");
-			a_balanceData.second += regenVal;
+			balanceData->second += regenVal;
 		}
 		it++;
 	}
@@ -110,30 +110,32 @@ bool balanceHandler::isBalanceBroken(RE::Actor* a_actor) {
 	}
 }
 
-void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE::Actor* victim, float damage) {
+void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* a_aggressor, RE::Actor* a_victim, float damage) {
 	//DEBUG("damaging balance: aggressor: {}, victim: {}, damage: {}", aggressor->GetName(), victim->GetName(), damage);
 	mtx_actorBalanceMap.lock();
-	if (!actorBalanceMap.contains(victim)) {
+	if (!actorBalanceMap.contains(a_victim)) {
 		mtx_actorBalanceMap.unlock();
-		trackBalance(victim);
-		damageBalance(dmgSource, aggressor, victim, damage);
+		trackBalance(a_victim);
+		damageBalance(dmgSource, a_aggressor, a_victim, damage);
 		return;
 	}
-#define a_balanceData actorBalanceMap.find(victim)->second
+#define a_balanceData actorBalanceMap.find(a_victim)->second
 	//DEBUG("curr balance: {}", a_balanceData.second);
 	if (a_balanceData.second - damage <= 0) { //balance broken, ouch!
 		a_balanceData.second = 0;
 		mtx_actorBalanceMap.unlock();
 		mtx_balanceBrokenActors.lock();
-		if (!balanceBrokenActors.contains(victim)) {
+		if (!balanceBrokenActors.contains(a_victim)) {//if not balance broken already
 			//DEBUG("{}'s balance has broken", victim->GetName());
-			balanceBrokenActors.insert(victim);
-			reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kLarge);
+			balanceBrokenActors.insert(a_victim);
+			if (dmgSource == DMGSOURCE::parry) {
+				reactionHandler::triggerStagger(a_aggressor, a_victim, reactionHandler::kLarge);
+			}
 			ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::balanceHandler);
 		}
 		else {//balance already broken, yet broken again, ouch!
 			//DEBUG("{}'s balance double broken", victim->GetName());
-			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLarge);
+			reactionHandler::triggerContinuousStagger(a_aggressor, a_victim, reactionHandler::kLarge);
 		}
 		mtx_balanceBrokenActors.unlock();
 		
@@ -143,14 +145,17 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* aggressor, RE
 		a_balanceData.second -= damage;
 		mtx_actorBalanceMap.unlock();
 		mtx_balanceBrokenActors.lock();
-		if (balanceBrokenActors.contains(victim)) {//if balance broken, trigger stagger.
-			reactionHandler::triggerContinuousStagger(aggressor, victim, reactionHandler::kLargest);
+		if (balanceBrokenActors.contains(a_victim)//if balance broken, trigger stagger.
+			|| (dmgSource == DMGSOURCE::powerAttack 
+				&& !debuffHandler::GetSingleton()->isInDebuff(a_aggressor)) //or if is power attack
+			) {
+			reactionHandler::triggerContinuousStagger(a_aggressor, a_victim, reactionHandler::kLarge);
 		}
 		else {
 			if (dmgSource != DMGSOURCE::parry) {
 				//attack interruption
-				if (victim->IsMeleeAttacking() && Utils::isPowerAttacking(aggressor)) {
-					reactionHandler::triggerStagger(aggressor, victim, reactionHandler::kMedium);
+				if (a_victim->IsMeleeAttacking() && Utils::isPowerAttacking(a_aggressor)) {
+					reactionHandler::triggerStagger(a_aggressor, a_victim, reactionHandler::kMedium);
 				}
 			}
 			
