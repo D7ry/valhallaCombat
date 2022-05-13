@@ -95,7 +95,7 @@ bool data::lookupIdle(RE::TESDataHandler* data, RE::FormID form, std::string plu
 
 void data::loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm*>* idleContainer, 
 	CSimpleIniA& ini, const char* section) {
-	INFO("Loading from section {}", section);
+	//INFO("Loading from section {}", section);
 	CSimpleIniA::TNamesDepend keys;
 	ini.GetAllKeys(section, keys);
 	int idlesLoaded = 0;
@@ -104,13 +104,13 @@ void data::loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm
 		auto line = ini.GetValue(section, idle);
 		std::vector<std::string> idleConfigs = tokenize("|", line);
 		if (idleConfigs.size() != 2) {
-			ERROR("Error: wrong config length");
+			//ERROR("Error: wrong config length");
 			continue;
 		}
 		std::string plugin = idleConfigs[0];
 		int form = 0;
 		if (!Utils::ToInt32(idleConfigs[1], form)) {
-			ERROR("Error: wrong formID");
+			//ERROR("Error: wrong formID");
 			continue;
 		}
 		if (lookupIdle(DATA, form, plugin, idleContainer)) {
@@ -233,19 +233,19 @@ bool data::pairUpRace(RE::TESDataHandler* DATA, RE::FormID form, std::string plu
 		return false;
 	}
 	raceMapping.emplace(race, raceType);
-	INFO("Mapped {} from {} to race catagory {}", race->GetName(), pluginName, raceType);
+	//INFO("Mapped {} from {} to race catagory {}", race->GetName(), pluginName, raceType);
 	return true;
 }
 
-void data::loadRaceSection(RE::TESDataHandler* DATA, raceCatagory raceType, CSimpleIniA& ini, const char* section) {
-	INFO("Loading from section {}", section);
+void data::loadRaceSection(RE::TESDataHandler* a_data, raceCatagory raceType, CSimpleIniA& ini, const char* section) {
+	//INFO("Loading from section {}", section);
 	CSimpleIniA::TNamesDepend keys;
 	ini.GetAllKeys(section, keys);
 	int raceLoaded = 0;
 	for (CSimpleIniA::TNamesDepend::iterator s_it1 = keys.begin(); s_it1 != keys.end(); s_it1++) {
 		const char* idle = s_it1->pItem;
 		auto line = ini.GetValue(section, idle);
-		INFO(line);
+		//INFO(line);
 		std::vector<std::string> raceConfigs = tokenize("|", line);
 		if (raceConfigs.size() != 2) {
 			ERROR("Error: wrong config length");
@@ -257,7 +257,7 @@ void data::loadRaceSection(RE::TESDataHandler* DATA, raceCatagory raceType, CSim
 			ERROR("Error: wrong formID");
 			continue;
 		}
-		if (pairUpRace(DATA, form, plugin, raceType)) {
+		if (pairUpRace(a_data, form, plugin, raceType)) {
 			raceLoaded++;
 		}
 		else {

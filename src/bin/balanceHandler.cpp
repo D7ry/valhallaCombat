@@ -74,8 +74,7 @@ void balanceHandler::collectGarbage() {
 	auto it_balanceMap = actorBalanceMap.begin();
 	while (it_balanceMap != actorBalanceMap.end()) {
 		auto a_actor = it_balanceMap->first;
-		if (!a_actor || !a_actor->currentProcess || !a_actor->currentProcess->InHighProcess()
-			|| a_actor->IsDead()) {
+		if (!a_actor || !a_actor->currentProcess || !a_actor->currentProcess->InHighProcess()) {
 			safeErase_BalanceBrokenActors(a_actor);
 			it_balanceMap = actorBalanceMap.erase(it_balanceMap);
 			ct++;

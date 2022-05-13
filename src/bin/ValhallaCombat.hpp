@@ -74,29 +74,46 @@ public:
 	}
 
 	static void async_cleanUpFunc() {
+		INFO("Initializing garbage collection...");
+		auto vc = ValhallaCombat::GetSingleton();
 		if (settings::bStunToggle) {
+			bool update = vc->update_StunHandler;
+			if (update) {
+				vc->deactivateUpdate(ValhallaCombat::stunHandler);
+			}
 			stunHandler::GetSingleton()->collectGarbage();
-		}
-		if (settings::bBalanceToggle) {
-			balanceHandler::GetSingleton()->collectGarbage();
-		}
-	}
-
-	static void async_cleanUpTask() {
-		while (true) {
-			std::this_thread::sleep_for(std::chrono::minutes(20));
-			const auto task = SKSE::GetTaskInterface();
-			if (task != nullptr) {
-				task->AddTask([]() {
-					async_cleanUpFunc();
-					});
+			if (update) {
+				vc->activateUpdate(ValhallaCombat::stunHandler);
 			}
 		}
+		if (settings::bBalanceToggle) {
+			bool update = vc->update_balanceHandler;
+			if (update) {
+				vc->deactivateUpdate(ValhallaCombat::balanceHandler);
+			}
+			balanceHandler::GetSingleton()->collectGarbage();
+			if (update) {
+				vc->activateUpdate(ValhallaCombat::balanceHandler);
+			}
+		}
+		INFO("...done");
 	}
+
 
 	void launchCleanUpThread() {
 		INFO("Launch clean up thread...");
-		std::jthread cleanUpThread(async_cleanUpTask);
+		auto cleanUpThreadFunc = []() {
+			while (true) {
+				std::this_thread::sleep_for(std::chrono::minutes(30));
+				const auto task = SKSE::GetTaskInterface();
+				if (task != nullptr) {
+					task->AddTask([]() {
+						async_cleanUpFunc();
+						});
+				}
+			}
+		};
+		std::jthread cleanUpThread(cleanUpThreadFunc);
 		cleanUpThread.detach();
 		INFO("..done");
 	}

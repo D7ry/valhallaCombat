@@ -161,7 +161,7 @@ namespace Utils
 					staminaRegen = upperLimit;
 				}
 				race->data.staminaRegen = staminaRegen;
-				INFO("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
+				//INFO("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
 			}
 		}
 	}

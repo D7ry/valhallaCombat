@@ -22,7 +22,6 @@ void stunHandler::safeErase_StunRegenQueue(RE::Actor* actor) {
 }
 void stunHandler::update() {
 	//mtx.lock();
-	auto deltaTime = *RE::Offset::g_deltaTime;
 	mtx_StunRegenQueue.lock();
 	//stop update if there is nothing in the queue.
 	if (stunRegenQueue.empty()) {
@@ -59,7 +58,7 @@ void stunHandler::update() {
 				}
 				//>>>>>>>>>>>actually start regenerating stun.
 				auto* stunData = &actorStunMap.find(actor)->second;
-				float regenVal = stunData->first * deltaTime * 1 / 7;
+				float regenVal = stunData->first * *RE::Offset::g_deltaTime * 1 / 7;
 				if (stunData->second + regenVal >= stunData->first) {//curren stun + regen exceeds max stun, meaning regen has complete.
 					//>>>>>>>>actor has finished regen.
 					stunData->second = stunData->first;
@@ -87,7 +86,7 @@ void stunHandler::update() {
 
 			}
 			else {
-				it_StunRegenQueue->second -= deltaTime;//keep decrementing regen timer.
+				it_StunRegenQueue->second -= *RE::Offset::g_deltaTime;//keep decrementing regen timer.
 			}
 		}
 		/*---------------------------Regen area-------------------------------------*/
@@ -327,7 +326,7 @@ void stunHandler::collectGarbage() {
 	auto it = actorStunMap.begin();
 	while (it != actorStunMap.end()) {
 		auto actor = it->first;
-		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess() || actor->IsDead()) {
+		if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {
 			safeErase_StunnedActors(actor);
 			safeErase_StunRegenQueue(actor);
 			it = actorStunMap.erase(it);
