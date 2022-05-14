@@ -4,12 +4,12 @@
 #include "include/Utils.h"
 #include "include/stunHandler.h"
 #include "include/balanceHandler.h"
-#include "include/hitProcessor.h"
 #include "include/reactionHandler.h"
 #include "include/AI.h"
 #include "include/lib/BlockSpark.h"
 #include "include/offsets.h"
 #include "ValhallaCombat.hpp"
+using HITFLAG = RE::HitData::Flag;
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
@@ -35,10 +35,10 @@ void blockHandler::update() {
 		if (pcCoolDownTimer <= 0) {
 			switch (pcBlockWindowPenalty) {
 			case blockWindowPenaltyLevel::light: pcBlockWindowPenalty = none; isPcBlockingCoolDown = false; break;
-			case blockWindowPenaltyLevel::medium: pcBlockWindowPenalty = light; DEBUG("to light"); break;
-			case blockWindowPenaltyLevel::heavy: pcBlockWindowPenalty = medium; DEBUG("to medium"); break;
+			case blockWindowPenaltyLevel::medium: pcBlockWindowPenalty = light; break;
+			case blockWindowPenaltyLevel::heavy: pcBlockWindowPenalty = medium; break;
 			}
-			pcCoolDownTimer = 0.5;
+			pcCoolDownTimer = settings::fTimedBlockCooldownTime;
 		}
 	}
 	
@@ -47,7 +47,7 @@ void blockHandler::onPcTimedBlockEnd() {
 	if (!isPcTimedBlockSuccess) {//apply penalty only if the current block is not a successful timed block.
 		DEBUG("prev timed block not successful; applying penalty");
 		isPcBlockingCoolDown = true; //not a successful timed block, start penalty cool down.
-		pcCoolDownTimer = 0.5;
+		pcCoolDownTimer = settings::fTimedBlockCooldownTime;
 		//increment penalty.
 		switch (pcBlockWindowPenalty) {
 		case blockWindowPenaltyLevel::none: pcBlockWindowPenalty = light; DEBUG("light"); break;
@@ -170,12 +170,12 @@ bool blockHandler::preProcessProjectileBlock(RE::Actor* a_blocker, RE::Projectil
 		if (isInBlockAngle(a_blocker, a_projectile) && a_blocker->IsBlocking()) {
 			//bool isPcParrying = getIsPcParrying();
 			//Perfect block
-			if (getIsPcTimedBlocking()) {
+			if (settings::bTimedBlockProjectileToggle && getIsPcTimedBlocking()) {
 				onSuccessfulTimedBlock();
 				processProjectileParry(a_blocker, a_projectile, a_projectile_collidable);
 				return true;
 			}
-			else {//none-perfect block
+			else if (settings::bBlockProjectileToggle) {//none-perfect block
 				auto spell = a_projectile->spell;
 				if (spell) {
 					return processProjectileBlock_Spell(a_blocker, a_projectile, spell);
@@ -304,7 +304,7 @@ bool blockHandler::getIsPcTimedBlocking() {
 }
 
 bool blockHandler::getIsPcPerfectBlocking() {
-	return pcBlockTimer >= 0.3 || isBlockKeyUp_and_still_blocking;
+	return pcBlockTimer >= 0.35 || isBlockKeyUp_and_still_blocking;
 }
 
 bool blockHandler::getIsPcParrying() {
@@ -324,8 +324,8 @@ void blockHandler::processPhysicalTimedBlock(RE::Actor* blocker, RE::Actor* atta
 	if (isPerfectblock) {
 		balanceDmg += realDamage; //reflect attacker's damage back as balance dmg
 	}
-	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, stunDmg);
-	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, balanceDmg);
+	stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, stunDmg);
+	balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, balanceDmg);
 	hitData.totalDamage = 0;
 	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(attacker)
 		|| stunHandler::GetSingleton()->isActorStunned(attacker);
@@ -345,6 +345,7 @@ void blockHandler::processPhysicalTimedBlock(RE::Actor* blocker, RE::Actor* atta
 	if (isPerfectblock || isAttackerGuardBroken) {//stagger opponent immediately on perfect block.
 		reactionHandler::triggerStagger(blocker, attacker, reactionHandler::reactionType::kLarge);
 		debuffHandler::GetSingleton()->quickStopStaminaDebuff(blocker);
+		Utils::refillActorValue(blocker, RE::ActorValue::kStamina); //perfect blocking completely restores actor value.
 	}
 	else {
 		Utils::damageav(blocker, RE::ActorValue::kStamina,
@@ -361,8 +362,8 @@ void blockHandler::processMeleeParry(RE::Actor* a_blocker, RE::Actor* a_attacker
 		reflectedDamage = a_weapon->GetAttackDamage();//get attack damage of blocker's weapon
 	}
 	Utils::offsetRealDamage(reflectedDamage, a_blocker, a_attacker);
-	stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
-	balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
+	stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
+	balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
 	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(a_attacker)
 		|| stunHandler::GetSingleton()->isActorStunned(a_attacker);
 

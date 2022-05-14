@@ -110,7 +110,9 @@ void settings::readSettings() {
 	ReadFloatSetting(mcm, "Stamina", "fMeleeCostHeavyHit_Percent", fMeleeCostHeavyHit_Percent);
 
 	/*Read perfect blocking section*/
+	ReadBoolSetting(mcm, "Parrying", "bBlockProjectileToggle", bBlockProjectileToggle);
 	ReadBoolSetting(mcm, "Parrying", "bTimedBlockToggle", bTimedBlockToggle);
+	ReadBoolSetting(mcm, "Parrying", "bTimedBlockProjectileToggle", bTimedBlockProjectileToggle);
 	ReadBoolSetting(mcm, "Parrying", "bTimedBlockScreenShake", bTimedBlockScreenShake);
 	ReadBoolSetting(mcm, "Parrying", "bTimeBlockSFX", bTimeBlockSFX);
 	ReadBoolSetting(mcm, "Parrying", "bTimedBlockVFX", bTimedBlockVFX);
@@ -119,6 +121,7 @@ void settings::readSettings() {
 	ReadFloatSetting(mcm, "Parrying", "fTimedBlockCooldownTime", fTimedBlockCooldownTime);
 	ReadFloatSetting(mcm, "Parrying", "fTimedBlockStaminaCostMult", fTimedBlockStaminaCostMult);
 
+	ReadIntSetting(mcm, "Stun", "uAltBlockKey", uAltBlockKey);
 	/*Read stun section*/
 	ReadBoolSetting(mcm, "Stun", "bStunToggle", bStunToggle);
 	ReadBoolSetting(mcm, "Stun", "bStunMeterToggle", bStunMeterToggle);
@@ -141,6 +144,9 @@ void settings::readSettings() {
 	ReadBoolSetting(mcm, "Stun", "bAutoExecution", bAutoExecution);
 	ReadIntSetting(mcm, "Stun", "uExecutionKey", uExecutionKey);
 	ReadBoolSetting(mcm, "Compatibility", "bPoiseCompatibility", bPoiseCompatibility);
+
+	/*Read Balance section*/
+	ReadBoolSetting(mcm, "Balance", "bBalanceToggle", bBalanceToggle);
 	INFO("...done");
 
 

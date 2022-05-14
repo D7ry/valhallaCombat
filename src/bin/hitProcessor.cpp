@@ -35,10 +35,10 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 	//bash hit
 	if (hitFlag & (int)HITFLAG::kBash) {
 		if (hitFlag & (int)HITFLAG::kPowerAttack) {
-			stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerBash, nullptr, aggressor, victim, 0);
+			stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::powerBash, nullptr, aggressor, victim, 0);
 		}
 		else {
-			stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::bash, nullptr, aggressor, victim, 0);
+			stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::bash, nullptr, aggressor, victim, 0);
 		}
 		return;
 	}
@@ -69,12 +69,12 @@ void hitProcessor::processHit(RE::Actor* aggressor, RE::Actor* victim, RE::HitDa
 		if (aggressor->GetGraphVariableBool(data::GraphBool_IsGuardCountering, b) && b) {
 			realDamage *= 1.5;
 		}
-		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::powerAttack, hitData.weapon, aggressor, victim, realDamage);
-		balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::powerAttack, hitData.weapon, aggressor, victim, realDamage);
+		stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::powerAttack, hitData.weapon, aggressor, victim, realDamage);
+		balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::powerAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
 	else {
-		stunHandler::GetSingleton()->calculateStunDamage(stunHandler::STUNSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
-		balanceHandler::GetSingleton()->calculateBalanceDamage(balanceHandler::DMGSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
+		stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
+		balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::lightAttack, hitData.weapon, aggressor, victim, realDamage);
 	}
 
 }

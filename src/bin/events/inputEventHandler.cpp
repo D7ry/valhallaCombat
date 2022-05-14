@@ -55,11 +55,11 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 			}
 			if (key == settings::uExecutionKey) {
 				if (button->IsDown()) {
-					executionHandler::GetSingleton()->getExecutableTarget();
+					executionHandler::GetSingleton()->tryPcExecution();
 				}
 				break;
 			}
-			if (button->QUserEvent() == "Left Attack/Block") {
+			if (key == settings::uAltBlockKey || button->QUserEvent() == "Left Attack/Block") {
 				if (button->IsDown()) {
 					blockHandler::GetSingleton()->onBlockKeyDown();
 				}

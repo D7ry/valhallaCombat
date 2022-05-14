@@ -143,6 +143,16 @@ namespace Utils
 			a_actor->RemovePerk(a_perk);
 		}
 	}
+
+	/*Complete refills this actor's actor value.
+	@param a_actor actor whose actorValue will be refilled.
+	@param actorValue type of actor value to refill.*/
+	inline void refillActorValue(RE::Actor* a_actor, RE::ActorValue actorValue) {
+		float avToRestore = a_actor->GetPermanentActorValue(RE::ActorValue::kStamina)
+			+ a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina)
+			- a_actor->GetActorValue(actorValue);
+		restoreav(a_actor, actorValue, avToRestore);
+	}
 };
 
 class TrueHUDUtils
@@ -163,7 +173,7 @@ public:
 
 	static void flashActorValue(RE::Actor* a_actor, RE::ActorValue actorValue) {
 		if (a_actor) {
-			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), actorValue, false);
+			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), actorValue, true);
 		}
 		
 	}

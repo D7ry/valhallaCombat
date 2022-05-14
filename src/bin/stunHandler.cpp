@@ -215,13 +215,12 @@ bool stunHandler::isActorStunned(RE::Actor* a_actor) {
 }
 
 //parry damage needs to be offset here, since it's not calculated.
-void stunHandler::calculateStunDamage(
+void stunHandler::processStunDamage(
 	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
-	//DEBUG("Calculating stun damage");
-	if (victim->IsPlayerRef()) { //player do not receive stun damage at all.
+	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
 		return;
 	}
-	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
+	if (victim->IsPlayerRef()) { //player do not receive stun damage at all.
 		return;
 	}
 	float stunDamage;
@@ -337,17 +336,6 @@ void stunHandler::collectGarbage() {
 	}
 	mtx_ActorStunMap.unlock();
 	INFO("...done; cleaned up {} inactive actors.", ct);
-}
-
-void stunHandler::stunMapCleanUpTask() {
-	while (true) {
-		std::this_thread::sleep_for(std::chrono::minutes(10));
-		stunHandler::GetSingleton()->collectGarbage();
-	}
-}
-void stunHandler::launchStunMapCleaner() {
-	std::jthread cleanUpThread(stunMapCleanUpTask);
-	cleanUpThread.detach();
 }
 
 

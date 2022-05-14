@@ -36,8 +36,6 @@ private:
 	inline void safeErase_StunRegenQueue(RE::Actor* actor);
 	/*Erase actor from stunnedActors with mutex.*/
 	inline void safeErase_StunnedActors(RE::Actor* actor);
-
-	void async_untrackStun(float delay, RE::Actor* actor);
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
 	void refillStun(RE::Actor* actor);
@@ -101,19 +99,13 @@ public:
 	*/
 	void collectGarbage();
 
-	/*Launch the cleaner thread that cleans up stun map every 5 minutes.*/
-	static void launchStunMapCleaner();
-
-	/*Perform a clean up every 5 minutes in a separate thread.*/
-	static void stunMapCleanUpTask();
-
 	/*Calculate a stun damage for the actor, and immediately apply the stun damage.
 	Stun calculation go as follows:
 	for light/power attack: base damage * mult.
 	for bash/powerbash:  blocking level * mult.
 	for parry: damage the aggressor would receive if they were to attack themselves * mult.
 	*/
-	void calculateStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage);
+	void processStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage);
 
 
 };

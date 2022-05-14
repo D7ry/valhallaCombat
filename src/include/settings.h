@@ -54,14 +54,20 @@ public:
 	/*perfect blocking*/
 	//static inline bool bPoiseCompatibility = false;
 
+	static inline bool bBlockProjectileToggle = true;
 	static inline bool bTimedBlockToggle = true;
+	static inline bool bTimedBlockProjectileToggle = true;
+	
+	static inline float fTimedBlockWindow = 0.5;
+	static inline float fTimedBlockCooldownTime = 0.5;
+	static inline float fTimedBlockStaminaCostMult = 0.5;
+
 	static inline bool bTimedBlockScreenShake = true;
 	static inline bool bTimeBlockSFX = true;
 	static inline bool bTimedBlockVFX = true;
 	static inline bool bTimedBlockSlowTime = true;
-	static inline float fTimedBlockWindow = 0.33;
-	static inline float fTimedBlockCooldownTime = 1;
-	static inline float fTimedBlockStaminaCostMult = 1;
+
+	static inline uint32_t uAltBlockKey = -1;
 #pragma endregion
 #pragma region StunSettings
 
@@ -71,17 +77,17 @@ public:
 	static inline float fStunParryMult = 1;
 	static inline float fStunBashMult = 0.3;
 	static inline float fStunPowerBashMult = 1;
-	static inline float fStunNormalAttackMult = 0.3;
-	static inline float fStunPowerAttackMult = 1.5;
+	static inline float fStunNormalAttackMult = 0;
+	static inline float fStunPowerAttackMult = 1;
 
 
-	static inline float fStunUnarmedMult = 1.3;
+	static inline float fStunUnarmedMult = 1;
 	static inline float fStunDaggerMult = 0.5;
-	static inline float fStunSwordMult = 0.9;
+	static inline float fStunSwordMult = 1;
 	static inline float fStunWarAxeMult = 1.1;
 	static inline float fStunMaceMult = 1.1;
 	static inline float fStunGreatSwordMult = 1.2;
-	static inline float fStun2HBluntMult = 1.3;
+	static inline float fStun2HBluntMult = 1.2;
 
 	/*Toggle for player to be executed.*/
 	static inline bool bPlayerExecution = false;

@@ -33,7 +33,7 @@ public:
 	@param aggressor: aggressor of this balance damage.
 	@param victim: victim of this balance damage.
 	@param baseDamage: base damage to be dealt, may or may not be used depending on the type of stagger source.*/
-	void calculateBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage);
+	void processBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage);
 
 	/*Return if this actor has their balance broken.*/
 	bool isBalanceBroken(RE::Actor* actor);

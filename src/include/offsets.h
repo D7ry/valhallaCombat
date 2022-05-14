@@ -16,6 +16,9 @@ namespace RE
 		typedef void(_fastcall* _destroyProjectile)(RE::Projectile* a_projectile);
 		inline static REL::Relocation<_destroyProjectile> destroyProjectile{ REL::ID(42930) };
 
+		typedef RE::TESObjectREFR* (_fastcall* _getEquippedShield)(RE::Actor* a_actor);
+		inline static REL::Relocation< _getEquippedShield> getEquippedShield{ REL::ID(37624) };
+
 		//static float* g_worldScaleInverse = (float*)RELOCATION_ID(230692, 187407).address();
 		static float* g_worldScaleInverse = (float*)REL::ID(230692).address();
 	}

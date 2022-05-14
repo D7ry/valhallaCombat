@@ -146,18 +146,9 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* a_aggressor, 
 		mtx_balanceBrokenActors.lock();
 		if (balanceBrokenActors.contains(a_victim)//if balance broken, trigger stagger.
 			|| (dmgSource == DMGSOURCE::powerAttack 
-				&& !debuffHandler::GetSingleton()->isInDebuff(a_aggressor)) //or if is power attack
+				&& !debuffHandler::GetSingleton()->isInDebuff(a_aggressor)) //or if is power attack and not in debuff
 			) {
 			reactionHandler::triggerContinuousStagger(a_aggressor, a_victim, reactionHandler::kLarge);
-		}
-		else {
-			if (dmgSource != DMGSOURCE::parry) {
-				//attack interruption
-				if (a_victim->IsMeleeAttacking() && Utils::isPowerAttacking(a_aggressor)) {
-					reactionHandler::triggerStagger(a_aggressor, a_victim, reactionHandler::kMedium);
-				}
-			}
-			
 		}
 		mtx_balanceBrokenActors.unlock();
 	}
@@ -186,7 +177,7 @@ void balanceHandler::recoverBalance(RE::Actor* a_actor, float recovery) {
 
 }
 
-void balanceHandler::calculateBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
+void balanceHandler::processBalanceDamage(DMGSOURCE dmgSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
 	if (!settings::bBalanceToggle) {
 		return;
 	}

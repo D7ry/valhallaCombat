@@ -16,7 +16,7 @@ public:
 	/*Iterate through every actor that can be excuted, check their range to the player.
 	* attempt to execute the actor closest to the player.
 	* */
-	void getExecutableTarget();
+	void tryPcExecution();
 
 	/*Play an execution idle animation.
 	@param executor: the actor the execute.

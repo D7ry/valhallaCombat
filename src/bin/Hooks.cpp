@@ -144,7 +144,7 @@ inline bool initProjectileBlock(RE::Projectile* a_projectile, RE::hkpAllCdPointC
 	return false;
 }
 void Hook_OnProjectileCollision::OnArrowCollision(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
-	DEBUG("hooked arrow collission vfunc");
+	//DEBUG("hooked arrow collission vfunc");
 	if (initProjectileBlock(a_this, a_AllCdPointCollector)) {
 		return;
 	};
@@ -152,7 +152,7 @@ void Hook_OnProjectileCollision::OnArrowCollision(RE::Projectile* a_this, RE::hk
 };
 
 void Hook_OnProjectileCollision::OnMissileCollision(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
-	DEBUG("hooked missile collission vfunc");
+	//DEBUG("hooked missile collission vfunc");
 	if (initProjectileBlock(a_this, a_AllCdPointCollector)) {
 		return;
 	};

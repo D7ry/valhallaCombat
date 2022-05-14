@@ -5,7 +5,7 @@
 #include "include/Utils.h"
 #define DATA data::GetSingleton()
 using namespace Utils;
-void executionHandler::getExecutableTarget() {
+void executionHandler::tryPcExecution() {
 
 	auto possibleTargets = stunHandler::GetSingleton()->stunnedActors;
 	auto pc = RE::PlayerCharacter::GetSingleton();
