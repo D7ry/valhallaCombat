@@ -45,13 +45,15 @@ void data::loadData() {
 	
 }
 
-void data::loadSound(RE::TESDataHandler* data) {
+void data::loadSound(RE::TESDataHandler* a_data) {
 	INFO("Loading sound descriptors...");
+	int countLoaded = 0;
 	auto loadValhallaSound = [&](RE::FormID a_formID, RE::BGSSoundDescriptorForm*& a_sound)
 	{
-		a_sound = data->LookupForm<RE::BGSSoundDescriptorForm>(a_formID, "ValhallaCombat.esp");
+		a_sound = a_data->LookupForm<RE::BGSSoundDescriptorForm>(a_formID, "ValhallaCombat.esp");
 		if (a_sound) {
-			INFO("loaded {}", a_sound->GetFormID());
+			countLoaded++;
+			//INFO("loaded {}", a_sound->GetFormID());
 		}
 		else {
 			ERROR("Error: Failed to load sound descriptor with formID {}", a_formID);
@@ -73,10 +75,11 @@ void data::loadSound(RE::TESDataHandler* data) {
 	loadValhallaSound(0X60C2D, soundParryWeapon_perfect);
 	loadValhallaSound(0X47721, soundParryWeapon_gb);
 	loadValhallaSound(0X56A22, soundStunBreak);
+	INFO("Successfully loaded {} sound descriptors.", countLoaded);
 	INFO("..done");
 }
 
-void data::loadPerk(RE::TESDataHandler* data) {
+void data::loadPerk(RE::TESDataHandler* a_data) {
 	INFO("Loading perk...");
 	//lookUpFromData(data, 0x2DB2, debuffPerk);
 	debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
@@ -93,7 +96,7 @@ bool data::lookupIdle(RE::TESDataHandler* data, RE::FormID form, std::string plu
 	return true;
 }
 
-void data::loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm*>* idleContainer, 
+void data::loadIdleSection(RE::TESDataHandler* a_data, std::vector<RE::TESIdleForm*>* idleContainer, 
 	CSimpleIniA& ini, const char* section) {
 	//INFO("Loading from section {}", section);
 	CSimpleIniA::TNamesDepend keys;
@@ -113,19 +116,19 @@ void data::loadIdleSection(RE::TESDataHandler* DATA, std::vector<RE::TESIdleForm
 			//ERROR("Error: wrong formID");
 			continue;
 		}
-		if (lookupIdle(DATA, form, plugin, idleContainer)) {
+		if (lookupIdle(a_data, form, plugin, idleContainer)) {
 			idlesLoaded++;
-			INFO("Loaded idle. FormID: {}, plugin: {}", form, plugin);
+			//INFO("Loaded idle. FormID: {}, plugin: {}", form, plugin);
 		}
 		else {
-			INFO("Failed to load idle. FormID: {}, plugin: {}", form, plugin);
+			INFO("Error: Failed to load idle. FormID: {}, plugin: {}", form, plugin);
 		}
 
 	}
 	INFO("Loaded {} idles from section {}.", idlesLoaded, section);
 }
 
-void data::loadIdle(RE::TESDataHandler* data) {
+void data::loadIdle(RE::TESDataHandler* a_actor) {
 	CSimpleIniA ini;
 	ini.LoadFile(kmFilePath);
 	INFO("Loading idle...");
@@ -227,24 +230,24 @@ void data::loadIdle(RE::TESDataHandler* data) {
 	INFO("Idle loaded.");
 }
 
-bool data::pairUpRace(RE::TESDataHandler* DATA, RE::FormID form, std::string pluginName, raceCatagory raceType) {
-	auto race = DATA->LookupForm<RE::TESRace>(form, pluginName);
+bool data::pairUpRace(RE::TESDataHandler* a_actor, RE::FormID a_formID, std::string a_plugin, raceCatagory a_raceType) {
+	auto race = a_actor->LookupForm<RE::TESRace>(a_formID, a_plugin);
 	if (!race) {
 		return false;
 	}
-	raceMapping.emplace(race, raceType);
+	raceMapping.emplace(race, a_raceType);
 	//INFO("Mapped {} from {} to race catagory {}", race->GetName(), pluginName, raceType);
 	return true;
 }
 
-void data::loadRaceSection(RE::TESDataHandler* a_data, raceCatagory raceType, CSimpleIniA& ini, const char* section) {
+void data::loadRaceSection(RE::TESDataHandler* a_data, raceCatagory a_raceType, CSimpleIniA& a_ini, const char* a_section) {
 	//INFO("Loading from section {}", section);
 	CSimpleIniA::TNamesDepend keys;
-	ini.GetAllKeys(section, keys);
+	a_ini.GetAllKeys(a_section, keys);
 	int raceLoaded = 0;
 	for (CSimpleIniA::TNamesDepend::iterator s_it1 = keys.begin(); s_it1 != keys.end(); s_it1++) {
 		const char* idle = s_it1->pItem;
-		auto line = ini.GetValue(section, idle);
+		auto line = a_ini.GetValue(a_section, idle);
 		//INFO(line);
 		std::vector<std::string> raceConfigs = tokenize("|", line);
 		if (raceConfigs.size() != 2) {
@@ -257,7 +260,7 @@ void data::loadRaceSection(RE::TESDataHandler* a_data, raceCatagory raceType, CS
 			ERROR("Error: wrong formID");
 			continue;
 		}
-		if (pairUpRace(a_data, form, plugin, raceType)) {
+		if (pairUpRace(a_data, form, plugin, a_raceType)) {
 			raceLoaded++;
 		}
 		else {
@@ -265,63 +268,63 @@ void data::loadRaceSection(RE::TESDataHandler* a_data, raceCatagory raceType, CS
 		}
 
 	}
-	INFO("Loaded {} races from section {}.", raceLoaded, section);
+	INFO("Loaded {} races from section {}.", raceLoaded, a_section);
 }
 
-void data::loadExecutableRaceIni(RE::TESDataHandler* DATA, const char* ini_path) {
+void data::loadExecutableRaceIni(RE::TESDataHandler* a_data, const char* a_path) {
 	CSimpleIniA ini;
-	ini.LoadFile(ini_path);
-	loadRaceSection(DATA, raceCatagory::Humanoid, ini, "Humanoid");
-	loadRaceSection(DATA, raceCatagory::Undead, ini, "Undead");
-	loadRaceSection(DATA, raceCatagory::Falmer, ini, "Falmer");
-	loadRaceSection(DATA, raceCatagory::Spider, ini, "Spider");
-	loadRaceSection(DATA, raceCatagory::Gargoyle, ini, "Gargoyle");
-	loadRaceSection(DATA, raceCatagory::Giant, ini, "Giant");
-	loadRaceSection(DATA, raceCatagory::Bear, ini, "Bear");
-	loadRaceSection(DATA, raceCatagory::SabreCat, ini, "SabreCat");
-	loadRaceSection(DATA, raceCatagory::Wolf, ini, "Wolf");
-	loadRaceSection(DATA, raceCatagory::Troll, ini, "Troll");
-	loadRaceSection(DATA, raceCatagory::Hagraven, ini, "Hagraven");
-	loadRaceSection(DATA, raceCatagory::Spriggan, ini, "Spriggan");
-	loadRaceSection(DATA, raceCatagory::Boar, ini, "Boar");
-	loadRaceSection(DATA, raceCatagory::Riekling, ini, "Riekling");
-	loadRaceSection(DATA, raceCatagory::AshHopper, ini, "AshHopper");
-	loadRaceSection(DATA, raceCatagory::SteamCenturion, ini, "SteamCenturion");
-	loadRaceSection(DATA, raceCatagory::DwarvenBallista, ini, "DwarvenBallista");
-	loadRaceSection(DATA, raceCatagory::ChaurusFlyer, ini, "ChaurusFlyer");
-	loadRaceSection(DATA, raceCatagory::Lurker, ini, "Lurker");
-	loadRaceSection(DATA, raceCatagory::Dragon, ini, "Dragon");
+	ini.LoadFile(a_path);
+	loadRaceSection(a_data, raceCatagory::Humanoid, ini, "Humanoid");
+	loadRaceSection(a_data, raceCatagory::Undead, ini, "Undead");
+	loadRaceSection(a_data, raceCatagory::Falmer, ini, "Falmer");
+	loadRaceSection(a_data, raceCatagory::Spider, ini, "Spider");
+	loadRaceSection(a_data, raceCatagory::Gargoyle, ini, "Gargoyle");
+	loadRaceSection(a_data, raceCatagory::Giant, ini, "Giant");
+	loadRaceSection(a_data, raceCatagory::Bear, ini, "Bear");
+	loadRaceSection(a_data, raceCatagory::SabreCat, ini, "SabreCat");
+	loadRaceSection(a_data, raceCatagory::Wolf, ini, "Wolf");
+	loadRaceSection(a_data, raceCatagory::Troll, ini, "Troll");
+	loadRaceSection(a_data, raceCatagory::Hagraven, ini, "Hagraven");
+	loadRaceSection(a_data, raceCatagory::Spriggan, ini, "Spriggan");
+	loadRaceSection(a_data, raceCatagory::Boar, ini, "Boar");
+	loadRaceSection(a_data, raceCatagory::Riekling, ini, "Riekling");
+	loadRaceSection(a_data, raceCatagory::AshHopper, ini, "AshHopper");
+	loadRaceSection(a_data, raceCatagory::SteamCenturion, ini, "SteamCenturion");
+	loadRaceSection(a_data, raceCatagory::DwarvenBallista, ini, "DwarvenBallista");
+	loadRaceSection(a_data, raceCatagory::ChaurusFlyer, ini, "ChaurusFlyer");
+	loadRaceSection(a_data, raceCatagory::Lurker, ini, "Lurker");
+	loadRaceSection(a_data, raceCatagory::Dragon, ini, "Dragon");
 }
 
-void data::loadExecutableRace(RE::TESDataHandler* data) {
+void data::loadExecutableRace(RE::TESDataHandler* a_data) {
 	for (const auto& entry : std::filesystem::directory_iterator(kmRaceDir)) { //iterates through all .ini files
 		std::string pathStr = entry.path().string();
-		INFO("Reading from {}", pathStr);
+		INFO("Reading race config from {}", pathStr);
 		const char* cstr = pathStr.c_str();
-		loadExecutableRaceIni(data, cstr);
+		loadExecutableRaceIni(a_data, cstr);
 	}
 }
 
 
 
-void data::loadDifficultySettings(RE::GameSettingCollection* gameSettings) {
+void data::loadDifficultySettings(RE::GameSettingCollection* a_gameSettingCollection) {
 	INFO("Loading difficulty settings...");
-	fDiffMultHPByPCVE = gameSettings->GetSetting("fDiffMultHPByPCVE")->GetFloat();
-	fDiffMultHPByPCE = gameSettings->GetSetting("fDiffMultHPByPCE")->GetFloat();
-	fDiffMultHPByPCN = gameSettings->GetSetting("fDiffMultHPByPCN")->GetFloat();
-	fDiffMultHPByPCH = gameSettings->GetSetting("fDiffMultHPByPCH")->GetFloat();
-	fDiffMultHPByPCVH = gameSettings->GetSetting("fDiffMultHPByPCVH")->GetFloat();
-	fDiffMultHPByPCL = gameSettings->GetSetting("fDiffMultHPByPCL")->GetFloat();
+	fDiffMultHPByPCVE = a_gameSettingCollection->GetSetting("fDiffMultHPByPCVE")->GetFloat();
+	fDiffMultHPByPCE = a_gameSettingCollection->GetSetting("fDiffMultHPByPCE")->GetFloat();
+	fDiffMultHPByPCN = a_gameSettingCollection->GetSetting("fDiffMultHPByPCN")->GetFloat();
+	fDiffMultHPByPCH = a_gameSettingCollection->GetSetting("fDiffMultHPByPCH")->GetFloat();
+	fDiffMultHPByPCVH = a_gameSettingCollection->GetSetting("fDiffMultHPByPCVH")->GetFloat();
+	fDiffMultHPByPCL = a_gameSettingCollection->GetSetting("fDiffMultHPByPCL")->GetFloat();
 
-	fDiffMultHPToPCVE = gameSettings->GetSetting("fDiffMultHPToPCVE")->GetFloat();
-	fDiffMultHPToPCE = gameSettings->GetSetting("fDiffMultHPToPCE")->GetFloat();
-	fDiffMultHPToPCN = gameSettings->GetSetting("fDiffMultHPToPCN")->GetFloat();
-	fDiffMultHPToPCH = gameSettings->GetSetting("fDiffMultHPToPCH")->GetFloat();
-	fDiffMultHPToPCVH = gameSettings->GetSetting("fDiffMultHPToPCVH")->GetFloat();
-	fDiffMultHPToPCL = gameSettings->GetSetting("fDiffMultHPToPCL")->GetFloat();
+	fDiffMultHPToPCVE = a_gameSettingCollection->GetSetting("fDiffMultHPToPCVE")->GetFloat();
+	fDiffMultHPToPCE = a_gameSettingCollection->GetSetting("fDiffMultHPToPCE")->GetFloat();
+	fDiffMultHPToPCN = a_gameSettingCollection->GetSetting("fDiffMultHPToPCN")->GetFloat();
+	fDiffMultHPToPCH = a_gameSettingCollection->GetSetting("fDiffMultHPToPCH")->GetFloat();
+	fDiffMultHPToPCVH = a_gameSettingCollection->GetSetting("fDiffMultHPToPCVH")->GetFloat();
+	fDiffMultHPToPCL = a_gameSettingCollection->GetSetting("fDiffMultHPToPCL")->GetFloat();
 
-	fCombatHitConeAngle = gameSettings->GetSetting("fCombatHitConeAngle")->GetFloat();
-	INFO("Game difficulty multipliers loaded.");
+	fCombatHitConeAngle = a_gameSettingCollection->GetSetting("fCombatHitConeAngle")->GetFloat();
+	INFO("...done");
 }
 
 bool data::isRaceType(RE::Actor* a_actor, raceCatagory a_catagory) {

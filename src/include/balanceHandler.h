@@ -10,7 +10,11 @@ private:
 	robin_hood::unordered_set<RE::Actor*> balanceBrokenActors;
 	static inline std::mutex mtx_actorBalanceMap;
 	static inline std::mutex mtx_balanceBrokenActors;
+
+	bool garbageCollectionQueued;
 public:
+
+
 	static balanceHandler* GetSingleton()
 	{
 		static balanceHandler singleton;
@@ -43,6 +47,8 @@ public:
 
 	/*Reset all balance values by wiping all hashmap clean.*/
 	void reset();
+
+	void queueGarbageCollection();
 private:
 	/*Damage an actor's balance; actor's balance cannot go below 0.
 	Break the actor's balance if the actor's balance hits 0 and the actor's balance is not currently broken.

@@ -1,42 +1,42 @@
 #include "include/staminaHandler.h"
 #include "include/debuffHandler.h"
 #include "include/Utils.h"
-void staminaHandler::checkStamina(RE::Actor* actor) {
-	if (actor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
+void staminaHandler::checkStamina(RE::Actor* a_actor) {
+	if (a_actor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
 		//
-		("{}'s stamina is less than 0, initializing debuff.", actor->GetName());
-		debuffHandler::GetSingleton()->initStaminaDebuff(actor);
+		("{}'s stamina is less than 0, initializing debuff.", a_actor->GetName());
+		debuffHandler::GetSingleton()->initStaminaDebuff(a_actor);
 	}
 }
-void staminaHandler::staminaLightMiss(RE::Actor* actor) {
-	if (!actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+void staminaHandler::staminaLightMiss(RE::Actor* a_actor) {
+	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
 		return;
 	}
-	Utils::damageav(actor, RE::ActorValue::kStamina, settings::fMeleeCostLightMiss_Point);
-	checkStamina(actor);
+	Utils::damageav(a_actor, RE::ActorValue::kStamina, settings::fMeleeCostLightMiss_Point);
+	checkStamina(a_actor);
 }
 
-void staminaHandler::staminaLightHit(RE::Actor* a) {
-	if (!a->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+void staminaHandler::staminaLightHit(RE::Actor* a_actor) {
+	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
 		return;
 	}
-	Utils::restoreav(a, RE::ActorValue::kStamina, a->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
-	checkStamina(a);
+	Utils::restoreav(a_actor, RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
+	checkStamina(a_actor);
 }
 
-void staminaHandler::staminaHeavyMiss(RE::Actor* a) {
-	if (!a->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+void staminaHandler::staminaHeavyMiss(RE::Actor* a_actor) {
+	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
 		return;
 	}
-	Utils::damageav(a, RE::ActorValue::kStamina, a->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyMiss_Percent);
-	checkStamina(a);
+	Utils::damageav(a_actor, RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyMiss_Percent);
+	checkStamina(a_actor);
 }
 
-void staminaHandler::staminaHeavyHit(RE::Actor* a) {
+void staminaHandler::staminaHeavyHit(RE::Actor* a_actor) {
 	//DEBUG("stamina heavy hit");
-	if (!a->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
 		return;
 	}
-	Utils::damageav(a, RE::ActorValue::kStamina, a->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyHit_Percent);
-	checkStamina(a);
+	Utils::damageav(a_actor, RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyHit_Percent);
+	checkStamina(a_actor);
 }

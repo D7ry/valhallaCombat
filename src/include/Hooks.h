@@ -280,7 +280,8 @@ class Hook_OnProjectileCollision {
 public:
 	static void install() {
 #if ANNIVERSARY_EDITION
-		REL::Relocation<std::uintptr_t> projectileHitVtbl{ RE::VTABLE_PlayerCharacter[0] };
+		REL::Relocation<std::uintptr_t> arrowProjectileVtbl{ REL::ID() };
+		REL::Relocation<std::uintptr_t> missileProjectileVtbl{ REL::ID() };
 #else
 		REL::Relocation<std::uintptr_t> arrowProjectileVtbl{ REL::ID(263776) };
 		REL::Relocation<std::uintptr_t> missileProjectileVtbl{ REL::ID(263942) };

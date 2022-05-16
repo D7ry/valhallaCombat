@@ -5,23 +5,28 @@
 #include "include/reactionHandler.h"
 #include "include/offsets.h"
 #include "include/Utils.h"
-void stunHandler::safeErase_ActorStunMap(RE::Actor* actor) {
+void stunHandler::safeErase_ActorStunMap(RE::Actor* a_actor) {
 	mtx_ActorStunMap.lock();
-	actorStunMap.erase(actor);
+	actorStunMap.erase(a_actor);
 	mtx_ActorStunMap.unlock();
 }
-void stunHandler::safeErase_StunnedActors(RE::Actor* actor) {
+void stunHandler::safeErase_StunnedActors(RE::Actor* a_actor) {
 	mtx_StunnedActors.lock();
-	stunnedActors.erase(actor);
+	stunnedActors.erase(a_actor);
 	mtx_StunnedActors.unlock();
 }
-void stunHandler::safeErase_StunRegenQueue(RE::Actor* actor) {
+void stunHandler::safeErase_StunRegenQueue(RE::Actor* a_actor) {
 	mtx_StunRegenQueue.lock();
-	stunRegenQueue.erase(actor);
+	stunRegenQueue.erase(a_actor);
 	mtx_StunRegenQueue.unlock();
 }
 void stunHandler::update() {
-	//mtx.lock();
+
+	if (garbageCollectionQueued) {
+		collectGarbage();
+		garbageCollectionQueued = false;
+	}
+
 	mtx_StunRegenQueue.lock();
 	//stop update if there is nothing in the queue.
 	if (stunRegenQueue.empty()) {
@@ -94,6 +99,12 @@ void stunHandler::update() {
 		++it_StunRegenQueue;
 	}
 	mtx_StunRegenQueue.unlock();
+
+
+}
+
+void stunHandler::queueGarbageCollection() {
+	garbageCollectionQueued = true;
 }
 
 void stunHandler::async_HealthBarFlash() {
@@ -118,61 +129,61 @@ void stunHandler::async_HealthBarFlash() {
 	}
 }
 
-float stunHandler::getMaxStun(RE::Actor* actor) {
-	if (actor->IsDead()) {
+float stunHandler::getMaxStun(RE::Actor* a_actor) {
+	if (a_actor->IsDead()) {
 		return 0;
 	}
 	auto temp_ActorStunMap = stunHandler::GetSingleton()->actorStunMap;
-	auto it = temp_ActorStunMap.find(actor);
+	auto it = temp_ActorStunMap.find(a_actor);
 	if (it != temp_ActorStunMap.end()) {
 		return it->second.first;
 	}
 	else {
-		stunHandler::GetSingleton()->trackStun(actor);
-		return getMaxStun(actor);
+		stunHandler::GetSingleton()->trackStun(a_actor);
+		return getMaxStun(a_actor);
 	}
 }
 
-float stunHandler::getStun(RE::Actor* actor) {
-	if (actor->IsDead()) {
+float stunHandler::getStun(RE::Actor* a_actor) {
+	if (a_actor->IsDead()) {
 		return 0;
 	}
 	auto temp_ActorStunMap = stunHandler::GetSingleton()->actorStunMap;
-	auto it = temp_ActorStunMap.find(actor);
+	auto it = temp_ActorStunMap.find(a_actor);
 	if (it != temp_ActorStunMap.end()) {
 		return it->second.second;
 	}
 	else {
-		stunHandler::GetSingleton()->trackStun(actor);
-		return getStun(actor);
+		stunHandler::GetSingleton()->trackStun(a_actor);
+		return getStun(a_actor);
 	}
 
 }
 
-void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damage) {
+void stunHandler::damageStun(RE::Actor* a_aggressor, RE::Actor* a_victim, float a_damage) {
 	//DEBUG("Damaging {}'s stun by {} points.", actor->GetName(), damage);
 	mtx_ActorStunMap.lock();
-	if (!actorStunMap.contains(actor)) {
+	if (!actorStunMap.contains(a_victim)) {
 		mtx_ActorStunMap.unlock();
-		trackStun(actor);
-		damageStun(aggressor, actor, damage);//recursively call itself, once stun is tracked.
+		trackStun(a_victim);
+		damageStun(a_aggressor, a_victim, a_damage);//recursively call itself, once stun is tracked.
 		return;
 	}
-	std::pair<float, float>* actorStunData = &actorStunMap.find(actor)->second;
+	std::pair<float, float>* actorStunData = &actorStunMap.find(a_victim)->second;
 	//prevent stun from getting below 0
-	if (actorStunData->second - damage <= 0) {
+	if (actorStunData->second - a_damage <= 0) {
 		actorStunData->second = 0;
 	}
 	else {
-		actorStunData->second -= damage;
+		actorStunData->second -= a_damage;
 	}
 
 	//actor has 0 stun
 	if (actorStunData->second <= 0) {
 		mtx_ActorStunMap.unlock();
-		if (!stunnedActors.contains(actor)) {
-			ValhallaUtils::playSound(actor, data::soundStunBreak);
-			stunnedActors.insert(actor);
+		if (!stunnedActors.contains(a_victim)) {
+			ValhallaUtils::playSound(a_victim, data::soundStunBreak);
+			stunnedActors.insert(a_victim);
 			//launch health bar flash thread if not done so.
 			if (!async_HealthBarFlash_b) {
 				std::jthread stunMeterFlashThread(async_HealthBarFlash);
@@ -181,7 +192,7 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 			}
 			//gray out this actor's stun meter.
 			if (settings::bStunMeterToggle && settings::TrueHudAPI_HasSpecialBarControl) {
-				TrueHUDUtils::greyOutSpecialMeter(actor);
+				TrueHUDUtils::greyOutSpecialMeter(a_victim);
 			}
 		}
 	}
@@ -189,12 +200,12 @@ void stunHandler::damageStun(RE::Actor* aggressor, RE::Actor* actor, float damag
 		mtx_ActorStunMap.unlock();
 	}
 
-	if (stunnedActors.contains(actor)
-		&& !actor->IsInKillMove()) {
-		reactionHandler::triggerDownedState(actor);
+	if (stunnedActors.contains(a_victim)
+		&& !a_victim->IsInKillMove()) {
+		reactionHandler::triggerDownedState(a_victim);
 	}
 	mtx_StunRegenQueue.lock();
-	stunRegenQueue[actor] = 3; //3 seconds cooldown to regenerate stun.
+	stunRegenQueue[a_victim] = 3; //3 seconds cooldown to regenerate stun.
 	mtx_StunRegenQueue.unlock();
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::stunHandler);
 	//DEBUG("damaging done");
@@ -216,33 +227,33 @@ bool stunHandler::isActorStunned(RE::Actor* a_actor) {
 
 //parry damage needs to be offset here, since it's not calculated.
 void stunHandler::processStunDamage(
-	STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) {
+	STUNSOURCE a_stunSource, RE::TESObjectWEAP* a_weapon, RE::Actor* a_aggressor, RE::Actor* a_victim, float a_baseDamage) {
 	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
 		return;
 	}
-	if (victim->IsPlayerRef()) { //player do not receive stun damage at all.
+	if (a_victim->IsPlayerRef()) { //player do not receive stun damage at all.
 		return;
 	}
 	float stunDamage;
-	switch (stunSource) {
+	switch (a_stunSource) {
 	case STUNSOURCE::parry:
-		stunDamage = baseDamage * settings::fStunParryMult;
+		stunDamage = a_baseDamage * settings::fStunParryMult;
 		break;
 	case STUNSOURCE::bash:
-		stunDamage = aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult;
-		Utils::offsetRealDamage(stunDamage, aggressor, victim);
+		stunDamage = a_aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult;
+		Utils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
 		break;
 	case STUNSOURCE::powerBash:
-		stunDamage = aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunPowerBashMult;
-		Utils::offsetRealDamage(stunDamage, aggressor, victim);
+		stunDamage = a_aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunPowerBashMult;
+		Utils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
 		break;
 	case STUNSOURCE::lightAttack:
-		stunDamage = baseDamage * settings::fStunNormalAttackMult;
-		if (!weapon) {
+		stunDamage = a_baseDamage * settings::fStunNormalAttackMult;
+		if (!a_weapon) {
 			stunDamage *= settings::fStunUnarmedMult;
 		}
 		else {
-			switch (weapon->GetWeaponType()) {
+			switch (a_weapon->GetWeaponType()) {
 			case RE::WEAPON_TYPE::kHandToHandMelee: stunDamage *= settings::fStunUnarmedMult; break;
 			case RE::WEAPON_TYPE::kOneHandDagger: stunDamage *= settings::fStunDaggerMult; break;
 			case RE::WEAPON_TYPE::kOneHandSword: stunDamage *= settings::fStunSwordMult; break;
@@ -254,12 +265,12 @@ void stunHandler::processStunDamage(
 		}
 		break;
 	case STUNSOURCE::powerAttack:
-		stunDamage = baseDamage * settings::fStunPowerAttackMult;
-		if (!weapon) {
+		stunDamage = a_baseDamage * settings::fStunPowerAttackMult;
+		if (!a_weapon) {
 			stunDamage *= settings::fStunUnarmedMult;
 		}
 		else {
-			switch (weapon->GetWeaponType()) {
+			switch (a_weapon->GetWeaponType()) {
 			case RE::WEAPON_TYPE::kHandToHandMelee: stunDamage *= settings::fStunUnarmedMult; break;
 			case RE::WEAPON_TYPE::kOneHandDagger: stunDamage *= settings::fStunDaggerMult; break;
 			case RE::WEAPON_TYPE::kOneHandSword: stunDamage *= settings::fStunSwordMult; break;
@@ -272,7 +283,7 @@ void stunHandler::processStunDamage(
 		break;
 	}
 
-	damageStun(aggressor, victim, stunDamage);
+	damageStun(a_aggressor, a_victim, stunDamage);
 }
 
 
@@ -281,23 +292,23 @@ void stunHandler::processStunDamage(
 
 /*Bunch of abstracted utilities.*/
 #pragma region stunUtils
-void stunHandler::trackStun(RE::Actor* actor) {
-	float maxStun = calcMaxStun(actor);
+void stunHandler::trackStun(RE::Actor* a_actor) {
+	float maxStun = calcMaxStun(a_actor);
 	mtx_ActorStunMap.lock();
-	actorStunMap.emplace(actor, std::pair<float, float>(maxStun, maxStun));
+	actorStunMap.emplace(a_actor, std::pair<float, float>(maxStun, maxStun));
 	mtx_ActorStunMap.unlock();
 };
-void stunHandler::untrackStun(RE::Actor* actor) {
-	safeErase_ActorStunMap(actor);
-	safeErase_StunnedActors(actor);
-	safeErase_StunRegenQueue(actor);
+void stunHandler::untrackStun(RE::Actor* a_actor) {
+	safeErase_ActorStunMap(a_actor);
+	safeErase_StunnedActors(a_actor);
+	safeErase_StunRegenQueue(a_actor);
 }
-float stunHandler::calcMaxStun(RE::Actor* actor) {
-	return (actor->GetPermanentActorValue(RE::ActorValue::kHealth) + actor->GetPermanentActorValue(RE::ActorValue::kStamina)) / 2;
+float stunHandler::calcMaxStun(RE::Actor* a_actor) {
+	return (a_actor->GetPermanentActorValue(RE::ActorValue::kHealth) + a_actor->GetPermanentActorValue(RE::ActorValue::kStamina)) / 2;
 }
-void stunHandler::refillStun(RE::Actor* actor) {
+void stunHandler::refillStun(RE::Actor* a_actor) {
 	mtx_ActorStunMap.lock();
-	auto it = actorStunMap.find(actor);
+	auto it = actorStunMap.find(a_actor);
 	if (it != actorStunMap.end()) {
 		it->second.second = it->second.first;
 	}

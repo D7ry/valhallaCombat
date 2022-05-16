@@ -6,6 +6,11 @@ inline const float balanceRegenTime = 6;//time it takes for balance to regen, in
 
 void balanceHandler::update() {
 	//DEBUG("update");
+	if (garbageCollectionQueued) {
+		collectGarbage();
+		garbageCollectionQueued = false;
+	}
+
 	mtx_balanceBrokenActors.lock();
 	if (balanceBrokenActors.empty()) {//stop updating when there is 0 actor need to regen balance.
 		mtx_balanceBrokenActors.unlock();
@@ -47,7 +52,11 @@ void balanceHandler::update() {
 
 	mtx_actorBalanceMap.unlock();
 	mtx_balanceBrokenActors.unlock();
-	
+
+}
+
+void balanceHandler::queueGarbageCollection() {
+	garbageCollectionQueued = true;
 }
 
 float balanceHandler::calculateMaxBalance(RE::Actor* a_actor) {
@@ -144,10 +153,17 @@ void balanceHandler::damageBalance(DMGSOURCE dmgSource, RE::Actor* a_aggressor, 
 		a_balanceData.second -= damage;
 		mtx_actorBalanceMap.unlock();
 		mtx_balanceBrokenActors.lock();
-		if (balanceBrokenActors.contains(a_victim)//if balance broken, trigger stagger.
-			|| (dmgSource == DMGSOURCE::powerAttack 
+		if (balanceBrokenActors.contains(a_victim)) {
+			if (dmgSource == DMGSOURCE::powerAttack) {
+				reactionHandler::triggerStagger(a_aggressor, a_victim, reactionHandler::reactionType::kKnockBack);
+			}
+			else {
+				reactionHandler::triggerContinuousStagger(a_aggressor, a_victim, reactionHandler::kLarge);
+			}
+		}//if balance broken, trigger stagger.
+		else if (dmgSource == DMGSOURCE::powerAttack 
 				&& !debuffHandler::GetSingleton()->isInDebuff(a_aggressor)) //or if is power attack and not in debuff
-			) {
+		{
 			reactionHandler::triggerContinuousStagger(a_aggressor, a_victim, reactionHandler::kLarge);
 		}
 		mtx_balanceBrokenActors.unlock();

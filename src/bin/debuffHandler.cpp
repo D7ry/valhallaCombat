@@ -56,7 +56,7 @@ void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {
 	if (a_actor->IsPlayerRef()) {
 		addDebuffPerk(a_actor);
 	}
-	if (settings::bUIAlert && settings::TrueHudAPI_Obtained) {
+	if (settings::bUIAlert) {
 		TrueHUDUtils::greyoutAvMeter(a_actor, RE::ActorValue::kStamina);
 		if (a_actor->IsPlayerRef()) {
 			std::jthread t(async_pcStaminaMeterFlash);
@@ -69,29 +69,29 @@ void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {
 
 /*Stamina the actor's stamina debuff, remove their debuff perk, and revert their UI meter.
 @param actor actor whose stamina debuff will stop.*/
-void debuffHandler::stopStaminaDebuff(RE::Actor* actor) {
+void debuffHandler::stopStaminaDebuff(RE::Actor* a_actor) {
 	//DEBUG("Stopping stamina debuff for {}", actor->GetName());
-	removeDebuffPerk(actor);
-	if (settings::bUIAlert && settings::TrueHudAPI_Obtained) {
-		if (actor->IsPlayerRef()) {
+	removeDebuffPerk(a_actor);
+	if (settings::bUIAlert) {
+		if (a_actor->IsPlayerRef()) {
 			async_pcStaminaMeterFlash_b = false;
 		}
-		TrueHUDUtils::revertAvMeter(actor, RE::ActorValue::kStamina);
+		TrueHUDUtils::revertAvMeter(a_actor, RE::ActorValue::kStamina);
 	}
 }
 
-void debuffHandler::quickStopStaminaDebuff(RE::Actor* actor) {
+void debuffHandler::quickStopStaminaDebuff(RE::Actor* a_actor) {
 	mtx_actorInDebuff.lock();
-	if (!actorInDebuff.contains(actor)) {
+	if (!actorInDebuff.contains(a_actor)) {
 		mtx_actorInDebuff.unlock();
 		return;
 	}
-	actorInDebuff.erase(actor);
+	actorInDebuff.erase(a_actor);
 	if (actorInDebuff.size() == 0) {
 		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
 	}
 	mtx_actorInDebuff.unlock();
-	stopStaminaDebuff(actor);
+	stopStaminaDebuff(a_actor);
 }
 
 /*Attach stamina debuff perk to actor.

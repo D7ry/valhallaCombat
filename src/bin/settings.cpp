@@ -6,7 +6,7 @@ void settings::ReadIntSetting(CSimpleIniA& a_ini, const char* a_sectionName, con
 	const char* bFound = nullptr;
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound) {
-		INFO("found {} with value {}", a_settingName, bFound);
+		//INFO("found {} with value {}", a_settingName, bFound);
 		a_setting = static_cast<int>(a_ini.GetDoubleValue(a_sectionName, a_settingName));
 	}
 }
@@ -15,7 +15,7 @@ void settings::ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, c
 	const char* bFound = nullptr;
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound) {
-		INFO("found {} with value {}", a_settingName, bFound);
+		//INFO("found {} with value {}", a_settingName, bFound);
 		a_setting = static_cast<float>(a_ini.GetDoubleValue(a_sectionName, a_settingName));
 	}
 }
@@ -26,7 +26,7 @@ void settings::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, co
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound)
 	{
-		INFO("found {} with value {}", a_settingName, bFound);
+		//INFO("found {} with value {}", a_settingName, bFound);
 		a_setting = a_ini.GetBoolValue(a_sectionName, a_settingName);
 	}
 }
@@ -121,7 +121,7 @@ void settings::readSettings() {
 	ReadFloatSetting(mcm, "Parrying", "fTimedBlockCooldownTime", fTimedBlockCooldownTime);
 	ReadFloatSetting(mcm, "Parrying", "fTimedBlockStaminaCostMult", fTimedBlockStaminaCostMult);
 
-	ReadIntSetting(mcm, "Stun", "uAltBlockKey", uAltBlockKey);
+	ReadIntSetting(mcm, "Parrying", "uAltBlockKey", uAltBlockKey);
 	/*Read stun section*/
 	ReadBoolSetting(mcm, "Stun", "bStunToggle", bStunToggle);
 	ReadBoolSetting(mcm, "Stun", "bStunMeterToggle", bStunMeterToggle);

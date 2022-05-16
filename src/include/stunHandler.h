@@ -19,7 +19,10 @@ public:
 	/*Stop tracking this Actor's stun.
 	@param actor: actor whose stun will no longer be tracked.*/
 	void untrackStun(RE::Actor* actor);
+
+	void queueGarbageCollection();
 private:
+	bool garbageCollectionQueued = false;
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
 	robin_hood::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 

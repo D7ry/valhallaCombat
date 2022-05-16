@@ -125,10 +125,10 @@ namespace Utils
 		RE::GameSettingCollection* _settingCollection = RE::GameSettingCollection::GetSingleton();
 		setting = _settingCollection->GetSetting(settingStr);
 		if (!setting) {
-			INFO("invalid setting: {}", settingStr);
+			INFO("Error: invalid setting: {}", settingStr);
 		}
 		else {
-			INFO("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
+			//INFO("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
 			setting->data.f = val;
 		}
 	}

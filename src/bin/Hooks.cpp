@@ -82,11 +82,16 @@ bool Hook_OnStaminaRegen::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 
 #pragma region getStaggerMagnitude_Weapon
 float Hook_OnGetStaggerMagnitude::getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4) {
-	return 0;
+	if (settings::bBalanceToggle) {
+		return 0;
+	}
+	
 }
 
 float Hook_OnGetStaggerMagnitude::getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2) {
-	return 0;
+	if (settings::bBalanceToggle) {
+		return 0;
+	}
 }
 /*
 void Hook_GetStaggerMagnitude::initStagger1(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5) {

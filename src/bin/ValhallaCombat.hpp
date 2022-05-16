@@ -28,8 +28,8 @@ public:
 
 	/*Start updating a handler per tick.
 	@param handlerToActivate: the handler which will start updating per tick.*/
-	void activateUpdate(HANDLER handlerToActivate) {
-		switch (handlerToActivate)
+	void activateUpdate(HANDLER a_ValhallaHandler) {
+		switch (a_ValhallaHandler)
 		{
 		case ValhallaCombat::debuffHandler: update_DebuffHandler = true;
 			break;
@@ -42,8 +42,8 @@ public:
 	}
 	/*Stop updating a handler per tick.
 	@param handlerToDeactivate: the handler which will stop updating per tick.*/
-	void deactivateUpdate(HANDLER handlerToDeactivate) {
-		switch (handlerToDeactivate) {
+	void deactivateUpdate(HANDLER a_ValallaHandler) {
+		switch (a_ValallaHandler) {
 		case ValhallaCombat::debuffHandler: update_DebuffHandler = false;
 			break;
 		case ValhallaCombat::blockHandler: update_BlockHandler = false;
@@ -73,28 +73,13 @@ public:
 		}
 	}
 
-	static void async_cleanUpFunc() {
+	static void queueGarbageCollection() {
 		INFO("Initializing garbage collection...");
-		auto vc = ValhallaCombat::GetSingleton();
 		if (settings::bStunToggle) {
-			bool update = vc->update_StunHandler;
-			if (update) {
-				vc->deactivateUpdate(ValhallaCombat::stunHandler);
-			}
-			stunHandler::GetSingleton()->collectGarbage();
-			if (update) {
-				vc->activateUpdate(ValhallaCombat::stunHandler);
-			}
+			stunHandler::GetSingleton()->queueGarbageCollection();
 		}
 		if (settings::bBalanceToggle) {
-			bool update = vc->update_balanceHandler;
-			if (update) {
-				vc->deactivateUpdate(ValhallaCombat::balanceHandler);
-			}
-			balanceHandler::GetSingleton()->collectGarbage();
-			if (update) {
-				vc->activateUpdate(ValhallaCombat::balanceHandler);
-			}
+			balanceHandler::GetSingleton()->queueGarbageCollection();
 		}
 		INFO("...done");
 	}
@@ -105,12 +90,7 @@ public:
 		auto cleanUpThreadFunc = []() {
 			while (true) {
 				std::this_thread::sleep_for(std::chrono::minutes(30));
-				const auto task = SKSE::GetTaskInterface();
-				if (task != nullptr) {
-					task->AddTask([]() {
-						async_cleanUpFunc();
-						});
-				}
+				queueGarbageCollection();
 			}
 		};
 		std::jthread cleanUpThread(cleanUpThreadFunc);

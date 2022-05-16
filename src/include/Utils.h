@@ -155,10 +155,12 @@ namespace Utils
 	}
 };
 
-class TrueHUDUtils
+namespace TrueHUDUtils
 {
-public:
-	static void flashHealthMeter(robin_hood::unordered_set<RE::Actor*> actors) {
+	inline void flashHealthMeter(robin_hood::unordered_set<RE::Actor*> actors) {
+		if (!settings::TrueHudAPI_Obtained) {
+			return;
+		}
 		auto ersh = ValhallaCombat::GetSingleton()->ersh;
 		auto temp_set = actors;
 		for (auto a_actor : actors) {
@@ -167,32 +169,41 @@ public:
 			}
 		}
 	}
-	static void flashHealthMeter(RE::Actor* a_actor) {
-		ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
-	}
 
-	static void flashActorValue(RE::Actor* a_actor, RE::ActorValue actorValue) {
+	inline void flashActorValue(RE::Actor* a_actor, RE::ActorValue actorValue) {
+		if (!settings::TrueHudAPI_Obtained) {
+			return;
+		}
 		if (a_actor) {
 			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), actorValue, true);
 		}
 		
 	}
 
-	static void greyoutAvMeter(RE::Actor* a_actor, RE::ActorValue actorValue) {
+	inline void greyoutAvMeter(RE::Actor* a_actor, RE::ActorValue actorValue) {
+		if (!settings::TrueHudAPI_Obtained) {
+			return;
+		}
 		auto ersh = ValhallaCombat::GetSingleton()->ersh;
 		ersh->OverrideBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
 		ersh->OverrideBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
 		ersh->OverrideBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
 	}
 
-	static void revertAvMeter(RE::Actor* a_actor, RE::ActorValue actorValue) {
+	inline void revertAvMeter(RE::Actor* a_actor, RE::ActorValue actorValue) {
+		if (!settings::TrueHudAPI_Obtained) {
+			return;
+		}
 		auto ersh = ValhallaCombat::GetSingleton()->ersh;
 		ersh->RevertBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::FlashColor);
 		ersh->RevertBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::BarColor);
 		ersh->RevertBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::PhantomColor);
 	}
 
-	static void greyOutSpecialMeter(RE::Actor* a_actor) {
+	inline void greyOutSpecialMeter(RE::Actor* a_actor) {
+		if (!settings::TrueHudAPI_Obtained) {
+			return;
+		}
 		auto ersh = ValhallaCombat::GetSingleton()->ersh;
 		ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
 		ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
@@ -200,13 +211,17 @@ public:
 		ersh->OverrideBarColor(a_actor->GetHandle(), RE::ActorValue::kHealth, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
 	}
 
-	static void revertSpecialMeter(RE::Actor* a_actor) {
+	inline void revertSpecialMeter(RE::Actor* a_actor) {
+		if (!settings::TrueHudAPI_Obtained) {
+			return;
+		}
 		auto ersh = ValhallaCombat::GetSingleton()->ersh;
 		ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor);
 		ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
 		ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor);
 		ersh->RevertBarColor(a_actor->GetHandle(), RE::ActorValue::kHealth, TRUEHUD_API::BarColorType::FlashColor);
 	}
+
 };
 
 class ValhallaUtils
@@ -229,11 +244,14 @@ public:
 
 
 	/*Send the target flying based on causer's location.
-	@param magnitude: strength of a push.*/
-	static void PushActorAway(RE::Actor* causer, RE::Actor* target, float magnitude) {
-		RE::NiPoint3 vec = causer->GetPosition();
+@param magnitude: strength of a push.*/
+	inline static void PushActorAway(RE::Actor* causer, RE::Actor* target, float magnitude) {
+		auto targetPoint = causer->GetNodeByName(causer->race->bodyPartData->parts[0]->targetName.c_str());
+		RE::NiPoint3 vec = targetPoint->world.translate;
+		//RE::NiPoint3 vec = causer->GetPosition();
 		RE::Offset::pushActorAway(causer->currentProcess, target, vec, magnitude);
 	}
+
 
 #pragma region playSound
 	static inline int soundHelper_a(void* manager, RE::BSSoundHandle* a2, int a3, int a4) //sub_140BEEE70
