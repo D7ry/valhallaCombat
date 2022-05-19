@@ -10,6 +10,7 @@
 //TODO:clear this up a bit
 namespace Utils
 {
+
 	inline void SetRotationMatrix(RE::NiMatrix3& a_matrix, float sacb, float cacb, float sb)
 	{
 		float cb = std::sqrtf(1 - sb * sb);
@@ -41,10 +42,10 @@ namespace Utils
 	}
 
 
-	inline bool isPowerAttacking(RE::Actor* actor) {
+	inline bool isPowerAttacking(RE::Actor* a_actor) {
 		return
-			actor->currentProcess && actor->currentProcess->high && actor->currentProcess->high->attackData
-			&& actor->currentProcess->high->attackData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack);
+			a_actor->currentProcess && a_actor->currentProcess->high && a_actor->currentProcess->high->attackData
+			&& a_actor->currentProcess->high->attackData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack);
 	}
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
@@ -57,35 +58,35 @@ namespace Utils
 	}
 
 	/*Try to damage this actor's actorvalue. If the actor does not have enough value, do not damage and return false;*/
-	inline bool tryDamageAv(RE::Actor* a_actor, RE::ActorValue av, float val) {
-		auto currentAv = a_actor->GetActorValue(av);
-		if (currentAv - val <= 0) {
+	inline bool tryDamageAv(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_damage) {
+		auto currentAv = a_actor->GetActorValue(a_actorValue);
+		if (currentAv - a_damage <= 0) {
 			return false;
 		}
-		damageav(a_actor, av, val);
+		damageav(a_actor, a_actorValue, a_damage);
 		return true;
 	}
 
-	inline void restoreav(RE::Actor* a, RE::ActorValue av, float val)
+	inline void restoreav(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_damage)
 	{
-		if (a) {
-			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, val);
+		if (a_actor) {
+			a_actor->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, a_actorValue, a_damage);
 		}
 	}
 
-	inline void SGTM(float a_in) {
-#if ANNIVERSARY_EDITION
-		static float* g_SGTM = (float*)REL::ID(388443).address();
-		*g_SGTM = a_in;
-		using func_t = decltype(SGTM);
-		REL::Relocation<func_t> func{ REL::ID(68246) };
-#else
-		static float* g_SGTM = (float*)REL::ID(511883).address();
-		*g_SGTM = a_in;
-		using func_t = decltype(SGTM);
-		REL::Relocation<func_t> func{ REL::ID(66989) };
-#endif
-		return;
+	/*Slow down game time for a set period.
+	@param a_duration: duration of the slow time.
+	@param a_percentage: relative time speed to normal time(1).*/
+	inline void slowTime(float a_duration, float a_percentage) {
+		int duration_milisec = static_cast<int>(a_duration * 1000);
+		RE::Offset::SGTM(a_percentage);
+		/*Reset time here*/
+		auto resetSlowTime = [](int a_duration) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(a_duration));
+			RE::Offset::SGTM(1);
+		};
+		std::jthread resetThread(resetSlowTime, duration_milisec);
+		resetThread.detach();
 	}
 
 	/*Calculate the real hit damage based on game difficulty settings, and whether the player is aggressor/victim,
@@ -147,11 +148,11 @@ namespace Utils
 	/*Complete refills this actor's actor value.
 	@param a_actor actor whose actorValue will be refilled.
 	@param actorValue type of actor value to refill.*/
-	inline void refillActorValue(RE::Actor* a_actor, RE::ActorValue actorValue) {
-		float avToRestore = a_actor->GetPermanentActorValue(RE::ActorValue::kStamina)
-			+ a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina)
-			- a_actor->GetActorValue(actorValue);
-		restoreav(a_actor, actorValue, avToRestore);
+	inline void refillActorValue(RE::Actor* a_actor, RE::ActorValue a_actorValue) {
+		float avToRestore = a_actor->GetPermanentActorValue(a_actorValue)
+			+ a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, a_actorValue)
+			- a_actor->GetActorValue(a_actorValue);
+		restoreav(a_actor, a_actorValue, avToRestore);
 	}
 };
 

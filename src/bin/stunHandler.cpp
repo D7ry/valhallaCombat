@@ -21,11 +21,11 @@ void stunHandler::safeErase_StunRegenQueue(RE::Actor* a_actor) {
 	mtx_StunRegenQueue.unlock();
 }
 void stunHandler::update() {
-
+	/*
 	if (garbageCollectionQueued) {
 		collectGarbage();
 		garbageCollectionQueued = false;
-	}
+	}*/
 
 	mtx_StunRegenQueue.lock();
 	//stop update if there is nothing in the queue.

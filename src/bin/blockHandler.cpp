@@ -77,9 +77,9 @@ void blockHandler::onBlockKeyDown() {
 	
 	switch (pcBlockWindowPenalty) {
 	case blockWindowPenaltyLevel::none: break;
-	case blockWindowPenaltyLevel::light: blockWindow *= 0.6; break;
-	case blockWindowPenaltyLevel::medium: blockWindow *= 0.3; break;
-	case blockWindowPenaltyLevel::heavy: blockWindow *= 0.15; break;
+	case blockWindowPenaltyLevel::light: blockWindow *= 0.8; break;
+	case blockWindowPenaltyLevel::medium: blockWindow *= 0.5; break;
+	case blockWindowPenaltyLevel::heavy: blockWindow *= 0.3; break;
 	}
 	pcBlockTimer = blockWindow;
 	DEBUG("block start with window {}", blockWindow);
@@ -311,45 +311,45 @@ bool blockHandler::getIsPcParrying() {
 	return RE::PlayerCharacter::GetSingleton()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash;
 }
 
-void blockHandler::processPhysicalTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timeLeft) {
+void blockHandler::processPhysicalTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker, int a_iHitFlag, RE::HitData& a_HitData, float a_realDamage, float a_timeLeft) {
 	float reflectedDamage = 0;
-	auto a_weapon = blocker->getWieldingWeapon();
-	bool isPerfectblock = blocker->IsPlayerRef() && getIsPcPerfectBlocking();
+	auto a_weapon = a_blocker->getWieldingWeapon();
+	bool isPerfectblock = a_blocker->IsPlayerRef() && getIsPcPerfectBlocking();
 	if (a_weapon) {
 		reflectedDamage = a_weapon->GetAttackDamage();//get attack damage of blocker's weapon
 	}
-	Utils::offsetRealDamage(reflectedDamage, blocker, attacker);
+	Utils::offsetRealDamage(reflectedDamage, a_blocker, a_attacker);
 	float stunDmg = reflectedDamage;
 	float balanceDmg = reflectedDamage;
 	if (isPerfectblock) {
-		balanceDmg += realDamage; //reflect attacker's damage back as balance dmg
+		balanceDmg += a_realDamage; //reflect attacker's damage back as balance dmg
 	}
-	stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::parry, nullptr, blocker, attacker, stunDmg);
-	balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, blocker, attacker, balanceDmg);
-	hitData.totalDamage = 0;
-	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(attacker)
-		|| stunHandler::GetSingleton()->isActorStunned(attacker);
+	stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::parry, nullptr, a_blocker, a_attacker, stunDmg);
+	balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, balanceDmg);
+	a_HitData.totalDamage = 0;
+	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(a_attacker)
+		|| stunHandler::GetSingleton()->isActorStunned(a_attacker);
 
 	if (isAttackerGuardBroken) {
-		playBlockEffects(blocker, attacker, blockType::guardBreaking);
+		playBlockEffects(a_blocker, a_attacker, blockType::guardBreaking);
 	}
 	else {
 		if (isPerfectblock) {
-			playBlockEffects(blocker, attacker, blockType::perfect);
+			playBlockEffects(a_blocker, a_attacker, blockType::perfect);
 		}
 		else {
-			playBlockEffects(blocker, attacker, blockType::timed);
+			playBlockEffects(a_blocker, a_attacker, blockType::timed);
 		}
 	}
 
 	if (isPerfectblock || isAttackerGuardBroken) {//stagger opponent immediately on perfect block.
-		reactionHandler::triggerStagger(blocker, attacker, reactionHandler::reactionType::kLarge);
-		debuffHandler::GetSingleton()->quickStopStaminaDebuff(blocker);
-		Utils::refillActorValue(blocker, RE::ActorValue::kStamina); //perfect blocking completely restores actor value.
+		reactionHandler::triggerStagger(a_blocker, a_attacker, reactionHandler::reactionType::kLarge);
+		debuffHandler::GetSingleton()->quickStopStaminaDebuff(a_blocker);
+		Utils::refillActorValue(a_blocker, RE::ActorValue::kStamina); //perfect blocking completely restores actor value.
 	}
 	else {
-		Utils::damageav(blocker, RE::ActorValue::kStamina,
-			realDamage * getBlockStaminaCostMult(blocker, attacker, iHitflag) * settings::fTimedBlockStaminaCostMult);
+		Utils::damageav(a_blocker, RE::ActorValue::kStamina,
+			a_realDamage * getBlockStaminaCostMult(a_blocker, a_attacker, a_iHitFlag) * settings::fTimedBlockStaminaCostMult);
 	}
 	//damage blocker's stamina
 }
@@ -408,19 +408,12 @@ void blockHandler::playBlockSlowTime(blockType blockType) {
 	if (blockType == blockType::timed) {
 		return;
 	}
-	//DEBUG("start slow!");
-	Utils::SGTM(0.1); 
-	auto resetSlowTime = [](int stopTime_MS) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(stopTime_MS));
-		Utils::SGTM(1);
-	};
-	float a_time;
+	float slowDuration;
 	switch (blockType) {
-	case blockType::guardBreaking: a_time = 500; break;
-	case blockType::perfect: a_time = 300; break;
+	case blockType::guardBreaking: slowDuration = 0.5; break;
+	case blockType::perfect: slowDuration = 0.3; break;
 	}
-	std::jthread t(resetSlowTime, a_time);
-	t.detach();
+	Utils::slowTime(slowDuration, 0.1);
 }
 
 void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, blockType blockType) {

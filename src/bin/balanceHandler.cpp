@@ -6,10 +6,10 @@ inline const float balanceRegenTime = 6;//time it takes for balance to regen, in
 
 void balanceHandler::update() {
 	//DEBUG("update");
-	if (garbageCollectionQueued) {
+	/*if (garbageCollectionQueued) {
 		collectGarbage();
 		garbageCollectionQueued = false;
-	}
+	}*/
 
 	mtx_balanceBrokenActors.lock();
 	if (balanceBrokenActors.empty()) {//stop updating when there is 0 actor need to regen balance.

@@ -50,6 +50,7 @@ void reactionHandler::triggerRecoil(RE::Actor* a_reactor, reactionType a_reactio
 
 void reactionHandler::triggerKnockBack(RE::Actor* a_aggressor, RE::Actor* a_reactor) {
 	ValhallaUtils::PushActorAway(a_aggressor, a_reactor, 9);
+	Utils::slowTime(0.2, 0.1);
 }
 
 void reactionHandler::triggerPoiseReaction(RE::Actor* a_aggressor, RE::Actor* a_reactor, reactionType a_reactionType) {
