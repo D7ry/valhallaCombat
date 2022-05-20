@@ -158,18 +158,6 @@ namespace Utils
 
 namespace TrueHUDUtils
 {
-	inline void flashHealthMeter(robin_hood::unordered_set<RE::Actor*> actors) {
-		if (!settings::TrueHudAPI_Obtained) {
-			return;
-		}
-		auto ersh = ValhallaCombat::GetSingleton()->ersh;
-		auto temp_set = actors;
-		for (auto a_actor : actors) {
-			if (!a_actor->IsDead()) {
-				ersh->FlashActorValue(a_actor->GetHandle(), RE::ActorValue::kHealth, false);
-			}
-		}
-	}
 
 	inline void flashActorValue(RE::Actor* a_actor, RE::ActorValue actorValue) {
 		if (!settings::TrueHudAPI_Obtained) {
@@ -177,8 +165,7 @@ namespace TrueHUDUtils
 		}
 		if (a_actor) {
 			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), actorValue, true);
-		}
-		
+		}	
 	}
 
 	inline void greyoutAvMeter(RE::Actor* a_actor, RE::ActorValue actorValue) {

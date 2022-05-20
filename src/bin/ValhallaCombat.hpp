@@ -76,10 +76,11 @@ public:
 	static void queueGarbageCollection() {
 		INFO("Initializing garbage collection...");
 		if (settings::bStunToggle) {
-			stunHandler::GetSingleton()->queueGarbageCollection();
+			stunHandler::GetSingleton()->collectGarbage();
 		}
 		if (settings::bBalanceToggle) {
-			balanceHandler::GetSingleton()->queueGarbageCollection();
+			//TODO: fix garbage collection for balance too.
+			//balanceHandler::GetSingleton()->collectGarbage();
 		}
 		INFO("...done");
 	}
@@ -89,7 +90,7 @@ public:
 		INFO("Launch clean up thread...");
 		auto cleanUpThreadFunc = []() {
 			while (true) {
-				std::this_thread::sleep_for(std::chrono::minutes(30));
+				std::this_thread::sleep_for(std::chrono::seconds(3));
 				queueGarbageCollection();
 			}
 		};

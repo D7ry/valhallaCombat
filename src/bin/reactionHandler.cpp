@@ -120,7 +120,7 @@ void reactionHandler::triggerDownedState(RE::Actor* a_actor) {
 }
 
 void reactionHandler::recoverDownedState(RE::Actor* a_actor) {
-	if (a_actor->IsSwimming() || a_actor->IsInKillMove() || !a_actor->Is3DLoaded()) {
+	if (!a_actor || a_actor->IsSwimming() || a_actor->IsInKillMove() || !a_actor->Is3DLoaded()) {
 		return;
 	}
 	auto raceMapping = data::raceMapping;

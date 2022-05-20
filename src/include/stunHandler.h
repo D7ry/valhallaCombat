@@ -1,5 +1,6 @@
 #pragma once
 #include "data.h"
+#include "offsets.h"
 #include "lib/robin_hood.h"
 #include <mutex>
 #include <shared_mutex>
@@ -34,6 +35,7 @@ public:
 				_currentStun = 0;
 				return true;
 			}
+			return false;
 		}
 		/*Recovery this actor's stun, Stun cannot go above max stun.
 		@return if the stun is fully recovered after this recovery.*/
@@ -43,6 +45,11 @@ public:
 				_currentStun = _maxStun;
 				return true;
 			}
+			return false;
+		}
+
+		bool regenStun() {
+			return recoverStun(*RE::Offset::g_deltaTime * 1 / 7 * _maxStun);
 		}
 		/*Refills current stun to full.*/
 		void refillStun() {
@@ -73,12 +80,9 @@ public:
 	@param actor: actor whose stun will no longer be tracked.*/
 	void untrackStun(RE::Actor* a_actor);
 
-	void queueGarbageCollection();
-
 	
 
 private:
-	bool garbageCollectionQueued = false;
 	/*Mapping of actors whose stun values are tracked => a pair storing [0]Actor's maximum stun value, [1] Actor's current stun value.*/
 	robin_hood::unordered_map <RE::Actor*, std::pair<float, float>> actorStunMap;
 
@@ -102,6 +106,7 @@ private:
 	inline void safeInsert_StunnedActors(RE::Actor* a_actor);
 
 	inline std::shared_ptr<actorStunData> safeGet_ActorStunData(RE::Actor* a_actor);
+
 	inline bool safeGet_isStunned(RE::Actor* a_actor);
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
@@ -117,8 +122,7 @@ private:
 
 	/*Asynchronous function to constantly flash the actor's stun.*/
 	void async_launchHealthBarFlashThread();
-	static inline std::atomic<bool> async_HealthBarFlash;
-
+	std::atomic<bool> async_HealthBarFlashThreadActive;
 
 public:
 	/*Mapping of actors who are completely stunned => their stun meter blinking timer.*/

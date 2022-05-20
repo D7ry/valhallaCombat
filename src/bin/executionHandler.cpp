@@ -7,7 +7,7 @@
 using namespace Utils;
 void executionHandler::tryPcExecution() {
 
-	auto possibleTargets = stunHandler::GetSingleton()->stunnedActors;
+	auto stunnedActors_copy = stunHandler::GetSingleton()->stunnedActors;
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	if (!pc) {
 		return;
@@ -15,7 +15,7 @@ void executionHandler::tryPcExecution() {
 	RE::Actor* optimalVictim = nullptr; //optimal target to execute
 	float minRange = -1; //minimum range to the optimal victim so far
 
-	for (auto& actor : possibleTargets) {
+	for (auto& actor : stunnedActors_copy) {
 		if (!actor || !actor->Is3DLoaded() || actor->IsDead() || 
 			!actor->currentProcess || !actor->currentProcess->InHighProcess()) {
 			//remove actor from stunned map.
