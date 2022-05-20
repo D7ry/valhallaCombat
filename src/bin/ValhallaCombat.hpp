@@ -104,7 +104,7 @@ public:
 		INFO("Request trueHUD API special bar control...");
 		if (ersh) {
 			if (ersh->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-				ersh->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getStun, stunHandler::getMaxStun , true, false);
+				ersh->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getCurrentStun_static, stunHandler::getMaxStun_static , true, false);
 				settings::TrueHudAPI_HasSpecialBarControl = true;
 				settings::updateGlobals();
 				INFO("...Success");

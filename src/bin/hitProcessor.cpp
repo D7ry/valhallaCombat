@@ -49,7 +49,7 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	}
 
 
-	if (stunHandler::GetSingleton()->isActorStunned(a_victim) && a_hitData.weapon->IsMelee()) {
+	if (stunHandler::GetSingleton()->getIsStunned(a_victim) && a_hitData.weapon->IsMelee()) {
 		if (a_aggressor->IsPlayerRef()) {
 			if (settings::bAutoExecution) {//player only auto-execute if auto execution is on
 				executionHandler::GetSingleton()->attemptExecute(a_aggressor, a_victim);

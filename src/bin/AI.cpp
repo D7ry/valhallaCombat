@@ -7,7 +7,7 @@ void AI::action_PerformEldenCounter(RE::Actor* a_actor) {
 }
 
 bool AI::getShouldTimedBlock(RE::Actor* actor) {
-	if (debuffHandler::GetSingleton()->isInDebuff(actor) || stunHandler::GetSingleton()->isActorStunned(actor)) {
+	if (debuffHandler::GetSingleton()->isInDebuff(actor) || stunHandler::GetSingleton()->getIsStunned(actor)) {
 		return false;
 	}
 	return true;

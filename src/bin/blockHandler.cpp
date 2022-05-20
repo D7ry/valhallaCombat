@@ -328,7 +328,7 @@ void blockHandler::processPhysicalTimedBlock(RE::Actor* a_blocker, RE::Actor* a_
 	balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, balanceDmg);
 	a_HitData.totalDamage = 0;
 	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(a_attacker)
-		|| stunHandler::GetSingleton()->isActorStunned(a_attacker);
+		|| stunHandler::GetSingleton()->getIsStunned(a_attacker);
 
 	if (isAttackerGuardBroken) {
 		playBlockEffects(a_blocker, a_attacker, blockType::guardBreaking);
@@ -365,7 +365,7 @@ void blockHandler::processMeleeParry(RE::Actor* a_blocker, RE::Actor* a_attacker
 	stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
 	balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
 	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(a_attacker)
-		|| stunHandler::GetSingleton()->isActorStunned(a_attacker);
+		|| stunHandler::GetSingleton()->getIsStunned(a_attacker);
 
 	if (isAttackerGuardBroken) {
 		playBlockEffects(a_blocker, a_attacker, blockType::guardBreaking);
