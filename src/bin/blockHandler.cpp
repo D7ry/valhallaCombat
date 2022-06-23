@@ -22,16 +22,15 @@ void blockHandler::update() {
 	if (pc) {
 		isPCBlocking = pc->IsBlocking();
 	}
-	auto deltaTime = *RE::Offset::g_deltaTime;
 	if (isPcTimedBlocking) {
-		pcBlockTimer -= deltaTime;
+		pcBlockTimer -= *RE::Offset::g_deltaTime;
 		if (pcBlockTimer <= 0) {
 			isPcTimedBlocking = false;
 			pcBlockTimer = 0;
 		}
 	}
 	if (isPcBlockingCoolDown && !isPCBlocking) {
-		pcCoolDownTimer -= deltaTime;
+		pcCoolDownTimer -= *RE::Offset::g_deltaTime;
 		if (pcCoolDownTimer <= 0) {
 			switch (pcBlockWindowPenalty) {
 			case blockWindowPenaltyLevel::light: pcBlockWindowPenalty = none; isPcBlockingCoolDown = false; break;
@@ -82,7 +81,7 @@ void blockHandler::onBlockKeyDown() {
 	case blockWindowPenaltyLevel::heavy: blockWindow *= 0.3; break;
 	}
 	pcBlockTimer = blockWindow;
-	DEBUG("block start with window {}", blockWindow);
+	logger::debug("block start with window {}", blockWindow);
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::blockHandler);
 }
 
@@ -119,12 +118,7 @@ void blockHandler::processProjectileParry(RE::Actor* a_blocker, RE::Projectile* 
 		}
 	}
 	ValhallaUtils::resetProjectileOwner(a_projectile, a_blocker, a_projectile_collidable);
-	if (getIsPcPerfectBlocking()) {//only deflect projectile on perfect block/parry
-		deflectProjectile(a_blocker, a_projectile, a_projectile_collidable, a_target->As<RE::Actor>());
-	}
-	else {
-		parryProjectile(a_blocker, a_projectile);
-	}
+	deflectProjectile(a_blocker, a_projectile, a_projectile_collidable, a_target->As<RE::Actor>());
 }
 
 bool blockHandler::processProjectileBlock_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::MagicItem* a_spell) {
@@ -166,20 +160,23 @@ bool blockHandler::processRegularSpellBlock(RE::Actor* a_blocker, RE::MagicItem*
 }
 
 bool blockHandler::preProcessProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+	if (!settings::bBlockProjectileToggle) {
+		return false;
+	}
 	if (a_blocker->IsPlayerRef()) {
 		if (isInBlockAngle(a_blocker, a_projectile) && a_blocker->IsBlocking()) {
 			//bool isPcParrying = getIsPcParrying();
 			//Perfect block
-			if (settings::bTimedBlockProjectileToggle && getIsPcTimedBlocking()) {
+			if (getIsPcTimedBlocking()) {
 				onSuccessfulTimedBlock();
 				processProjectileParry(a_blocker, a_projectile, a_projectile_collidable);
 				return true;
 			}
-			else if (settings::bBlockProjectileToggle) {//none-perfect block
+			else {//none-perfect block
 				auto spell = a_projectile->spell;
 				if (spell) {
 					return processProjectileBlock_Spell(a_blocker, a_projectile, spell);
-				} else if (!a_blocker->isHoldingShield()) { //physical projectile blocking only applies to none-shield.
+				} else if (!Utils::actor::isEquippedShield(a_blocker)) { //physical projectile blocking only applies to none-shield.
 					return processProjectileBlock_Arrow(a_blocker, a_projectile);
 				}
 			}
@@ -193,7 +190,7 @@ void blockHandler::deflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_pro
 	if (a_blocker->IsBlocking()) {
 		a_blocker->NotifyAnimationGraph("BlockHitStart");
 	}
-	playBlockEffects(a_blocker, nullptr, blockHandler::blockType::perfect);
+	playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
 	if (a_target && a_target->Is3DLoaded()) {
 		ValhallaUtils::DeflectProjectile(a_blocker, a_projectile, a_target);
 	}
@@ -211,14 +208,15 @@ void blockHandler::parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_proje
 }
 
 #pragma region Process Block
-bool blockHandler::processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
+bool blockHandler::processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& hitData, float realDamage)
+{
 	//DEBUG("Process blocking. Blocker: {} Aggressor: {}", blocker->GetName(), aggressor->GetName());
-	DEBUG("processing block. Real damage: {}", realDamage);
+	logger::debug("processing block. Real damage: {}", realDamage);
 	if (settings::bTimedBlockToggle) {
 		if (blocker->IsPlayerRef()) {
 			if (blockHandler::getIsPcTimedBlocking()) {
 				onSuccessfulTimedBlock();
-				processPhysicalTimedBlock(blocker, aggressor, iHitflag, hitData, realDamage, pcBlockTimer);
+				processPhysicalTimedBlock(blocker, aggressor, a_hitFlag, hitData, realDamage, pcBlockTimer);
 				return true;
 			}
 		}
@@ -228,14 +226,16 @@ bool blockHandler::processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor
 		//}
 	}
 	if (settings::bBlockStaminaToggle) {
-		processStaminaBlock(blocker, aggressor, iHitflag, hitData, realDamage);
+		processStaminaBlock(blocker, aggressor, a_hitFlag, hitData, realDamage);
 	}
 	return false;
 }
 
 /*Return the final stamina cost multiplier based on the blocker and aggressor.*/
-inline float getBlockStaminaCostMult(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag) {
-	if (iHitflag & (int)HITFLAG::kBlockWithWeapon) {
+inline float getBlockStaminaCostMult(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag)
+{
+
+	if (a_hitFlag.any(HITFLAG::kBlockWithWeapon)) {
 		//DEBUG("hit blocked with weapon");
 		if (blocker->IsPlayerRef()) {
 			return settings::fBckWpnStaminaMult_PC_Block_NPC;
@@ -265,20 +265,21 @@ inline float getBlockStaminaCostMult(RE::Actor* blocker, RE::Actor* aggressor, i
 	}
 }
 
-void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage) {
+void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& hitData, float realDamage)
+{
 	using HITFLAG = RE::HitData::Flag;
-	DEBUG("real damage: {}", realDamage);
-	float staminaDamageMult = getBlockStaminaCostMult(blocker, aggressor, iHitflag);
-	DEBUG("stamina damagem mult: {}", staminaDamageMult);
+	//logger::debug("real damage: {}", realDamage);
+	float staminaDamageMult = getBlockStaminaCostMult(blocker, aggressor, a_hitFlag);
+	//logger::debug("stamina damagem mult: {}", staminaDamageMult);
 	float staminaDamage = staminaDamageMult * realDamage;
-	DEBUG("stamina damage: {}", staminaDamage);
+	//logger::debug("stamina damage: {}", staminaDamage);
 
 	float targetStamina = blocker->GetActorValue(RE::ActorValue::kStamina);
 
 	//check whether there's enough stamina to block incoming attack
 	if (targetStamina < staminaDamage) {
 		if (settings::bGuardBreak) {
-			if (iHitflag & (int)HITFLAG::kPowerAttack) {
+			if (a_hitFlag.any(HITFLAG::kPowerAttack)) {
 				reactionHandler::triggerStagger(aggressor, blocker, reactionHandler::kLarge);
 			}
 			else {
@@ -311,10 +312,11 @@ bool blockHandler::getIsPcParrying() {
 	return RE::PlayerCharacter::GetSingleton()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash;
 }
 
-void blockHandler::processPhysicalTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker, int a_iHitFlag, RE::HitData& a_HitData, float a_realDamage, float a_timeLeft) {
+void blockHandler::processPhysicalTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& a_HitData, float a_realDamage, float a_timeLeft)
+{
 	float reflectedDamage = 0;
-	auto a_weapon = a_blocker->getWieldingWeapon();
-	bool isPerfectblock = a_blocker->IsPlayerRef() && getIsPcPerfectBlocking();
+	auto a_weapon = Utils::actor::getWieldingWeapon(a_blocker);
+	bool isPerfectblock = a_blocker->IsPlayerRef() && this->getIsPcPerfectBlocking();
 	if (a_weapon) {
 		reflectedDamage = a_weapon->GetAttackDamage();//get attack damage of blocker's weapon
 	}
@@ -325,10 +327,10 @@ void blockHandler::processPhysicalTimedBlock(RE::Actor* a_blocker, RE::Actor* a_
 		balanceDmg += a_realDamage; //reflect attacker's damage back as balance dmg
 	}
 	stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::parry, nullptr, a_blocker, a_attacker, stunDmg);
-	balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, balanceDmg);
+	//balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, balanceDmg);
 	a_HitData.totalDamage = 0;
-	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(a_attacker)
-		|| stunHandler::GetSingleton()->getIsStunned(a_attacker);
+	bool isAttackerGuardBroken = //balanceHandler::GetSingleton()->isBalanceBroken(a_attacker)
+		stunHandler::GetSingleton()->getIsStunBroken(a_attacker);
 
 	if (isAttackerGuardBroken) {
 		playBlockEffects(a_blocker, a_attacker, blockType::guardBreaking);
@@ -349,7 +351,7 @@ void blockHandler::processPhysicalTimedBlock(RE::Actor* a_blocker, RE::Actor* a_
 	}
 	else {
 		Utils::damageav(a_blocker, RE::ActorValue::kStamina,
-			a_realDamage * getBlockStaminaCostMult(a_blocker, a_attacker, a_iHitFlag) * settings::fTimedBlockStaminaCostMult);
+			a_realDamage * getBlockStaminaCostMult(a_blocker, a_attacker, a_hitFlag) * settings::fTimedBlockStaminaCostMult);
 	}
 	//damage blocker's stamina
 }
@@ -357,15 +359,15 @@ void blockHandler::processPhysicalTimedBlock(RE::Actor* a_blocker, RE::Actor* a_
 /*Unused for now. Reserved for souls like parry.*/
 void blockHandler::processMeleeParry(RE::Actor* a_blocker, RE::Actor* a_attacker) {
 	float reflectedDamage = 0;
-	auto a_weapon = a_blocker->getWieldingWeapon();
+	auto a_weapon = Utils::actor::getWieldingWeapon(a_blocker);
 	if (a_weapon) {
 		reflectedDamage = a_weapon->GetAttackDamage();//get attack damage of blocker's weapon
 	}
 	Utils::offsetRealDamage(reflectedDamage, a_blocker, a_attacker);
 	stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
-	balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
-	bool isAttackerGuardBroken = balanceHandler::GetSingleton()->isBalanceBroken(a_attacker)
-		|| stunHandler::GetSingleton()->getIsStunned(a_attacker);
+	//balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
+	bool isAttackerGuardBroken = //balanceHandler::GetSingleton()->isBalanceBroken(a_attacker)
+		 stunHandler::GetSingleton()->getIsStunBroken(a_attacker);
 
 	if (isAttackerGuardBroken) {
 		playBlockEffects(a_blocker, a_attacker, blockType::guardBreaking);
@@ -400,7 +402,7 @@ void blockHandler::playBlockScreenShake(RE::Actor* blocker, blockType blockType)
 	switch (blockType) {
 	case blockType::guardBreaking:RE::Offset::shakeCamera(1.7, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.8f); break;
 	case blockType::timed: RE::Offset::shakeCamera(1.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.3f); break;
-	case blockType::perfect: RE::Offset::shakeCamera(1.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.5f); break;
+	case blockType::perfect: RE::Offset::shakeCamera(1.5, RE::PlayerCharacter::GetSingleton()->GetPosition(), 0.4f); break;
 	}
 }
 
@@ -417,7 +419,7 @@ void blockHandler::playBlockSlowTime(blockType blockType) {
 }
 
 void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, blockType blockType) {
-	DEBUG("playing effects");
+	//DEBUG("playing effects");
 	if (settings::bTimedBlockVFX) {
 		playBlockVFX(blocker, blockType);
 	}
@@ -426,7 +428,7 @@ void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, blo
 		playBlockScreenShake(blocker, blockType);
 	}
 	if (settings::bTimeBlockSFX) {
-		playBlockSFX(blocker, blockType, !blocker->isHoldingShield());
+		playBlockSFX(blocker, blockType, !Utils::actor::isEquippedShield(blocker));
 	}
 	if (settings::bTimedBlockSlowTime
 		&&((attacker && attacker->IsPlayerRef()) || blocker->IsPlayerRef())) {

@@ -13,7 +13,7 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(37650) };
 
 		_getHeavyAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0x16E, getAttackStaminaCost);
-		INFO("Heavy attack stamina hook installed.");
+		logger::info("Heavy attack stamina hook installed.");
 	}
 private:
 	static float getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData);
@@ -29,7 +29,7 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(38047) };
 
 		_cacheAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0xBB, cacheAttackStaminaCost);
-		INFO("Heavy bash stamina hook installed.");
+		logger::info("Heavy bash stamina hook installed.");
 	}
 private:
 	static float cacheAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData);
@@ -45,7 +45,7 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(49751) };
 
 		_getBlockChance = trampoline.write_call<5>(hook.address() + 0x2E, getBlockChance);
-		INFO("Get block chance hook installed.");
+		logger::info("Get block chance hook installed.");
 	}
 private:
 	static uintptr_t getBlockChance(RE::Actor* actor);
@@ -64,7 +64,7 @@ public:
 		_GetWantBlock = trampoline.write_call<5>(GetWantBlockBase.address() + 0x23, GetWantBlock);
 
 
-		INFO("GetWantBlock hook installed.");
+		logger::info("GetWantBlock hook installed.");
 	}
 private:
 	static std::int32_t& GetWantBlock(void* unk_ptr, const RE::BSFixedString& a_channelName, std::uint8_t unk_int, RE::Actor* a_actor, std::int32_t& a_result);
@@ -81,7 +81,7 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(28629) };
 
 		_getAttackChance = trampoline.write_call<5>(hook.address() + 0x157A, getAttackChance);
-		INFO("Get block chance hook installed.");
+		logger::info("Get block chance hook installed.");
 	}
 private:
 	static uintptr_t getAttackChance(RE::Actor* a1, RE::Actor* a2, RE::BGSAttackData* atkData);
@@ -96,7 +96,7 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(48139) };
 
 		_getAttackChance = trampoline.write_call<5>(hook.address() + 0x2AE, getAttackChance);
-		INFO("Get block chance hook installed.");
+		logger::info("Get block chance hook installed.");
 	}
 private:
 	static uintptr_t getAttackChance(RE::Actor* a1, RE::Actor* a2, RE::BGSAttackData* atkData);
@@ -110,7 +110,7 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(37510) };  // 620690 - a function that regenerates stamina
 		auto& trampoline = SKSE::GetTrampoline();
 		_HasFlags1 = trampoline.write_call<5>(hook.address() + 0x62, HasFlags1);
-		INFO("Stamina Regen hook installed");
+		logger::info("Stamina Regen hook installed");
 	}
 
 private:
@@ -124,11 +124,11 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(37650) };
 		auto& trampoline = SKSE::GetTrampoline();
 		_ProcessHit = trampoline.write_call<5>(hook.address() + 0x38B, processHit);
-		INFO("Melee Hit hook installed.");
+		logger::info("Melee Hit hook installed.");
 	}
 private:
 	static void processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, std::int64_t a_int1, bool a_bool, void* a_unkptr) {
-		DEBUG("hooked process hit. Aggressor: {}, Victim: {}", a_aggressor->GetName(), a_victim->GetName());
+		//DEBUG("hooked process hit. Aggressor: {}, Victim: {}", a_aggressor->GetName(), a_victim->GetName());
 		/*if (a_aggressor->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) {
 			DEBUG("nullifying bash");
 			return;
@@ -167,7 +167,7 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(37673) };
 		auto& trampoline = SKSE::GetTrampoline();
 		_ProcessHit = trampoline.write_call<5>(hook.address() + 0x3C0, processHit);
-		INFO("Physical Hit hook installed.");
+		logger::info("Physical Hit hook installed.");
 	}
 private:
     static void processHit(RE::Actor* victim, RE::HitData& hitData);
@@ -186,7 +186,7 @@ public:
 
 		REL::Relocation<uintptr_t> hook2{ REL::ID(42839) };	//Down	p	Character__sub_1407431D0+5B	call    sub_1403BE760
 		_getStaggerManitude_Bash = trampoline.write_call<5>(hook2.address() + 0x5B, getStaggerManitude_Bash);
-		INFO("Stagger magnitude hook installed.");
+		logger::info("Stagger magnitude hook installed.");
 	}
 private:
 	static float getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4); 
@@ -210,19 +210,19 @@ public:
 	static void install()
 	{
 		auto& trampoline = SKSE::GetTrampoline();
-		REL::Relocation<uintptr_t> hook{ REL::ID(43015) };  // 5AF3D0, main loop
+		REL::Relocation<uintptr_t> hook{ REL::ID(43015) };  // magic hit process
 		_processMagicHit = trampoline.write_call<5>(hook.address() + 0x216, processMagicHit);
-		DEBUG("Magic hit hook installed");
+		logger::debug("Magic hit hook installed");
 	}
 private:
 	static void __fastcall processMagicHit([[maybe_unused]] RE::ActorMagicCaster* attacker, [[maybe_unused]] RE::NiPoint3* rdx0, [[maybe_unused]] RE::Projectile* a_projectile, [[maybe_unused]] RE::TESObjectREFR* victim, [[maybe_unused]] float a5, [[maybe_unused]] float a6, [[maybe_unused]] char a7, [[maybe_unused]] char a8)
 	{
-		DEBUG("hooked process magic hit");
+		logger::debug("hooked process magic hit");
 		if (!attacker || !victim) {
 			_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
 		}
 		if (victim && victim->IsPlayerRef()) {
-			DEBUG("hooked process magic hit. victim: {}", victim->GetName());
+			logger::debug("hooked process magic hit. victim: {}", victim->GetName());
 			
 			if (blockHandler::GetSingleton()->processRegularSpellBlock(victim->As<RE::Actor>(), a_projectile->spell, a_projectile)) {
 
@@ -244,7 +244,7 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(35551) };  // 5AF3D0, main loop
 
 		_Update = trampoline.write_call<5>(hook.address() + 0x11F, Update);
-		INFO("Main Update hook installed.");
+		logger::info("Main Update hook installed.");
 	}
 
 private:
@@ -257,14 +257,11 @@ class Hook_OnPlayerUpdate
 {
 public:
 	static void install() {
-#if ANNIVERSARY_EDITION
-		REL::Relocation<std::uintptr_t> PlayerCharacterVtbl{ RE::VTABLE_PlayerCharacter[0] };
-#else
-		REL::Relocation<std::uintptr_t> PlayerCharacterVtbl{ RE::Offset::PlayerCharacter::Vtbl };
 
-#endif
+		REL::Relocation<std::uintptr_t> PlayerCharacterVtbl{ RE::VTABLE_PlayerCharacter[0] };
+
 		_Update = PlayerCharacterVtbl.write_vfunc(0xAD, Update);
-		INFO("Player update hook installed");
+		logger::info("Player update hook installed");
 	}
 private:
 
@@ -279,13 +276,10 @@ private:
 class Hook_OnProjectileCollision {
 public:
 	static void install() {
-#if ANNIVERSARY_EDITION
-		REL::Relocation<std::uintptr_t> arrowProjectileVtbl{ REL::ID() };
-		REL::Relocation<std::uintptr_t> missileProjectileVtbl{ REL::ID() };
-#else
-		REL::Relocation<std::uintptr_t> arrowProjectileVtbl{ REL::ID(263776) };
-		REL::Relocation<std::uintptr_t> missileProjectileVtbl{ REL::ID(263942) };
-#endif
+
+		REL::Relocation<std::uintptr_t> arrowProjectileVtbl{ RE::VTABLE_ArrowProjectile[0] };
+		REL::Relocation<std::uintptr_t> missileProjectileVtbl{ RE::VTABLE_MissileProjectile[0] };
+
 		_arrowCollission = arrowProjectileVtbl.write_vfunc(190, OnArrowCollision);
 		_missileCollission = missileProjectileVtbl.write_vfunc(190, OnMissileCollision);
 	};
@@ -304,13 +298,13 @@ public:
 		REL::Relocation<uintptr_t> hook{ REL::ID(35551) };  // 5AF3D0, main loop
 
 		_Update = trampoline.write_call<5>(hook.address() + 0x11F, Update);
-		INFO("Main Update hook installed.");
+		logger::info("Main Update hook installed.");
 	}
 };*/
 class Hooks {
 public:
 	static void install() {
-		INFO("Installing hooks...");
+		logger::info("Installing hooks...");
 		SKSE::AllocTrampoline(1 << 8);
 		Hook_OnGetAttackStaminaCost::install();
 		//Hook_CacheAttackStaminaCost::install();

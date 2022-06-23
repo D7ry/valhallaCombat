@@ -31,18 +31,18 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	case "preHitFrame"_h:
 		//DEBUG("==========prehitFrame==========");
 		if (settings::bAttackStaminaToggle) {
-			attackHandler::GetSingleton()->registerAtk(a_event.holder->As<RE::Actor>());
+			attackHandler::GetSingleton()->registerAtk(const_cast<RE::TESObjectREFR*>(a_event.holder)->As<RE::Actor>());
 		}
 		break;
 	case "attackStop"_h:
 		//DEBUG("==========attackstop==========");
 		if (settings::bAttackStaminaToggle) {
-			attackHandler::GetSingleton()->checkout(a_event.holder->As<RE::Actor>());
+			attackHandler::GetSingleton()->checkout(const_cast<RE::TESObjectREFR*>(a_event.holder)->As<RE::Actor>());
 		}
 
 		break;
 	case "blockStop"_h:
-		DEBUG("blockstop");
+		//DEBUG("blockstop");
 		if (settings::bTimedBlockToggle && a_event.holder->IsPlayerRef()) {
 			blockHandler::GetSingleton()->onBlockStop();
 		}
@@ -58,10 +58,10 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 		//break;
 	case "TKDR_IFrameEnd"_h:
 		//DEBUG("==========TK DODGE============");
-		staminaHandler::checkStamina(a_event.holder->As<RE::Actor>());
+		staminaHandler::checkStamina(const_cast<RE::TESObjectREFR*>(a_event.holder)->As<RE::Actor>());
 		break;
 	case "Dodge"_h:
-		staminaHandler::checkStamina(a_event.holder->As<RE::Actor>());
+		staminaHandler::checkStamina(const_cast<RE::TESObjectREFR*>(a_event.holder)->As<RE::Actor>());
 		break;
 	}
     return fn ? (this->*fn)(a_event, src) : RE::BSEventNotifyControl::kContinue;

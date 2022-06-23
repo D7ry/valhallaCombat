@@ -69,12 +69,12 @@ public:
 			stunHandler::GetSingleton()->update();
 		}
 		if (update_balanceHandler) {
-			balanceHandler::GetSingleton()->update();
+			//balanceHandler::GetSingleton()->update();
 		}
 	}
 
 	static void queueGarbageCollection() {
-		INFO("Initializing garbage collection...");
+		logger::info("Initializing garbage collection...");
 		if (settings::bStunToggle) {
 			stunHandler::GetSingleton()->collectGarbage();
 		}
@@ -82,50 +82,50 @@ public:
 			//TODO: fix garbage collection for balance too.
 			//balanceHandler::GetSingleton()->collectGarbage();
 		}
-		INFO("...done");
+		logger::info("...done");
 	}
 
 
 	void launchCleanUpThread() {
-		INFO("Launch clean up thread...");
+		logger::info("Launch clean up thread...");
 		auto cleanUpThreadFunc = []() {
 			while (true) {
-				std::this_thread::sleep_for(std::chrono::seconds(3));
+				std::this_thread::sleep_for(std::chrono::seconds(1));
 				queueGarbageCollection();
 			}
 		};
 		std::jthread cleanUpThread(cleanUpThreadFunc);
 		cleanUpThread.detach();
-		INFO("..done");
+		logger::info("..done");
 	}
 
 	/*Request special bar control from truehud API. 
 	If successful, set the truehud specialmeter global value to true.*/
 	void requestTrueHudSpecialBarControl() {
-		INFO("Request trueHUD API special bar control...");
+		logger::info("Request trueHUD API special bar control...");
 		if (ersh) {
 			if (ersh->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
 				ersh->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getCurrentStun_static, stunHandler::getMaxStun_static , true, false);
-				settings::TrueHudAPI_HasSpecialBarControl = true;
+				settings::facts::TrueHudAPI_HasSpecialBarControl = true;
 				settings::updateGlobals();
-				INFO("...Success");
+				logger::info("...Success");
 			}
 			else {
-				//INFO("...Failure");
+				//logger::info("...Failure");
 			}
 		}
 	}
 
 	void releaseTrueHudSpecialBarControl() {
-		INFO("Release trueHUD API special bar control...");
+		logger::info("Release trueHUD API special bar control...");
 		if (ValhallaCombat::GetSingleton()->ersh
 			->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-			settings::TrueHudAPI_HasSpecialBarControl = false;
+			settings::facts::TrueHudAPI_HasSpecialBarControl = false;
 			settings::updateGlobals();
-			INFO("...Success");
+			logger::info("...Success");
 		}
 		else {
-			//INFO("...Failure");
+			//logger::info("...Failure");
 		}
 	}
 

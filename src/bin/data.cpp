@@ -6,27 +6,28 @@ template <class formType>
 void lookUpFromData(RE::TESDataHandler* data, RE::FormID a_formID, formType& a_reference) {
 	a_reference = data->LookupForm<formType>(a_formID, "ValhallaCombat.esp");
 	if (a_reference) {
-		INFO("Loaded formID {}", a_formID);
+		
+		("Loaded formID {}", a_formID);
 	}
 	else {
-		INFO("Failed to load formID {}", a_formID);
+		logger::info("Failed to load formID {}", a_formID);
 	}
 }*/
 /*
 inline void lookUpFromData(RE::TESDataHandler* data, RE::FormID a_formID, formType& a_reference) {
 	a_reference = data->LookupForm<formType>(a_formID, "ValhallaCombat.esp");
 	if (a_reference) {
-		INFO("Loaded formID {}", a_formID);
+		logger::info("Loaded formID {}", a_formID);
 	}
 	else {
-		INFO("Failed to load formID {}", a_formID);
+		logger::info("Failed to load formID {}", a_formID);
 	}
 }*/
 void data::loadData() {
-	INFO("Loading data from game...");
+	logger::info("Loading data from game...");
 	auto data = RE::TESDataHandler::GetSingleton();
 	if (!data) {
-		ERROR("Error: TESDataHandler not found.");
+		logger::critical("Error: TESDataHandler not found.");
 		return;
 	}
 	loadSound(data);
@@ -36,27 +37,26 @@ void data::loadData() {
 
 	auto gameSettings = RE::GameSettingCollection::GetSingleton();
 	if (!gameSettings) {
-		ERROR("Error: GameSettingCollection not found.");
+		logger::critical("Error: GameSettingCollection not found.");
 		return;
 	}
 	loadDifficultySettings(gameSettings);
 
-	INFO("Data fetched.");
+	logger::info("Data fetched.");
 	
 }
 
 void data::loadSound(RE::TESDataHandler* a_data) {
-	INFO("Loading sound descriptors...");
+	logger::info("Loading sound descriptors...");
 	int countLoaded = 0;
 	auto loadValhallaSound = [&](RE::FormID a_formID, RE::BGSSoundDescriptorForm*& a_sound)
 	{
 		a_sound = a_data->LookupForm<RE::BGSSoundDescriptorForm>(a_formID, "ValhallaCombat.esp");
 		if (a_sound) {
 			countLoaded++;
-			//INFO("loaded {}", a_sound->GetFormID());
 		}
 		else {
-			ERROR("Error: Failed to load sound descriptor with formID {}", a_formID);
+			logger::critical("Error: Failed to load sound descriptor with formID {}", a_formID);
 		}
 	};
 	loadValhallaSound(0X433C, soundParryShield1);
@@ -75,15 +75,15 @@ void data::loadSound(RE::TESDataHandler* a_data) {
 	loadValhallaSound(0X60C2D, soundParryWeapon_perfect);
 	loadValhallaSound(0X47721, soundParryWeapon_gb);
 	loadValhallaSound(0X56A22, soundStunBreak);
-	INFO("Successfully loaded {} sound descriptors.", countLoaded);
-	INFO("..done");
+	logger::info("Successfully loaded {} sound descriptors.", countLoaded);
+	logger::info("..done");
 }
 
 void data::loadPerk(RE::TESDataHandler* a_data) {
-	INFO("Loading perk...");
+	logger::info("Loading perk...");
 	//lookUpFromData(data, 0x2DB2, debuffPerk);
 	debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
-	INFO("..done");
+	logger::info("..done");
 }
 
 bool data::lookupIdle(RE::TESDataHandler* data, RE::FormID form, std::string pluginName, 
@@ -98,7 +98,7 @@ bool data::lookupIdle(RE::TESDataHandler* data, RE::FormID form, std::string plu
 
 void data::loadIdleSection(RE::TESDataHandler* a_data, std::vector<RE::TESIdleForm*>* idleContainer, 
 	CSimpleIniA& ini, const char* section) {
-	//INFO("Loading from section {}", section);
+	//logger::info("Loading from section {}", section);
 	CSimpleIniA::TNamesDepend keys;
 	ini.GetAllKeys(section, keys);
 	int idlesLoaded = 0;
@@ -118,20 +118,20 @@ void data::loadIdleSection(RE::TESDataHandler* a_data, std::vector<RE::TESIdleFo
 		}
 		if (lookupIdle(a_data, form, plugin, idleContainer)) {
 			idlesLoaded++;
-			//INFO("Loaded idle. FormID: {}, plugin: {}", form, plugin);
+			//logger::info("Loaded idle. FormID: {}, plugin: {}", form, plugin);
 		}
 		else {
-			INFO("Error: Failed to load idle. FormID: {}, plugin: {}", form, plugin);
+			logger::info("Error: Failed to load idle. FormID: {}, plugin: {}", form, plugin);
 		}
 
 	}
-	INFO("Loaded {} idles from section {}.", idlesLoaded, section);
+	logger::info("Loaded {} idles from section {}.", idlesLoaded, section);
 }
 
 void data::loadIdle(RE::TESDataHandler* a_actor) {
 	CSimpleIniA ini;
 	ini.LoadFile(kmFilePath);
-	INFO("Loading idle...");
+	logger::info("Loading idle...");
 	auto DATA = RE::TESDataHandler::GetSingleton();
 	loadIdleSection(DATA, &KM_Humanoid_H2H, ini ,"Humanoid-Unarmed");
 	loadIdleSection(DATA, &KM_Humanoid_Dagger, ini, "Humanoid-Dagger");
@@ -227,7 +227,7 @@ void data::loadIdle(RE::TESDataHandler* a_actor) {
 	loadIdleSection(DATA, &KM_Dragon_1hm, ini, "Dragon-1HM");
 	loadIdleSection(DATA, &KM_Dragon_2hm, ini, "Dragon-2HM");
 	loadIdleSection(DATA, &KM_Dragon_2hw, ini, "Dragon-2HW");
-	INFO("Idle loaded.");
+	logger::info("Idle loaded.");
 }
 
 bool data::pairUpRace(RE::TESDataHandler* a_actor, RE::FormID a_formID, std::string a_plugin, raceCatagory a_raceType) {
@@ -236,39 +236,39 @@ bool data::pairUpRace(RE::TESDataHandler* a_actor, RE::FormID a_formID, std::str
 		return false;
 	}
 	raceMapping.emplace(race, a_raceType);
-	//INFO("Mapped {} from {} to race catagory {}", race->GetName(), pluginName, raceType);
+	//logger::info("Mapped {} from {} to race catagory {}", race->GetName(), pluginName, raceType);
 	return true;
 }
 
 void data::loadRaceSection(RE::TESDataHandler* a_data, raceCatagory a_raceType, CSimpleIniA& a_ini, const char* a_section) {
-	//INFO("Loading from section {}", section);
+	//logger::info("Loading from section {}", section);
 	CSimpleIniA::TNamesDepend keys;
 	a_ini.GetAllKeys(a_section, keys);
 	int raceLoaded = 0;
 	for (CSimpleIniA::TNamesDepend::iterator s_it1 = keys.begin(); s_it1 != keys.end(); s_it1++) {
 		const char* idle = s_it1->pItem;
 		auto line = a_ini.GetValue(a_section, idle);
-		//INFO(line);
+		//logger::info(line);
 		std::vector<std::string> raceConfigs = tokenize("|", line);
 		if (raceConfigs.size() != 2) {
-			ERROR("Error: wrong config length");
+			logger::critical("Error: wrong config length");
 			continue;
 		}
 		std::string plugin = raceConfigs[0];
 		int form = 0;
 		if (!Utils::ToInt32(raceConfigs[1], form)) {
-			ERROR("Error: wrong formID");
+			logger::critical("Error: wrong formID");
 			continue;
 		}
 		if (pairUpRace(a_data, form, plugin, a_raceType)) {
 			raceLoaded++;
 		}
 		else {
-			INFO("Failed to load race. FormID: {}, plugin: {}", form, plugin);
+			logger::info("Failed to load race. FormID: {}, plugin: {}", form, plugin);
 		}
 
 	}
-	INFO("Loaded {} races from section {}.", raceLoaded, a_section);
+	logger::info("Loaded {} races from section {}.", raceLoaded, a_section);
 }
 
 void data::loadExecutableRaceIni(RE::TESDataHandler* a_data, const char* a_path) {
@@ -299,7 +299,7 @@ void data::loadExecutableRaceIni(RE::TESDataHandler* a_data, const char* a_path)
 void data::loadExecutableRace(RE::TESDataHandler* a_data) {
 	for (const auto& entry : std::filesystem::directory_iterator(kmRaceDir)) { //iterates through all .ini files
 		std::string pathStr = entry.path().string();
-		INFO("Reading race config from {}", pathStr);
+		logger::info("Reading race config from {}", pathStr);
 		const char* cstr = pathStr.c_str();
 		loadExecutableRaceIni(a_data, cstr);
 	}
@@ -308,7 +308,7 @@ void data::loadExecutableRace(RE::TESDataHandler* a_data) {
 
 
 void data::loadDifficultySettings(RE::GameSettingCollection* a_gameSettingCollection) {
-	INFO("Loading difficulty settings...");
+	logger::info("Loading difficulty settings...");
 	fDiffMultHPByPCVE = a_gameSettingCollection->GetSetting("fDiffMultHPByPCVE")->GetFloat();
 	fDiffMultHPByPCE = a_gameSettingCollection->GetSetting("fDiffMultHPByPCE")->GetFloat();
 	fDiffMultHPByPCN = a_gameSettingCollection->GetSetting("fDiffMultHPByPCN")->GetFloat();
@@ -324,7 +324,7 @@ void data::loadDifficultySettings(RE::GameSettingCollection* a_gameSettingCollec
 	fDiffMultHPToPCL = a_gameSettingCollection->GetSetting("fDiffMultHPToPCL")->GetFloat();
 
 	fCombatHitConeAngle = a_gameSettingCollection->GetSetting("fCombatHitConeAngle")->GetFloat();
-	INFO("...done");
+	logger::info("...done");
 }
 
 bool data::isRaceType(RE::Actor* a_actor, raceCatagory a_catagory) {

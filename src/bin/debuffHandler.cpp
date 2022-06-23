@@ -4,13 +4,14 @@
 #include "include/offsets.h"
 #include "include/Utils.h"
 #include "valhallaCombat.hpp"
-//TODO:make sure to resume the debuff state on reloading the actor i.e. the actor has debuff perk, but it's no longer in the debuff map, so they have to be put back onto the map.
+using uniqueLocker = std::unique_lock<std::shared_mutex>;
+using sharedLocker = std::shared_lock<std::shared_mutex>;
 /*Called every frame.
 Iterate through the set of actors debuffing.
 Check the actors' stamina. If the actor's stamina has fully recovered, remove the actor from the set.
 Check the actor's UI counter, if the counter is less than 0, flash the actor's UI.*/
 void debuffHandler::update() {
-	mtx_actorInDebuff.lock();
+	uniqueLocker lock(mtx_actorInDebuff);
 	auto it = actorInDebuff.begin();
 	while (it != actorInDebuff.end()) {
 		auto actor = *it;
@@ -35,24 +36,22 @@ void debuffHandler::update() {
 			continue;
 		}
 		++it;
-	}
-
-	mtx_actorInDebuff.unlock();
-	
+	}	
 }
 
 /*Initialize a stmaina debuff for actor, giving them exhaustion perk, and putting them into the debuff map.
 If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
 @param actor actor who will receive debuff.*/
-void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {
-	mtx_actorInDebuff.lock();
-	if (actorInDebuff.contains(a_actor)) {
-		//DEBUG("{} is already in debuff", actor->GetName());
-		mtx_actorInDebuff.unlock();
-		return;
+void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {	
+	{
+		uniqueLocker lock(mtx_actorInDebuff);
+		if (actorInDebuff.contains(a_actor)) {
+			return;
+		}
+		actorInDebuff.insert(a_actor);	
 	}
-	actorInDebuff.insert(a_actor);
-	mtx_actorInDebuff.unlock();
+
+
 	if (a_actor->IsPlayerRef()) {
 		addDebuffPerk(a_actor);
 	}
@@ -81,17 +80,18 @@ void debuffHandler::stopStaminaDebuff(RE::Actor* a_actor) {
 }
 
 void debuffHandler::quickStopStaminaDebuff(RE::Actor* a_actor) {
-	mtx_actorInDebuff.lock();
-	if (!actorInDebuff.contains(a_actor)) {
-		mtx_actorInDebuff.unlock();
-		return;
+	{
+		uniqueLocker lock(mtx_actorInDebuff);
+		if (!actorInDebuff.contains(a_actor)) {
+			return;
+		}
+		actorInDebuff.erase(a_actor);
+		stopStaminaDebuff(a_actor);
+		if (actorInDebuff.size() == 0) {
+			ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
+		}
 	}
-	actorInDebuff.erase(a_actor);
-	if (actorInDebuff.size() == 0) {
-		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
-	}
-	mtx_actorInDebuff.unlock();
-	stopStaminaDebuff(a_actor);
+	
 }
 
 /*Attach stamina debuff perk to actor.
@@ -108,15 +108,8 @@ void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
 	
 
 bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
-	mtx_actorInDebuff.lock();
-	if (actorInDebuff.contains(a_actor)) {
-		mtx_actorInDebuff.unlock();
-		return true;
-	}
-	else {
-		mtx_actorInDebuff.unlock();
-		return false;
-	}
+	sharedLocker lock(mtx_actorInDebuff);
+	return actorInDebuff.contains(a_actor);
 } 
 
 

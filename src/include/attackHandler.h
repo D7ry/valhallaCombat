@@ -22,11 +22,10 @@ public:
 		power = 1,
 	};
 	/*mapping of all actors who:
-	1. are attacking£¨swinging a weapon)
+	1. are attackingï¼ˆswinging a weapon)
 	2. have not hit any target.*/
-	//boost::unordered_map<RE::Actor*, ATTACKTYPE> attackerHeap;
 	robin_hood::unordered_map<RE::Actor*, ATTACKTYPE> attackerHeap;
-	/* registers a light/heavy attack.
+	/*registers a light/heavy attack.
 	    checks iff there is a previous attack not checked out, if so,
 		check out the attack.*/
 	void registerAtk(RE::Actor* actor);

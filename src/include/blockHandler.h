@@ -33,7 +33,7 @@ public:
 	@param hitData: hitdata of the blocked hit.
 	@param realDamage: real damage of this blocked hit.
 	@return if the block is a perfect block.*/
-	bool processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
+	bool processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t>, RE::HitData& hitData, float realDamage);
 
 	void processMeleeParry(RE::Actor* a_blocker, RE::Actor* a_attacker);
 
@@ -79,7 +79,7 @@ private:
 	/*Process a stamina block.
 	Actor with enough stamina can negate all incoming health damage with stamina. 
 	Actor without enough stamina will triggerStagger and receive partial damage.*/
-	void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, int iHitflag, RE::HitData& hitData, float realDamage);
+	void processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& hitData, float realDamage);
 
 	/*Process a timed block.
 	* Damage the attacker's stun and balance, enabled.
@@ -88,7 +88,7 @@ private:
 	@param blocker: actor performing the perfect block.
 	@param attacker: actor whose attack gets perfect blocked.
 	@param hitData: reference to the hitData of the blocked attack.*/
-	void processPhysicalTimedBlock(RE::Actor* blocker, RE::Actor* attacker, int iHitflag, RE::HitData& hitData, float realDamage, float timePassed);
+	void processPhysicalTimedBlock(RE::Actor* blocker, RE::Actor* attacker, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& hitData, float realDamage, float timePassed);
 
 
 	/*Return: whether the object is within the blocker's block angle and thus can be blocked.*/

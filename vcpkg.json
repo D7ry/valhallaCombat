@@ -1,14 +1,18 @@
 {
-    "name":  "valhallacombat",
-    "version-string":  "0.9.5",
-    "description":  "",
-    "license":  "MIT",
-    "dependencies":  [
-                         "spdlog"
-                     ],
-    "features":  {
-                     "mo2-install":  {
-                                         "description":  "valhallaCombat"
-                                     }
-                 }
+  "name": "ValhallaCombat",
+  "version": "1",
+  "dependencies": [
+    "boost-stl-interfaces",
+    "rsm-binary-io",
+    "simpleini",
+    "spdlog",
+    "xbyak"
+  ],
+  "builtin-baseline": "1c5939e275082fb6f4b2c8a546cd904b978f55ac",
+  "overrides": [
+    {
+      "name": "fmt",
+      "version": "8.0.1"
+    }
+  ]
 }

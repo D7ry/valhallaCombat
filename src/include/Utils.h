@@ -154,13 +154,52 @@ namespace Utils
 			- a_actor->GetActorValue(a_actorValue);
 		restoreav(a_actor, a_actorValue, avToRestore);
 	}
+
+	namespace actor
+	{
+		inline RE::TESObjectWEAP* getWieldingWeapon(RE::Actor* a_actor)
+		{
+			auto weapon = a_actor->GetAttackingWeapon();
+			if (weapon) {
+				return weapon->object->As<RE::TESObjectWEAP>();
+			}
+			auto rhs = a_actor->GetEquippedObject(false);
+			if (rhs && rhs->IsWeapon()) {
+				return rhs->As<RE::TESObjectWEAP>();
+			}
+			auto lhs = a_actor->GetEquippedObject(true);
+			if (lhs && lhs->IsWeapon()) {
+				return lhs->As<RE::TESObjectWEAP>();
+			}
+			return nullptr;
+		}
+
+		inline bool isDualWielding(RE::Actor* a_actor) {
+			auto lhs = a_actor->GetEquippedObject(true);
+			auto rhs = a_actor->GetEquippedObject(false);
+			if (lhs && rhs && lhs->IsWeapon() && rhs->IsWeapon()) {
+				auto weaponType = rhs->As<RE::TESObjectWEAP>()->GetWeaponType();
+				return weaponType != RE::WEAPON_TYPE::kTwoHandAxe && weaponType != RE::WEAPON_TYPE::kTwoHandSword;//can't be two hand sword.
+			}
+		}
+
+		inline bool isEquippedShield(RE::Actor* a_actor) {
+			auto lhs = a_actor->GetEquippedObject(false);
+			return lhs && lhs->IsArmor();
+		}
+	}
+
+	/*@Return the weapon this actor is most likely using currently.
+	if the actor is attacking, return the weapon the actor is attacking with.
+	else, return the weapon in actor's right/left hand.*/
+	
 };
 
 namespace TrueHUDUtils
 {
 
 	inline void flashActorValue(RE::Actor* a_actor, RE::ActorValue actorValue) {
-		if (!settings::TrueHudAPI_Obtained) {
+		if (!settings::facts::TrueHudAPI_Obtained) {
 			return;
 		}
 		if (a_actor) {
@@ -169,7 +208,7 @@ namespace TrueHUDUtils
 	}
 
 	inline void greyoutAvMeter(RE::Actor* a_actor, RE::ActorValue actorValue) {
-		if (!settings::TrueHudAPI_Obtained) {
+		if (!settings::facts::TrueHudAPI_Obtained) {
 			return;
 		}
 		auto ersh = ValhallaCombat::GetSingleton()->ersh;
@@ -179,7 +218,7 @@ namespace TrueHUDUtils
 	}
 
 	inline void revertAvMeter(RE::Actor* a_actor, RE::ActorValue actorValue) {
-		if (!settings::TrueHudAPI_Obtained) {
+		if (!settings::facts::TrueHudAPI_Obtained) {
 			return;
 		}
 		auto ersh = ValhallaCombat::GetSingleton()->ersh;
@@ -189,7 +228,7 @@ namespace TrueHUDUtils
 	}
 
 	inline void greyOutSpecialMeter(RE::Actor* a_actor) {
-		if (!settings::TrueHudAPI_Obtained) {
+		if (!settings::facts::TrueHudAPI_Obtained || !settings::facts::TrueHudAPI_HasSpecialBarControl) {
 			return;
 		}
 		auto ersh = ValhallaCombat::GetSingleton()->ersh;
@@ -200,7 +239,7 @@ namespace TrueHUDUtils
 	}
 
 	inline void revertSpecialMeter(RE::Actor* a_actor) {
-		if (!settings::TrueHudAPI_Obtained) {
+		if (!settings::facts::TrueHudAPI_Obtained || !settings::facts::TrueHudAPI_HasSpecialBarControl) {
 			return;
 		}
 		auto ersh = ValhallaCombat::GetSingleton()->ersh;
@@ -346,7 +385,7 @@ public:
 #pragma endregion
 	/*Clamp the raw damage to be no more than the aggressor's max raw melee damage output.*/
 	static void clampDmg(float& dmg, RE::Actor* aggressor) {
-		auto a_weapon = aggressor->getWieldingWeapon();
+		auto a_weapon = Utils::actor::getWieldingWeapon(aggressor);
 		if (a_weapon) {
 			//DEBUG("weapon to clamp damage: {}", a_weapon->GetName());
 			dmg = min(dmg, a_weapon->GetAttackDamage());

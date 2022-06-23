@@ -2,6 +2,7 @@
 #include "debuffHandler.h"
 #include "lib/robin_hood.h"
 #include "lib/SimpleIni.h"
+#pragma warning(disable: 4146)
 
 /*Everything stored in game.*/
 class data
@@ -226,13 +227,13 @@ namespace Utils
 	/*Parse a string into a vector of tokens.*/
 	static std::vector<std::string> tokenize(const std::string& delimiter, const std::string& str) {
 		std::vector<std::string> arr;
-		int strleng = str.length();
-		int delleng = delimiter.length();
+		size_t strleng = str.length();
+		size_t delleng = delimiter.length();
 		if (delleng == 0)
 			return arr;//no change
 
-		int i = 0;
-		int k = 0;
+		size_t i = 0;
+		size_t k = 0;
 		while (i < strleng)
 		{
 			int j = 0;

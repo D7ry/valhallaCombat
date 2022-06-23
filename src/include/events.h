@@ -28,13 +28,13 @@ public:
     }
 
     /*Hook anim event sink too all actors. Player and NPC.*/
-    static void hookAllActors() {
-        INFO("Sinking animation event hook for all actors...");
-        REL::Relocation<uintptr_t> npcPtr{ REL::ID(261399) };
-        REL::Relocation<uintptr_t> pcPtr{ REL::ID(261918) };
+    static void Register() {
+        logger::info("Sinking animation event hook for all actors...");
+		REL::Relocation<uintptr_t> npcPtr{ RE::VTABLE_Character[2] };
+		REL::Relocation<uintptr_t> pcPtr{ RE::VTABLE_PlayerCharacter[2] };
         HookSink(pcPtr.address());
         HookSink(npcPtr.address());
-        INFO("Sinking complete.");
+		logger::info("Sinking complete.");
     }
 
 protected:
@@ -54,13 +54,13 @@ public:
 		auto ScriptEventSource = RE::ScriptEventSourceHolder::GetSingleton();
 
 		if (!ScriptEventSource) {
-			ERROR("Script event source not found");
+			logger::error("Script event source not found");
 			return false;
 		}
 
 		ScriptEventSource->AddEventSink(&singleton);
 
-		INFO("Registered {}.", typeid(singleton).name());
+		logger::info("Registered {}.", typeid(singleton).name());
 
 		return true;
 	}
@@ -98,3 +98,11 @@ private:
 };
 
 
+class events
+{
+public:
+	static void registerAllEventHandlers() {
+		animEventHandler::Register();
+		inputEventHandler::Register();
+	}
+};

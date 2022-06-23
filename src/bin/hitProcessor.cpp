@@ -11,9 +11,10 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	//offset damage from hitdata, based on player difficulty setting.
 	float realDamage = a_hitData.totalDamage;
 	Utils::offsetRealDamage(realDamage, a_aggressor, a_victim);
-	int hitFlag = (int)a_hitData.flags;
+	auto hitFlag = a_hitData.flags;
+	using HITFLAG = RE::HitData::Flag;
 	if (
-		(hitFlag & (int)HITFLAG::kBlocked)) {
+		hitFlag.any(HITFLAG::kBlocked)) {
 		if (blockHandler::GetSingleton()->processPhysicalBlock(a_victim, a_aggressor, hitFlag, a_hitData, realDamage)) {
 			if (!a_victim->IsPlayerRef()) {
 				AI::GetSingleton()->action_PerformEldenCounter(a_victim);
@@ -21,7 +22,7 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 			return; //if the hit is perfect blocked, no hit registration
 		}
 		// if not perfect blocked, regenerate stamina only if set so.
-		if (settings::bBlockedHitRegenStamina && !(hitFlag & (int)HITFLAG::kBash)) {
+		if (settings::bBlockedHitRegenStamina && !(hitFlag.any(HITFLAG::kBash))) {
 			if (settings::bAttackStaminaToggle) {
 				attackHandler::GetSingleton()->registerHit(a_aggressor);
 				
@@ -33,8 +34,8 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	//from this point on the hit is not blocked/
 
 	//bash hit
-	if (hitFlag & (int)HITFLAG::kBash) {
-		if (hitFlag & (int)HITFLAG::kPowerAttack) {
+	if (hitFlag.any(HITFLAG::kBash)) {
+		if (hitFlag.any(HITFLAG::kPowerAttack)) {
 			stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::powerBash, nullptr, a_aggressor, a_victim, 0);
 		}
 		else {
@@ -49,7 +50,7 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	}
 
 
-	if (stunHandler::GetSingleton()->getIsStunned(a_victim) && a_hitData.weapon->IsMelee()) {
+	if (stunHandler::GetSingleton()->getIsStunBroken(a_victim) && a_hitData.weapon->IsMelee()) {
 		if (a_aggressor->IsPlayerRef()) {
 			if (settings::bAutoExecution) {//player only auto-execute if auto execution is on
 				executionHandler::GetSingleton()->attemptExecute(a_aggressor, a_victim);
@@ -61,18 +62,18 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	}
 	//DEBUG("test execution");
 	//executionHandler::GetSingleton()->playExecutionIdle(aggressor, victim, data::testIdle);
-	if (hitFlag & (int)HITFLAG::kPowerAttack) {
+	if (hitFlag.any(HITFLAG::kPowerAttack)) {
 		bool b;
 		//TODO:redo stun damage for elden counter
 		if (a_aggressor->GetGraphVariableBool(data::GraphBool_IsGuardCountering, b) && b) {
 			realDamage *= 1.5;
 		}
 		stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::powerAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
-		balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::powerAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
+		//balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::powerAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
 	}
 	else {
 		stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::lightAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
-		balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::lightAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
+		//balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::lightAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
 	}
 
 }

@@ -22,7 +22,7 @@ uint32_t inputEventHandler::getBlockKey(RE::INPUT_DEVICE a_device){
 		key = GetGamepadIndex((RE::BSWin32GamepadDevice::Key)key);
 		break;
 	}
-	DEBUG("block key is {}", key);
+	//DEBUG("block key is {}", key);
 	return key;
 }
 EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>*)
@@ -36,7 +36,6 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 		{
 			continue;
 		}
-
 		auto button = static_cast<RE::ButtonEvent*>(event);
 		if (button) {
 			auto key = button->idCode;

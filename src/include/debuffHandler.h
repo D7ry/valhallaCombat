@@ -1,6 +1,8 @@
 #pragma once
 #include "lib/robin_hood.h"
 #include <mutex>
+#include <shared_mutex>
+
 /*Class handling actor debuffs and corresponding UI alerts.*/
 class debuffHandler
 {
@@ -8,7 +10,7 @@ class debuffHandler
 public:
 	/*Set of all actors currently in debuff*/
 	robin_hood::unordered_set<RE::Actor*> actorInDebuff;
-	static inline std::mutex mtx_actorInDebuff;
+	mutable std::shared_mutex mtx_actorInDebuff;
 	static debuffHandler* GetSingleton()
 	{
 		static debuffHandler singleton;

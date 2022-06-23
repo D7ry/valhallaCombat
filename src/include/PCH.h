@@ -11,10 +11,8 @@
 using namespace std::literals;
 
 // Version
-#include "Version.h"
-
-// DKUtil
-#include "DKUtil/Logger.hpp"
-
+//#include "Version.h"
+#define INFO(msg) logger::info(msg);
+#define DEBUG(msg) logger::debug(msg);
 
 #define DLLEXPORT __declspec(dllexport)

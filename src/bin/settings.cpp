@@ -6,7 +6,7 @@ void settings::ReadIntSetting(CSimpleIniA& a_ini, const char* a_sectionName, con
 	const char* bFound = nullptr;
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound) {
-		//INFO("found {} with value {}", a_settingName, bFound);
+		//logger::info("found {} with value {}", a_settingName, bFound);
 		a_setting = static_cast<int>(a_ini.GetDoubleValue(a_sectionName, a_settingName));
 	}
 }
@@ -15,7 +15,7 @@ void settings::ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, c
 	const char* bFound = nullptr;
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound) {
-		//INFO("found {} with value {}", a_settingName, bFound);
+		//logger::info("found {} with value {}", a_settingName, bFound);
 		a_setting = static_cast<float>(a_ini.GetDoubleValue(a_sectionName, a_settingName));
 	}
 }
@@ -26,14 +26,14 @@ void settings::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, co
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound)
 	{
-		//INFO("found {} with value {}", a_settingName, bFound);
+		//logger::info("found {} with value {}", a_settingName, bFound);
 		a_setting = a_ini.GetBoolValue(a_sectionName, a_settingName);
 	}
 }
 
 
 void settings::init() {
-	INFO("Initilize settings...");
+	logger::info("Initilize settings...");
 	auto dataHandler = RE::TESDataHandler::GetSingleton();
 	if (dataHandler) {
 #define LOOKGLOBAL dataHandler->LookupForm<RE::TESGlobal>
@@ -42,15 +42,15 @@ void settings::init() {
 		glob_TrueHudAPI = LOOKGLOBAL(0x56A25, "ValhallaCombat.esp");
 		glob_TrueHudAPI_SpecialMeter = LOOKGLOBAL(0x56A26, "ValhallaCombat.esp");
 	}
-	INFO("...done");
+	logger::info("...done");
 }
 void settings::updateGlobals() {
-	INFO("Update globals...");
+	logger::info("Update globals...");
 	if (glob_TrueHudAPI) {
 		glob_TrueHudAPI->value = ValhallaCombat::GetSingleton()->ersh != nullptr ? 1.f : 0.f;
 	}
 	if (glob_TrueHudAPI_SpecialMeter) {
-		glob_TrueHudAPI_SpecialMeter->value = TrueHudAPI_HasSpecialBarControl ? 1.f : 0.f;
+		glob_TrueHudAPI_SpecialMeter->value = facts::TrueHudAPI_HasSpecialBarControl ? 1.f : 0.f;
 	}
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	if (pc) {
@@ -63,22 +63,11 @@ void settings::updateGlobals() {
 			glob_Nemesis_EldenCounter_NPC->value = pc->GetGraphVariableBool("IsValGC", bDummy);
 		}
 	}
-	INFO("...done");
+	logger::info("...done");
 }
 /*read settings from ini, and update them into game settings.*/
 void settings::readSettings() {
-	INFO("Read ini settings...");
-#if JL_AntiPiracy
-#define anti_PiracyMsg_PATH "Data\\Val_Config.ini"
-	CSimpleIniA anti_PiracyMsg;
-	anti_PiracyMsg.LoadFile(anti_PiracyMsg_PATH);
-	JueLun_LoadMsg = anti_PiracyMsg.GetValue("load", "msg");
-	auto hash = std::hash<std::string>{}(JueLun_LoadMsg);
-	INFO(hash);
-	if (hash != 13375109384697678453) {
-		ERROR("Error: Mod Piracy detected");
-	}
-#endif
+	logger::info("Read ini settings...");
 
 #define SETTINGFILE_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
 	CSimpleIniA mcm;
@@ -147,24 +136,13 @@ void settings::readSettings() {
 
 	/*Read Balance section*/
 	ReadBoolSetting(mcm, "Balance", "bBalanceToggle", bBalanceToggle);
-	INFO("...done");
+	logger::info("...done");
 
 
-	INFO("Apply game settings...");
+	logger::info("Apply game settings...");
 	/*Set some game settings*/
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
-	/*
-	setGameSettingf("fStaggerMin", 0);
-	setGameSettingf("fStaggerPlayerMassMult", 0);
-	setGameSettingf("fStaminaAttackWeaponBase", 0);
-	setGameSettingf("fStaggerAttackMult", 0);
-	setGameSettingf("fStaggerAttackBase", 0);
-	setGameSettingf("fStaggerMassBase", 0);
-	setGameSettingf("fStaggerMassMult", 0);
-	setGameSettingf("fStaggerMassOffsetBase", 0); 
-	setGameSettingf("fStaggerMassOffsetMult", 0);
-	setGameSettingb("bPlayStaggers:Combat", false);*/
 	multStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
 	
 	/*Release truehud meter if set so.*/
@@ -174,6 +152,6 @@ void settings::readSettings() {
 	else {
 		ValhallaCombat::GetSingleton()->releaseTrueHudSpecialBarControl();
 	}
-	INFO("...done");
+	logger::info("...done");
 }
 

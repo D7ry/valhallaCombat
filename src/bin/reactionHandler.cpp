@@ -21,6 +21,7 @@ static inline const RE::BSFixedString bleedOutGraphBool = "IsBleedingOut";
 
 static inline const RE::BSFixedString recoilLargeStart = "recoilLargeStart";
 
+
 void reactionHandler::triggerContinuousStagger(RE::Actor* a_causer, RE::Actor* a_reactor, reactionType a_reactionType) {
 	a_reactor->NotifyAnimationGraph(staggerStop);
 	std::jthread asynStaggerThread(async_triggerContinuousStagger, a_causer, a_reactor, a_reactionType);
@@ -82,7 +83,7 @@ void reactionHandler::triggerStagger(RE::Actor* a_causer, RE::Actor* a_reactor, 
 	}
 	if (settings::bStunToggle) {
 		if (data::raceMapping[a_reactor->GetRace()] == data::raceCatagory::Humanoid) {
-			if (stunHandler::GetSingleton()->getIsStunned(a_reactor)) {
+			if (stunHandler::GetSingleton()->getIsStunBroken(a_reactor)) {
 				return;//do not stagger stunned actors.
 			}
 		}
@@ -104,12 +105,14 @@ void reactionHandler::triggerStagger(RE::Actor* a_causer, RE::Actor* a_reactor, 
 }
 
 void reactionHandler::triggerDownedState(RE::Actor* a_actor) {
-	auto raceMapping = data::raceMapping;
-	auto it = raceMapping.find(a_actor->GetRace());
-	if (it != raceMapping.end()) {
-		switch (it->second) {
+	if (!a_actor || a_actor->IsSwimming() || a_actor->IsInKillMove() || !a_actor->Is3DLoaded()) {
+		return;
+	}
+	auto race = a_actor->GetRace();
+	if (data::raceMapping.contains(race)) {
+		switch (data::raceMapping[race]) {
 		case data::Humanoid:
-		case data::Undead:			
+		case data::Undead:
 			if (a_actor->IsInKillMove()) {
 				return;
 			}
@@ -123,10 +126,9 @@ void reactionHandler::recoverDownedState(RE::Actor* a_actor) {
 	if (!a_actor || a_actor->IsSwimming() || a_actor->IsInKillMove() || !a_actor->Is3DLoaded()) {
 		return;
 	}
-	auto raceMapping = data::raceMapping;
-	auto it = raceMapping.find(a_actor->GetRace());
-	if (it != raceMapping.end()) {
-		switch (it->second) {
+	auto race = a_actor->GetRace();
+	if (data::raceMapping.contains(race)) {
+		switch (data::raceMapping[race]) {
 		case data::Humanoid:
 		case data::Undead:
 			if (a_actor->IsInKillMove()) {

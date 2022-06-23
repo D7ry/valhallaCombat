@@ -3,22 +3,24 @@
 #include "lib/robin_hood.h"
 #include "lib/SimpleIni.h"
 
-#define JL_AntiPiracy 0;
 /*All the settings of Valhalla combat*/
 class settings
 {
 public:
-#if JL_AntiPiracy
-	static inline std::string JueLun_LoadMsg;
-#endif
+	class facts
+	{
+	public:
+		static inline bool TrueHudAPI_HasSpecialBarControl;
+		static inline bool TrueHudAPI_Obtained;
+	};
 #pragma region GlobalSettings
 	static inline RE::TESGlobal* glob_TrueHudAPI;
 	static inline RE::TESGlobal* glob_TrueHudAPI_SpecialMeter;
 	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_NPC;
 	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_Damage;
-	static inline bool TrueHudAPI_HasSpecialBarControl;
-	static inline bool TrueHudAPI_Obtained;
+
 #pragma endregion
+
 #pragma region StaminSettings
 	static inline bool bUIAlert = true;
 	static inline bool bNonCombatStaminaDebuff = true;
@@ -45,15 +47,14 @@ public:
 
 	
 	static inline float fMeleeCostLightMiss_Point = 30;
-	static inline float fMeleeRewardLightHit_Percent = 0.2;
-	static inline float fMeleeCostHeavyMiss_Percent = 0.4;
-	static inline float fMeleeCostHeavyHit_Percent = 0.333;
+	static inline float fMeleeRewardLightHit_Percent = 0.2f;
+	static inline float fMeleeCostHeavyMiss_Percent = 0.4f;
+	static inline float fMeleeCostHeavyHit_Percent = 0.333f;
 
 #pragma endregion
 #pragma region PerfectBlockingSettings
 	/*perfect blocking*/
 	//static inline bool bPoiseCompatibility = false;
-
 	static inline bool bBlockProjectileToggle = true;
 	static inline bool bTimedBlockToggle = true;
 	static inline bool bTimedBlockProjectileToggle = true;
@@ -120,34 +121,34 @@ namespace Utils
 	/*tweaks the value of designated game setting
 	@param gameSettingStr game setting to be tweaked.
 	@param val desired float value of gamesetting.*/
-	static void setGameSettingf(const char* settingStr, float val) {
+	static void setGameSettingf(const char* a_setting, float a_value) {
 		RE::Setting* setting = nullptr;
 		RE::GameSettingCollection* _settingCollection = RE::GameSettingCollection::GetSingleton();
-		setting = _settingCollection->GetSetting(settingStr);
+		setting = _settingCollection->GetSetting(a_setting);
 		if (!setting) {
-			INFO("Error: invalid setting: {}", settingStr);
+			logger::info("Error: invalid setting: {}", a_setting);
 		}
 		else {
-			//INFO("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
-			setting->data.f = val;
+			//logger::info("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
+			setting->data.f = a_value;
 		}
 	}
 
-	static void setGameSettingb(const char* settingStr, bool val) {
+	static void setGameSettingb(const char* a_setting, bool a_value) {
 		RE::Setting* setting = nullptr;
 		RE::GameSettingCollection* _settingCollection = RE::GameSettingCollection::GetSingleton();
-		setting = _settingCollection->GetSetting(settingStr);
+		setting = _settingCollection->GetSetting(a_setting);
 		if (!setting) {
-			INFO("invalid setting: {}", settingStr);
+			logger::info("invalid setting: {}", a_setting);
 		}
 		else {
-			INFO("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
+			logger::info("setting {} from {} to {}", a_setting, setting->GetFloat(), a_value);
 			setting->data.b = false;
 		}
 	}
 
 	/*a map of all game races' original stamina regen, in case player wants to tweak the stamina regen values again*/
-	inline static robin_hood::unordered_map<RE::TESRace*, float> staminaRegenMap;
+	static inline robin_hood::unordered_map<RE::TESRace*, float> staminaRegenMap;
 
 	/*multiplies stamina regen of every single race by MULT.
 	@param mult multiplier for stamina regen.
@@ -167,7 +168,7 @@ namespace Utils
 					staminaRegen = upperLimit;
 				}
 				race->data.staminaRegen = staminaRegen;
-				//INFO("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
+				//logger::info("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
 			}
 		}
 	}

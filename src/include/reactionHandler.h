@@ -1,7 +1,7 @@
 /*Handle all hit reactions: triggerStagger, knock back, guard break etc*/
 class reactionHandler {
 public:
-	static enum reactionType
+	enum reactionType
 	{
 		kSmall = 0,
 		kMedium,

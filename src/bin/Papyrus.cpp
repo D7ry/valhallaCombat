@@ -13,7 +13,7 @@ namespace Papyrus
 	{
 		a_vm->RegisterFunction("OnConfigClose", "ValhallaCombat_MCM", OnConfigClose);
 
-		INFO("Registered ValhallaCombat MCM class");
+		logger::info("Registered ValhallaCombat MCM class");
 		return true;
 	}
 
@@ -21,6 +21,6 @@ namespace Papyrus
 	{
 		auto papyrus = SKSE::GetPapyrusInterface();
 		papyrus->Register(ValhallaCombat_MCM::Register);
-		INFO("Registered papyrus functions");
+		logger::info("Registered papyrus functions");
 	}
 }

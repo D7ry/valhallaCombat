@@ -12,9 +12,9 @@ void stunHandler::safeErase_ActorStunDataMap(RE::Actor* a_actor) {
 	uniqueLocker lock(mtx_ActorStunDataMap);
 	actorStunDataMap.erase(a_actor);
 }
-void stunHandler::safeErase_StunnedActors(RE::Actor* a_actor) {
-	uniqueLocker lock(mtx_StunnedActors);
-	stunnedActors.erase(a_actor);
+void stunHandler::safeErase_StunBrokenActors(RE::Actor* a_actor) {
+	uniqueLocker lock(mtx_StunBrokenActors);
+	stunBrokenActors.erase(a_actor);
 }
 void stunHandler::safeErase_StunRegenQueue(RE::Actor* a_actor) {
 	uniqueLocker lock(mtx_StunRegenQueue);
@@ -26,42 +26,41 @@ void stunHandler::safeInsert_StunRegenQueue(RE::Actor* a_actor) {
 	stunRegenQueue[a_actor] = 3;
 }
 
-void stunHandler::safeInsert_StunnedActors(RE::Actor* a_actor) {
-	uniqueLocker lock(mtx_StunnedActors);
-	if (stunnedActors.contains(a_actor)) {
-		stunnedActors.insert(a_actor);
+void stunHandler::safeInsert_StunBrokenActors(RE::Actor* a_actor) {
+	uniqueLocker lock(mtx_StunBrokenActors);
+	if (!stunBrokenActors.contains(a_actor)) {
+		stunBrokenActors.insert(a_actor);
 	}
 }
 
-bool stunHandler::safeGet_isStunned(RE::Actor* a_actor) {
-	sharedLocker(mtx_StunnedActors);
-	return stunnedActors.contains(a_actor);
+bool stunHandler::safeGet_isStunBroken(RE::Actor* a_actor) {
+	sharedLocker(mtx_StunBrokenActors);
+	return stunBrokenActors.contains(a_actor);
 }
 
-std::shared_ptr<stunHandler::actorStunData> stunHandler::safeGet_ActorStunData(RE::Actor* a_actor) {
-	sharedLocker lock(mtx_ActorStunDataMap);
-	if (actorStunDataMap.contains(a_actor)) {
-		return actorStunDataMap[a_actor];
+stunHandler::actorStunData_ptr stunHandler::safeGet_ActorStunData(RE::Actor* a_actor) {
+	{
+		sharedLocker lock(mtx_ActorStunDataMap);
+		if (actorStunDataMap.contains(a_actor)) {
+			return actorStunDataMap[a_actor];
+		}
 	}
-	else {
-		lock.unlock();
-		return trackStun(a_actor);
-	}
+	return trackStun(a_actor);
 }
 
-std::shared_ptr<stunHandler::actorStunData> stunHandler::trackStun(RE::Actor* a_actor) {
+stunHandler::actorStunData_ptr stunHandler::trackStun(RE::Actor* a_actor) {
 	uniqueLocker lock(mtx_ActorStunDataMap);
 	if (actorStunDataMap.contains(a_actor)) {//check if the actor's stun is already tracked.
 		return actorStunDataMap[a_actor];
 	}
 
-	std::shared_ptr<actorStunData> one_StunData(new actorStunData(a_actor));
-	actorStunDataMap.emplace(a_actor, one_StunData);
-	return one_StunData;
+	actorStunData_ptr stunDataPtr(new actorStunData(a_actor));
+	actorStunDataMap[a_actor] = stunDataPtr;
+	return stunDataPtr;
 };
 void stunHandler::untrackStun(RE::Actor* a_actor) {
 	safeErase_ActorStunDataMap(a_actor);
-	safeErase_StunnedActors(a_actor);
+	safeErase_StunBrokenActors(a_actor);
 	safeErase_StunRegenQueue(a_actor);
 }
 
@@ -74,8 +73,8 @@ void stunHandler::refillStun(RE::Actor* a_actor) {
 }
 
 
-bool stunHandler::getIsStunned(RE::Actor* a_actor) {
-	return safeGet_isStunned(a_actor);
+bool stunHandler::getIsStunBroken(RE::Actor* a_actor) {
+	return safeGet_isStunBroken(a_actor);
 }
 
 void stunHandler::update() {
@@ -91,33 +90,33 @@ void stunHandler::update() {
 		if (!one_actor || !one_actor->currentProcess || !one_actor->currentProcess->InHighProcess()) {//edge case: actor not loaded or no longer in high process.
 			//if an actor is no longer present=>remove actor.
 			safeErase_ActorStunDataMap(one_actor);
-			safeErase_StunnedActors(one_actor);
-			it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); 
-			continue;
+			safeErase_StunBrokenActors(one_actor);
+			it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); continue;
 		}
 
 		/*---------------------------Regen area-------------------------------------*/
 		if (!one_actor->IsInCombat()
-			|| safeGet_isStunned(one_actor)) {
+			|| safeGet_isStunBroken(one_actor)) {
 
 			//>>>>>>>>actor that can regen
 			if (it_StunRegenQueue->second <= 0) {//timer reached zero, time to regen.
 				bool isStunFullRegenerated = false;
 				{//local scope for shared actorStunDataMap access
 					sharedLocker lock_actorStunDataMap(mtx_ActorStunDataMap);
-					if (!actorStunDataMap.contains(one_actor)) {//edge case: actorStunMap no longer contains this actor.
-						isStunFullRegenerated = true;
+					if (actorStunDataMap.contains(one_actor)) {
+						isStunFullRegenerated = actorStunDataMap[one_actor]->regenStun();
 					}
 					else {
-						isStunFullRegenerated = actorStunDataMap[one_actor]->regenStun();
+						isStunFullRegenerated = true;
 					}
 				}
 
 				if (isStunFullRegenerated) {
+					//DEBUG("stun fully regenerated for {}", one_actor->GetName());
 					TrueHUDUtils::revertSpecialMeter(one_actor);
 					reactionHandler::recoverDownedState(one_actor);
-					safeErase_StunnedActors(one_actor);
-					it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue);
+					safeErase_StunBrokenActors(one_actor);
+					it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); continue;
 				}
 			}
 			else {
@@ -140,13 +139,13 @@ void stunHandler::async_launchHealthBarFlashThread() {
 	auto flashHealthBarFunc = [&]() {
 		while (true) {
 			{//local scope where to safely iterate through stunned actors.
-				sharedLocker lock(mtx_StunnedActors);
-				if (stunnedActors.empty()) {
+				sharedLocker lock(mtx_StunBrokenActors);
+				if (stunBrokenActors.empty()) {
 					async_HealthBarFlashThreadActive = false;//deactivate flash thread.
 					return;
 				}
 				else {
-					for (auto& one_actor : stunnedActors) {
+					for (auto& one_actor : stunBrokenActors) {
 						if (one_actor && !one_actor->IsDead()) {
 							TrueHUDUtils::flashActorValue(one_actor, RE::ActorValue::kHealth);
 						}
@@ -159,6 +158,7 @@ void stunHandler::async_launchHealthBarFlashThread() {
 
 	std::jthread t(flashHealthBarFunc);
 	t.detach();
+	DEBUG("...done");
 }
 
 
@@ -166,7 +166,7 @@ float stunHandler::getMaxStun(RE::Actor* a_actor) {
 	{
 		sharedLocker lock(mtx_ActorStunDataMap);
 		if (actorStunDataMap.contains(a_actor)) {
-			return actorStunDataMap[a_actor]->getCurrentStun();
+			return actorStunDataMap[a_actor]->getMaxStun();
 		}
 	}
 	return trackStun(a_actor)->getMaxStun();
@@ -190,18 +190,21 @@ float stunHandler::getCurrentStun_static(RE::Actor* a_actor) {
 	return stunHandler::GetSingleton()->getCurrentStun(a_actor);
 }
 
+void stunHandler::onStunBroken(RE::Actor* a_actor) {
+	safeInsert_StunBrokenActors(a_actor);
+	async_launchHealthBarFlashThread();
+	ValhallaUtils::playSound(a_actor, data::soundStunBreak);
+	//gray out this actor's stun meter.
+	if (settings::bStunMeterToggle) {
+		TrueHUDUtils::greyOutSpecialMeter(a_actor);
+	}
+}
+
 void stunHandler::damageStun(RE::Actor* a_aggressor, RE::Actor* a_victim, float a_damage) {
-	//DEBUG("Damaging {}'s stun by {} points.", actor->GetName(), damage);	
-	//actor has 0 stun
+	//DEBUG("Damaging {}'s stun by {} points.", a_victim->GetName(), a_damage);
 	if (safeGet_ActorStunData(a_victim)->damageStun(a_damage)) {
-		if (!safeGet_isStunned(a_victim)) {//the current damage depletes actor stun, but actor's stunned state is not yet tracked.
-			ValhallaUtils::playSound(a_victim, data::soundStunBreak);
-			safeInsert_StunnedActors(a_victim);
-			async_launchHealthBarFlashThread();
-			//gray out this actor's stun meter.
-			if (settings::bStunMeterToggle && settings::TrueHudAPI_HasSpecialBarControl) {
-				TrueHUDUtils::greyOutSpecialMeter(a_victim);
-			}
+		if (!safeGet_isStunBroken(a_victim)) {//the current damage depletes actor stun, but actor's stunned state is not yet tracked.
+			onStunBroken(a_victim);
 		}
 	}
 	safeInsert_StunRegenQueue(a_victim);
@@ -270,26 +273,30 @@ void stunHandler::processStunDamage(
 
 	damageStun(a_aggressor, a_victim, stunDamage);
 
-	if (safeGet_isStunned(a_victim)
+	if (safeGet_isStunBroken(a_victim)
 		&& !a_victim->IsInKillMove()) {
 		reactionHandler::triggerDownedState(a_victim);
 	}
 }
 
+robin_hood::unordered_set<RE::Actor*> stunHandler::getStunBrokenActors() {
+	return stunBrokenActors;
+}
+
 void stunHandler::reset() {
 	uniqueLocker lock_stunRegenQueue(mtx_StunRegenQueue);
 	uniqueLocker lock_actorStunDataMap(mtx_ActorStunDataMap);
-	uniqueLocker lock_stunnedActors(mtx_StunnedActors);
+	uniqueLocker lock_stunnedActors(mtx_StunBrokenActors);
 	stunRegenQueue.clear();
-	actorStunMap.clear();
-	for (auto& actor : stunnedActors) {
+	actorStunDataMap.clear();
+	for (auto& actor : stunBrokenActors) {
 		TrueHUDUtils::revertSpecialMeter(actor);
 	}
-	stunnedActors.clear();
+	stunBrokenActors.clear();
 }
 
 void stunHandler::collectGarbage() {
-	INFO("Cleaning up stun map...");
+	logger::info("StunHandler: collecting garbage...");
 	int ct = 0;
 	{
 		uniqueLocker lock_actorStunDataMap(mtx_ActorStunDataMap);
@@ -297,7 +304,7 @@ void stunHandler::collectGarbage() {
 		while (it != actorStunDataMap.end()) {
 			auto actor = it->first;
 			if (!actor || !actor->currentProcess || !actor->currentProcess->InHighProcess()) {
-				safeErase_StunnedActors(actor);
+				safeErase_StunBrokenActors(actor);
 				safeErase_StunRegenQueue(actor);
 				it = actorStunDataMap.erase(it);
 				ct++;
@@ -306,5 +313,5 @@ void stunHandler::collectGarbage() {
 			it++;
 		}
 	}
-	INFO("...done; cleaned up {} inactive actors.", ct);
+	logger::info("...done; cleaned up {} inactive actors.", ct);
 }
