@@ -18,7 +18,7 @@ public:
 
 };
 
-namespace Utils
+namespace inlineUtils
 {
 
 

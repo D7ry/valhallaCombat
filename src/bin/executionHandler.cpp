@@ -4,7 +4,7 @@
 #include "include/stunHandler.h"
 #include "include/Utils.h"
 #define DATA data::GetSingleton()
-using namespace Utils;
+using namespace inlineUtils;
 void executionHandler::tryPcExecution() {
 
 	auto pc = RE::PlayerCharacter::GetSingleton();
@@ -74,7 +74,7 @@ void executionHandler::attemptExecute(RE::Actor* a_executor, RE::Actor* a_victim
 	auto victimRaceType = it2->second;
 
 	RE::WEAPON_TYPE weaponType;
-	auto weapon = Utils::actor::getWieldingWeapon(a_executor);
+	auto weapon = inlineUtils::actor::getWieldingWeapon(a_executor);
 	if (!weapon) {
 		//DEBUG("Executor weapon not found, using unarmed as weapon type.");
 		weaponType = RE::WEAPON_TYPE::kHandToHandMelee;
@@ -125,10 +125,10 @@ void executionHandler::concludeExecution(RE::Actor* a_executor) {
 		if (a_executor->IsPlayerRef()) {
 			RE::DebugNotification("Concluding player execution");
 		}
-		Utils::setIsGhost(a_executor, false);
+		inlineUtils::setIsGhost(a_executor, false);
 		auto victim = executionMap.find(a_executor)->second;
 		if (victim) {
-			Utils::setIsGhost(victim, false);
+			inlineUtils::setIsGhost(victim, false);
 		}
 		executionMap.erase(a_executor);
 	}
@@ -146,7 +146,7 @@ void executionHandler::playExecutionIdle(RE::Actor* a_executor, RE::Actor* a_vic
 		logger::info("error: no idle present in vector");
 		return;
 	}
-	auto idle = *Utils::select_randomly(a_executionIdleVector.begin(), a_executionIdleVector.end());
+	auto idle = *inlineUtils::select_randomly(a_executionIdleVector.begin(), a_executionIdleVector.end());
 	if (!idle) {
 		logger::info("Error! no idle received");
 	}
@@ -160,7 +160,7 @@ void executionHandler::playExecutionIdle(RE::Actor* a_executor, RE::Actor* a_vic
 
 void executionHandler::executeHumanoid(RE::Actor* a_executor, RE::Actor* a_victim, RE::WEAPON_TYPE a_weaponType) {
 	//logger::info("executing humanoid!");
-	if (Utils::actor::isDualWielding(a_executor)) {
+	if (inlineUtils::actor::isDualWielding(a_executor)) {
 		//logger::info("dual wielding!");
 		playExecutionIdle(a_executor, a_victim, data::KM_Humanoid_DW);
 	}

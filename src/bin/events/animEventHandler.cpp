@@ -29,35 +29,26 @@ RE::BSEventNotifyControl animEventHandler::HookedProcessEvent(RE::BSAnimationGra
 	//DEBUG(eventTag);
 	switch (hash(eventTag.data(), eventTag.size())) {
 	case "preHitFrame"_h:
-		//DEBUG("==========prehitFrame==========");
 		if (settings::bAttackStaminaToggle) {
 			attackHandler::GetSingleton()->registerAtk(const_cast<RE::TESObjectREFR*>(a_event.holder)->As<RE::Actor>());
+		} else if (settings::bStaminaDebuffToggle) {
+			staminaHandler::checkStamina(const_cast<RE::TESObjectREFR*>(a_event.holder)->As<RE::Actor>());
 		}
+		
 		break;
 	case "attackStop"_h:
-		//DEBUG("==========attackstop==========");
 		if (settings::bAttackStaminaToggle) {
 			attackHandler::GetSingleton()->checkout(const_cast<RE::TESObjectREFR*>(a_event.holder)->As<RE::Actor>());
+		} else if (settings::bStaminaDebuffToggle) {
+			staminaHandler::checkStamina(const_cast<RE::TESObjectREFR*>(a_event.holder)->As<RE::Actor>());
 		}
-
 		break;
 	case "blockStop"_h:
-		//DEBUG("blockstop");
 		if (settings::bTimedBlockToggle && a_event.holder->IsPlayerRef()) {
 			blockHandler::GetSingleton()->onBlockStop();
 		}
 		break;
-	//case "blockStartOut"_h:
-		//DEBUG("===========blockStartOut===========");
-		/*\if (settings::bTimedBlockToggle) {
-			blockHandler::GetSingleton()->registerPerfectBlock(a_event.holder->As<RE::Actor>());
-		}
-		break;*/
-	//case "tailcombatidle"_h:
-		/*Unghost the executor on finish*/
-		//break;
 	case "TKDR_IFrameEnd"_h:
-		//DEBUG("==========TK DODGE============");
 		staminaHandler::checkStamina(const_cast<RE::TESObjectREFR*>(a_event.holder)->As<RE::Actor>());
 		break;
 	case "Dodge"_h:

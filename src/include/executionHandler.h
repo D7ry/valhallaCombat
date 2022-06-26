@@ -58,7 +58,7 @@ private:
 
 };
 
-namespace Utils
+namespace inlineUtils
 {
 	inline void sendConsoleCommand(std::string a_command)
 	{

@@ -12,6 +12,7 @@ public:
 	public:
 		static inline bool TrueHudAPI_HasSpecialBarControl;
 		static inline bool TrueHudAPI_Obtained;
+		static inline bool EldenParry_ObtainedAPI;
 	};
 #pragma region GlobalSettings
 	static inline RE::TESGlobal* glob_TrueHudAPI;
@@ -23,7 +24,7 @@ public:
 
 #pragma region StaminSettings
 	static inline bool bUIAlert = true;
-	static inline bool bNonCombatStaminaDebuff = true;
+	static inline bool bNonCombatStaminaCost = true;
 	
 	
 	static inline float fStaminaRegenMult = 5;
@@ -42,7 +43,8 @@ public:
 	static inline float fBckShdStaminaMult_NPC_Block_NPC = 1;
 	static inline float fBckWpnStaminaMult_NPC_Block_NPC = 1;
 
-	static inline bool bAttackStaminaToggle = true;
+	static inline bool bStaminaDebuffToggle = true;
+	static inline bool bAttackStaminaToggle = false;
 	static inline bool bBlockedHitRegenStamina = false;
 
 	
@@ -75,6 +77,7 @@ public:
 	/*Enable/disable stun and execution.*/
 	static inline bool bStunToggle = true;
 	static inline bool bStunMeterToggle = true;
+	static inline float fStunTimedBlockMult = 1;
 	static inline float fStunParryMult = 1;
 	static inline float fStunBashMult = 0.3;
 	static inline float fStunPowerBashMult = 1;
@@ -116,7 +119,7 @@ private:
 	static void ReadIntSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, uint32_t& a_setting);
 };
 
-namespace Utils
+namespace inlineUtils
 {
 	/*tweaks the value of designated game setting
 	@param gameSettingStr game setting to be tweaked.

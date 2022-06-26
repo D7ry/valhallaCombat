@@ -117,48 +117,6 @@ private:
     static bool HasFlags1(RE::ActorState* a_this, uint16_t a_flags);
     static inline REL::Relocation<decltype(HasFlags1)> _HasFlags1;
 };
-class Hook_OnMeleeCollision
-{
-public:
-	static void install() {
-		REL::Relocation<uintptr_t> hook{ REL::ID(37650) };
-		auto& trampoline = SKSE::GetTrampoline();
-		_ProcessHit = trampoline.write_call<5>(hook.address() + 0x38B, processHit);
-		logger::info("Melee Hit hook installed.");
-	}
-private:
-	static void processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, std::int64_t a_int1, bool a_bool, void* a_unkptr) {
-		//DEBUG("hooked process hit. Aggressor: {}, Victim: {}", a_aggressor->GetName(), a_victim->GetName());
-		/*if (a_aggressor->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) {
-			DEBUG("nullifying bash");
-			return;
-		}*/
-		if (a_victim->IsPlayerRef()) {
-			/*
-			auto atkState = a_victim->GetAttackState();
-			DEBUG(atkState);
-			if (atkState == RE::ATTACK_STATE_ENUM::kBash) {
-				auto atkData = a_victim->currentProcess->high->attackData->data.flags;
-				if (atkData.any(RE::AttackData::AttackFlag::kPowerAttack)) {
-					DEBUG("power bash");
-				}
-				else {
-					blockHandler::GetSingleton()->processMeleeParry(a_victim, a_aggressor);
-					return;
-				}
-				
-			}*/
-			auto wardState = a_victim->currentProcess->middleHigh->wardState;
-			if (wardState == RE::MagicSystem::WardState::kNone) {
-				a_aggressor->NotifyAnimationGraph("recoillargestart");
-				return;
-			}
-
-		}
-		_ProcessHit(a_aggressor, a_victim, a_int1, a_bool, a_unkptr);
-	}
-	static inline REL::Relocation<decltype(processHit)> _ProcessHit;
-};
 
 class Hook_OnPhysicalHit
 {
@@ -217,12 +175,10 @@ public:
 private:
 	static void __fastcall processMagicHit([[maybe_unused]] RE::ActorMagicCaster* attacker, [[maybe_unused]] RE::NiPoint3* rdx0, [[maybe_unused]] RE::Projectile* a_projectile, [[maybe_unused]] RE::TESObjectREFR* victim, [[maybe_unused]] float a5, [[maybe_unused]] float a6, [[maybe_unused]] char a7, [[maybe_unused]] char a8)
 	{
-		logger::debug("hooked process magic hit");
 		if (!attacker || !victim) {
 			_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
 		}
 		if (victim && victim->IsPlayerRef()) {
-			logger::debug("hooked process magic hit. victim: {}", victim->GetName());
 			
 			if (blockHandler::GetSingleton()->processRegularSpellBlock(victim->As<RE::Actor>(), a_projectile->spell, a_projectile)) {
 
@@ -238,13 +194,17 @@ private:
 class Hook_MainUpdate
 {
 public:
-	static void install() {
+	static void install()
+	{
 		auto& trampoline = SKSE::GetTrampoline();
+		REL::Relocation<uintptr_t> hook{ RELOCATION_ID(35551, 36544) };  // 5AF3D0, 5D29F0, main loop
 
-		REL::Relocation<uintptr_t> hook{ REL::ID(35551) };  // 5AF3D0, main loop
-
+#ifdef SKYRIM_SUPPORT_AE
+		_Update = trampoline.write_call<5>(hook.address() + 0x160, Update);
+#else
 		_Update = trampoline.write_call<5>(hook.address() + 0x11F, Update);
-		logger::info("Main Update hook installed.");
+#endif
+		logger::info("Main update hook installed");
 	}
 
 private:
@@ -290,17 +250,7 @@ private:
 	static inline REL::Relocation<decltype(OnArrowCollision)> _arrowCollission;
 	static inline REL::Relocation<decltype(OnMissileCollision)> _missileCollission;
 };
-/*class Hook_GetFallbackChance {
-public:
-	static void install() {
-		auto& trampoline = SKSE::GetTrampoline();
 
-		REL::Relocation<uintptr_t> hook{ REL::ID(35551) };  // 5AF3D0, main loop
-
-		_Update = trampoline.write_call<5>(hook.address() + 0x11F, Update);
-		logger::info("Main Update hook installed.");
-	}
-};*/
 class Hooks {
 public:
 	static void install() {
@@ -318,8 +268,8 @@ public:
 		//Hook_MainUpdate::install();
 		Hook_OnPlayerUpdate::install();
 		Hook_OnProjectileCollision::install();
-		//Hook_OnMeleeCollision::install(); //not used. Reserved for souls-like shield parry.
-		Hook_OnGetStaggerMagnitude::install();
+		//Hook_OnGetStaggerMagnitude::install();
+		//TODO:Re apply stagger hook
 	}
 };
 

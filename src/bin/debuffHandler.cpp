@@ -43,6 +43,9 @@ void debuffHandler::update() {
 If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
 @param actor actor who will receive debuff.*/
 void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {	
+	if (!settings::bStaminaDebuffToggle) {
+		return;
+	}
 	{
 		uniqueLocker lock(mtx_actorInDebuff);
 		if (actorInDebuff.contains(a_actor)) {
@@ -97,13 +100,13 @@ void debuffHandler::quickStopStaminaDebuff(RE::Actor* a_actor) {
 /*Attach stamina debuff perk to actor.
 @param a_actor actor who will receive the debuff perk.*/
 void debuffHandler::addDebuffPerk(RE::Actor* a_actor) {
-	Utils::safeApplyPerk(data::debuffPerk, a_actor);
+	inlineUtils::safeApplyPerk(data::debuffPerk, a_actor);
 }
 
 /*Remove stamina debuff perk from actor.
 @param a_actor actor who will gets the perk removed.*/
 void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
-	Utils::safeRemovePerk(data::debuffPerk, a_actor);
+	inlineUtils::safeRemovePerk(data::debuffPerk, a_actor);
 }
 	
 

@@ -9,6 +9,18 @@
 #include "ValhallaCombat.hpp"
 #include "include/settings.h"
 #include "include/Utils.h"
+#include "include/lib/ValhallaCombatAPI.h"
+#include "include/ModAPI.h"
+void initTrueHud() {
+	ValhallaCombat::GetSingleton()->ersh = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
+	if (ValhallaCombat::GetSingleton()->ersh) {
+		logger::info("Obtained TruehudAPI - {0:x}", (uintptr_t)ValhallaCombat::GetSingleton()->ersh);
+		settings::facts::TrueHudAPI_Obtained = true;
+	} else {
+		logger::info("Failed to obtain TrueHudAPI.");
+		settings::facts::TrueHudAPI_Obtained = false;
+	}
+}
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
@@ -22,14 +34,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
 		logger::info("Post load");
-		ValhallaCombat::GetSingleton()->ersh = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
-		if (ValhallaCombat::GetSingleton()->ersh) {
-			logger::info("Obtained TruehudAPI - {0:x}", (uintptr_t)ValhallaCombat::GetSingleton()->ersh);
-			settings::facts::TrueHudAPI_Obtained = true;
-		} else {
-			logger::info("Failed to obtain TrueHudAPI.");
-			settings::facts::TrueHudAPI_Obtained = false;
-		}
+		initTrueHud();
 		break;
 	case SKSE::MessagingInterface::kPostLoadGame:
 		logger::info("Post load game");
@@ -149,8 +154,21 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	}
 	Hooks::install();
 	Papyrus::Register();
-	srand(std::chrono::system_clock::now().time_since_epoch().count());
-	return true;
+    return true;
 }
 
-//TODO: 1. Add bashing hook to cancel NPC bashing stamina cost OR!! 2.make stun entirely separate.
+
+extern "C" DLLEXPORT void* SKSEAPI RequestPluginAPI(const VAL_API::InterfaceVersion a_interfaceVersion)
+{
+	//auto api = Messaging::TrueHUDInterface::GetSingleton();
+	auto api = ModAPI::VALInterface::GetSingleton();
+	logger::info("ValhallaCombat::RequestPluginAPI called, InterfaceVersion {}", a_interfaceVersion);
+
+	switch (a_interfaceVersion) {
+	case VAL_API::InterfaceVersion::V1:
+		logger::info("ValhallaCombat::RequestPluginAPI returned the API singleton");
+		return static_cast<void*>(api);
+	}
+	logger::info("ValhallaCombat::RequestPluginAPI requested the wrong interface version");
+	return nullptr;
+}

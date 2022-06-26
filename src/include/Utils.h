@@ -8,8 +8,18 @@
 #define CONSOLELOG(msg) 	RE::ConsoleLog::GetSingleton()->Print(msg);
 #define PI 3.1415926535897932384626
 //TODO:clear this up a bit
-namespace Utils
+namespace inlineUtils
 {
+
+	/*Send the target flying based on causer's location.
+	@param magnitude: strength of a push.*/
+	inline static void PushActorAway(RE::Actor* causer, RE::Actor* target, float magnitude)
+	{
+		auto targetPoint = causer->GetNodeByName(causer->race->bodyPartData->parts[0]->targetName.c_str());
+		RE::NiPoint3 vec = targetPoint->world.translate;
+		//RE::NiPoint3 vec = causer->GetPosition();
+		RE::Offset::pushActorAway(causer->currentProcess, target, vec, magnitude);
+	}
 
 	inline void SetRotationMatrix(RE::NiMatrix3& a_matrix, float sacb, float cacb, float sb)
 	{
@@ -181,6 +191,7 @@ namespace Utils
 				auto weaponType = rhs->As<RE::TESObjectWEAP>()->GetWeaponType();
 				return weaponType != RE::WEAPON_TYPE::kTwoHandAxe && weaponType != RE::WEAPON_TYPE::kTwoHandSword;//can't be two hand sword.
 			}
+			return false;
 		}
 
 		inline bool isEquippedShield(RE::Actor* a_actor) {
@@ -188,10 +199,6 @@ namespace Utils
 			return lhs && lhs->IsArmor();
 		}
 	}
-
-	/*@Return the weapon this actor is most likely using currently.
-	if the actor is attacking, return the weapon the actor is attacking with.
-	else, return the weapon in actor's right/left hand.*/
 	
 };
 
@@ -270,14 +277,7 @@ public:
 
 
 
-	/*Send the target flying based on causer's location.
-@param magnitude: strength of a push.*/
-	inline static void PushActorAway(RE::Actor* causer, RE::Actor* target, float magnitude) {
-		auto targetPoint = causer->GetNodeByName(causer->race->bodyPartData->parts[0]->targetName.c_str());
-		RE::NiPoint3 vec = targetPoint->world.translate;
-		//RE::NiPoint3 vec = causer->GetPosition();
-		RE::Offset::pushActorAway(causer->currentProcess, target, vec, magnitude);
-	}
+
 
 
 #pragma region playSound
@@ -337,7 +337,7 @@ public:
 
 	static void playSound(RE::Actor* a, std::vector<RE::BGSSoundDescriptorForm*> sounds)
 	{
-		playSound(a, *Utils::select_randomly(sounds.begin(), sounds.end()));
+		playSound(a, *inlineUtils::select_randomly(sounds.begin(), sounds.end()));
 	}
 
 	/*
@@ -351,22 +351,6 @@ public:
 		else {
 			return -1;
 		}
-		/*
-		auto aPos = a->GetPosition();
-		auto bPos = b->GetPosition();
-		float xDiff = abs(aPos.x - bPos.x);
-		float yDiff = abs(aPos.y - bPos.y);
-		float zDiff = abs(aPos.z - bPos.z);
-		float dist = sqrt(
-			pow(xDiff, 2) + pow(yDiff, 2) //horizontal dist ^ 2
-			+ pow(zDiff, 2) //vertical dist ^ 2
-		);
-		if (dist <= maxRange) {
-			return dist;
-		}
-		else {
-			return -1;
-		}*/
 	}
 
 	static void queueMessageBox(RE::BSFixedString a_message) {
@@ -385,7 +369,7 @@ public:
 #pragma endregion
 	/*Clamp the raw damage to be no more than the aggressor's max raw melee damage output.*/
 	static void clampDmg(float& dmg, RE::Actor* aggressor) {
-		auto a_weapon = Utils::actor::getWieldingWeapon(aggressor);
+		auto a_weapon = inlineUtils::actor::getWieldingWeapon(aggressor);
 		if (a_weapon) {
 			//DEBUG("weapon to clamp damage: {}", a_weapon->GetName());
 			dmg = min(dmg, a_weapon->GetAttackDamage());
@@ -537,7 +521,7 @@ public:
 				a_projectile->data.angle.z += PI;
 			}
 
-			Utils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
+			inlineUtils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
 		}
 	}
 	/*Deflect this projectile, aiming it at a_target.*/
@@ -589,6 +573,6 @@ public:
 			a_projectile->data.angle.z += PI;
 		}
 
-		Utils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
+		inlineUtils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
 	}
 };

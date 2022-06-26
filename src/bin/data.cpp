@@ -1,28 +1,6 @@
 #include "include/data.h"
 #include "include/stunHandler.h"
-using namespace Utils;
-/*
-template <class formType> 
-void lookUpFromData(RE::TESDataHandler* data, RE::FormID a_formID, formType& a_reference) {
-	a_reference = data->LookupForm<formType>(a_formID, "ValhallaCombat.esp");
-	if (a_reference) {
-		
-		("Loaded formID {}", a_formID);
-	}
-	else {
-		logger::info("Failed to load formID {}", a_formID);
-	}
-}*/
-/*
-inline void lookUpFromData(RE::TESDataHandler* data, RE::FormID a_formID, formType& a_reference) {
-	a_reference = data->LookupForm<formType>(a_formID, "ValhallaCombat.esp");
-	if (a_reference) {
-		logger::info("Loaded formID {}", a_formID);
-	}
-	else {
-		logger::info("Failed to load formID {}", a_formID);
-	}
-}*/
+using namespace inlineUtils;
 void data::loadData() {
 	logger::info("Loading data from game...");
 	auto data = RE::TESDataHandler::GetSingleton();
@@ -59,19 +37,11 @@ void data::loadSound(RE::TESDataHandler* a_data) {
 			logger::critical("Error: Failed to load sound descriptor with formID {}", a_formID);
 		}
 	};
-	loadValhallaSound(0X433C, soundParryShield1);
-	loadValhallaSound(0X60C28, soundParryShield2);
-	loadValhallaSound(0X60C29, soundParryShield3);
-	soundParryShieldV.insert(soundParryShieldV.end(), { soundParryShield1 , soundParryShield2 ,soundParryShield3 });
+	loadValhallaSound(0X433C, soundParryShield);
 	loadValhallaSound(0X60C2E, soundParryShield_perfect);
 	loadValhallaSound(0X47720, soundParryShield_gb);
 
-	loadValhallaSound(0X3DD9, soundParryWeapon1);
-	loadValhallaSound(0X60C2A, soundParryWeapon2);
-	loadValhallaSound(0X60C2B, soundParryWeapon3);
-	loadValhallaSound(0X60C2C, soundParryWeapon4);
-	soundParryWeaponV.insert(soundParryWeaponV.end(), { soundParryWeapon1, soundParryWeapon2, soundParryWeapon3, soundParryWeapon4 });
-
+	loadValhallaSound(0X3DD9, soundParryWeapon);
 	loadValhallaSound(0X60C2D, soundParryWeapon_perfect);
 	loadValhallaSound(0X47721, soundParryWeapon_gb);
 	loadValhallaSound(0X56A22, soundStunBreak);
@@ -112,7 +82,7 @@ void data::loadIdleSection(RE::TESDataHandler* a_data, std::vector<RE::TESIdleFo
 		}
 		std::string plugin = idleConfigs[0];
 		int form = 0;
-		if (!Utils::ToInt32(idleConfigs[1], form)) {
+		if (!inlineUtils::ToInt32(idleConfigs[1], form)) {
 			//ERROR("Error: wrong formID");
 			continue;
 		}
@@ -256,7 +226,7 @@ void data::loadRaceSection(RE::TESDataHandler* a_data, raceCatagory a_raceType, 
 		}
 		std::string plugin = raceConfigs[0];
 		int form = 0;
-		if (!Utils::ToInt32(raceConfigs[1], form)) {
+		if (!inlineUtils::ToInt32(raceConfigs[1], form)) {
 			logger::critical("Error: wrong formID");
 			continue;
 		}

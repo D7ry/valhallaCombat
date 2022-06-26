@@ -1,7 +1,7 @@
 #include "include/stunHandler.h"
 #include "include/settings.h"
 #include "ValhallaCombat.hpp"
-using namespace Utils;
+using namespace inlineUtils;
 void settings::ReadIntSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, uint32_t& a_setting) {
 	const char* bFound = nullptr;
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
@@ -76,7 +76,7 @@ void settings::readSettings() {
 	std::list<CSimpleIniA::Entry> ls;
 	/*Read stamina section*/
 	ReadBoolSetting(mcm, "Stamina", "bUIalert", bUIAlert);
-	ReadBoolSetting(mcm, "Stamina", "bNonCombatStaminaDebuff", bNonCombatStaminaDebuff);
+	ReadBoolSetting(mcm, "Stamina", "bNonCombatStaminaCost", bNonCombatStaminaCost);
 	ReadFloatSetting(mcm, "Stamina", "fStaminaRegenMult", fStaminaRegenMult);
 	ReadFloatSetting(mcm, "Stamina", "fStaminaRegenLimit", fStaminaRegenLimit);
 	ReadFloatSetting(mcm, "Stamina", "fCombatStaminaRegenMult", fCombatStaminaRegenMult);
@@ -91,6 +91,7 @@ void settings::readSettings() {
 	ReadFloatSetting(mcm, "Stamina", "fBckWpnStaminaMult_NPC_Block_PC", fBckWpnStaminaMult_NPC_Block_PC);
 	ReadFloatSetting(mcm, "Stamina", "fBckWpnStaminaMult_PC_Block_NPC", fBckWpnStaminaMult_PC_Block_NPC);
 
+	ReadBoolSetting(mcm, "Stamina", "bStaminaDebuffToggle", bStaminaDebuffToggle);
 	ReadBoolSetting(mcm, "Stamina", "bAttackStaminaToggle", bAttackStaminaToggle);
 	ReadBoolSetting(mcm, "Stamina", "bBlockedHitRegenStamina", bBlockedHitRegenStamina);
 	ReadFloatSetting(mcm, "Stamina", "fMeleeCostLightMiss_Point", fMeleeCostLightMiss_Point); 
@@ -99,29 +100,29 @@ void settings::readSettings() {
 	ReadFloatSetting(mcm, "Stamina", "fMeleeCostHeavyHit_Percent", fMeleeCostHeavyHit_Percent);
 
 	/*Read perfect blocking section*/
-	ReadBoolSetting(mcm, "Parrying", "bBlockProjectileToggle", bBlockProjectileToggle);
-	ReadBoolSetting(mcm, "Parrying", "bTimedBlockToggle", bTimedBlockToggle);
-	ReadBoolSetting(mcm, "Parrying", "bTimedBlockProjectileToggle", bTimedBlockProjectileToggle);
-	ReadBoolSetting(mcm, "Parrying", "bTimedBlockScreenShake", bTimedBlockScreenShake);
-	ReadBoolSetting(mcm, "Parrying", "bTimeBlockSFX", bTimeBlockSFX);
-	ReadBoolSetting(mcm, "Parrying", "bTimedBlockVFX", bTimedBlockVFX);
-	ReadBoolSetting(mcm, "Parrying", "bTimedBlockSlowTime", bTimedBlockSlowTime);
-	ReadFloatSetting(mcm, "Parrying", "fTimedBlockWindow", fTimedBlockWindow);
-	ReadFloatSetting(mcm, "Parrying", "fTimedBlockCooldownTime", fTimedBlockCooldownTime);
-	ReadFloatSetting(mcm, "Parrying", "fTimedBlockStaminaCostMult", fTimedBlockStaminaCostMult);
+	ReadBoolSetting(mcm, "TimedBlocking", "bBlockProjectileToggle", bBlockProjectileToggle);
+	ReadBoolSetting(mcm, "TimedBlocking", "bTimedBlockToggle", bTimedBlockToggle);
+	ReadBoolSetting(mcm, "TimedBlocking", "bTimedBlockProjectileToggle", bTimedBlockProjectileToggle);
+	ReadBoolSetting(mcm, "TimedBlocking", "bTimedBlockScreenShake", bTimedBlockScreenShake);
+	ReadBoolSetting(mcm, "TimedBlocking", "bTimeBlockSFX", bTimeBlockSFX);
+	ReadBoolSetting(mcm, "TimedBlocking", "bTimedBlockVFX", bTimedBlockVFX);
+	ReadBoolSetting(mcm, "TimedBlocking", "bTimedBlockSlowTime", bTimedBlockSlowTime);
+	ReadFloatSetting(mcm, "TimedBlocking", "fTimedBlockWindow", fTimedBlockWindow);
+	ReadFloatSetting(mcm, "TimedBlocking", "fTimedBlockCooldownTime", fTimedBlockCooldownTime);
+	ReadFloatSetting(mcm, "TimedBlocking", "fTimedBlockStaminaCostMult", fTimedBlockStaminaCostMult);
 
-	ReadIntSetting(mcm, "Parrying", "uAltBlockKey", uAltBlockKey);
+	ReadIntSetting(mcm, "TimedBlocking", "uAltBlockKey", uAltBlockKey);
 	/*Read stun section*/
 	ReadBoolSetting(mcm, "Stun", "bStunToggle", bStunToggle);
 	ReadBoolSetting(mcm, "Stun", "bStunMeterToggle", bStunMeterToggle);
 	ReadBoolSetting(mcm, "Stun", "bExecutionLimit", bExecutionLimit);
 
-	ReadFloatSetting(mcm, "Stun", "fStunParryMult", fStunParryMult);
+	ReadFloatSetting(mcm, "Stun", "fStunTimedBlockMult", fStunTimedBlockMult);
 	ReadFloatSetting(mcm, "Stun", "fStunBashMult", fStunBashMult);
 	ReadFloatSetting(mcm, "Stun", "fStunPowerBashMult", fStunPowerBashMult);
 	ReadFloatSetting(mcm, "Stun", "fStunNormalAttackMult", fStunNormalAttackMult);
 	ReadFloatSetting(mcm, "Stun", "fStunPowerAttackMult", fStunPowerAttackMult);
-
+	ReadFloatSetting(mcm, "Stun", "fStunParryMult", fStunParryMult);
 	ReadFloatSetting(mcm, "Stun", "fStunUnarmedMult", fStunUnarmedMult);
 	ReadFloatSetting(mcm, "Stun", "fStunDaggerMult", fStunDaggerMult);
 	ReadFloatSetting(mcm, "Stun", "fStunSwordMult", fStunSwordMult);

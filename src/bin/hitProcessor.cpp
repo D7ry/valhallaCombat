@@ -10,7 +10,7 @@
 void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::HitData& a_hitData) {
 	//offset damage from hitdata, based on player difficulty setting.
 	float realDamage = a_hitData.totalDamage;
-	Utils::offsetRealDamage(realDamage, a_aggressor, a_victim);
+	inlineUtils::offsetRealDamage(realDamage, a_aggressor, a_victim);
 	auto hitFlag = a_hitData.flags;
 	using HITFLAG = RE::HitData::Flag;
 	if (

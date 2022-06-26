@@ -10,15 +10,18 @@
 #pragma endregion
 #pragma region GetHeavyStaminaCost
 float Hook_OnGetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
-	//DEBUG("hooked attack stamina cost!");
 	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
-	//DEBUG("actor is {}", a_actor->GetName());
-	if (settings::bAttackStaminaToggle) { //negate vanilla heavy attack stamina cost
+	if (!settings::bNonCombatStaminaCost && !a_actor->IsInCombat()) {
+		return 0;
+	}
+	else if (settings::bAttackStaminaToggle) { //negate vanilla heavy attack stamina cost
+		RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
 		if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack)
 			&& !atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
 			return 0;
 		}
 	}
+
 	return _getHeavyAttackStaminaCost(avOwner, atkData);
 }
 float Hook_CacheAttackStaminaCost::cacheAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
@@ -93,16 +96,7 @@ float Hook_OnGetStaggerMagnitude::getStaggerManitude_Bash(uintptr_t a1, uintptr_
 		return 0;
 	}
 }
-/*
-void Hook_GetStaggerMagnitude::initStagger1(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5) {
-	return;
-}
-void Hook_GetStaggerMagnitude::initStagger2(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5) {
-	return;
-}
-void Hook_GetStaggerMagnitude::initStagger3(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5) {
-	return;
-}*/
+
 #pragma endregion
 #pragma region MeleeHit
 void Hook_OnPhysicalHit::processHit(RE::Actor* victim, RE::HitData& hitData) {

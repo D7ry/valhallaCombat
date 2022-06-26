@@ -9,34 +9,34 @@ void staminaHandler::checkStamina(RE::Actor* a_actor) {
 	}
 }
 void staminaHandler::staminaLightMiss(RE::Actor* a_actor) {
-	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaCost) {
 		return;
 	}
-	Utils::damageav(a_actor, RE::ActorValue::kStamina, settings::fMeleeCostLightMiss_Point);
+	inlineUtils::damageav(a_actor, RE::ActorValue::kStamina, settings::fMeleeCostLightMiss_Point);
 	checkStamina(a_actor);
 }
 
 void staminaHandler::staminaLightHit(RE::Actor* a_actor) {
-	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaCost) {
 		return;
 	}
-	Utils::restoreav(a_actor, RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
+	inlineUtils::restoreav(a_actor, RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
 	checkStamina(a_actor);
 }
 
 void staminaHandler::staminaHeavyMiss(RE::Actor* a_actor) {
-	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaCost) {
 		return;
 	}
-	Utils::damageav(a_actor, RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyMiss_Percent);
+	inlineUtils::damageav(a_actor, RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyMiss_Percent);
 	checkStamina(a_actor);
 }
 
 void staminaHandler::staminaHeavyHit(RE::Actor* a_actor) {
 	//DEBUG("stamina heavy hit");
-	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaDebuff) {
+	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaCost) {
 		return;
 	}
-	Utils::damageav(a_actor, RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyHit_Percent);
+	inlineUtils::damageav(a_actor, RE::ActorValue::kStamina, a_actor->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyHit_Percent);
 	checkStamina(a_actor);
 }

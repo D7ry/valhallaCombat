@@ -22,6 +22,8 @@ set(SOURCE_FILES
 	"${SOURCE_DIR}/bin/events/animEventHandler.cpp"
 	"${SOURCE_DIR}/bin/events/cellLoadEventHandler.cpp"
 	"${SOURCE_DIR}/bin/events/inputEventHandler.cpp"
+	"${SOURCE_DIR}/bin/ModAPI.cpp"
+	"${SOURCE_DIR}/include/ModAPI.h"
 	"${SOURCE_DIR}/include/actorManager.h"
 	"${SOURCE_DIR}/include/actorManager.h"
 	"${SOURCE_DIR}/include/AI.h"
@@ -45,6 +47,8 @@ set(SOURCE_FILES
 	"${SOURCE_DIR}/include/lib/robin_hood.h"
 	"${SOURCE_DIR}/include/lib/SimpleIni.h"
 	"${SOURCE_DIR}/include/lib/TrueHUDAPI.h"
+	"${SOURCE_DIR}/include/lib/ValhallaCombatAPI.h"
+	
 )
 
 source_group(TREE "${ROOT_DIR}" FILES ${SOURCE_FILES})

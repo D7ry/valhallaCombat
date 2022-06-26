@@ -222,18 +222,22 @@ void stunHandler::processStunDamage(
 	if (a_victim->IsPlayerRef()) { //player do not receive stun damage at all.
 		return;
 	}
-	float stunDamage;
+	float stunDamage = 0;
 	switch (a_stunSource) {
-	case STUNSOURCE::parry:
-		stunDamage = a_baseDamage * settings::fStunParryMult;
+	case STUNSOURCE::timedBlock:
+		stunDamage = a_baseDamage * settings::fStunTimedBlockMult;
 		break;
 	case STUNSOURCE::bash:
 		stunDamage = a_aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult;
-		Utils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
+		inlineUtils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
 		break;
 	case STUNSOURCE::powerBash:
 		stunDamage = a_aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunPowerBashMult;
-		Utils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
+		inlineUtils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
+		break;
+	case STUNSOURCE::parry:
+		stunDamage = a_aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunParryMult;
+		inlineUtils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
 		break;
 	case STUNSOURCE::lightAttack:
 		stunDamage = a_baseDamage * settings::fStunNormalAttackMult;

@@ -127,15 +127,8 @@ public:
 	static bool isRaceType(RE::Actor* a_actor, raceCatagory a_catagory);
 #pragma endregion
 #pragma region sounds
-	static inline RE::BGSSoundDescriptorForm* soundParryShield1;
-	static inline RE::BGSSoundDescriptorForm* soundParryShield2;
-	static inline RE::BGSSoundDescriptorForm* soundParryShield3;
-	static inline std::vector< RE::BGSSoundDescriptorForm*> soundParryShieldV;
-	static inline RE::BGSSoundDescriptorForm* soundParryWeapon1;
-	static inline RE::BGSSoundDescriptorForm* soundParryWeapon2;
-	static inline RE::BGSSoundDescriptorForm* soundParryWeapon3;
-	static inline RE::BGSSoundDescriptorForm* soundParryWeapon4;
-	static inline std::vector<RE::BGSSoundDescriptorForm*> soundParryWeaponV;
+	static inline RE::BGSSoundDescriptorForm* soundParryShield;
+	static inline RE::BGSSoundDescriptorForm* soundParryWeapon;
 
 	static inline RE::BGSSoundDescriptorForm* soundParryWeapon_perfect;
 	static inline RE::BGSSoundDescriptorForm* soundParryShield_perfect;
@@ -222,7 +215,7 @@ private:
 
 };
 
-namespace Utils
+namespace inlineUtils
 {
 	/*Parse a string into a vector of tokens.*/
 	static std::vector<std::string> tokenize(const std::string& delimiter, const std::string& str) {

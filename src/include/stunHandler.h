@@ -146,6 +146,7 @@ public:
 		powerAttack,
 		bash,
 		powerBash,
+		timedBlock,
 		parry
 	};
 
