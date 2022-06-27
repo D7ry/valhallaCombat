@@ -88,7 +88,7 @@ private:
 	@param blocker: actor performing the perfect block.
 	@param attacker: actor whose attack gets perfect blocked.
 	@param hitData: reference to the hitData of the blocked attack.*/
-	void processPhysicalTimedBlock(RE::Actor* blocker, RE::Actor* attacker, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& hitData, float realDamage, float timePassed);
+	void processMeleeTimedBlock(RE::Actor* blocker, RE::Actor* attacker, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& hitData, float realDamage, float timePassed);
 
 
 	/*Return: whether the object is within the blocker's block angle and thus can be blocked.*/

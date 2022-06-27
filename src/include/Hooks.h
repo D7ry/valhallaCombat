@@ -7,14 +7,19 @@ class Hook_OnGetAttackStaminaCost //Actor__sub_140627930+16E	call ActorValueOwne
 {
 	/*to cancel out vanilla power attack stamina consumption.*/
 public:
-	static void install() {
+	static void install()
+	{
 		auto& trampoline = SKSE::GetTrampoline();
 
-		REL::Relocation<uintptr_t> hook{ REL::ID(37650) };
-
+		REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37650, 38603) };  //SE:627930 + 16E => 3BEC90 AE:64D350 + 171 => 3D6720
+#ifdef SKYRIM_SUPPORT_AE
+		_getHeavyAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0x171, getAttackStaminaCost);
+#else
 		_getHeavyAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0x16E, getAttackStaminaCost);
-		logger::info("Heavy attack stamina hook installed.");
+#endif
+		logger::info("Attack stamina hook installed.");
 	}
+
 private:
 	static float getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData);
 	static inline REL::Relocation<decltype(getAttackStaminaCost)> _getHeavyAttackStaminaCost;

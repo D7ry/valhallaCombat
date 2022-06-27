@@ -61,14 +61,14 @@
     },
     {
       "cacheVariables": {
-        "BUILD_SKYRIM_AE": "OFF"
+        "SKYRIM_SUPPORT_AE": "OFF"
       },
       "inherits": "vs2022-windows",
       "name": "se"
     },
     {
       "cacheVariables": {
-        "BUILD_SKYRIM_AE": "ON"
+        "SKYRIM_SUPPORT_AE": "ON"
       },
       "inherits": "vs2022-windows",
       "name": "ae"

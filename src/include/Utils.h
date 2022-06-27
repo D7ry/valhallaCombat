@@ -159,9 +159,12 @@ namespace inlineUtils
 	@param a_actor actor whose actorValue will be refilled.
 	@param actorValue type of actor value to refill.*/
 	inline void refillActorValue(RE::Actor* a_actor, RE::ActorValue a_actorValue) {
-		float avToRestore = a_actor->GetPermanentActorValue(a_actorValue)
-			+ a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, a_actorValue)
-			- a_actor->GetActorValue(a_actorValue);
+		float av = a_actor->GetActorValue(a_actorValue);
+		float pav = a_actor->GetPermanentActorValue(a_actorValue);
+		if (av >= pav) {
+			return;
+		}
+		float avToRestore = pav - av;
 		restoreav(a_actor, a_actorValue, avToRestore);
 	}
 
@@ -195,7 +198,7 @@ namespace inlineUtils
 		}
 
 		inline bool isEquippedShield(RE::Actor* a_actor) {
-			auto lhs = a_actor->GetEquippedObject(false);
+			auto lhs = a_actor->GetEquippedObject(true);
 			return lhs && lhs->IsArmor();
 		}
 	}

@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(
-	ValhallaCombat
-	VERSION 0.9.9
+	TemplateProject
+	VERSION 0.0.1
 	LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,7 +23,7 @@ if(NOT DEFINED CompiledPluginsPath)
 endif()
 
 option(COPY_OUTPUT "Copy the output of build operations to the game directory" ON)
-option(BUILD_SKYRIM_AE "Build for Skyrim AE instead of SSE" OFF)
+option(SKYRIM_SUPPORT_AE "Build for Skyrim AE instead of SSE" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
