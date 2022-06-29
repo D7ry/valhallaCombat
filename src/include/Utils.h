@@ -77,10 +77,13 @@ namespace inlineUtils
 		return true;
 	}
 
-	inline void restoreav(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_damage)
+	inline void restoreav(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_value)
 	{
+		if (a_value == 0) {
+			return;
+		}
 		if (a_actor) {
-			a_actor->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, a_actorValue, a_damage);
+			a_actor->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, a_actorValue, a_value);
 		}
 	}
 
@@ -284,32 +287,31 @@ public:
 
 
 #pragma region playSound
-	static inline int soundHelper_a(void* manager, RE::BSSoundHandle* a2, int a3, int a4) //sub_140BEEE70
+	static inline int soundHelper_a(void* manager, RE::BSSoundHandle* a2, int a3, int a4)  //sub_140BEEE70
 	{
 		using func_t = decltype(&soundHelper_a);
-		REL::Relocation<func_t> func{ REL::ID(66401) };
+		REL::Relocation<func_t> func{ RELOCATION_ID(66401, 67663) };
 		return func(manager, a2, a3, a4);
 	}
 
-
-	static inline void soundHelper_b(RE::BSSoundHandle* a1, RE::NiAVObject* source_node) //sub_140BEDB10
+	static inline void soundHelper_b(RE::BSSoundHandle* a1, RE::NiAVObject* source_node)  //sub_140BEDB10
 	{
 		using func_t = decltype(&soundHelper_b);
-		REL::Relocation<func_t> func{ REL::ID(66375) };
+		REL::Relocation<func_t> func{ RELOCATION_ID(66375, 67636) };
 		return func(a1, source_node);
 	}
 
-	static inline char __fastcall soundHelper_c(RE::BSSoundHandle* a1) //sub_140BED530
+	static inline char __fastcall soundHelper_c(RE::BSSoundHandle* a1)  //sub_140BED530
 	{
 		using func_t = decltype(&soundHelper_c);
-		REL::Relocation<func_t> func{ REL::ID(66355) };
+		REL::Relocation<func_t> func{ RELOCATION_ID(66355, 67616) };
 		return func(a1);
 	}
 
 	static inline char set_sound_position(RE::BSSoundHandle* a1, float x, float y, float z)
 	{
 		using func_t = decltype(&set_sound_position);
-		REL::Relocation<func_t> func{ REL::ID(66370) };
+		REL::Relocation<func_t> func{ RELOCATION_ID(66370, 67631) };
 		return func(a1, x, y, z);
 	}
 
@@ -330,8 +332,7 @@ public:
 		handle.assumeSuccess = false;
 		*(uint32_t*)&handle.state = 0;
 
-		auto manager = BSAudioManager__GetSingleton();
-		soundHelper_a(manager, &handle, a_descriptor->GetFormID(), 16);
+		soundHelper_a(RE::BSAudioManager::GetSingleton(), &handle, a_descriptor->GetFormID(), 16);
 		if (set_sound_position(&handle, a->data.location.x, a->data.location.y, a->data.location.z)) {
 			soundHelper_b(&handle, a->Get3D());
 			soundHelper_c(&handle);
@@ -397,7 +398,7 @@ public:
 	@param a_actor: new owner of the projectile.
 	@param a_projectile_collidable: pointer to the projectile collidable to rset its collision mask.*/
 	static void resetProjectileOwner(RE::Projectile* a_projectile, RE::Actor* a_actor, RE::hkpCollidable* a_projectile_collidable) {
-		a_projectile->actorCause.get()->actor = a_actor->GetHandle();
+		a_projectile->SetActorCause(a_actor->GetActorCause());
 		a_projectile->desiredTarget = a_actor->currentCombatTarget;
 		a_projectile->shooter = a_actor->GetHandle();
 		uint32_t a_collisionFilterInfo;
