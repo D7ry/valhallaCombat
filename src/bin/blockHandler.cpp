@@ -108,38 +108,38 @@ bool blockHandler::isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj) 
 	return (angle <= data::fCombatHitConeAngle && angle >= -data::fCombatHitConeAngle);
 }
 
-void blockHandler::processProjectileParry(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
-	RE::TESObjectREFR* shooter = nullptr;
-	if (a_projectile->shooter && a_projectile->shooter.get()) {
-		shooter = a_projectile->shooter.get().get();
-		if (shooter->GetFormType() != RE::FormType::ActorCharacter) {
-			shooter = nullptr;
-		}
+bool blockHandler::tryParryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+	if (getIsPcTimedBlocking()) {
+		onSuccessfulTimedBlock();
+		parryProjectile(a_blocker, a_projectile, a_projectile_collidable);
+		return true;
 	}
-	ValhallaUtils::resetProjectileOwner(a_projectile, a_blocker, a_projectile_collidable);
-	deflectProjectile(a_blocker, a_projectile, a_projectile_collidable, shooter->As<RE::Actor>());
+	return false;
 }
 
-bool blockHandler::processProjectileBlock_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::MagicItem* a_spell) {
+
+bool blockHandler::tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::MagicItem* a_spell) {
 	auto cost = a_spell->CalculateMagickaCost(a_blocker);
 	//Utils::offsetRealDamageForPc(cost);
 	if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
-		parryProjectile(a_blocker, a_projectile);
+		blockProjectile(a_blocker, a_projectile);
 		return true;
 	}
+	return false;
 }
 
-bool blockHandler::processProjectileBlock_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile) {
+bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile) {
 	auto launcher = a_projectile->weaponSource;
 	auto ammo = a_projectile->ammoSource;
 	if (launcher && ammo) {
 		auto cost = launcher->GetAttackDamage() + ammo->data.damage;
 		inlineUtils::offsetRealDamageForPc(cost);
 		if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
-			parryProjectile(a_blocker, a_projectile);
+			blockProjectile(a_blocker, a_projectile);
 			return true;
 		}
 	}
+	return false;
 }
 
 bool blockHandler::processRegularSpellBlock(RE::Actor* a_blocker, RE::MagicItem* a_spell, RE::Projectile* a_projectile) {
@@ -159,24 +159,17 @@ bool blockHandler::processRegularSpellBlock(RE::Actor* a_blocker, RE::MagicItem*
 }
 
 bool blockHandler::preProcessProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
-	if (!settings::bBlockProjectileToggle) {
-		return false;
-	}
 	if (a_blocker->IsPlayerRef()) {
 		if (isInBlockAngle(a_blocker, a_projectile) && a_blocker->IsBlocking()) {
-			//bool isPcParrying = getIsPcParrying();
-			//Perfect block
-			if (getIsPcTimedBlocking()) {
-				onSuccessfulTimedBlock();
-				processProjectileParry(a_blocker, a_projectile, a_projectile_collidable);
-				return true;
-			}
-			else {//none-perfect block
+			if (settings::bTimedBlockProjectileToggle 
+				&& tryParryProjectile(a_blocker, a_projectile, a_projectile_collidable)) {
+					return true;
+			} else if (settings::bBlockProjectileToggle) {
 				auto spell = a_projectile->spell;
 				if (spell) {
-					return processProjectileBlock_Spell(a_blocker, a_projectile, spell);
-				} else if (!inlineUtils::actor::isEquippedShield(a_blocker)) { //physical projectile blocking only applies to none-shield.
-					return processProjectileBlock_Arrow(a_blocker, a_projectile);
+					return tryBlockProjectile_Spell(a_blocker, a_projectile, spell);
+				} else if (!inlineUtils::actor::isEquippedShield(a_blocker)) {  //physical projectile blocking only applies to none-shield.
+					return tryBlockProjectile_Arrow(a_blocker, a_projectile);
 				}
 			}
 		}
@@ -185,20 +178,28 @@ bool blockHandler::preProcessProjectileBlock(RE::Actor* a_blocker, RE::Projectil
 	return false;
 }
 
-void blockHandler::deflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, RE::Actor* a_target) {
+void blockHandler::parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+	RE::TESObjectREFR* shooter = nullptr;
+	if (a_projectile->shooter && a_projectile->shooter.get()) {
+		shooter = a_projectile->shooter.get().get();
+	}
+	ValhallaUtils::resetProjectileOwner(a_projectile, a_blocker, a_projectile_collidable);
+
+	if (shooter && shooter->Is3DLoaded()) {
+		ValhallaUtils::RetargetProjectile(a_projectile, shooter);
+	} else {
+		ValhallaUtils::ReflectProjectile(a_projectile);
+	}
+
+
 	if (a_blocker->IsBlocking()) {
 		a_blocker->NotifyAnimationGraph("BlockHitStart");
 	}
 	playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
-	if (a_target && a_target->Is3DLoaded()) {
-		ValhallaUtils::DeflectProjectile(a_blocker, a_projectile, a_target);
-	}
-	else {
-		ValhallaUtils::ReflectProjectile(a_projectile);
-	}
+
 }
 
-void blockHandler::parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile) {
+void blockHandler::blockProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile) {
 	if (a_blocker->IsBlocking()) {
 		a_blocker->NotifyAnimationGraph("BlockHitStart");
 	}
@@ -300,7 +301,7 @@ void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor,
 	}
 }
 bool blockHandler::getIsPcTimedBlocking() {
-	return (isPcTimedBlocking && RE::PlayerCharacter::GetSingleton()->IsBlocking());
+	return isPcTimedBlocking;
 }
 
 bool blockHandler::getIsPcPerfectBlocking() {

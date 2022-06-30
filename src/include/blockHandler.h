@@ -113,12 +113,11 @@ public:
 	bool preProcessProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
 	
 private:
-	bool processProjectileBlock_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile);
-	bool processProjectileBlock_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::MagicItem* a_spell);
-	void processProjectileParry(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
-
+	bool tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile);
+	bool tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::MagicItem* a_spell);
+	bool tryParryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
 	/*Deflect the projectile back at the sender of the projectile.*/
-	inline void deflectProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, RE::Actor* a_target);
+	inline void parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
 	/*Destroy the projectile by parrying.*/
-	inline void parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile);
+	inline void blockProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile);
 };

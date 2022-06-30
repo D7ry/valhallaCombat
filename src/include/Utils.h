@@ -399,7 +399,6 @@ public:
 	@param a_projectile_collidable: pointer to the projectile collidable to rset its collision mask.*/
 	static void resetProjectileOwner(RE::Projectile* a_projectile, RE::Actor* a_actor, RE::hkpCollidable* a_projectile_collidable) {
 		a_projectile->SetActorCause(a_actor->GetActorCause());
-		a_projectile->desiredTarget = a_actor->currentCombatTarget;
 		a_projectile->shooter = a_actor->GetHandle();
 		uint32_t a_collisionFilterInfo;
 		a_actor->GetCollisionFilterInfo(a_collisionFilterInfo);
@@ -528,21 +527,41 @@ public:
 			inlineUtils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
 		}
 	}
-	/*Deflect this projectile, aiming it at a_target.*/
-	static void DeflectProjectile(RE::Actor* a_actor, RE::Projectile* a_projectile, RE::Actor* a_target) {
-		auto projectileNode = a_projectile->Get3D2();
-		auto target = a_target->GetHandle();
 
-		RE::BGSBodyPart* bodyPart = a_target->race->bodyPartData->parts[0];
-		
-		auto targetPoint = a_target->GetNodeByName(bodyPart->targetName.c_str());
+	/*Get the body position of this actor.*/
+	static void getBodyPos(RE::Actor* a_actor, RE::NiPoint3& pos)
+	{
+		if (!a_actor->race) {
+			return;
+		}
+		RE::BGSBodyPart* bodyPart = a_actor->race->bodyPartData->parts[0];
+		if (!bodyPart) {
+			return;
+		}
+		auto targetPoint = a_actor->GetNodeByName(bodyPart->targetName.c_str());
 		if (!targetPoint) {
-			ReflectProjectile(a_projectile);
+			return;
 		}
 
-		RE::NiPoint3 targetPos = targetPoint->world.translate;
+		pos = targetPoint->world.translate;
+	}
+
+	/*Deflect this projectile, aiming it at a_target.*/
+	static void RetargetProjectile(RE::Projectile* a_projectile, RE::TESObjectREFR* a_target)
+	{
+		a_projectile->desiredTarget = a_target;
+
+		auto projectileNode = a_projectile->Get3D2();
+		auto targetHandle = a_target->GetHandle();
+
+		RE::NiPoint3 targetPos = a_target->GetPosition();
+
+		if (a_target->GetFormType() == RE::FormType::ActorCharacter) {
+			getBodyPos(a_target->As<RE::Actor>(), targetPos);
+		}
+
 		RE::NiPoint3 targetVelocity;
-		target.get()->GetLinearVelocity(targetVelocity);
+		targetHandle.get()->GetLinearVelocity(targetVelocity);
 
 		float projectileGravity = 0.f;
 		if (auto ammo = a_projectile->ammoSource) {
