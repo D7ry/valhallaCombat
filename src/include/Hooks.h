@@ -25,22 +25,6 @@ private:
 	static inline REL::Relocation<decltype(getAttackStaminaCost)> _getHeavyAttackStaminaCost;
 };
 
-class Hook_CacheAttackStaminaCost //sub_14063CFB0+BB	call    ActorValueOwner__sub_1403BEC90 //this thing is useless
-{
-public:
-	static void install() {
-		auto& trampoline = SKSE::GetTrampoline();
-
-		REL::Relocation<uintptr_t> hook{ REL::ID(38047) };
-
-		_cacheAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0xBB, cacheAttackStaminaCost);
-		logger::info("Heavy bash stamina hook installed.");
-	}
-private:
-	static float cacheAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData);
-	static inline REL::Relocation<decltype(cacheAttackStaminaCost)> _cacheAttackStaminaCost;
-};
-
 class Hook_GetBlockChance
 {
 public:
@@ -157,18 +141,10 @@ private:
 
 	static float getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2);
 	static inline REL::Relocation<decltype(getStaggerManitude_Bash)> _getStaggerManitude_Bash;
-	/*
-	static void initStagger1(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5);
-	static inline REL::Relocation<decltype(initStagger1)> _initStagger1;
 
-	static void initStagger2(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5);
-	static inline REL::Relocation<decltype(initStagger2)> _initStagger2;
-
-	static void initStagger3(uintptr_t a1, RE::Actor* a2, uintptr_t a3, float a4, float a5);
-	static inline REL::Relocation<decltype(initStagger3)> _initStagger3;*/
 };
 
-class Hook_MagicHit {
+class Hook_MagicHit {//not used now
 public:
 	static void install()
 	{
@@ -218,7 +194,7 @@ private:
 
 };
 
-class Hook_OnPlayerUpdate
+class Hook_OnPlayerUpdate //no longer used
 {
 public:
 	static void install() {
@@ -262,7 +238,6 @@ public:
 		logger::info("Installing hooks...");
 		SKSE::AllocTrampoline(1 << 8);
 		Hook_OnGetAttackStaminaCost::install();
-		//Hook_CacheAttackStaminaCost::install();
 		//Hook_GetBlockChance::install();
 		//Hook_GetAttackChance1::install();
 		//Hook_GetAttackChance2::install();

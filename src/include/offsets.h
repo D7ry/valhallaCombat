@@ -5,38 +5,63 @@ namespace RE
 	{
 
 		typedef void(_fastcall* tPushActorAway_sub_14067D4A0)(RE::AIProcess* a_causer, RE::Actor* a_target, RE::NiPoint3& a_origin, float a_magnitude);
-		inline static REL::Relocation<tPushActorAway_sub_14067D4A0> pushActorAway{ REL::ID(38858) };
-
-
+		inline static REL::Relocation<tPushActorAway_sub_14067D4A0> pushActorAway{ RELOCATION_ID(38858, 39895) };
 
 		typedef void(_fastcall* _shakeCamera)(float strength, RE::NiPoint3 source, float duration);
-		inline static REL::Relocation<_shakeCamera> shakeCamera{ REL::ID(32275) };
+		inline static REL::Relocation<_shakeCamera> shakeCamera{ RELOCATION_ID(32275, 33012) };
 
 		typedef void(_fastcall* _destroyProjectile)(RE::Projectile* a_projectile);
-		inline static REL::Relocation<_destroyProjectile> destroyProjectile{ REL::ID(42930) };
+		inline static REL::Relocation<_destroyProjectile> destroyProjectile{ RELOCATION_ID(42930, 44110) };
 
 		typedef RE::TESObjectREFR* (_fastcall* _getEquippedShield)(RE::Actor* a_actor);
-		inline static REL::Relocation< _getEquippedShield> getEquippedShield{ REL::ID(37624) };
+		inline static REL::Relocation<_getEquippedShield> getEquippedShield{ RELOCATION_ID(37624, 38577) };
 
 		inline void SGTM(float a_in) {
-#if ANNIVERSARY_EDITION
-			static float* g_SGTM = (float*)REL::ID(388443).address();
+			static float* g_SGTM = (float*)RELOCATION_ID(511883, 388443).address();
 			*g_SGTM = a_in;
 			using func_t = decltype(SGTM);
-			REL::Relocation<func_t> func{ REL::ID(68246) };
-#else
-			static float* g_SGTM = (float*)REL::ID(511883).address();
-			*g_SGTM = a_in;
-			using func_t = decltype(SGTM);
-			REL::Relocation<func_t> func{ REL::ID(66989) };
-#endif
+			REL::Relocation<func_t> func{ RELOCATION_ID(66989, 68246) };
 			return;
 		}
+		
+		static float* g_worldScaleInverse = (float*)RELOCATION_ID(230692, 187407).address();
+		inline static float* g_deltaTime = (float*)RELOCATION_ID(523660, 410199).address();                                                                    // 2F6B948
+		inline static float* g_deltaTimeRealTime = (float*)RELOCATION_ID(523661, 410200).address();  // 2F6B94C
 
+		inline bool playPairedIdle(RE::AIProcess* proc, RE::Actor* attacker, RE::DEFAULT_OBJECT smth, RE::TESIdleForm* idle, bool a5, bool a6, RE::TESObjectREFR* target)
+		{
+			using func_t = decltype(&playPairedIdle);
+			REL::Relocation<func_t> func{ RELOCATION_ID(38290, 39256) };
+			return func(proc, attacker, smth, idle, a5, a6, target);
+		}
 
-		static float* g_worldScaleInverse = (float*)REL::ID(230692).address();
-		inline static float* g_deltaTime = (float*)REL::ID(523660).address();                            // 2F6B948
-		inline static float* g_deltaTimeRealTime = (float*)REL::ID(523661).address();                  // 2F6B94C
+		inline int soundHelper_a(void* manager, RE::BSSoundHandle* a2, int a3, int a4)  //sub_140BEEE70
+		{
+			using func_t = decltype(&soundHelper_a);
+			REL::Relocation<func_t> func{ RELOCATION_ID(66401, 67663) };
+			return func(manager, a2, a3, a4);
+		}
+
+		inline void soundHelper_b(RE::BSSoundHandle* a1, RE::NiAVObject* source_node)  //sub_140BEDB10
+		{
+			using func_t = decltype(&soundHelper_b);
+			REL::Relocation<func_t> func{ RELOCATION_ID(66375, 67636) };
+			return func(a1, source_node);
+		}
+
+		inline char __fastcall soundHelper_c(RE::BSSoundHandle* a1)  //sub_140BED530
+		{
+			using func_t = decltype(&soundHelper_c);
+			REL::Relocation<func_t> func{ RELOCATION_ID(66355, 67616) };
+			return func(a1);
+		}
+
+		inline char set_sound_position(RE::BSSoundHandle* a1, float x, float y, float z)
+		{
+			using func_t = decltype(&set_sound_position);
+			REL::Relocation<func_t> func{ RELOCATION_ID(66370, 67631) };
+			return func(a1, x, y, z);
+		}
 		
 	}
 }

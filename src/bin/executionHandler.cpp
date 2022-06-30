@@ -116,28 +116,9 @@ void executionHandler::attemptExecute(RE::Actor* a_executor, RE::Actor* a_victim
 	a_victim->SetGraphVariableBool("bIdlePlaying", true); //DHAF compatibility
 };
 
-void executionHandler::concludeExecution(RE::Actor* a_executor) {
-	if (!a_executor) {
-		return;
-	}
-
-	if (executionMap.find(a_executor) != executionMap.end()) {
-		if (a_executor->IsPlayerRef()) {
-			RE::DebugNotification("Concluding player execution");
-		}
-		inlineUtils::setIsGhost(a_executor, false);
-		auto victim = executionMap.find(a_executor)->second;
-		if (victim) {
-			inlineUtils::setIsGhost(victim, false);
-		}
-		executionMap.erase(a_executor);
-	}
-}
-
-
 void executionHandler::playExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, RE::TESIdleForm* a_executionIdle) {
 	//logger::info("playing execution idle: {}", executionIdle->GetFormID());
-	playPairedIdle(a_executor->currentProcess, a_executor, RE::DEFAULT_OBJECT::kActionIdle, a_executionIdle, true, false, a_victim);
+	RE::Offset::playPairedIdle(a_executor->currentProcess, a_executor, RE::DEFAULT_OBJECT::kActionIdle, a_executionIdle, true, false, a_victim);
 }
 
 void executionHandler::playExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, std::vector<RE::TESIdleForm*> a_executionIdleVector) {

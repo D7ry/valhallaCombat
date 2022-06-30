@@ -31,8 +31,6 @@ public:
 	@param victim: actor to be executed.*/
 	void attemptExecute(RE::Actor* executor, RE::Actor* victim);
 
-	/*Conclude an execution, cancle executor and victim's ghost state. Optionally apply buff onto executor.*/
-	void concludeExecution(RE::Actor* executor);
 
 private:
 	void executeHumanoid(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
@@ -106,14 +104,5 @@ namespace inlineUtils
 
 
 
-	typedef void(_fastcall* _setIsGhost)(RE::Actor* actor, bool isGhost);
-	static REL::Relocation<_setIsGhost> setIsGhost{ REL::ID(36287) };
-
-	inline bool playPairedIdle(RE::AIProcess* proc, RE::Actor* attacker, RE::DEFAULT_OBJECT smth, RE::TESIdleForm* idle, bool a5, bool a6, RE::TESObjectREFR* target)
-	{
-		using func_t = decltype(&playPairedIdle);
-		REL::Relocation<func_t> func{ REL::ID(38290) };
-		return func(proc, attacker, smth, idle, a5, a6, target);
-	}
 }
 

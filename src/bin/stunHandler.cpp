@@ -34,7 +34,7 @@ void stunHandler::safeInsert_StunBrokenActors(RE::Actor* a_actor) {
 }
 
 bool stunHandler::safeGet_isStunBroken(RE::Actor* a_actor) {
-	sharedLocker(mtx_StunBrokenActors);
+	sharedLocker lock(mtx_StunBrokenActors);
 	return stunBrokenActors.contains(a_actor);
 }
 

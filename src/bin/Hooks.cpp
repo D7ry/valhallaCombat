@@ -24,12 +24,6 @@ float Hook_OnGetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::B
 
 	return _getHeavyAttackStaminaCost(avOwner, atkData);
 }
-float Hook_CacheAttackStaminaCost::cacheAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
-	
-	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
-	//DEBUG("Cached attack stamina! Actor is {}.", a_actor->GetName());
-	return _cacheAttackStaminaCost(avOwner, atkData);
-}
 #pragma endregion
 #pragma region GetBlockChance
 uintptr_t Hook_GetBlockChance::getBlockChance(RE::Actor* actor) {
