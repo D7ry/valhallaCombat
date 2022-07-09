@@ -1,5 +1,46 @@
 #include "include/data.h"
 #include "include/stunHandler.h"
+
+/// <summary>
+/// Helper class to load a bunch of forms from a single plugin without passing the plugin name as an argument every time.
+/// </summary>
+class formLoader
+{
+private:
+	RE::BSFixedString _pluginName;
+	RE::TESDataHandler* _dataHandler;
+	int _loadedForms;
+
+public:
+	formLoader(RE::BSFixedString pluginName)
+	{
+		_pluginName = pluginName;
+		_dataHandler = RE::TESDataHandler::GetSingleton();
+		if (!_dataHandler) {
+			logger::critical("Error: TESDataHandler not found.");
+		}
+		if (!_dataHandler->LookupModByName(pluginName)) {
+			logger::critical("Error: {} not loaded.", pluginName);
+		}
+		logger::info("Loading from plugin {}...", pluginName);
+	}
+
+	~formLoader()
+	{
+		logger::info("Loaded {} forms from {}", _loadedForms, _pluginName);
+	}
+
+	template <class formType>
+	void load(formType*& formRet, RE::FormID formID)
+	{
+		formRet = _dataHandler->LookupForm<formType>(formID, _pluginName);
+		if (!formRet) {
+			logger::critical("Error: null formID or wrong form type when loading {} from {}", formID, _pluginName);
+		}
+		_loadedForms++;
+	}
+};
+
 using namespace inlineUtils;
 void data::loadData() {
 	logger::info("Loading data from game...");
@@ -26,34 +67,22 @@ void data::loadData() {
 
 void data::loadSound(RE::TESDataHandler* a_data) {
 	logger::info("Loading sound descriptors...");
-	int countLoaded = 0;
-	auto loadValhallaSound = [&](RE::FormID a_formID, RE::BGSSoundDescriptorForm*& a_sound)
-	{
-		a_sound = a_data->LookupForm<RE::BGSSoundDescriptorForm>(a_formID, "ValhallaCombat.esp");
-		if (a_sound) {
-			countLoaded++;
-		}
-		else {
-			logger::critical("Error: Failed to load sound descriptor with formID {}", a_formID);
-		}
-	};
-	loadValhallaSound(0X433C, soundParryShield);
-	loadValhallaSound(0X60C2E, soundParryShield_perfect);
-	loadValhallaSound(0X47720, soundParryShield_gb);
-
-	loadValhallaSound(0X3DD9, soundParryWeapon);
-	loadValhallaSound(0X60C2D, soundParryWeapon_perfect);
-	loadValhallaSound(0X47721, soundParryWeapon_gb);
-	loadValhallaSound(0X56A22, soundStunBreak);
-	logger::info("Successfully loaded {} sound descriptors.", countLoaded);
-	logger::info("..done");
+	formLoader loader("ValhallaCombat.esp");
+	loader.load(soundParryShield, 0x433c);
+	loader.load(soundParryShield_perfect, 0x60c2e);
+	loader.load(soundParryShield_gb, 0X47720);
+	loader.load(soundParryWeapon, 0X3DD9);
+	loader.load(soundParryWeapon_perfect, 0X60C2D);
+	loader.load(soundParryWeapon_gb, 0X47721);
+	loader.load(soundStunBreak, 0X56A22);
+	logger::info("...done");
 }
 
 void data::loadPerk(RE::TESDataHandler* a_data) {
 	logger::info("Loading perk...");
-	//lookUpFromData(data, 0x2DB2, debuffPerk);
-	debuffPerk = RE::TESDataHandler::GetSingleton()->LookupForm<RE::BGSPerk>(0x2DB2, "ValhallaCombat.esp");
-	logger::info("..done");
+	formLoader loader("ValhallaCombat.esp");
+	loader.load(debuffPerk, 0x2DB2);
+	logger::info("...done");
 }
 
 bool data::lookupIdle(RE::TESDataHandler* data, RE::FormID form, std::string pluginName, 
