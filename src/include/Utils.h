@@ -10,6 +10,9 @@
 //TODO:clear this up a bit
 namespace inlineUtils
 {
+	inline static bool isEquippedShield(RE::Actor* a_actor) {
+		return RE::Offset::getEquippedShield(a_actor) != nullptr;
+	}
 
 	/*Send the target flying based on causer's location.
 	@param magnitude: strength of a push.*/
@@ -562,3 +565,100 @@ public:
 	}
 };
 
+namespace DtryUtils
+{
+	/*Helper class to batch load forms from plugin records.*/
+	class formLoader
+	{
+	private:
+		RE::BSFixedString _pluginName;
+		RE::TESDataHandler* _dataHandler;
+		int _loadedForms;
+
+	public:
+		formLoader(RE::BSFixedString pluginName)
+		{
+			_pluginName = pluginName;
+			_dataHandler = RE::TESDataHandler::GetSingleton();
+			if (!_dataHandler) {
+				logger::critical("Error: TESDataHandler not found.");
+			}
+			if (!_dataHandler->LookupModByName(pluginName)) {
+				logger::critical("Error: {} not found.", pluginName);
+			}
+			logger::info("Loading from plugin {}...", pluginName);
+		}
+
+		void log()
+		{
+			logger::info("Loaded {} forms from {}", _loadedForms, _pluginName);
+		}
+
+		/*Load a form from the plugin.*/
+		template <class formType>
+		void load(formType*& formRet, RE::FormID formID)
+		{
+			formRet = _dataHandler->LookupForm<formType>(formID, _pluginName);
+			if (!formRet) {
+				logger::critical("Error: null formID or wrong form type when loading {} from {}", formID, _pluginName);
+			}
+			_loadedForms++;
+		}
+	};
+	
+	/*Helper class to load from a simple ini file.*/
+	class settingsLoader
+	{
+	private:
+		std::shared_ptr<CSimpleIniA> _ini;
+		const char* _section;
+		int _loadedSettings;
+		const char* _settingsFile;
+	public:
+		settingsLoader(const char* settingsFile)
+		{
+			_ini = std::make_shared<CSimpleIniA>();
+			_ini->LoadFile(settingsFile);
+			if (_ini->IsEmpty()) {
+				logger::info("Warning: {} is empty.", settingsFile);
+			}
+			_settingsFile = settingsFile;
+		};
+		/*Set the active section. Load() will load keys from this section.*/
+		void setActiveSection(const char* section)
+		{
+			_section = section;
+		}
+		/*Load a boolean value if present.*/
+		void load(bool& settingRef, const char* key)
+		{
+			if (_ini->GetValue(_section, key)) {
+				bool val = _ini->GetBoolValue(_section, key);
+				settingRef = val;
+				_loadedSettings++;
+			}
+		}
+		/*Load a float value if present.*/
+		void load(float& settingRef, const char* key)
+		{
+			if (_ini->GetValue(_section, key)) {
+				float val = static_cast<float>(_ini->GetDoubleValue(_section, key));
+				settingRef = val;
+				_loadedSettings++;
+			}
+		}
+		/*Load an integer value if present.*/
+		void load(uint32_t& settingRef, const char* key)
+		{
+			if (_ini->GetValue(_section, key)) {
+				uint32_t val = static_cast<uint32_t>(_ini->GetDoubleValue(_section, key));
+				settingRef = val;
+				_loadedSettings++;
+			}
+		}
+
+		void log() {
+			logger::info("Loaded {} settings from {}", _loadedSettings, _settingsFile);
+		}
+	};
+}

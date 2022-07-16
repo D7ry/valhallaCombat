@@ -101,6 +101,8 @@ private:
 	mutable std::shared_mutex mtx_StunRegenQueue;
 	mutable std::shared_mutex mtx_StunBrokenActors;
 	mutable std::shared_mutex mtx_ActorStunDataMap;
+	mutable std::shared_mutex mtx_stunLoop;
+
 	inline void safeErase_ActorStunDataMap(RE::Actor* actor);
 	inline void safeErase_StunRegenQueue(RE::Actor* actor);
 	inline void safeErase_StunBrokenActors(RE::Actor* actor);

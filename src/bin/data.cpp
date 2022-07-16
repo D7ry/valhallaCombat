@@ -1,44 +1,6 @@
 #include "include/data.h"
 #include "include/stunHandler.h"
-
-/// <summary>
-/// Helper class to load a bunch of forms from a single plugin without passing the plugin name as an argument every time.
-/// </summary>
-class formLoader
-{
-private:
-	RE::BSFixedString _pluginName;
-	RE::TESDataHandler* _dataHandler;
-	int _loadedForms;
-
-public:
-	formLoader(RE::BSFixedString pluginName)
-	{
-		_pluginName = pluginName;
-		_dataHandler = RE::TESDataHandler::GetSingleton();
-		if (!_dataHandler) {
-			logger::critical("Error: TESDataHandler not found.");
-		}
-		if (!_dataHandler->LookupModByName(pluginName)) {
-			logger::critical("Error: {} not found.", pluginName);
-		}
-		logger::info("Loading from plugin {}...", pluginName);
-	}
-
-	void log() {
-		logger::info("Loaded {} forms from {}", _loadedForms, _pluginName);
-	}
-
-	template <class formType>
-	void load(formType*& formRet, RE::FormID formID)
-	{
-		formRet = _dataHandler->LookupForm<formType>(formID, _pluginName);
-		if (!formRet) {
-			logger::critical("Error: null formID or wrong form type when loading {} from {}", formID, _pluginName);
-		}
-		_loadedForms++;
-	}
-};
+#include "include/Utils.h"
 
 using namespace inlineUtils;
 void data::loadData() {
@@ -66,7 +28,7 @@ void data::loadData() {
 
 void data::loadSound(RE::TESDataHandler* a_data) {
 	logger::info("Loading sound descriptors...");
-	formLoader loader("ValhallaCombat.esp");
+	DtryUtils::formLoader loader("ValhallaCombat.esp");
 	loader.load(soundParryShield, 0x433c);
 	loader.load(soundParryShield_perfect, 0x60c2e);
 	loader.load(soundParryShield_gb, 0X47720);
@@ -80,7 +42,7 @@ void data::loadSound(RE::TESDataHandler* a_data) {
 
 void data::loadPerk(RE::TESDataHandler* a_data) {
 	logger::info("Loading perk...");
-	formLoader loader("ValhallaCombat.esp");
+	DtryUtils::formLoader loader("ValhallaCombat.esp");
 	loader.load(debuffPerk, 0x2DB2);
 	loader.log();
 	logger::info("...done");

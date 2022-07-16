@@ -63,9 +63,7 @@ namespace MaxsuBlockSpark
 			RE::NiPoint3 sparkPos = defenderNode->worldBound.center;
 
 			//DEBUG("Get Weapon Spark Position!");
-			if (cell->PlaceParticleEffect(0.0f, modelName, defenderNode->world.rotate, sparkPos, 1.0f, 4U, defenderNode.get())) {
-				//DEBUG("Play Spark Effect Successfully!");
-			}
+			cell->PlaceParticleEffect(0.0f, modelName, defenderNode->world.rotate, sparkPos, 1.0f, 4U, defenderNode.get());
 		}
 	};
 }

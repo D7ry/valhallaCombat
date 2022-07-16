@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(
-	TemplateProject
+	ValhallaCombat
 	VERSION 0.0.1
 	LANGUAGES CXX
 )

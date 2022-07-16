@@ -78,6 +78,7 @@ bool stunHandler::getIsStunBroken(RE::Actor* a_actor) {
 }
 
 void stunHandler::update() {
+	uniqueLocker lock_stunCleanUp(mtx_stunLoop);
 	uniqueLocker lock_stunRegenQueue(mtx_StunRegenQueue);
 	//stop update if there is nothing in the queue.
 	if (stunRegenQueue.empty()) {
@@ -114,7 +115,9 @@ void stunHandler::update() {
 				if (isStunFullRegenerated) {
 					//DEBUG("stun fully regenerated for {}", one_actor->GetName());
 					TrueHUDUtils::revertSpecialMeter(one_actor);
-					reactionHandler::recoverDownedState(one_actor);
+					if (settings::bDownedStateToggle) {
+						reactionHandler::recoverDownedState(one_actor);
+					}
 					safeErase_StunBrokenActors(one_actor);
 					it_StunRegenQueue = stunRegenQueue.erase(it_StunRegenQueue); continue;
 				}
@@ -165,8 +168,9 @@ void stunHandler::async_launchHealthBarFlashThread() {
 float stunHandler::getMaxStun(RE::Actor* a_actor) {
 	{
 		sharedLocker lock(mtx_ActorStunDataMap);
-		if (actorStunDataMap.contains(a_actor)) {
-			return actorStunDataMap[a_actor]->getMaxStun();
+		auto it = actorStunDataMap.find(a_actor);
+		if (it != actorStunDataMap.end()) {
+			return it->second->getMaxStun();
 		}
 	}
 	return trackStun(a_actor)->getMaxStun();
@@ -179,8 +183,9 @@ float stunHandler::getMaxStun_static(RE::Actor* a_actor) {
 float stunHandler::getCurrentStun(RE::Actor* a_actor) {
 	{
 		sharedLocker lock(mtx_ActorStunDataMap);
-		if (actorStunDataMap.contains(a_actor)) {
-			return actorStunDataMap[a_actor]->getCurrentStun();
+		auto it = actorStunDataMap.find(a_actor);
+		if (it != actorStunDataMap.end()) {
+			return it->second->getCurrentStun();
 		}
 	}
 	return trackStun(a_actor)->getCurrentStun();
@@ -277,9 +282,10 @@ void stunHandler::processStunDamage(
 
 	damageStun(a_aggressor, a_victim, stunDamage);
 
-	if (safeGet_isStunBroken(a_victim)
-		&& !a_victim->IsInKillMove()) {
-		reactionHandler::triggerDownedState(a_victim);
+	if (settings::bDownedStateToggle) {
+		if (safeGet_isStunBroken(a_victim) && !a_victim->IsInKillMove()) {
+			reactionHandler::triggerDownedState(a_victim);
+		}
 	}
 }
 
@@ -301,6 +307,7 @@ void stunHandler::reset() {
 
 void stunHandler::collectGarbage() {
 	logger::info("StunHandler: collecting garbage...");
+	uniqueLocker lock(mtx_stunLoop);
 	int ct = 0;
 	{
 		uniqueLocker lock_actorStunDataMap(mtx_ActorStunDataMap);

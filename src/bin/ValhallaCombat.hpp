@@ -80,7 +80,6 @@ public:
 		}
 		if (settings::bBalanceToggle) {
 			//TODO: fix garbage collection for balance too.
-			//balanceHandler::GetSingleton()->collectGarbage();
 		}
 		logger::info("...done");
 	}

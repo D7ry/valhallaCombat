@@ -1,19 +1,18 @@
 #include "include/stunHandler.h"
 #include "include/settings.h"
+#include "include/Utils.h"
 #include "ValhallaCombat.hpp"
 using namespace inlineUtils;
 
 
 void settings::init() {
 	logger::info("Initilize settings...");
-	auto dataHandler = RE::TESDataHandler::GetSingleton();
-	if (dataHandler) {
-#define LOOKGLOBAL dataHandler->LookupForm<RE::TESGlobal>
-		glob_Nemesis_EldenCounter_Damage = LOOKGLOBAL(0x56A23, "ValhallaCombat.esp");
-		glob_Nemesis_EldenCounter_NPC = LOOKGLOBAL(0x56A24, "ValhallaCombat.esp");
-		glob_TrueHudAPI = LOOKGLOBAL(0x56A25, "ValhallaCombat.esp");
-		glob_TrueHudAPI_SpecialMeter = LOOKGLOBAL(0x56A26, "ValhallaCombat.esp");
-	}
+	DtryUtils::formLoader loader("ValhallaCombat.esp");
+	loader.load(glob_Nemesis_EldenCounter_Damage, 0x56A23);
+	loader.load(glob_Nemesis_EldenCounter_NPC, 0x56A24);
+	loader.load(glob_TrueHudAPI, 0x56A25);
+	loader.load(glob_TrueHudAPI_SpecialMeter, 0x56A26);
+	loader.log();
 	logger::info("...done");
 }
 void settings::updateGlobals() {
@@ -37,15 +36,15 @@ void settings::updateGlobals() {
 	}
 	logger::info("...done");
 }
-/*read settings from ini, and update them into game settings.*/
 #define SETTINGFILE_PATH "Data\\MCM\\Settings\\ValhallaCombat.ini"
+/*Load the setting from ini file with the same name as the variable in code.*/
 #define FETCH(setting) load(setting, #setting)
+/*read settings from ini, and update them into game settings.*/
 void settings::readSettings() {
 	logger::info("Read ini settings...");
+	DtryUtils::settingsLoader loader(SETTINGFILE_PATH);
 
-	settingsLoader loader = settingsLoader(SETTINGFILE_PATH);
-
-	loader.loadSection("Stamina");
+	loader.setActiveSection("Stamina");
 	loader.FETCH(bUIAlert);
 	loader.FETCH(bNonCombatStaminaCost);
 	loader.FETCH(fStaminaRegenMult);
@@ -65,7 +64,7 @@ void settings::readSettings() {
 	loader.FETCH(fMeleeCostHeavyMiss_Percent);
 	loader.FETCH(fMeleeCostHeavyHit_Percent);
 	
-	loader.loadSection("TimedBlocking");
+	loader.setActiveSection("TimedBlocking");
 	loader.FETCH(bBlockProjectileToggle);
 	loader.FETCH(bTimedBlockToggle);
 	loader.FETCH(bTimedBlockProjectileToggle);
@@ -78,9 +77,10 @@ void settings::readSettings() {
 	loader.FETCH(fTimedBlockStaminaCostMult);
 	loader.FETCH(uAltBlockKey);
 	
-	loader.loadSection("Stun");
+	loader.setActiveSection("Stun");
 	loader.FETCH(bStunToggle);
 	loader.FETCH(bStunMeterToggle);
+	loader.FETCH(bDownedStateToggle);
 	loader.FETCH(bExecutionLimit);
 	loader.FETCH(fStunTimedBlockMult);
 	loader.FETCH(fStunBashMult);
@@ -98,8 +98,10 @@ void settings::readSettings() {
 	loader.FETCH(bAutoExecution);
 	loader.FETCH(uExecutionKey);
 
-	loader.loadSection("Compatibility");
+	loader.setActiveSection("Compatibility");
 	loader.FETCH(bPoiseCompatibility);
+
+	loader.log();
 	logger::info("...done");
 
 	logger::info("Apply game settings...");
