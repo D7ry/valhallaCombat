@@ -14,6 +14,48 @@ public:
 		static inline bool TrueHudAPI_Obtained;
 		static inline bool EldenParry_ObtainedAPI;
 	};
+
+	class settingsLoader
+	{
+	private:
+		std::shared_ptr<CSimpleIniA> _ini;
+		const char* _section;
+	public:
+		settingsLoader(const char* settingsFile){
+			_ini = std::make_shared<CSimpleIniA>();
+			_ini->LoadFile(settingsFile);
+			if (_ini->IsEmpty()) {
+				logger::info("Warning: {} is empty.", settingsFile);
+			}
+		};
+
+		void loadSection(const char* section) {
+			_section = section;
+		}
+#define NAME(setting) #setting
+		void load(bool& settingRef, const char* key)
+		{
+			if (_ini->GetValue(_section, key)) {
+				bool val = _ini->GetBoolValue(_section, key);
+				settingRef = val;
+			}
+		}
+		void load(float& settingRef, const char* key)
+		{
+			if (_ini->GetValue(_section, key)) {
+				float val = static_cast<float>(_ini->GetDoubleValue(_section, key));
+				settingRef = val;
+			}
+		}
+		void load(uint32_t& settingRef, const char* key)
+		{
+			if (_ini->GetValue(_section, key)) {
+				uint32_t val = static_cast<uint32_t>(_ini->GetDoubleValue(_section, key));
+				settingRef = val;
+			}
+		}
+		
+	};
 #pragma region GlobalSettings
 	static inline RE::TESGlobal* glob_TrueHudAPI;
 	static inline RE::TESGlobal* glob_TrueHudAPI_SpecialMeter;
