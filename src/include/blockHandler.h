@@ -110,7 +110,7 @@ public:
 	@param a_projectile_collidable: the collidable of the projectile, whose collision group will be reset if the deflection
 	is successful.
 	@return whether the deflection is successful.*/
-	bool preProcessProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
+	bool processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
 	
 private:
 	bool tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile);

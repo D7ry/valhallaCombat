@@ -158,7 +158,7 @@ bool blockHandler::processRegularSpellBlock(RE::Actor* a_blocker, RE::MagicItem*
 	}
 }
 
-bool blockHandler::preProcessProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
 	if (a_blocker->IsPlayerRef()) {
 		if (isInBlockAngle(a_blocker, a_projectile) && a_blocker->IsBlocking()) {
 			if (settings::bTimedBlockProjectileToggle 
@@ -365,8 +365,6 @@ void blockHandler::processMeleeParry(RE::Actor* a_blocker, RE::Actor* a_attacker
 	}
 	inlineUtils::offsetRealDamage(reflectedDamage, a_blocker, a_attacker);
 	stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::timedBlock, nullptr, a_blocker, a_attacker, reflectedDamage);
-	//balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::parry, nullptr, a_blocker, a_attacker, reflectedDamage);
-
 	if (stunHandler::GetSingleton()->getIsStunBroken(a_attacker)) {
 		playBlockEffects(a_blocker, a_attacker, blockType::guardBreaking);
 	}

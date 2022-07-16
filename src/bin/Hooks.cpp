@@ -121,16 +121,16 @@ void Hook_MainUpdate::Update(RE::Main* a_this, float a2) {
 @param a_projectile: the projectile to be deflected.
 @param a_AllCdPointCollector: pointer to the container storing all collision points.
 @return whether a successful deflection is performed by the actor.*/
-inline bool initProjectileBlock(RE::Projectile* a_projectile, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
+inline bool shouldIgnoreHit(RE::Projectile* a_projectile, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
 	if (a_AllCdPointCollector) {
 		for (auto& hit : a_AllCdPointCollector->hits) {
 			auto refrA = RE::TESHavokUtilities::FindCollidableRef(*hit.rootCollidableA);
 			auto refrB = RE::TESHavokUtilities::FindCollidableRef(*hit.rootCollidableB);
 			if (refrA && refrA->formType == RE::FormType::ActorCharacter) {
-				return blockHandler::GetSingleton()->preProcessProjectileBlock(refrA->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableB));
+				return blockHandler::GetSingleton()->processProjectileBlock(refrA->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableB));
 			}
 			if (refrB && refrB->formType == RE::FormType::ActorCharacter) {
-				return blockHandler::GetSingleton()->preProcessProjectileBlock(refrB->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableA));
+				return blockHandler::GetSingleton()->processProjectileBlock(refrB->As<RE::Actor>(), a_projectile, const_cast<RE::hkpCollidable*>(hit.rootCollidableA));
 			}
 		}
 	}
@@ -138,7 +138,7 @@ inline bool initProjectileBlock(RE::Projectile* a_projectile, RE::hkpAllCdPointC
 }
 void Hook_OnProjectileCollision::OnArrowCollision(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
 	//DEBUG("hooked arrow collission vfunc");
-	if (initProjectileBlock(a_this, a_AllCdPointCollector)) {
+	if (shouldIgnoreHit(a_this, a_AllCdPointCollector)) {
 		return;
 	};
 	_arrowCollission(a_this, a_AllCdPointCollector);
@@ -146,7 +146,7 @@ void Hook_OnProjectileCollision::OnArrowCollision(RE::Projectile* a_this, RE::hk
 
 void Hook_OnProjectileCollision::OnMissileCollision(RE::Projectile* a_this, RE::hkpAllCdPointCollector* a_AllCdPointCollector) {
 	//DEBUG("hooked missile collission vfunc");
-	if (initProjectileBlock(a_this, a_AllCdPointCollector)) {
+	if (shouldIgnoreHit(a_this, a_AllCdPointCollector)) {
 		return;
 	};
 	_missileCollission(a_this, a_AllCdPointCollector);

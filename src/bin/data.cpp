@@ -20,13 +20,12 @@ public:
 			logger::critical("Error: TESDataHandler not found.");
 		}
 		if (!_dataHandler->LookupModByName(pluginName)) {
-			logger::critical("Error: {} not loaded.", pluginName);
+			logger::critical("Error: {} not found.", pluginName);
 		}
 		logger::info("Loading from plugin {}...", pluginName);
 	}
 
-	~formLoader()
-	{
+	void log() {
 		logger::info("Loaded {} forms from {}", _loadedForms, _pluginName);
 	}
 
@@ -75,6 +74,7 @@ void data::loadSound(RE::TESDataHandler* a_data) {
 	loader.load(soundParryWeapon_perfect, 0X60C2D);
 	loader.load(soundParryWeapon_gb, 0X47721);
 	loader.load(soundStunBreak, 0X56A22);
+	loader.log();
 	logger::info("...done");
 }
 
@@ -82,6 +82,7 @@ void data::loadPerk(RE::TESDataHandler* a_data) {
 	logger::info("Loading perk...");
 	formLoader loader("ValhallaCombat.esp");
 	loader.load(debuffPerk, 0x2DB2);
+	loader.log();
 	logger::info("...done");
 }
 

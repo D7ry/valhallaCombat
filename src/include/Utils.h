@@ -561,3 +561,4 @@ public:
 		inlineUtils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
 	}
 };
+
