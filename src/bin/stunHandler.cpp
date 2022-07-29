@@ -8,54 +8,82 @@
 using uniqueLocker = std::unique_lock<std::shared_mutex>;
 using sharedLocker = std::shared_lock<std::shared_mutex>;
 
-void stunHandler::safeErase_ActorStunDataMap(RE::Actor* a_actor) {
+
+
+void stunHandler::safeErase_ActorStunDataMap(RE::ActorHandle a_handle) {
 	uniqueLocker lock(mtx_ActorStunDataMap);
-	actorStunDataMap.erase(a_actor);
+	actorStunDataMap.erase(a_handle);
+}
+void stunHandler::safeErase_ActorStunDataMap(RE::Actor* a_actor) {
+	safeErase_ActorStunDataMap(a_actor->GetHandle());
+}
+
+void stunHandler::safeErase_StunBrokenActors(RE::ActorHandle a_handle) {
+	uniqueLocker lock(mtx_StunBrokenActors);
+	stunBrokenActors.erase(a_handle);
 }
 void stunHandler::safeErase_StunBrokenActors(RE::Actor* a_actor) {
-	uniqueLocker lock(mtx_StunBrokenActors);
-	stunBrokenActors.erase(a_actor);
+	safeErase_StunBrokenActors(a_actor->GetHandle());
+}
+
+void stunHandler::safeErase_StunRegenQueue(RE::ActorHandle a_handle) {
+	uniqueLocker lock(mtx_StunRegenQueue);
+	stunRegenQueue.erase(a_handle);
 }
 void stunHandler::safeErase_StunRegenQueue(RE::Actor* a_actor) {
-	uniqueLocker lock(mtx_StunRegenQueue);
-	stunRegenQueue.erase(a_actor);
+	safeErase_StunRegenQueue(a_actor->GetHandle());
 }
 
+
+void stunHandler::safeInsert_StunRegenQueue(RE::ActorHandle a_handle) {
+	uniqueLocker lock(mtx_StunRegenQueue);
+	stunRegenQueue.insert(robin_hood::pair<RE::ActorHandle, float>(a_handle, 3));
+}
 void stunHandler::safeInsert_StunRegenQueue(RE::Actor* a_actor) {
-	uniqueLocker lock(mtx_StunRegenQueue);
-	stunRegenQueue[a_actor] = 3;
+	safeInsert_StunRegenQueue(a_actor->GetHandle());
 }
 
-void stunHandler::safeInsert_StunBrokenActors(RE::Actor* a_actor) {
+void stunHandler::safeInsert_StunBrokenActors(RE::ActorHandle a_handle) {
 	uniqueLocker lock(mtx_StunBrokenActors);
-	if (!stunBrokenActors.contains(a_actor)) {
-		stunBrokenActors.insert(a_actor);
-	}
+	stunBrokenActors.insert(a_handle);
+}
+void stunHandler::safeInsert_StunBrokenActors(RE::Actor* a_actor) {
+	safeInsert_StunBrokenActors(a_actor->GetHandle());
+}
+
+bool stunHandler::safeGet_isStunBroken(RE::ActorHandle a_handle) {
+	sharedLocker lock(mtx_StunBrokenActors);
+	auto it = stunBrokenActors.find(a_handle);
+	return it != stunBrokenActors.end();
 }
 
 bool stunHandler::safeGet_isStunBroken(RE::Actor* a_actor) {
-	sharedLocker lock(mtx_StunBrokenActors);
-	return stunBrokenActors.contains(a_actor);
+	return safeGet_isStunBroken(a_actor->GetHandle());
 }
 
-stunHandler::actorStunData_ptr stunHandler::safeGet_ActorStunData(RE::Actor* a_actor) {
-	{
-		sharedLocker lock(mtx_ActorStunDataMap);
-		if (actorStunDataMap.contains(a_actor)) {
-			return actorStunDataMap[a_actor];
-		}
+
+stunHandler::actorStunData_ptr stunHandler::safeGet_ActorStunData(RE::ActorHandle a_handle) {
+	sharedLocker lock(mtx_ActorStunDataMap);
+	auto it = actorStunDataMap.find(a_handle);
+	if (it != actorStunDataMap.end()) {
+		return it->second;
 	}
-	return trackStun(a_actor);
+	return trackStun(a_handle.get().get());
+}
+
+
+stunHandler::actorStunData_ptr stunHandler::safeGet_ActorStunData(RE::Actor* a_actor) {
+	return safeGet_ActorStunData(a_actor->GetHandle());
 }
 
 stunHandler::actorStunData_ptr stunHandler::trackStun(RE::Actor* a_actor) {
 	uniqueLocker lock(mtx_ActorStunDataMap);
-	if (actorStunDataMap.contains(a_actor)) {//check if the actor's stun is already tracked.
-		return actorStunDataMap[a_actor];
+	auto it = actorStunDataMap.find(a_actor->GetHandle());
+	if (it != actorStunDataMap.end()) {
+		return it->second;
 	}
-
 	actorStunData_ptr stunDataPtr(new actorStunData(a_actor));
-	actorStunDataMap[a_actor] = stunDataPtr;
+	actorStunDataMap.insert(robin_hood::pair<RE::ActorHandle, actorStunData_ptr>(a_actor->GetHandle(), stunDataPtr));
 	return stunDataPtr;
 };
 void stunHandler::untrackStun(RE::Actor* a_actor) {
@@ -66,10 +94,11 @@ void stunHandler::untrackStun(RE::Actor* a_actor) {
 
 void stunHandler::refillStun(RE::Actor* a_actor) {
 	sharedLocker lock(mtx_ActorStunDataMap);
-	if (!actorStunDataMap.contains(a_actor)) {
+	auto it = actorStunDataMap.find(a_actor->GetHandle());
+	if (it == actorStunDataMap.end()) {
 		return;
 	}
-	actorStunDataMap[a_actor]->refillStun();
+	it->second->refillStun();
 }
 
 
@@ -88,7 +117,7 @@ void stunHandler::update() {
 	auto it_StunRegenQueue = stunRegenQueue.begin();
 	while (it_StunRegenQueue != stunRegenQueue.end()) {
 		auto& one_actor = it_StunRegenQueue->first;
-		if (!one_actor || !one_actor->currentProcess || !one_actor->currentProcess->InHighProcess()) {//edge case: actor not loaded or no longer in high process.
+		if (!one_actor) {//edge case: actor not loaded or no longer in high process.
 			//if an actor is no longer present=>remove actor.
 			safeErase_ActorStunDataMap(one_actor);
 			safeErase_StunBrokenActors(one_actor);

@@ -40,6 +40,7 @@ private:
 			}
 			return false;
 		}
+		
 		/*Recovery this actor's stun, Stun cannot go above max stun.
 		@return if the stun is fully recovered after this recovery.*/
 		bool recoverStun(float a_recovery) {
@@ -51,16 +52,20 @@ private:
 			return false;
 		}
 
+		/*Regenerates this actor's stun for the amount of a tick.*/
 		bool regenStun() {
 			return recoverStun(*RE::Offset::g_deltaTime * 1 / 7 * _maxStun);
 		}
+		
 		/*Refills current stun to full.*/
 		void refillStun() {
 			_currentStun = _maxStun;
 		}
+		
 		float getCurrentStun() {
 			return _currentStun;
 		}
+		
 		float getMaxStun() {
 			return _maxStun;
 		}
@@ -69,6 +74,7 @@ private:
 		float _maxStun;
 		float _currentStun;
 	};
+	
 public:
 	using actorStunData_ptr = std::shared_ptr<stunHandler::actorStunData>;
 	/*Called once per frame.
@@ -89,13 +95,13 @@ public:
 
 private:
 	/*Mapping of actors whose stun is actively tracked => data structure storing their stun.*/
-	robin_hood::unordered_map <RE::Actor*, actorStunData_ptr> actorStunDataMap;
+	robin_hood::unordered_map <RE::ActorHandle, actorStunData_ptr> actorStunDataMap;
 	/*Mapping of actors whose stun has been damaged recently => their stun regen cooldown.
 	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
-	robin_hood::unordered_map <RE::Actor*, float> stunRegenQueue;
+	robin_hood::unordered_map <RE::ActorHandle, float> stunRegenQueue;
 
 	/*Set of all actors whose stun are broken.*/
-	robin_hood::unordered_set <RE::Actor*> stunBrokenActors;
+	robin_hood::unordered_set <RE::ActorHandle> stunBrokenActors;
 
 	mutable std::shared_mutex mtx_ActorStunMap;
 	mutable std::shared_mutex mtx_StunRegenQueue;
@@ -110,6 +116,14 @@ private:
 	inline void safeInsert_StunBrokenActors(RE::Actor* a_actor);
 	inline actorStunData_ptr safeGet_ActorStunData(RE::Actor* a_actor);
 	inline bool safeGet_isStunBroken(RE::Actor* a_actor);
+
+	inline void safeErase_ActorStunDataMap(RE::ActorHandle a_handle);
+	inline void safeErase_StunRegenQueue(RE::ActorHandle a_handle);
+	inline void safeErase_StunBrokenActors(RE::ActorHandle a_handle);
+	inline void safeInsert_StunRegenQueue(RE::ActorHandle a_handle);
+	inline void safeInsert_StunBrokenActors(RE::ActorHandle a_handle);
+	inline actorStunData_ptr safeGet_ActorStunData(RE::ActorHandle a_handle);
+	inline bool safeGet_isStunBroken(RE::ActorHandle a_handle);
 
 	/*Reset this actor's stun back to full.
 	@param actor: actor whose stun will be recovered fully.*/
