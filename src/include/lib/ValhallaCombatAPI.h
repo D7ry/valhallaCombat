@@ -18,32 +18,6 @@ namespace VAL_API
 		V1,
 	};
 
-	// Error types that may be returned by the True Directional Movement API
-	enum class APIResult : uint8_t
-	{
-		// Your API call was successful
-		OK,
-
-		// You tried to release a resource that was not allocated to you
-		// Do not attempt to manipulate the requested resource if you receive this response
-		NotOwner,
-
-		// True Directional Movement currently must keep control of this resource for proper functionality
-		// Do not attempt to manipulate the requested resource if you receive this response
-		MustKeep,
-
-		// You have already been given control of this resource
-		AlreadyGiven,
-
-		// Another mod has been given control of this resource at the present time
-		// Do not attempt to manipulate the requested resource if you receive this response
-		AlreadyTaken,
-
-		// You sent a command on a thread that could cause a data race were it to be processed
-		// Do not attempt to manipulate the requested resource if you receive this response
-		BadThread,
-	};
-
 	enum STUNSOURCE
 	{
 		lightAttack,
@@ -65,7 +39,7 @@ namespace VAL_API
 	typedef void* (*_RequestPluginAPI)(const InterfaceVersion interfaceVersion);
 
 	/// <summary>
-	/// Request the True Directional Movement API interface.
+	/// Request the Valhalla Combat API interface.
 	/// Recommended: Send your request during or after SKSEMessagingInterface::kMessage_PostLoad to make sure the dll has already been loaded
 	/// </summary>
 	/// <param name="a_interfaceVersion">The interface version to request</param>

@@ -73,45 +73,28 @@ public:
 		}
 	}
 
-	static void queueGarbageCollection() {
-		logger::info("Initializing garbage collection...");
-		if (settings::bStunToggle) {
-			stunHandler::GetSingleton()->collectGarbage();
-		}
-		if (settings::bBalanceToggle) {
-			//TODO: fix garbage collection for balance too.
-		}
-		logger::info("...done");
-	}
-
-
-	void launchCleanUpThread() {
-		logger::info("Launch clean up thread...");
-		auto cleanUpThreadFunc = []() {
-			while (true) {
-				std::this_thread::sleep_for(std::chrono::minutes(30));
-				queueGarbageCollection();
-			}
-		};
-		std::jthread cleanUpThread(cleanUpThreadFunc);
-		cleanUpThread.detach();
-		logger::info("..done");
-	}
 
 	/*Request special bar control from truehud API. 
 	If successful, set the truehud specialmeter global value to true.*/
 	void requestTrueHudSpecialBarControl() {
-		logger::info("Request trueHUD API special bar control...");
-		if (ersh) {
-			if (ersh->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-				ersh->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getCurrentStun_static, stunHandler::getMaxStun_static , true, false);
-				settings::facts::TrueHudAPI_HasSpecialBarControl = true;
-				settings::updateGlobals();
-				logger::info("...Success");
-			}
-			else {
-				//logger::info("...Failure");
-			}
+		logger::info("Requesting trueHUD API special bar control...");
+		if (!ersh) {
+			logger::info("...Failure: TrueHUD API is a null pointer.");
+			return;
+		}
+
+		auto res = ersh->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle());
+		switch (res) {
+		case TRUEHUD_API::APIResult::OK:
+		case TRUEHUD_API::APIResult::AlreadyGiven:
+			ersh->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getCurrentStun_static, stunHandler::getMaxStun_static, true, false);
+			settings::facts::TrueHudAPI_HasSpecialBarControl = true;
+			settings::updateGlobals();
+			logger::info("...Success");
+			break;
+		case TRUEHUD_API::APIResult::AlreadyTaken:
+			logger::info("...Failure: TrueHUD API already taken by another plugin");
+			break;
 		}
 	}
 

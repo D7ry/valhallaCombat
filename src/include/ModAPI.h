@@ -3,7 +3,6 @@
 #include "include/stunHandler.h"
 class ModAPI
 {
-	using APIResult = VAL_API::APIResult;
 	using InterfaceVersion1 = VAL_API::IVVAL1;
 
 public:

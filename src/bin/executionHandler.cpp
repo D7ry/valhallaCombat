@@ -14,8 +14,12 @@ void executionHandler::tryPcExecution() {
 	RE::Actor* optimalVictim = nullptr; //optimal target to execute
 	float minRange = -1; //minimum range to the optimal victim so far
 
-	for (auto& actor : stunHandler::GetSingleton()->getStunBrokenActors()) {
-		if (!actor || !actor->Is3DLoaded() || actor->IsDead() || 
+	for (auto& handle : stunHandler::GetSingleton()->getStunBrokenActors()) {
+		if (!handle) {
+			continue;
+		}
+		auto actor = handle.get().get();
+		if (!actor->Is3DLoaded() || actor->IsDead() || 
 			!actor->currentProcess || !actor->currentProcess->InHighProcess()) {
 			//remove actor from stunned map.
 			stunHandler::GetSingleton()->untrackStun(actor);

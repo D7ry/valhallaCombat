@@ -4,6 +4,7 @@
 #include "lib/robin_hood.h"
 #include <mutex>
 #include <shared_mutex>
+#include <unordered_set>
 
 /*Handling enemy stun value.*/
 
@@ -21,12 +22,15 @@ private:
 
 	public:
 		//The constructor assumes param a_actor is currently loaded.
-		actorStunData(RE::Actor* a_actor) {
-			if (!a_actor) {
+		actorStunData(RE::ActorHandle a_actorHandle) {
+			if (!a_actorHandle) {
 				ERROR("Error: Actor not loaded while attempting to construct stun data.");
 			}
-			_actor = a_actor;
-			_maxStun = calculateMaxStun(a_actor);
+			_actor = a_actorHandle.get().get();
+			if (!_actor) {
+				ERROR("Error: Actor obtained from handle is a null ref when constructing stun data.");
+			}
+			_maxStun = calculateMaxStun(_actor);
 			_currentStun = _maxStun;
 		}
 		/*Damage this actor's stun. Stun cannot go below 0
@@ -87,6 +91,7 @@ public:
 	@return stun data object of this actor.
 	*/
 	actorStunData_ptr trackStun(RE::Actor* a_actor);
+	actorStunData_ptr trackStun(RE::ActorHandle a_actorHandle);
 	/*Stop tracking this Actor's stun.
 	@param actor: actor whose stun will no longer be tracked.*/
 	void untrackStun(RE::Actor* a_actor);
@@ -95,13 +100,13 @@ public:
 
 private:
 	/*Mapping of actors whose stun is actively tracked => data structure storing their stun.*/
-	robin_hood::unordered_map <RE::ActorHandle, actorStunData_ptr> actorStunDataMap;
+	std::unordered_map<RE::ActorHandle, actorStunData_ptr> actorStunDataMap;
 	/*Mapping of actors whose stun has been damaged recently => their stun regen cooldown.
 	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
-	robin_hood::unordered_map <RE::ActorHandle, float> stunRegenQueue;
+	std::unordered_map<RE::ActorHandle, float> stunRegenQueue;
 
 	/*Set of all actors whose stun are broken.*/
-	robin_hood::unordered_set <RE::ActorHandle> stunBrokenActors;
+	std::unordered_set<RE::ActorHandle> stunBrokenActors;
 
 	mutable std::shared_mutex mtx_ActorStunMap;
 	mutable std::shared_mutex mtx_StunRegenQueue;
@@ -114,6 +119,7 @@ private:
 	inline void safeErase_StunBrokenActors(RE::Actor* actor);
 	inline void safeInsert_StunRegenQueue(RE::Actor* a_actor);
 	inline void safeInsert_StunBrokenActors(RE::Actor* a_actor);
+	inline actorStunData_ptr safeInsert_ActorStunDataMap(RE::Actor* a_actor);
 	inline actorStunData_ptr safeGet_ActorStunData(RE::Actor* a_actor);
 	inline bool safeGet_isStunBroken(RE::Actor* a_actor);
 
@@ -122,6 +128,7 @@ private:
 	inline void safeErase_StunBrokenActors(RE::ActorHandle a_handle);
 	inline void safeInsert_StunRegenQueue(RE::ActorHandle a_handle);
 	inline void safeInsert_StunBrokenActors(RE::ActorHandle a_handle);
+	inline actorStunData_ptr safeInsert_ActorStunDataMap(RE::ActorHandle a_handle);
 	inline actorStunData_ptr safeGet_ActorStunData(RE::ActorHandle a_handle);
 	inline bool safeGet_isStunBroken(RE::ActorHandle a_handle);
 
@@ -187,9 +194,6 @@ public:
 	/*Clears all records from StunMap.*/
 	void reset();
 
-	/*Iterate over actor stun map and clears off all unloaded actors. To make sure stun map contains recent loaded actors.
-	*/
-	void collectGarbage();
 
 	/*Calculate a stun damage for the actor, and immediately apply the stun damage.
 	Stun calculation go as follows:
@@ -200,6 +204,6 @@ public:
 	void processStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage);
 
 	/*Getter for a copy of stun broken actors.*/
-	robin_hood::unordered_set<RE::Actor*> getStunBrokenActors();
+	std::unordered_set<RE::ActorHandle> getStunBrokenActors();
 
 };

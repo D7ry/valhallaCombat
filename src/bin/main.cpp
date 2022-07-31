@@ -30,7 +30,6 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		settings::readSettings();
 		events::registerAllEventHandlers();
 		data::loadData();
-		ValhallaCombat::GetSingleton()->launchCleanUpThread();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
 		logger::info("Post load");
@@ -134,15 +133,8 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
-#ifdef SKYRIM_SUPPORT_AE
-
-	DKUtil::Logger::Init(Version::PROJECT, Version::NAME);
-
-	if (REL::Module::get().version() < SKSE::RUNTIME_1_6_317) {
-		logger::critical("Unable to load this plugin, incompatible runtime version!\nExpected: Newer than 1-6-317-0 (A.K.A Anniversary Edition)\nDetected: {}", REL::Module::get().version().string());
-		return false;
-	}
-
+#ifndef NDEBUG
+	while (!IsDebuggerPresent()) { Sleep(100); }
 #endif
 	InitializeLog();
 	logger::info("{} v{} loaded", Plugin::NAME, Plugin::VERSION.string());

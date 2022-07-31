@@ -7,7 +7,8 @@
 #include "include/AI.h"
 #include "include/settings.h"
 #include "include/attackHandler.h"
-#pragma endregion
+namespace Hooks
+{
 #pragma region GetHeavyStaminaCost
 float Hook_OnGetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData) {
 	RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
@@ -93,7 +94,7 @@ float Hook_OnGetStaggerMagnitude::getStaggerManitude_Bash(uintptr_t a1, uintptr_
 
 #pragma endregion
 #pragma region MeleeHit
-void Hook_OnPhysicalHit::processHit(RE::Actor* victim, RE::HitData& hitData) {
+void Hook_OnMeleeHit::processHit(RE::Actor* victim, RE::HitData& hitData) {
 	//hitDataProcessor::processHitData(hitData);
 	
 	using HITFLAG = RE::HitData::Flag;
@@ -159,4 +160,5 @@ std::int32_t& Hook_GetWantBlock::GetWantBlock(void* unk_ptr, const RE::BSFixedSt
 		return i;
 	}
 	return _GetWantBlock(unk_ptr, a_channelName, unk_int, a_actor, a_result);
+}
 }
