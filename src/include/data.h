@@ -20,9 +20,9 @@ public:
 	const static inline std::string GraphBool_IsGuardCountering = "is_Guard_Countering";
 #pragma region blockFX
 	static inline RE::TESObjectACTI* BlockFX;
-	static inline RE::Explosion* _MODSparksBlock;
-	static inline RE::Explosion* _MODSparksBlockRing;
-	static inline RE::Explosion* _MODSparksExplosion;
+	static inline RE::Explosion* BlockSpark;
+	static inline RE::Explosion* BlockSparkFlare;
+	static inline RE::Explosion* BlockSparkRing;
 
 #pragma endregion
 #pragma region Perk

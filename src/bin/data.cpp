@@ -52,11 +52,11 @@ void data::loadPerk(RE::TESDataHandler* a_data) {
 
 void data::loadBlockFX(RE::TESDataHandler* a_data) {
 	logger::info("Loading block FX...");
-	DtryUtils::formLoader loader("UltimateCombatSekiro.esp");
-	loader.load(BlockFX, 0x805);
-	loader.load(_MODSparksBlock, 0x1838);
-	loader.load(_MODSparksBlockRing, 0x1839);
-	loader.load(_MODSparksExplosion, 0x811);
+	DtryUtils::formLoader loader("ValhallaCombat.esp");
+	loader.load(BlockFX, 0x60c2f);
+	loader.load(BlockSpark, 0x60c30);
+	loader.load(BlockSparkFlare, 0x60c31);
+	loader.load(BlockSparkRing, 0x60c32);
 	loader.log();
 	logger::info("...done");
 }

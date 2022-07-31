@@ -69,7 +69,7 @@ public:
 
 	static inline bool bTimedBlockScreenShake = true;
 	static inline bool bTimeBlockSFX = true;
-	static inline uint32_t uTimedBlockSparkType = 0; //0 = fancy, 1 = normal, 2 = none
+	static inline uint32_t uTimedBlockSparkType = 0;  //0 = fantasy, 1 = realism, 2 = none
 	static inline bool bTimedBlockSlowTime = true;
 
 	static inline uint32_t uAltBlockKey = -1;

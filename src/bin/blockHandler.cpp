@@ -313,7 +313,7 @@ bool blockHandler::getIsPcTimedBlocking() {
 }
 
 bool blockHandler::getIsPcPerfectBlocking() {
-	return pcBlockTimer >= 0.45 || isBlockKeyUp_and_still_blocking;
+	return settings::fTimedBlockWindow - pcBlockTimer <= 0.05 || isBlockKeyUp_and_still_blocking;
 }
 
 bool blockHandler::getIsPcParrying() {
@@ -409,12 +409,12 @@ void blockHandler::playBlockVFX(RE::Actor* blocker, blockType blockType, bool bl
 		node = "SHIELD";
 	}
 	blockFXNode->MoveToNode(blocker, node);
-	RE::Offset::PlaceAtMe(blockFXNode, data::_MODSparksBlock, 1, false, false);
-	RE::Offset::PlaceAtMe(blockFXNode, data::_MODSparksExplosion, 1, false, false);
+	RE::Offset::PlaceAtMe(blockFXNode, data::BlockSpark, 1, false, false);
+	RE::Offset::PlaceAtMe(blockFXNode, data::BlockSparkFlare, 1, false, false);
 	switch (blockType) {
 	case blockType::guardBreaking:
 	case blockType::perfect:
-		RE::Offset::PlaceAtMe(blockFXNode, data::_MODSparksBlockRing, 1, false, false);
+		RE::Offset::PlaceAtMe(blockFXNode, data::BlockSparkRing, 1, false, false);
 	}
 	blockFXNode->SetDelete(true);
 }
@@ -440,8 +440,9 @@ void blockHandler::playBlockSlowTime(blockType blockType) {
 
 void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, blockType blockType) {
 	//DEBUG("playing effects");
+	bool shieldEquipped = RE::Offset::getEquippedShield(blocker);
 	if (settings::bTimeBlockSFX) {
-		playBlockSFX(blocker, blockType, attacker);
+		playBlockSFX(blocker, blockType, !shieldEquipped);
 	}
 	if (settings::bTimedBlockScreenShake
 		&&(blocker->IsPlayerRef() || (attacker && attacker->IsPlayerRef()))) {
@@ -452,10 +453,9 @@ void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, blo
 		&&((attacker && attacker->IsPlayerRef()) || blocker->IsPlayerRef())) {
 		playBlockSlowTime(blockType);
 	}
-
 	switch (settings::uTimedBlockSparkType) {
-	case 2:
-		playBlockSFX(blocker, blockType, !RE::Offset::getEquippedShield(blocker));
+	case 0:
+		playBlockVFX(blocker, blockType, !shieldEquipped);
 		break;
 	case 1:
 		MaxsuBlockSpark::blockSpark::playPerfectBlockSpark(blocker);
