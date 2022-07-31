@@ -13,17 +13,21 @@ Check the actor's UI counter, if the counter is less than 0, flash the actor's U
 void debuffHandler::update() {
 
 	uniqueLocker lock(mtx_actorInDebuff);
+	if (actorInDebuff.empty()) {
+		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
+	}
 	auto it = actorInDebuff.begin();
 	while (it != actorInDebuff.end()) {
 		auto handle = *it;
 		if (!handle) {
 			it = actorInDebuff.erase(it);  //erase actor from debuff set.
-			if (actorInDebuff.size() == 0) {
-				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
-			}
 			continue;
 		}
 		auto actor = handle.get().get();
+		if (!actor) {
+			it = actorInDebuff.erase(it);  //erase actor from debuff set.
+			continue;
+		}
 		if (actor->GetActorValue(RE::ActorValue::kStamina) >= 
 			actor->GetPermanentActorValue(RE::ActorValue::kStamina) 
 			+ actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina)) { //offset max stamina based on modifier
@@ -31,9 +35,6 @@ void debuffHandler::update() {
 			stopStaminaDebuff(actor);
 			//DEBUG("erasing actor");
 			it = actorInDebuff.erase(it);
-			if (actorInDebuff.size() == 0) {
-				ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
-			}
 			continue;
 		}
 		++it;

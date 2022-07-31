@@ -117,12 +117,17 @@ void stunHandler::update() {
 		}
 		
 		auto actor = one_handle.get().get();
+		if (!actor) {
+			safeErase_StunBrokenActors(one_handle);
+			it = actorStunDataMap.erase(it);
+			continue;
+		}
+		
 		if (actor->IsDead()) {
 			safeErase_StunBrokenActors(one_handle);
 			it = actorStunDataMap.erase(it);
 			continue;
 		}
-
 		auto& stunData = it->second;
 
 		if (stunData->getRegenCountDown() > 0) {
@@ -142,8 +147,7 @@ void stunHandler::update() {
 			safeErase_StunBrokenActors(one_handle);
 			it = actorStunDataMap.erase(it);
 			continue;
-		} 
-
+		}
 		it++;
 		
 	}
@@ -165,8 +169,12 @@ void stunHandler::async_launchHealthBarFlashThread() {
 				}
 				else {
 					for (auto& handle : stunBrokenActors) {
-						if (handle) {
-							TrueHUDUtils::flashActorValue(handle.get().get(), RE::ActorValue::kHealth);
+						if (!handle) {
+							return;
+						}
+						auto actor = handle.get().get();
+						if (actor) {
+							TrueHUDUtils::flashActorValue(actor, RE::ActorValue::kHealth);
 						}
 					}
 				}
@@ -177,7 +185,6 @@ void stunHandler::async_launchHealthBarFlashThread() {
 
 	std::jthread t(flashHealthBarFunc);
 	t.detach();
-	DEBUG("...done");
 }
 
 /*Get the max stun of a actor. If the actor is not tracked, return 1.*/

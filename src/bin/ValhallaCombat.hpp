@@ -89,8 +89,8 @@ public:
 		case TRUEHUD_API::APIResult::AlreadyGiven:
 			ersh->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getCurrentStun_static, stunHandler::getMaxStun_static, true, false);
 			settings::facts::TrueHudAPI_HasSpecialBarControl = true;
-			settings::updateGlobals();
 			logger::info("...Success");
+			settings::updateGlobals();
 			break;
 		case TRUEHUD_API::APIResult::AlreadyTaken:
 			logger::info("...Failure: TrueHUD API already taken by another plugin");

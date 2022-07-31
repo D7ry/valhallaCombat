@@ -191,7 +191,7 @@ void data::loadIdle(RE::TESDataHandler* a_actor) {
 
 	loadIdleSection(DATA, &KM_ChaurusFlyer_1hm, ini, "ChaurusFlyer-1HM");
 	loadIdleSection(DATA, &KM_ChaurusFlyer_2hm, ini, "ChaurusFlyer-2HM");
-	loadIdleSection(DATA, &KM_ChaurusFlyer_2hw, ini, "ChaurusFlyer - 2HW");
+	loadIdleSection(DATA, &KM_ChaurusFlyer_2hw, ini, "ChaurusFlyer-2HW");
 
 
 	loadIdleSection(DATA, &KM_Lurker_1hm, ini, "Lurker-1HM");
