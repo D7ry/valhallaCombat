@@ -9,7 +9,7 @@ class debuffHandler
 
 public:
 	/*Set of all actors currently in debuff*/
-	robin_hood::unordered_set<RE::Actor*> actorInDebuff;
+	robin_hood::unordered_set<RE::ActorHandle> actorInDebuff;
 	mutable std::shared_mutex mtx_actorInDebuff;
 	static debuffHandler* GetSingleton()
 	{

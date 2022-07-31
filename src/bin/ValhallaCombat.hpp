@@ -54,7 +54,7 @@ public:
 		}
 	}
 
-	/*Runs every frame*/
+	/*Runs every frame when game is not paused.*/
 	void update() {
 		if (RE::UI::GetSingleton()->GameIsPaused()) {
 			return;
@@ -68,9 +68,9 @@ public:
 		if (update_StunHandler) {
 			stunHandler::GetSingleton()->update();
 		}
-		if (update_balanceHandler) {
+		//if (update_balanceHandler) {
 			//balanceHandler::GetSingleton()->update();
-		}
+		//}
 	}
 
 

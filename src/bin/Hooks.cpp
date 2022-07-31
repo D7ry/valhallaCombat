@@ -29,7 +29,7 @@ float Hook_OnGetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::B
 #pragma region GetBlockChance
 uintptr_t Hook_GetBlockChance::getBlockChance(RE::Actor* actor) {
 	//DEBUG("hooked blockchance");
-	if (debuffHandler::GetSingleton()->actorInDebuff.find(actor) != debuffHandler::GetSingleton()->actorInDebuff.end()) {
+	if (debuffHandler::GetSingleton()->actorInDebuff.find(actor->GetHandle()) != debuffHandler::GetSingleton()->actorInDebuff.end()) {
 		return 0; //disable locking for exhausted actors
 	}
 	return _getBlockChance(actor);

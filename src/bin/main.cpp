@@ -12,9 +12,10 @@
 #include "include/lib/ValhallaCombatAPI.h"
 #include "include/ModAPI.h"
 void initTrueHud() {
-	ValhallaCombat::GetSingleton()->ersh = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
-	if (ValhallaCombat::GetSingleton()->ersh) {
-		logger::info("Obtained TruehudAPI - {0:x}", (uintptr_t)ValhallaCombat::GetSingleton()->ersh);
+	auto val = ValhallaCombat::GetSingleton();
+	val->ersh = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
+	if (val->ersh) {
+		logger::info("Obtained TruehudAPI - {0:x}", (uintptr_t)val->ersh);
 		settings::facts::TrueHudAPI_Obtained = true;
 	} else {
 		logger::info("Failed to obtain TrueHudAPI.");
