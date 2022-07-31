@@ -13,6 +13,14 @@ class stunHandler {
 private:
 	/*Mini-class containing an actor's stun data.*/
 	struct actorStunData {
+
+		private:
+		RE::Actor* _actor;
+		float _maxStun;
+		float _currentStun;
+		bool _combatRegeneration;  //flipped when stun goes to 0 and actor start regeneration
+		float _regenCountDown; //timer for regen. 
+		float _regenCountDownMax;
 		/*Calculate this Actor's max(i.e. permanent) stun.
 		@param actor: actor whose stun will be calculated
 		@return this actor's max sun.*/
@@ -22,7 +30,7 @@ private:
 
 	public:
 		//The constructor assumes param a_actor is currently loaded.
-		actorStunData(RE::ActorHandle a_actorHandle) {
+		actorStunData(RE::ActorHandle a_actorHandle, float a_regenCountdown = 3) {
 			if (!a_actorHandle) {
 				ERROR("Error: Actor not loaded while attempting to construct stun data.");
 			}
@@ -32,11 +40,13 @@ private:
 			}
 			_maxStun = calculateMaxStun(_actor);
 			_currentStun = _maxStun;
+			_regenCountDownMax = a_regenCountdown;
+			_regenCountDown = _regenCountDownMax;
 		}
 		/*Damage this actor's stun. Stun cannot go below 0
 		@return if the stun is depleted(sub 0) after this damage.*/
 		bool damageStun(float a_damage) {
-			//DEBUG("inflicing stun damage for {} for {} points", _actor->GetName(), a_damage);
+			_regenCountDown = _regenCountDownMax;
 			_currentStun -= a_damage;
 			if (_currentStun <= 0) {
 				_currentStun = 0;
@@ -56,7 +66,8 @@ private:
 			return false;
 		}
 
-		/*Regenerates this actor's stun for the amount of a tick.*/
+		/*Regenerates this actor's stun for the amount of a tick.
+		Returns true if the stun is fully regenerated.*/
 		bool regenStun() {
 			return recoverStun(*RE::Offset::g_deltaTime * 1 / 7 * _maxStun);
 		}
@@ -73,10 +84,26 @@ private:
 		float getMaxStun() {
 			return _maxStun;
 		}
-	private:
-		RE::Actor* _actor;
-		float _maxStun;
-		float _currentStun;
+
+		bool canRegen() {
+			return !_actor->IsInCombat() || _combatRegeneration;
+		}
+
+		float getRegenCountDown() {
+			return _regenCountDown;
+		}
+
+		void modRegenCountDown(float a_mod) {
+			_regenCountDown += a_mod;
+		}
+
+		void setRegenCountDown(float a_countDown) {
+			_regenCountDown = a_countDown;
+		}
+
+		void setCombatRegeneration(bool a_bool) {
+			_combatRegeneration = a_bool;
+		}
 	};
 	
 public:
@@ -101,32 +128,24 @@ public:
 private:
 	/*Mapping of actors whose stun is actively tracked => data structure storing their stun.*/
 	std::unordered_map<RE::ActorHandle, actorStunData_ptr> actorStunDataMap;
-	/*Mapping of actors whose stun has been damaged recently => their stun regen cooldown.
-	Their timer decrements on update and once the timer reaches 0, corresponding actors in actorStunMap will regenerate stun.*/
-	std::unordered_map<RE::ActorHandle, float> stunRegenQueue;
+
 
 	/*Set of all actors whose stun are broken.*/
 	std::unordered_set<RE::ActorHandle> stunBrokenActors;
 
 	mutable std::shared_mutex mtx_ActorStunMap;
-	mutable std::shared_mutex mtx_StunRegenQueue;
 	mutable std::shared_mutex mtx_StunBrokenActors;
 	mutable std::shared_mutex mtx_ActorStunDataMap;
-	mutable std::shared_mutex mtx_stunLoop;
 
 	inline void safeErase_ActorStunDataMap(RE::Actor* actor);
-	inline void safeErase_StunRegenQueue(RE::Actor* actor);
 	inline void safeErase_StunBrokenActors(RE::Actor* actor);
-	inline void safeInsert_StunRegenQueue(RE::Actor* a_actor);
 	inline void safeInsert_StunBrokenActors(RE::Actor* a_actor);
 	inline actorStunData_ptr safeInsert_ActorStunDataMap(RE::Actor* a_actor);
 	inline actorStunData_ptr safeGet_ActorStunData(RE::Actor* a_actor);
 	inline bool safeGet_isStunBroken(RE::Actor* a_actor);
 
 	inline void safeErase_ActorStunDataMap(RE::ActorHandle a_handle);
-	inline void safeErase_StunRegenQueue(RE::ActorHandle a_handle);
 	inline void safeErase_StunBrokenActors(RE::ActorHandle a_handle);
-	inline void safeInsert_StunRegenQueue(RE::ActorHandle a_handle);
 	inline void safeInsert_StunBrokenActors(RE::ActorHandle a_handle);
 	inline actorStunData_ptr safeInsert_ActorStunDataMap(RE::ActorHandle a_handle);
 	inline actorStunData_ptr safeGet_ActorStunData(RE::ActorHandle a_handle);
