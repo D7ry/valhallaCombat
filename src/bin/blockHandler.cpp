@@ -22,6 +22,12 @@ void blockHandler::update() {
 	if (pc) {
 		isPCBlocking = pc->IsBlocking();
 	}
+	if (isBlockKeyUp_and_still_blocking) {
+		keyUpTimer -= *RE::Offset::g_deltaTime;
+		if (keyUpTimer <= 0) {
+			isBlockKeyUp_and_still_blocking = false;
+		}
+	}
 	if (isPcTimedBlocking) {
 		pcBlockTimer -= *RE::Offset::g_deltaTime;
 		if (pcBlockTimer <= 0) {
@@ -49,9 +55,9 @@ void blockHandler::onPcTimedBlockEnd() {
 		pcCoolDownTimer = settings::fTimedBlockCooldownTime;
 		//increment penalty.
 		switch (pcBlockWindowPenalty) {
-		case blockWindowPenaltyLevel::none: pcBlockWindowPenalty = light; DEBUG("light"); break;
-		case blockWindowPenaltyLevel::light: pcBlockWindowPenalty = medium; DEBUG("medium"); break;
-		case blockWindowPenaltyLevel::medium: pcBlockWindowPenalty = heavy; DEBUG("heavy"); break;
+		case blockWindowPenaltyLevel::none: pcBlockWindowPenalty = light; break;
+		case blockWindowPenaltyLevel::light: pcBlockWindowPenalty = medium; break;
+		case blockWindowPenaltyLevel::medium: pcBlockWindowPenalty = heavy; break;
 		}
 		ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::blockHandler);
 
@@ -86,9 +92,11 @@ void blockHandler::onBlockKeyDown() {
 }
 
 void blockHandler::onBlockKeyUp() {
+	
 	isBlockButtonPressed = false;
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	if (pc && pc->IsBlocking()) {
+		keyUpTimer = 0.05;
 		isBlockKeyUp_and_still_blocking = true;
 	}
 }
@@ -305,7 +313,7 @@ bool blockHandler::getIsPcTimedBlocking() {
 }
 
 bool blockHandler::getIsPcPerfectBlocking() {
-	return pcBlockTimer >= 0.35 || isBlockKeyUp_and_still_blocking;
+	return pcBlockTimer >= 0.45 || isBlockKeyUp_and_still_blocking;
 }
 
 bool blockHandler::getIsPcParrying() {
@@ -391,8 +399,24 @@ void blockHandler::playBlockSFX(RE::Actor* blocker, blockType blockType, bool bl
 		}
 	}
 }
-void blockHandler::playBlockVFX(RE::Actor* blocker, blockType blockType) {
-	MaxsuBlockSpark::blockSpark::playPerfectBlockSpark(blocker);
+void blockHandler::playBlockVFX(RE::Actor* blocker, blockType blockType, bool blockedWithWeapon){
+	//
+	auto blockFXNode = RE::Offset::PlaceAtMe(blocker, data::BlockFX, 1, false, false);
+	std::string node;
+	if (blockedWithWeapon) {
+		node = "WEAPON";
+	} else {
+		node = "SHIELD";
+	}
+	blockFXNode->MoveToNode(blocker, node);
+	RE::Offset::PlaceAtMe(blockFXNode, data::_MODSparksBlock, 1, false, false);
+	RE::Offset::PlaceAtMe(blockFXNode, data::_MODSparksExplosion, 1, false, false);
+	switch (blockType) {
+	case blockType::guardBreaking:
+	case blockType::perfect:
+		RE::Offset::PlaceAtMe(blockFXNode, data::_MODSparksBlockRing, 1, false, false);
+	}
+	blockFXNode->SetDelete(true);
 }
 void blockHandler::playBlockScreenShake(RE::Actor* blocker, blockType blockType) {
 	switch (blockType) {
@@ -416,18 +440,25 @@ void blockHandler::playBlockSlowTime(blockType blockType) {
 
 void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, blockType blockType) {
 	//DEBUG("playing effects");
-	if (settings::bTimedBlockVFX) {
-		playBlockVFX(blocker, blockType);
+	if (settings::bTimeBlockSFX) {
+		playBlockSFX(blocker, blockType, attacker);
 	}
 	if (settings::bTimedBlockScreenShake
 		&&(blocker->IsPlayerRef() || (attacker && attacker->IsPlayerRef()))) {
 		playBlockScreenShake(blocker, blockType);
 	}
-	if (settings::bTimeBlockSFX) {
-		playBlockSFX(blocker, blockType, !inlineUtils::actor::isEquippedShield(blocker));
-	}
+
 	if (settings::bTimedBlockSlowTime
 		&&((attacker && attacker->IsPlayerRef()) || blocker->IsPlayerRef())) {
 		playBlockSlowTime(blockType);
+	}
+
+	switch (settings::uTimedBlockSparkType) {
+	case 2:
+		playBlockSFX(blocker, blockType, !RE::Offset::getEquippedShield(blocker));
+		break;
+	case 1:
+		MaxsuBlockSpark::blockSpark::playPerfectBlockSpark(blocker);
+		break;
 	}
 }

@@ -62,6 +62,17 @@ namespace RE
 			REL::Relocation<func_t> func{ RELOCATION_ID(66370, 67631) };
 			return func(a1, x, y, z);
 		}
+
+		inline RE::TESObjectREFR* PlaceAtMe(RE::TESObjectREFR* self, RE::TESForm* a_form, std::uint32_t count, bool forcePersist, bool initiallyDisabled)
+		{
+			using func_t = RE::TESObjectREFR*(RE::BSScript::Internal::VirtualMachine*, RE::VMStackID, RE::TESObjectREFR*, RE::TESForm*, std::uint32_t, bool, bool);
+			RE::VMStackID frame = 0;  
+
+			REL::Relocation<func_t> func{ RELOCATION_ID(55672, 56203) };
+			auto vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
+
+			return func(vm, frame, self, a_form, count, forcePersist, initiallyDisabled);
+		};
 		
 		
 	}

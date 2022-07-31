@@ -18,6 +18,13 @@ public:
 
 	const static inline std::string AnimEvent_GuardCounter = "Val_GuardCounter_Trigger";
 	const static inline std::string GraphBool_IsGuardCountering = "is_Guard_Countering";
+#pragma region blockFX
+	static inline RE::TESObjectACTI* BlockFX;
+	static inline RE::Explosion* _MODSparksBlock;
+	static inline RE::Explosion* _MODSparksBlockRing;
+	static inline RE::Explosion* _MODSparksExplosion;
+
+#pragma endregion
 #pragma region Perk
 	static inline RE::BGSPerk* debuffPerk;
 #pragma endregion
@@ -210,6 +217,8 @@ private:
 
 	/*Load all difficulty multiplier from game.*/
 	static void loadDifficultySettings(RE::GameSettingCollection* gameSettings);
+
+	static void loadBlockFX(RE::TESDataHandler* data);
 
 
 

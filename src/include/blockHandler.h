@@ -58,6 +58,7 @@ private:
 	blockWindowPenaltyLevel pcBlockWindowPenalty;
 	std::atomic<float> pcBlockTimer = 0;
 	std::atomic<float> pcCoolDownTimer = 0;
+	float keyUpTimer = 0;
 	inline void onSuccessfulTimedBlock();
 
 	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
@@ -95,7 +96,7 @@ private:
 	inline bool isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj);
 
 	/*Play VFX, SFX and screenShake for successful perfect block.*/
-	inline void playBlockVFX(RE::Actor* blocker, blockType blockType);
+	inline void playBlockVFX(RE::Actor* blocker, blockType blockType, bool blockedWithWeapon);
 	inline void playBlockSFX(RE::Actor* blocker, blockType blockType, bool blockedWithWeapon);
 	inline void playBlockScreenShake(RE::Actor* blocker, blockType blockType);
 	inline void playBlockSlowTime(blockType blockType);

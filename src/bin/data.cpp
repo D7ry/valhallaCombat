@@ -10,10 +10,12 @@ void data::loadData() {
 		logger::critical("Error: TESDataHandler not found.");
 		return;
 	}
+	loadBlockFX(data);
 	loadSound(data);
 	loadPerk(data);
 	loadIdle(data);
 	loadExecutableRace(data);
+
 
 	auto gameSettings = RE::GameSettingCollection::GetSingleton();
 	if (!gameSettings) {
@@ -44,6 +46,17 @@ void data::loadPerk(RE::TESDataHandler* a_data) {
 	logger::info("Loading perk...");
 	DtryUtils::formLoader loader("ValhallaCombat.esp");
 	loader.load(debuffPerk, 0x2DB2);
+	loader.log();
+	logger::info("...done");
+}
+
+void data::loadBlockFX(RE::TESDataHandler* a_data) {
+	logger::info("Loading block FX...");
+	DtryUtils::formLoader loader("UltimateCombatSekiro.esp");
+	loader.load(BlockFX, 0x805);
+	loader.load(_MODSparksBlock, 0x1838);
+	loader.load(_MODSparksBlockRing, 0x1839);
+	loader.load(_MODSparksExplosion, 0x811);
 	loader.log();
 	logger::info("...done");
 }

@@ -70,7 +70,7 @@ void settings::readSettings() {
 	loader.FETCH(bTimedBlockProjectileToggle);
 	loader.FETCH(bTimedBlockScreenShake);
 	loader.FETCH(bTimeBlockSFX);
-	loader.FETCH(bTimedBlockVFX);
+	loader.FETCH(uTimedBlockSparkType);
 	loader.FETCH(bTimedBlockSlowTime);
 	loader.FETCH(fTimedBlockWindow);
 	loader.FETCH(fTimedBlockCooldownTime);
