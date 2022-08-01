@@ -65,8 +65,6 @@ used to block stamina regen in certain situations.*/
 #pragma region MeleeHit
 	void Hook_OnMeleeHit::processHit(RE::Actor* victim, RE::HitData& hitData)
 	{
-		//hitDataProcessor::processHitData(hitData);
-
 		using HITFLAG = RE::HitData::Flag;
 		auto aggressor = hitData.aggressor.get().get();
 		if (!victim || !aggressor || victim->IsDead()) {
@@ -130,6 +128,9 @@ used to block stamina regen in certain situations.*/
 	void Hook_OnMeleeCollision::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, std::int64_t a_int1, bool a_bool, void* a_unkptr)
 	{
 		if (settings::bTimedBlockToggle && blockHandler::GetSingleton()->processMeleeTimedBlock(a_victim, a_aggressor)) {
+			return;
+		}
+		if (settings::bTackleToggle && blockHandler::GetSingleton()->processMeleeTackle(a_victim, a_aggressor)) {
 			return;
 		}
 		_ProcessHit(a_aggressor, a_victim, a_int1, a_bool, a_unkptr);

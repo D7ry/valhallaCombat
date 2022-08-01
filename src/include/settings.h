@@ -57,21 +57,29 @@ public:
 	static inline float fMeleeCostHeavyHit_Percent = 0.333f;
 
 #pragma endregion
-#pragma region PerfectBlockingSettings
+#pragma region timedBlockSettings
 	/*perfect blocking*/
 	//static inline bool bPoiseCompatibility = false;
 	static inline bool bBlockProjectileToggle = true;
 	static inline bool bTimedBlockToggle = true;
+	static inline bool bTackleToggle = true;
 	static inline bool bTimedBlockProjectileToggle = true;
 	
 	static inline float fTimedBlockWindow = 0.3;
+	static inline float fPerfectBlockWindow = 0.15;
 	static inline float fTimedBlockCooldownTime = 0.5;
 	static inline float fTimedBlockStaminaCostMult = 0.5;
+
+	static inline float fTackleWindow = 0.2;
+	static inline float fTackleCooldownTime = 2;
 
 	static inline bool bTimedBlockScreenShake = true;
 	static inline bool bTimeBlockSFX = true;
 	static inline uint32_t uTimedBlockSparkType = 0;  //0 = fantasy, 1 = realism, 2 = none
 	static inline bool bTimedBlockSlowTime = true;
+	
+	static inline float fTimedBlockSlowTime_Timed = 0.0f;
+	static inline float fTimedBlockSlowTime_Perfect = 0.3f;
 
 	static inline uint32_t uAltBlockKey = -1;
 #pragma endregion
@@ -80,6 +88,7 @@ public:
 	/*Enable/disable stun and execution.*/
 	static inline bool bStunToggle = true;
 	static inline bool bStunMeterToggle = true;
+	static inline bool bFriendlyStunToggle = false;
 	static inline bool bDownedStateToggle = false;
 	
 	static inline float fStunTimedBlockMult = 1;

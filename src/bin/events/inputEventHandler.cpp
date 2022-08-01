@@ -60,10 +60,18 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 			}
 			if (key == settings::uAltBlockKey || button->QUserEvent() == "Left Attack/Block") {
 				if (button->IsDown()) {
-					blockHandler::GetSingleton()->onBlockKeyDown();
+					if (settings::bTimedBlockToggle || settings::bTimedBlockProjectileToggle) {
+						blockHandler::GetSingleton()->onBlockKeyDown();
+					}
+					if (settings::bTackleToggle) {
+						blockHandler::GetSingleton()->onTackleKeyDown();
+					}
 				}
 				else if (button->IsUp()) {
-					blockHandler::GetSingleton()->onBlockKeyUp();
+					if (settings::bTimedBlockToggle || settings::bTimedBlockProjectileToggle) {
+						blockHandler::GetSingleton()->onBlockKeyUp();
+					}
+					
 				}
 			}
 		}

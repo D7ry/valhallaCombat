@@ -73,6 +73,9 @@ void settings::readSettings() {
 	loader.FETCH(uTimedBlockSparkType);
 	loader.FETCH(bTimedBlockSlowTime);
 	loader.FETCH(fTimedBlockWindow);
+	loader.FETCH(fPerfectBlockWindow);
+	loader.FETCH(fTimedBlockSlowTime_Timed);
+	loader.FETCH(fTimedBlockSlowTime_Perfect);
 	loader.FETCH(fTimedBlockCooldownTime);
 	loader.FETCH(fTimedBlockStaminaCostMult);
 	loader.FETCH(uAltBlockKey);
@@ -81,6 +84,7 @@ void settings::readSettings() {
 	loader.FETCH(bStunToggle);
 	loader.FETCH(bStunMeterToggle);
 	loader.FETCH(bDownedStateToggle);
+	loader.FETCH(bFriendlyStunToggle);
 	loader.FETCH(bExecutionLimit);
 	loader.FETCH(fStunTimedBlockMult);
 	loader.FETCH(fStunBashMult);

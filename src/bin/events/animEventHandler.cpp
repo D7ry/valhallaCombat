@@ -42,11 +42,11 @@ void animEventHandler::ProcessEvent(RE::BSTEventSink<RE::BSAnimationGraphEvent>*
 			staminaHandler::checkStamina(const_cast<RE::TESObjectREFR*>(a_event->holder)->As<RE::Actor>());
 		}
 		break;
-	case "blockStop"_h:
-		if (settings::bTimedBlockToggle && a_event->holder->IsPlayerRef()) {
-			blockHandler::GetSingleton()->onBlockStop();
-		}
-		break;
+	//case "blockStop"_h:
+	//	if (settings::bTimedBlockToggle && a_event->holder->IsPlayerRef()) {
+	//		blockHandler::GetSingleton()->onBlockStop();
+	//	}
+	//	break;
 	case "TKDR_IFrameEnd"_h:
 		staminaHandler::checkStamina(const_cast<RE::TESObjectREFR*>(a_event->holder)->As<RE::Actor>());
 		break;

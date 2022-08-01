@@ -253,6 +253,9 @@ void stunHandler::processStunDamage(
 	if (a_victim->IsPlayerRef()) { //player do not receive stun damage at all.
 		return;
 	}
+	if (a_victim->IsPlayerTeammate() && !settings::bFriendlyStunToggle) { //player's team do not receive stun damage at all.
+		return;
+	}
 	float stunDamage = 0;
 	switch (a_stunSource) {
 	case STUNSOURCE::timedBlock:

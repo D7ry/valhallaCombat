@@ -17,13 +17,14 @@ public:
 
 	bool getIsPcTimedBlocking();
 	bool getIsPcPerfectBlocking();
-	/*Return if player character is in bashing state.*/
-	bool getIsPcParrying();
 
 	/*Register perfect block but only for pc.*/
 	void onBlockKeyDown();
 	void onBlockKeyUp();
 	void onBlockStop();
+
+	/*Register a tackle.*/
+	void onTackleKeyDown();
 	
 	/*Process a single block.
 	@param blocker: Actor who blocks.
@@ -39,7 +40,8 @@ public:
 		regular = 1,
 		timed,
 		perfect,
-		guardBreaking
+		guardBreaking,
+		tackle
 	};
 
 	
@@ -52,18 +54,25 @@ private:
 	};
 
 	blockWindowPenaltyLevel pcBlockWindowPenalty;
-	std::atomic<float> pcBlockTimer = 0;
-	std::atomic<float> pcCoolDownTimer = 0;
-	float keyUpTimer = 0;
+	float pcTimedBlockTimer = 0;
+	float pcTimedBlockCooldownTimer = 0;
+	float pcTimedBlockKeyUpTimer = 0;
+
+	bool isPcTackling = false;
+	bool isPcTackleCooldown = false;
+	float pcTackleTimer = 0;
+	float pcTackleCooldownTimer = 0;
+	
 	inline void onSuccessfulTimedBlock();
 
 	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
 	//robin_hood::unordered_map <RE::Actor*, float> actors_PerfectBlocking;
-	std::atomic<bool> isPcTimedBlocking;
-	std::atomic<bool> isPcBlockingCoolDown;
-	std::atomic<bool> isPcTimedBlockSuccess;
-	std::atomic<bool> isBlockKeyUp_and_still_blocking;
+	bool isPcTimedBlocking;
+	bool isPcBlockingCoolDown;
+	bool isPcTimedBlockSuccess;
+	bool bKeyUpTimeBuffer;
 	inline void onPcTimedBlockEnd();
+	inline bool isElapsedTimedLessThan(float a_in);
 	/*Mapping of all actors in perfect blocking cool down =>> remaining time of the cool down.*/
 	robin_hood::unordered_map <RE::Actor*, float> actors_BlockingCoolDown;
 
@@ -106,6 +115,8 @@ public:
 	@param attacker: actor whose attack gets perfect blocked.
 	@return whether a timed block is successfully performed.*/
 	bool processMeleeTimedBlock(RE::Actor* blocker, RE::Actor* attacker);
+	
+	bool processMeleeTackle(RE::Actor* a_tackler, RE::Actor* a_attacker);
 	
 	static PRECISION_API::PreHitCallbackReturn precisionPrehitCallbackFunc(const PRECISION_API::PrecisionHitData& a_precisionHitData);
 
