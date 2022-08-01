@@ -11,15 +11,31 @@
 #include "include/Utils.h"
 #include "include/lib/ValhallaCombatAPI.h"
 #include "include/ModAPI.h"
-void initTrueHud() {
+void initTrueHUDAPI() {
 	auto val = ValhallaCombat::GetSingleton();
-	val->ersh = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
-	if (val->ersh) {
-		logger::info("Obtained TruehudAPI - {0:x}", (uintptr_t)val->ersh);
+	val->ersh_TrueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
+	if (val->ersh_TrueHUD) {
+		logger::info("Obtained TruehudAPI - {0:x}", (uintptr_t)val->ersh_TrueHUD);
 		settings::facts::TrueHudAPI_Obtained = true;
 	} else {
-		logger::info("Failed to obtain TrueHudAPI.");
+		logger::info("TrueHUD API not found.");
 		settings::facts::TrueHudAPI_Obtained = false;
+	}
+}
+
+void initPrecisionAPI() {
+	auto val = ValhallaCombat::GetSingleton();
+	val->ersh_Precision = reinterpret_cast<PRECISION_API::IVPrecision1*>(PRECISION_API::RequestPluginAPI(PRECISION_API::InterfaceVersion::V1));
+	if (val->ersh_Precision) {
+		logger::info("Obtained PrecisionAPI - {0:x}", (uintptr_t)val->ersh_Precision);
+		settings::facts::PrecisionAPI_Obtained = true;
+		auto res = val->ersh_Precision->AddPreHitCallback(SKSE::GetPluginHandle(), blockHandler::precisionPrehitCallbackFunc);
+		if (res == PRECISION_API::APIResult::OK || res == PRECISION_API::APIResult::AlreadyRegistered) {
+			logger::info("Collision prehit callback successfully registered.");
+		}
+	} else {
+		logger::info("Precision API not found.");
+		settings::facts::PrecisionAPI_Obtained = false;
 	}
 }
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
@@ -34,7 +50,10 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
 		logger::info("Post load");
-		initTrueHud();
+		logger::info("Initializing API fetch...");
+		initTrueHUDAPI();
+		initPrecisionAPI();
+		logger::info("...done");
 		break;
 	case SKSE::MessagingInterface::kPostLoadGame:
 		logger::info("Post load game");

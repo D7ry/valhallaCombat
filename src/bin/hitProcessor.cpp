@@ -13,19 +13,12 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	inlineUtils::offsetRealDamage(realDamage, a_aggressor, a_victim);
 	auto hitFlag = a_hitData.flags;
 	using HITFLAG = RE::HitData::Flag;
-	if (
-		hitFlag.any(HITFLAG::kBlocked)) {
-		if (blockHandler::GetSingleton()->processPhysicalBlock(a_victim, a_aggressor, hitFlag, a_hitData, realDamage)) {
-			if (!a_victim->IsPlayerRef()) {
-				AI::GetSingleton()->action_PerformEldenCounter(a_victim);
-			}
-			return; //if the hit is perfect blocked, no hit registration
-		}
-		// if not perfect blocked, regenerate stamina only if set so.
+	if (hitFlag.any(HITFLAG::kBlocked)) {
+		blockHandler::GetSingleton()->processPhysicalBlock(a_victim, a_aggressor, hitFlag, a_hitData, realDamage);
+		
 		if (settings::bBlockedHitRegenStamina && !(hitFlag.any(HITFLAG::kBash))) {
 			if (settings::bAttackStaminaToggle) {
 				attackHandler::GetSingleton()->registerHit(a_aggressor);
-				
 			}
 		}
 		return;
@@ -66,14 +59,13 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 		bool b;
 		//TODO:redo stun damage for elden counter
 		if (a_aggressor->GetGraphVariableBool(data::GraphBool_IsGuardCountering, b) && b) {
-			realDamage *= 1.5;
+			stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::counterAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
+		} else {
+			stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::powerAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
 		}
-		stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::powerAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
-		//balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::powerAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
 	}
 	else {
 		stunHandler::GetSingleton()->processStunDamage(stunHandler::STUNSOURCE::lightAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
-		//balanceHandler::GetSingleton()->processBalanceDamage(balanceHandler::DMGSOURCE::lightAttack, a_hitData.weapon, a_aggressor, a_victim, realDamage);
 	}
 
 }

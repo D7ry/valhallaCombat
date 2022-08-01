@@ -25,8 +25,10 @@ namespace VAL_API
 		bash,
 		powerBash,
 		timedBlock,
-		parry
+		parry,
+		counterAttack
 	};
+
 
 	// True Directional Movement's modder interface
 	class IVVAL1

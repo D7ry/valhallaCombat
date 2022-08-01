@@ -4,13 +4,15 @@
 #include "include/stunHandler.h"
 #include "include/balanceHandler.h"
 #include "include/lib/TrueHUDAPI.h"
+#include "include/lib/PrecisionAPI.h"
 #include "include/settings.h"
 /*Combat tweaks to make Skyrim's melee combat feel like AC:Valhalla.*/
 class ValhallaCombat
 {
 public:
 
-	TRUEHUD_API::IVTrueHUD3* ersh = nullptr;
+	TRUEHUD_API::IVTrueHUD3* ersh_TrueHUD = nullptr;
+	PRECISION_API::IVPrecision1* ersh_Precision = nullptr;
 	
 	static ValhallaCombat* GetSingleton()
 	{
@@ -78,16 +80,16 @@ public:
 	If successful, set the truehud specialmeter global value to true.*/
 	void requestTrueHudSpecialBarControl() {
 		logger::info("Requesting trueHUD API special bar control...");
-		if (!ersh) {
+		if (!ersh_TrueHUD) {
 			logger::info("...Failure: TrueHUD API is a null pointer.");
 			return;
 		}
 
-		auto res = ersh->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle());
+		auto res = ersh_TrueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle());
 		switch (res) {
 		case TRUEHUD_API::APIResult::OK:
 		case TRUEHUD_API::APIResult::AlreadyGiven:
-			ersh->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getCurrentStun_static, stunHandler::getMaxStun_static, true, false);
+			ersh_TrueHUD->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getCurrentStun_static, stunHandler::getMaxStun_static, true, false);
 			settings::facts::TrueHudAPI_HasSpecialBarControl = true;
 			logger::info("...Success");
 			settings::updateGlobals();
@@ -100,7 +102,7 @@ public:
 
 	void releaseTrueHudSpecialBarControl() {
 		logger::info("Release trueHUD API special bar control...");
-		if (ValhallaCombat::GetSingleton()->ersh
+		if (ValhallaCombat::GetSingleton()->ersh_TrueHUD
 			->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
 			settings::facts::TrueHudAPI_HasSpecialBarControl = false;
 			settings::updateGlobals();

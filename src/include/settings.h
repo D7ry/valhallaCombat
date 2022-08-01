@@ -12,6 +12,7 @@ public:
 	public:
 		static inline bool TrueHudAPI_HasSpecialBarControl;
 		static inline bool TrueHudAPI_Obtained;
+		static inline bool PrecisionAPI_Obtained;
 		static inline bool EldenParry_ObtainedAPI;
 	};
 
@@ -63,7 +64,7 @@ public:
 	static inline bool bTimedBlockToggle = true;
 	static inline bool bTimedBlockProjectileToggle = true;
 	
-	static inline float fTimedBlockWindow = 0.5;
+	static inline float fTimedBlockWindow = 0.3;
 	static inline float fTimedBlockCooldownTime = 0.5;
 	static inline float fTimedBlockStaminaCostMult = 0.5;
 
@@ -87,7 +88,7 @@ public:
 	static inline float fStunPowerBashMult = 1;
 	static inline float fStunNormalAttackMult = 0;
 	static inline float fStunPowerAttackMult = 1;
-
+	static inline float fStunCounterAttackMult = 1.2;
 
 	static inline float fStunUnarmedMult = 1;
 	static inline float fStunDaggerMult = 0.5;

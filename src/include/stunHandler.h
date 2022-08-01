@@ -189,7 +189,8 @@ public:
 		bash,
 		powerBash,
 		timedBlock,
-		parry
+		parry,
+		counterAttack
 	};
 
 
@@ -215,10 +216,6 @@ public:
 
 
 	/*Calculate a stun damage for the actor, and immediately apply the stun damage.
-	Stun calculation go as follows:
-	for light/power attack: base damage * mult.
-	for bash/powerbash:  blocking level * mult.
-	for parry: damage the aggressor would receive if they were to attack themselves * mult.
 	*/
 	void processStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage);
 

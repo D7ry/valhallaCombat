@@ -27,79 +27,6 @@ namespace Hooks
 		static inline REL::Relocation<decltype(getAttackStaminaCost)> _getHeavyAttackStaminaCost;
 	};
 
-	class Hook_GetBlockChance
-	{
-	public:
-		static void install()
-		{  //Down	p	sub_140845C60+2E	call    Actor__GetEquippedShield_140625FA0
-			auto& trampoline = SKSE::GetTrampoline();
-
-			REL::Relocation<uintptr_t> hook{ REL::ID(49751) };
-
-			_getBlockChance = trampoline.write_call<5>(hook.address() + 0x2E, getBlockChance);
-			logger::info("Get block chance hook installed.");
-		}
-
-	private:
-		static uintptr_t getBlockChance(RE::Actor* actor);
-		static inline REL::Relocation<decltype(getBlockChance)> _getBlockChance;
-	};
-
-	class Hook_GetWantBlock
-	{
-	public:
-		static void install()
-		{
-			REL::Relocation<std::uintptr_t> GetWantBlockBase{ REL::ID(37376) };
-
-			auto& trampoline = SKSE::GetTrampoline();
-			_GetWantBlock = trampoline.write_call<5>(GetWantBlockBase.address() + 0x23, GetWantBlock);
-
-			logger::info("GetWantBlock hook installed.");
-		}
-
-	private:
-		static std::int32_t& GetWantBlock(void* unk_ptr, const RE::BSFixedString& a_channelName, std::uint8_t unk_int, RE::Actor* a_actor, std::int32_t& a_result);
-
-		static inline REL::Relocation<decltype(GetWantBlock)> _GetWantBlock;
-	};
-
-	/*Returns NPC attack chance. Return 0 to deny NPC attack.*/
-	class Hook_GetAttackChance1
-	{
-	public:
-		static void install()
-		{  //Up	p	sub_14042F810+157A	call    Character__sub_140845B30
-			auto& trampoline = SKSE::GetTrampoline();
-
-			REL::Relocation<uintptr_t> hook{ REL::ID(28629) };
-
-			_getAttackChance = trampoline.write_call<5>(hook.address() + 0x157A, getAttackChance);
-			logger::info("Get block chance hook installed.");
-		}
-
-	private:
-		static uintptr_t getAttackChance(RE::Actor* a1, RE::Actor* a2, RE::BGSAttackData* atkData);
-		static inline REL::Relocation<decltype(getAttackChance)> _getAttackChance;
-	};
-	/*Returns NPC attack chance. Return 0 to deny NPC attack.*/
-	class Hook_GetAttackChance2
-	{
-	public:
-		static void install()
-		{  //Up	p	sub_14080C020+2AE	call    Character__sub_140845B30
-			auto& trampoline = SKSE::GetTrampoline();
-
-			REL::Relocation<uintptr_t> hook{ REL::ID(48139) };
-
-			_getAttackChance = trampoline.write_call<5>(hook.address() + 0x2AE, getAttackChance);
-			logger::info("Get block chance hook installed.");
-		}
-
-	private:
-		static uintptr_t getAttackChance(RE::Actor* a1, RE::Actor* a2, RE::BGSAttackData* atkData);
-		static inline REL::Relocation<decltype(getAttackChance)> _getAttackChance;
-	};
 
 	class Hook_OnStaminaRegen  //block stamina regen during weapon swing
 	{
@@ -255,6 +182,26 @@ namespace Hooks
 		static inline REL::Relocation<decltype(OnMissileCollision)> _missileCollission;
 	};
 
+	class Hook_OnMeleeCollision
+	{
+	public:
+		static void install()
+		{
+			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37650, 38603) };  //SE:627930 + 38B AE:64D350 + 40A / 45A
+			auto& trampoline = SKSE::GetTrampoline();
+#ifdef SKYRIM_SUPPORT_AE
+			_ProcessHit = trampoline.write_call<5>(hook.address() + 0x45A, processHit);
+#else
+			_ProcessHit = trampoline.write_call<5>(hook.address() + 0x38B, processHit);
+#endif
+			logger::info("Melee Hit hook installed.");
+		}
+	private:
+		static void processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, std::int64_t a_int1, bool a_bool, void* a_unkptr);
+		
+		static inline REL::Relocation<decltype(processHit)> _ProcessHit;
+	};
+
 	static void install()
 	{
 		logger::info("Installing hooks...");
@@ -264,6 +211,7 @@ namespace Hooks
 		Hook_OnMeleeHit::install();
 		Hook_OnPlayerUpdate::install();
 		Hook_OnProjectileCollision::install();
+		Hook_OnMeleeCollision::install();
 		logger::info("...done");
 	}
 }

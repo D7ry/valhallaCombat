@@ -48,7 +48,7 @@ set(SOURCE_FILES
 	"${SOURCE_DIR}/include/lib/SimpleIni.h"
 	"${SOURCE_DIR}/include/lib/TrueHUDAPI.h"
 	"${SOURCE_DIR}/include/lib/ValhallaCombatAPI.h"
-	
+	"${SOURCE_DIR}/include/lib/PrecisionAPI.h"
 )
 
 source_group(TREE "${ROOT_DIR}" FILES ${SOURCE_FILES})

@@ -219,7 +219,7 @@ namespace TrueHUDUtils
 			return;
 		}
 		if (a_actor) {
-			ValhallaCombat::GetSingleton()->ersh->FlashActorValue(a_actor->GetHandle(), actorValue, true);
+			ValhallaCombat::GetSingleton()->ersh_TrueHUD->FlashActorValue(a_actor->GetHandle(), actorValue, true);
 		}	
 	}
 
@@ -227,7 +227,7 @@ namespace TrueHUDUtils
 		if (!settings::facts::TrueHudAPI_Obtained) {
 			return;
 		}
-		auto ersh = ValhallaCombat::GetSingleton()->ersh;
+		auto ersh = ValhallaCombat::GetSingleton()->ersh_TrueHUD;
 		ersh->OverrideBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
 		ersh->OverrideBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
 		ersh->OverrideBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
@@ -237,7 +237,7 @@ namespace TrueHUDUtils
 		if (!settings::facts::TrueHudAPI_Obtained) {
 			return;
 		}
-		auto ersh = ValhallaCombat::GetSingleton()->ersh;
+		auto ersh = ValhallaCombat::GetSingleton()->ersh_TrueHUD;
 		ersh->RevertBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::FlashColor);
 		ersh->RevertBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::BarColor);
 		ersh->RevertBarColor(a_actor->GetHandle(), actorValue, TRUEHUD_API::BarColorType::PhantomColor);
@@ -247,7 +247,7 @@ namespace TrueHUDUtils
 		if (!settings::facts::TrueHudAPI_Obtained || !settings::facts::TrueHudAPI_HasSpecialBarControl) {
 			return;
 		}
-		auto ersh = ValhallaCombat::GetSingleton()->ersh;
+		auto ersh = ValhallaCombat::GetSingleton()->ersh_TrueHUD;
 		ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor, 0xd72a2a);
 		ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x7d7e7d);
 		ersh->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor, 0xb30d10);
@@ -258,7 +258,7 @@ namespace TrueHUDUtils
 		if (!settings::facts::TrueHudAPI_Obtained || !settings::facts::TrueHudAPI_HasSpecialBarControl) {
 			return;
 		}
-		auto ersh = ValhallaCombat::GetSingleton()->ersh;
+		auto ersh = ValhallaCombat::GetSingleton()->ersh_TrueHUD;
 		ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::FlashColor);
 		ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
 		ersh->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::PhantomColor);

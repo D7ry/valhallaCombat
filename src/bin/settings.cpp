@@ -18,7 +18,7 @@ void settings::init() {
 void settings::updateGlobals() {
 	logger::info("Update globals...");
 	if (glob_TrueHudAPI) {
-		glob_TrueHudAPI->value = ValhallaCombat::GetSingleton()->ersh != nullptr ? 1.f : 0.f;
+		glob_TrueHudAPI->value = ValhallaCombat::GetSingleton()->ersh_TrueHUD != nullptr ? 1.f : 0.f;
 	}
 	if (glob_TrueHudAPI_SpecialMeter) {
 		glob_TrueHudAPI_SpecialMeter->value = facts::TrueHudAPI_HasSpecialBarControl ? 1.f : 0.f;
@@ -88,6 +88,7 @@ void settings::readSettings() {
 	loader.FETCH(fStunNormalAttackMult);
 	loader.FETCH(fStunPowerAttackMult);
 	loader.FETCH(fStunParryMult);
+	loader.FETCH(fStunCounterAttackMult);
 	loader.FETCH(fStunUnarmedMult);
 	loader.FETCH(fStunDaggerMult);
 	loader.FETCH(fStunSwordMult);

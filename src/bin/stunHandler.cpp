@@ -112,6 +112,7 @@ void stunHandler::update() {
 		auto& one_handle = it->first;
 		if (!one_handle) {
 			safeErase_StunBrokenActors(one_handle);
+
 			it = actorStunDataMap.erase(it);
 			continue;
 		}
@@ -119,12 +120,14 @@ void stunHandler::update() {
 		auto actor = one_handle.get().get();
 		if (!actor) {
 			safeErase_StunBrokenActors(one_handle);
+			
 			it = actorStunDataMap.erase(it);
 			continue;
 		}
 		
 		if (actor->IsDead()) {
 			safeErase_StunBrokenActors(one_handle);
+			
 			it = actorStunDataMap.erase(it);
 			continue;
 		}
@@ -132,6 +135,7 @@ void stunHandler::update() {
 
 		if (stunData->getRegenCountDown() > 0) {
 			stunData->modRegenCountDown(-*RE::Offset::g_deltaTime);
+			
 			it++;
 			continue;
 		}
@@ -145,6 +149,7 @@ void stunHandler::update() {
 			}
 
 			safeErase_StunBrokenActors(one_handle);
+			
 			it = actorStunDataMap.erase(it);
 			continue;
 		}
@@ -240,7 +245,6 @@ void stunHandler::damageStun(RE::Actor* a_aggressor, RE::Actor* a_victim, float 
 }
 
 
-//parry damage needs to be offset here, since it's not calculated.
 void stunHandler::processStunDamage(
 	STUNSOURCE a_stunSource, RE::TESObjectWEAP* a_weapon, RE::Actor* a_aggressor, RE::Actor* a_victim, float a_baseDamage) {
 	if (!settings::bStunToggle) { //stun damage will not be applied with stun turned off.
@@ -322,7 +326,10 @@ void stunHandler::reset() {
 	actorStunDataMap.clear();
 	for (auto& actorHandle : stunBrokenActors) {
 		if (actorHandle) {
-			TrueHUDUtils::revertSpecialMeter(actorHandle.get().get());
+			auto actor = actorHandle.get().get();
+			if (actor) {
+				TrueHUDUtils::revertSpecialMeter(actor);
+			}
 		}
 	}
 	stunBrokenActors.clear();
