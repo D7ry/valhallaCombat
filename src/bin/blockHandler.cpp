@@ -92,7 +92,7 @@ void blockHandler::onPcTimedBlockEnd() {
 	bKeyUpTimeBuffer = false;
 }
 
-inline bool blockHandler::isElapsedTimedLessThan(float a_in)
+inline bool blockHandler::isTimedBlockElapsedTimeLessThan(float a_in)
 {
 	return settings::fTimedBlockWindow - pcTimedBlockTimer <= a_in;
 }
@@ -145,7 +145,7 @@ void blockHandler::onBlockStop() {
 	onPcTimedBlockEnd();
 }
 
-void blockHandler::onSuccessfulTimedBlock() {
+void blockHandler::OnPcSuccessfulTimedBlock() {
 	isPcTimedBlockSuccess = true;
 	pcBlockWindowPenalty = blockWindowPenaltyLevel::none;
 }
@@ -159,7 +159,13 @@ bool blockHandler::isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj)
 bool blockHandler::tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable)
 {
 	if (getIsPcTimedBlocking()) {
-		onSuccessfulTimedBlock();
+		OnPcSuccessfulTimedBlock();
+		if (a_blocker->IsPlayerRef()) {
+			auto pc = RE::PlayerCharacter::GetSingleton();
+			if (pc) {
+				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fTimedBlockProjectileExp);
+			}
+		}
 		float cost = a_projectile->spell->CalculateMagickaCost(a_blocker);
 		if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {  //parry only happnens when there's enough magicka.
 			deflectProjectile(a_blocker, a_projectile, a_projectile_collidable);
@@ -178,7 +184,13 @@ bool blockHandler::tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile
 bool blockHandler::tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) 
 {
 	if (getIsPcTimedBlocking()) {
-		onSuccessfulTimedBlock();
+		OnPcSuccessfulTimedBlock();
+		if (a_blocker->IsPlayerRef()) {
+			auto pc = RE::PlayerCharacter::GetSingleton();
+			if (pc) {
+				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fTimedBlockProjectileExp);
+			}
+		}
 		auto launcher = a_projectile->weaponSource;
 		auto ammo = a_projectile->ammoSource;
 		float cost = 0;
@@ -208,6 +220,12 @@ bool blockHandler::tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile
 {
 	auto cost = a_projectile->spell->CalculateMagickaCost(a_blocker);
 	if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
+		if (a_blocker->IsPlayerRef()) {
+			auto pc = RE::PlayerCharacter::GetSingleton();
+			if (pc) {
+				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fBlockProjectileExp);
+			}
+		}
 		destroyProjectile(a_projectile);
 		if (a_blocker->IsBlocking()) {
 			a_blocker->NotifyAnimationGraph("BlockHitStart");
@@ -232,6 +250,12 @@ bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 	
 	inlineUtils::offsetRealDamageForPc(cost);
 	if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
+		if (a_blocker->IsPlayerRef()) {
+			auto pc = RE::PlayerCharacter::GetSingleton();
+			if (pc) {
+				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fBlockProjectileExp);
+			}
+		}
 		if (a_blocker->IsBlocking()) {
 			a_blocker->NotifyAnimationGraph("BlockHitStart");
 		}
@@ -242,21 +266,6 @@ bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 	return false;
 }
 
-bool blockHandler::processRegularSpellBlock(RE::Actor* a_blocker, RE::MagicItem* a_spell, RE::Projectile* a_projectile) {
-	if (!a_spell) {
-		return false;
-	}
-	if (!a_blocker->IsBlocking() || !isInBlockAngle(a_blocker, a_projectile)) {
-		return false;
-	}
-	if (a_blocker->IsPlayerRef()) {
-		auto cost = a_spell->CalculateMagickaCost(a_blocker);
-		if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
-			playBlockEffects(a_blocker, nullptr, blockType::perfect);
-			return true;
-		}
-	}
-}
 
 bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
 	if (a_blocker->IsPlayerRef()) {
@@ -387,7 +396,7 @@ bool blockHandler::getIsPcTimedBlocking() {
 }
 
 bool blockHandler::getIsPcPerfectBlocking() {
-	return isElapsedTimedLessThan(settings::fPerfectBlockWindow);
+	return isTimedBlockElapsedTimeLessThan(settings::fPerfectBlockWindow);
 }
 
 
@@ -404,7 +413,14 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	}
 	bool isPerfectblock = this->getIsPcPerfectBlocking();
 
-	onSuccessfulTimedBlock();
+	if (a_blocker->IsPlayerRef()) {
+		OnPcSuccessfulTimedBlock();
+		auto pc = RE::PlayerCharacter::GetSingleton();
+		if (pc) {
+			pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fTimedBlockMeleeExp);
+		}
+	}
+	
 	float reflectedDamage = 0;
 	auto blockerWeapon = inlineUtils::actor::getWieldingWeapon(a_blocker);
 	if (blockerWeapon) {

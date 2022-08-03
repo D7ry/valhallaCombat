@@ -76,7 +76,7 @@ public:
 
 	static inline float fTimedBlockMeleeExp = 10;
 	
-	static inline float fParryProjectileExp = 5;
+	static inline float fBlockProjectileExp = 5;
 	static inline float fTimedBlockProjectileExp = 10;
 
 	static inline bool bTimedBlockScreenShake = true;

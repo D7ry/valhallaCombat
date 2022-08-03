@@ -14,7 +14,7 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	auto hitFlag = a_hitData.flags;
 	using HITFLAG = RE::HitData::Flag;
 	if (hitFlag.any(HITFLAG::kBlocked)) {
-		blockHandler::GetSingleton()->processPhysicalBlock(a_victim, a_aggressor, hitFlag, a_hitData, realDamage);
+		blockHandler::GetSingleton()->processPhysicalBlock(a_victim, a_aggressor, hitFlag, a_hitData);
 		
 		if (settings::bBlockedHitRegenStamina && !(hitFlag.any(HITFLAG::kBash))) {
 			if (settings::bAttackStaminaToggle) {

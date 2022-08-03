@@ -2,11 +2,10 @@
 #include "lib/robin_hood.h"
 #include "lib/PrecisionAPI.h"
 #include <mutex>
-/*Handling block stamina damage and perfect blocking.*/
+/*Handling block stamina damage and perfect blocking.
+All timed block features are only usable by player at this point.*/
 class blockHandler {
 public:
-
-
 	static blockHandler* GetSingleton()
 	{
 		static blockHandler singleton;
@@ -15,24 +14,6 @@ public:
 
 	void update();
 
-	bool getIsPcTimedBlocking();
-	bool getIsPcPerfectBlocking();
-
-	void onBlockKeyDown();
-	void onBlockKeyUp();
-	void onBlockStop();
-
-	/*Register a tackle.*/
-	void onTackleKeyDown();
-	
-	/*Process a single block.
-	@param blocker: Actor who blocks.
-	@param aggressor: Actor whose attack gets blocked.
-	@param iHitflag: hitflag of the blocked hit, in integer.
-	@param hitData: hitdata of the blocked hit.
-	@param realDamage: real damage of this blocked hit.*/
-	void processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t>, RE::HitData& hitData);
-	
 	bool isBlockButtonPressed;
 
 	enum blockType {
@@ -42,6 +23,14 @@ public:
 		guardBreaking,
 		tackle
 	};
+	
+	bool getIsPcTimedBlocking();
+	bool getIsPcPerfectBlocking();
+
+	void onTackleKeyDown();
+	void onBlockKeyDown();
+	void onBlockKeyUp();
+	void onBlockStop();
 
 	
 private:
@@ -65,29 +54,13 @@ private:
 	float pcTackleTimer = 0;
 	float pcTackleCooldownTimer = 0;
 	
-	inline void onSuccessfulTimedBlock();
-
-	/*Mapping of all actors in perfect blocking state =>> effective time of their perfect blocks.*/
-	//robin_hood::unordered_map <RE::Actor*, float> actors_PerfectBlocking;
 	bool isPcTimedBlocking;
 	bool isPcBlockingCoolDown;
 	bool isPcTimedBlockSuccess;
 	bool bKeyUpTimeBuffer;
 	
+	void OnPcSuccessfulTimedBlock();
 	void onPcTimedBlockEnd();
-	
-
-	/// <summary>
-	/// Process a stamina blocking attempt similar to "shield of stamina".
-	/// Actor with enough stamina can negate all incoming health damage with stamina. 
-	/// Actor without enough stamina will triggerStagger and receive partial damage.
-	/// </summary>
-	/// <param name="a_blocker"></param>
-	/// <param name="a_aggressor"></param>
-	/// <param name="a_hitFlag"></param>
-	/// <param name="a_hitData"></param>
-	/// <param name="a_realDamage"></param>
-	void processStaminaBlock(RE::Actor* a_blocker, RE::Actor* a_aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& a_hitData);
 
 	inline bool isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj);
 
@@ -95,18 +68,23 @@ private:
 	inline void playBlockSFX(RE::Actor* blocker, blockType blockType, bool blockedWithWeapon);
 	inline void playBlockScreenShake(RE::Actor* blocker, blockType blockType);
 	inline void playBlockSlowTime(blockType blockType);
-
-public:
+	
 	void playBlockEffects(RE::Actor* blocker, RE::Actor* aggressor, blockType blockType);
 
-	bool processRegularSpellBlock(RE::Actor* a_blocker, RE::MagicItem* a_spell, RE::Projectile* a_projectile);
+public:	
+
+
+	/// <summary>
+	/// Process an attempt to physically block an attack.
+	/// </summary>
+	void processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t>, RE::HitData& hitData);
 	
-	/*Initialize an attempt to block the incoming projectile. If the deflection is successful, return true.
-	@param a_blocker: a_blocker: actor attempting to deflect the projectlile
-	@param a_projectile: projectile to be deflected.
-	@param a_projectile_collidable: the collidable of the projectile, whose collision group will be reset if the deflection
-	is successful.
-	@return whether the deflection is successful.*/
+
+	/// <summary>
+	/// Initialize an attempt for the blocker to block, parry, or deflect an incoming projectile. Result varies depending on game settings, types
+	/// of block, and the blocker's status.
+	/// </summary>
+	/// <returns>Whether the projectile is blocked, parried, or deflected.</returns>
 	bool processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
 
 
@@ -120,6 +98,7 @@ public:
 	/// <param name="a_attacker"></param>
 	/// <returns>Whether a timed block is successfully performed.</returns>
 	bool processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker);
+
 	
 	/// <summary>
 	/// Process a melee tackle attempt by an actor.
@@ -136,21 +115,33 @@ public:
 
 private:
 	/// <summary>
+	/// Process a stamina blocking attempt similar to "shield of stamina".
+	/// Actor with enough stamina can negate all incoming health damage with stamina.
+	/// Actor without enough stamina will triggerStagger and receive partial damage.
+	/// </summary>
+	/// <param name="a_blocker"></param>
+	/// <param name="a_aggressor"></param>
+	/// <param name="a_hitFlag"></param>
+	/// <param name="a_hitData"></param>
+	/// <param name="a_realDamage"></param>
+	void processStaminaBlock(RE::Actor* a_blocker, RE::Actor* a_aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& a_hitData);
+	
+	/// <summary>
 	/// Attempt to block an incoming arrow projectile for the blocker.
+	/// Block is successful if the blocker has enough magicka.
 	/// </summary>
 	/// <param name="a_blocker">actor blocking the projectile</param>
 	/// <param name="a_projectile">incoming projectile</param>
-	/// <returns></returns>
+	/// <returns>Whether the block is successful.</returns>
 	bool tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile);
 
 	/// <summary>
 	/// Attempt to block an incoming spell projectile for the blocker.
-	/// Block is successful if:
-	/// 
+	/// Block is successful if the blocker has enough magicka.
 	/// </summary>
 	/// <param name="a_blocker">actor blocking the projectile</param>
 	/// <param name="a_projectile">incoming projectile</param>
-	/// <returns></returns>
+	/// <returns>Whether the block is successful.</returns>
 	bool tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile);
 	
 	/// <summary>

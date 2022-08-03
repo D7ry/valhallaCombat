@@ -111,9 +111,6 @@ namespace Hooks
 				_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
 			}
 			if (victim && victim->IsPlayerRef()) {
-				if (blockHandler::GetSingleton()->processRegularSpellBlock(victim->As<RE::Actor>(), a_projectile->spell, a_projectile)) {
-					return;
-				}
 			}
 			_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
 		}
