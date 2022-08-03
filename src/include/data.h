@@ -18,6 +18,7 @@ public:
 
 	const static inline std::string AnimEvent_GuardCounter = "Val_GuardCounter_Trigger";
 	const static inline std::string GraphBool_IsGuardCountering = "is_Guard_Countering";
+
 #pragma region blockFX
 	static inline RE::TESObjectACTI* BlockFX;
 	static inline RE::Explosion* BlockSpark;
@@ -142,6 +143,8 @@ public:
 
 	static inline RE::BGSSoundDescriptorForm* soundParryShield_gb;
 	static inline RE::BGSSoundDescriptorForm* soundParryWeapon_gb;
+
+	static inline RE::BGSSoundDescriptorForm* soundTackleStart;
 
 	static inline RE::BGSSoundDescriptorForm* soundStunBreak;
 	

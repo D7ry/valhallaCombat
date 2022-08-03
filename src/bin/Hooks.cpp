@@ -16,13 +16,12 @@ namespace Hooks
 		if (!settings::bNonCombatStaminaCost && !a_actor->IsInCombat()) {
 			return 0;
 		} else if (settings::bAttackStaminaToggle) {  //negate vanilla heavy attack stamina cost
-			RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
 			if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack) && !atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
 				return 0;
 			}
 		}
 
-		return _getHeavyAttackStaminaCost(avOwner, atkData);
+		return _getAttackStaminaCost(avOwner, atkData);
 	}
 #pragma endregion
 
@@ -136,4 +135,22 @@ used to block stamina regen in certain situations.*/
 		_ProcessHit(a_aggressor, a_victim, a_int1, a_bool, a_unkptr);
 	}
 
+	/*Check if the attack action should be performed depending on the actor's debuff state.*/
+	bool Hook_OnAttackAction::PerformAttackAction(RE::TESActionData* a_actionData)
+	{
+		if (!settings::bStaminaDebuffToggle) {
+			return _PerformAttackAction(a_actionData);
+		}
+		if (!a_actionData->Subject_8) {
+			return _PerformAttackAction(a_actionData);
+		}
+
+		RE::Actor* actor = a_actionData->Subject_8->As<RE::Actor>();
+
+		if (debuffHandler::GetSingleton()->isInDebuff(actor)) {
+			return false;
+		}
+
+		return _PerformAttackAction(a_actionData);
+	}
 }

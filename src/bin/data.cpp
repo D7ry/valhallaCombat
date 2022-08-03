@@ -38,6 +38,7 @@ void data::loadSound(RE::TESDataHandler* a_data) {
 	loader.load(soundParryWeapon_perfect, 0X60C2D);
 	loader.load(soundParryWeapon_gb, 0X47721);
 	loader.load(soundStunBreak, 0X56A22);
+	loader.load(soundTackleStart, 0x60c36);
 	loader.log();
 	logger::info("...done");
 }

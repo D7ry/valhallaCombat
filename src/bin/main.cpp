@@ -43,6 +43,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
 		logger::info("Data loaded");
+		Hooks::install(); //hook install has been postponed for compatibility with other plugins.
 		settings::init();
 		settings::readSettings();
 		events::registerAllEventHandlers();
@@ -164,7 +165,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	if (!messaging->RegisterListener("SKSE", MessageHandler)) {
 		return false;
 	}
-	Hooks::install();
+
 	Papyrus::Register();
     return true;
 }

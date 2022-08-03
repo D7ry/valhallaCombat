@@ -127,7 +127,7 @@ void blockHandler::onTackleKeyDown() {
 	}
 	isPcTackling = true;
 	pcTackleTimer = settings::fTackleWindow;
-	ValhallaUtils::playSound(pc, data::soundParryWeapon_perfect);
+	ValhallaUtils::playSound(pc, data::soundTackleStart);
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::blockHandler);
 }
 
@@ -150,42 +150,94 @@ void blockHandler::onSuccessfulTimedBlock() {
 	pcBlockWindowPenalty = blockWindowPenaltyLevel::none;
 }
 
-bool blockHandler::isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj) {
+bool blockHandler::isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj) 
+{
 	auto angle = blocker->GetHeadingAngle(a_obj->GetPosition(), false);
 	return (angle <= data::fCombatHitConeAngle && angle >= -data::fCombatHitConeAngle);
 }
 
-
-bool blockHandler::tryParryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+bool blockHandler::tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable)
+{
 	if (getIsPcTimedBlocking()) {
 		onSuccessfulTimedBlock();
-		parryProjectile(a_blocker, a_projectile, a_projectile_collidable);
+		float cost = a_projectile->spell->CalculateMagickaCost(a_blocker);
+		if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {  //parry only happnens when there's enough magicka.
+			deflectProjectile(a_blocker, a_projectile, a_projectile_collidable);
+		} else {
+			destroyProjectile(a_projectile);
+		}
+		if (a_blocker->IsBlocking()) {
+			a_blocker->NotifyAnimationGraph("BlockHitStart");
+		}
+		playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
+		return true;
+	}
+	return false;
+}
+
+bool blockHandler::tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) 
+{
+	if (getIsPcTimedBlocking()) {
+		onSuccessfulTimedBlock();
+		auto launcher = a_projectile->weaponSource;
+		auto ammo = a_projectile->ammoSource;
+		float cost = 0;
+		if (launcher) {
+			cost += launcher->GetAttackDamage();
+		}
+		if (ammo) {
+			cost += ammo->data.damage;
+		}
+		inlineUtils::offsetRealDamageForPc(cost);
+		if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) { //parry only happens when there's enough magicka
+			deflectProjectile(a_blocker, a_projectile, a_projectile_collidable);
+		} else {
+			destroyProjectile(a_projectile);
+		}
+		if (a_blocker->IsBlocking()) {
+			a_blocker->NotifyAnimationGraph("BlockHitStart");
+		}
+		playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
 		return true;
 	}
 	return false;
 }
 
 
-bool blockHandler::tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::MagicItem* a_spell) {
-	auto cost = a_spell->CalculateMagickaCost(a_blocker);
-	//Utils::offsetRealDamageForPc(cost);
+bool blockHandler::tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile) 
+{
+	auto cost = a_projectile->spell->CalculateMagickaCost(a_blocker);
 	if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
-		blockProjectile(a_blocker, a_projectile);
+		destroyProjectile(a_projectile);
+		if (a_blocker->IsBlocking()) {
+			a_blocker->NotifyAnimationGraph("BlockHitStart");
+		}
+		playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
 		return true;
 	}
 	return false;
 }
 
-bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile) {
+bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile) 
+{
 	auto launcher = a_projectile->weaponSource;
 	auto ammo = a_projectile->ammoSource;
-	if (launcher && ammo) {
-		auto cost = launcher->GetAttackDamage() + ammo->data.damage;
-		inlineUtils::offsetRealDamageForPc(cost);
-		if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
-			blockProjectile(a_blocker, a_projectile);
-			return true;
+	float cost = 0;
+	if (launcher) {
+		cost += launcher->GetAttackDamage();
+	}
+	if (ammo) {
+		cost += ammo->data.damage;
+	}
+	
+	inlineUtils::offsetRealDamageForPc(cost);
+	if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
+		if (a_blocker->IsBlocking()) {
+			a_blocker->NotifyAnimationGraph("BlockHitStart");
 		}
+		playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
+		destroyProjectile(a_projectile);
+		return true;
 	}
 	return false;
 }
@@ -209,13 +261,20 @@ bool blockHandler::processRegularSpellBlock(RE::Actor* a_blocker, RE::MagicItem*
 bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
 	if (a_blocker->IsPlayerRef()) {
 		if (isInBlockAngle(a_blocker, a_projectile) && a_blocker->IsBlocking()) {
-			if (settings::bTimedBlockProjectileToggle 
-				&& tryParryProjectile(a_blocker, a_projectile, a_projectile_collidable)) {
+			
+			//try timed block
+			if (settings::bTimedBlockProjectileToggle) {
+				if (a_projectile->spell && tryParryProjectile_Spell(a_blocker, a_projectile, a_projectile_collidable)) {
 					return true;
-			} else if (settings::bBlockProjectileToggle) {
-				auto spell = a_projectile->spell;
-				if (spell) {
-					return tryBlockProjectile_Spell(a_blocker, a_projectile, spell);
+				} else if (tryParryProjectile_Arrow(a_blocker, a_projectile, a_projectile_collidable)) {
+					return true;
+				}
+			}  
+			
+			//try projectile parry
+			if (settings::bBlockProjectileToggle) {
+				if (a_projectile->spell) {
+					return tryBlockProjectile_Spell(a_blocker, a_projectile);
 				} else if (!inlineUtils::actor::isEquippedShield(a_blocker)) {  //physical projectile blocking only applies to none-shield.
 					return tryBlockProjectile_Arrow(a_blocker, a_projectile);
 				}
@@ -226,12 +285,13 @@ bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* 
 	return false;
 }
 
-void blockHandler::parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+void blockHandler::deflectProjectile(RE::Actor* a_deflector, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) 
+{
 	RE::TESObjectREFR* shooter = nullptr;
 	if (a_projectile->shooter && a_projectile->shooter.get()) {
 		shooter = a_projectile->shooter.get().get();
 	}
-	ValhallaUtils::resetProjectileOwner(a_projectile, a_blocker, a_projectile_collidable);
+	ValhallaUtils::resetProjectileOwner(a_projectile, a_deflector, a_projectile_collidable);
 
 	if (shooter && shooter->Is3DLoaded()) {
 		ValhallaUtils::RetargetProjectile(a_projectile, shooter);
@@ -239,31 +299,23 @@ void blockHandler::parryProjectile(RE::Actor* a_blocker, RE::Projectile* a_proje
 		ValhallaUtils::ReflectProjectile(a_projectile);
 	}
 
-
-	if (a_blocker->IsBlocking()) {
-		a_blocker->NotifyAnimationGraph("BlockHitStart");
-	}
-	playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
-
 }
 
-void blockHandler::blockProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile) {
-	if (a_blocker->IsBlocking()) {
-		a_blocker->NotifyAnimationGraph("BlockHitStart");
-	}
-	playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
+void blockHandler::destroyProjectile(RE::Projectile* a_projectile) 
+{
 	RE::Offset::destroyProjectile(a_projectile);
 }
 
 #pragma region Process Block
-void blockHandler::processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& hitData, float realDamage)
+void blockHandler::processPhysicalBlock(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& hitData)
 {
 	if (settings::bBlockStaminaToggle) {
-		processStaminaBlock(blocker, aggressor, a_hitFlag, hitData, realDamage);
+		processStaminaBlock(blocker, aggressor, a_hitFlag, hitData);
 	}
 }
 
-/*Return the final stamina cost multiplier based on the blocker and aggressor.*/
+
+/// <returns>The stamina cost multiplier for a stamina block, based on the plugin settings.</returns>
 inline float getBlockStaminaCostMult(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag)
 {
 
@@ -297,36 +349,37 @@ inline float getBlockStaminaCostMult(RE::Actor* blocker, RE::Actor* aggressor, S
 	}
 }
 
-void blockHandler::processStaminaBlock(RE::Actor* blocker, RE::Actor* aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& hitData, float realDamage)
+void blockHandler::processStaminaBlock(RE::Actor* a_blocker, RE::Actor* a_aggressor, SKSE::stl::enumeration<RE::HitData::Flag, std::uint32_t> a_hitFlag, RE::HitData& a_hitData)
 {
-	using HITFLAG = RE::HitData::Flag;
-	float staminaDamageMult = getBlockStaminaCostMult(blocker, aggressor, a_hitFlag);
-	float staminaDamage = staminaDamageMult * realDamage;
+	using HITFLAG = RE::HitData::Flag;	
+	float staminaDamage = a_hitData.totalDamage;
 
-	float targetStamina = blocker->GetActorValue(RE::ActorValue::kStamina);
+	inlineUtils::offsetRealDamage(staminaDamage, a_aggressor, a_blocker);
+	float staminaDamageMult = getBlockStaminaCostMult(a_blocker, a_aggressor, a_hitFlag);
+	staminaDamage *= staminaDamageMult;
+	float targetStamina = a_blocker->GetActorValue(RE::ActorValue::kStamina);
 
 	//check whether there's enough stamina to block incoming attack
 	if (targetStamina < staminaDamage) {
 		if (settings::bGuardBreak) {
 			if (a_hitFlag.any(HITFLAG::kPowerAttack)) {
-				reactionHandler::triggerStagger(aggressor, blocker, reactionHandler::kLarge);
+				reactionHandler::triggerStagger(a_aggressor, a_blocker, reactionHandler::kLarge);
 			}
 			else {
-				reactionHandler::triggerStagger(aggressor, blocker, reactionHandler::kMedium);
+				reactionHandler::triggerStagger(a_aggressor, a_blocker, reactionHandler::kMedium);
 			}
 		}
-		hitData.totalDamage =
-			(realDamage - (targetStamina / staminaDamageMult)) //real damage actor will be receiving.
-			* (hitData.totalDamage) / realDamage; //offset real damage back into raw damage to be converted into real damage again later.
-		inlineUtils::damageav(blocker, RE::ActorValue::kStamina,
-			targetStamina);
-		debuffHandler::GetSingleton()->initStaminaDebuff(blocker); //initialize debuff for the failed blocking attempt
+		a_hitData.totalDamage =
+			(staminaDamage - (targetStamina / staminaDamageMult))  //real damage actor will be receiving.
+			* (a_hitData.totalDamage) / staminaDamage;             //offset real damage back into raw damage to be converted into real damage again later.
+		
+		inlineUtils::damageav(a_blocker, RE::ActorValue::kStamina,targetStamina);
+		debuffHandler::GetSingleton()->initStaminaDebuff(a_blocker); //initialize debuff for the failed blocking attempt
 	}
 	else {
-		hitData.totalDamage = 0;
-		inlineUtils::damageav(blocker, RE::ActorValue::kStamina,
+		a_hitData.totalDamage = 0;
+		inlineUtils::damageav(a_blocker, RE::ActorValue::kStamina,
 			staminaDamage);
-
 	}
 }
 bool blockHandler::getIsPcTimedBlocking() {
@@ -382,7 +435,8 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 		inlineUtils::damageav(a_blocker, RE::ActorValue::kStamina,
 			hitData.totalDamage * getBlockStaminaCostMult(a_blocker, a_attacker, hitData.flags) * settings::fTimedBlockStaminaCostMult);
 	}
-	
+	inlineUtils::damageav(a_attacker, RE::ActorValue::kStamina, a_attacker->GetPermanentActorValue(RE::ActorValue::kStamina) * 0.333);
+
 	return true;
 }
 bool blockHandler::processMeleeTackle(RE::Actor* a_tackler, RE::Actor* a_attacker) {
@@ -398,7 +452,7 @@ bool blockHandler::processMeleeTackle(RE::Actor* a_tackler, RE::Actor* a_attacke
 		return false;
 	}
 
-	reactionHandler::triggerStagger(a_tackler, a_attacker, reactionHandler::reactionType::kMedium);
+	a_attacker->NotifyAnimationGraph("recoillargestart");
 	playBlockEffects(a_tackler, a_attacker, blockHandler::tackle);
 	
 	return true;

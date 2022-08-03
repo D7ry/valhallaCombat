@@ -15,16 +15,16 @@ namespace Hooks
 
 			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37650, 38603) };  //SE:627930 + 16E => 3BEC90 AE:64D350 + 171 => 3D6720
 #ifdef SKYRIM_SUPPORT_AE
-			_getHeavyAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0x171, getAttackStaminaCost);
+			_getAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0x171, getAttackStaminaCost);
 #else
-			_getHeavyAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0x16E, getAttackStaminaCost);
+			_getAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0x16E, getAttackStaminaCost);
 #endif
-			logger::info("Attack stamina hook installed.");
+			logger::info("hook:OnGetAttackStaminaCost");
 		}
 
 	private:
 		static float getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData);
-		static inline REL::Relocation<decltype(getAttackStaminaCost)> _getHeavyAttackStaminaCost;
+		static inline REL::Relocation<decltype(getAttackStaminaCost)> _getAttackStaminaCost;
 	};
 
 
@@ -41,7 +41,7 @@ namespace Hooks
 			int offset = 0x62;
 #endif
 			_HasFlags1 = trampoline.write_call<5>(hook.address() + offset, HasFlags1);
-			logger::info("Stamina Regen hook installed");
+			logger::info("hook:OnStaminaRegen");
 		}
 
 	private:
@@ -62,7 +62,7 @@ namespace Hooks
 #endif
 			auto& trampoline = SKSE::GetTrampoline();
 			_ProcessHit = trampoline.write_call<5>(hook.address() + offset, processHit);
-			logger::info("Physical Hit hook installed.");
+			logger::info("hook:OnMeleeHit");
 		}
 
 	private:
@@ -82,7 +82,7 @@ namespace Hooks
 
 			REL::Relocation<uintptr_t> hook2{ REL::ID(42839) };  //Down	p	Character__sub_1407431D0+5B	call    sub_1403BE760
 			_getStaggerManitude_Bash = trampoline.write_call<5>(hook2.address() + 0x5B, getStaggerManitude_Bash);
-			logger::info("Stagger magnitude hook installed.");
+			logger::info("hook:OnGetStaggerMagnitude");
 		}
 
 	private:
@@ -101,7 +101,7 @@ namespace Hooks
 			auto& trampoline = SKSE::GetTrampoline();
 			REL::Relocation<uintptr_t> hook{ REL::ID(43015) };  // magic hit process
 			_processMagicHit = trampoline.write_call<5>(hook.address() + 0x216, processMagicHit);
-			logger::debug("Magic hit hook installed");
+			logger::debug("hook:OnMagicHit");
 		}
 
 	private:
@@ -133,7 +133,7 @@ namespace Hooks
 #else
 			_Update = trampoline.write_call<5>(hook.address() + 0x11F, Update);
 #endif
-			logger::info("Main update hook installed");
+			logger::info("hook:OnMainUpdate");
 		}
 
 	private:
@@ -149,7 +149,7 @@ namespace Hooks
 			REL::Relocation<std::uintptr_t> PlayerCharacterVtbl{ RE::VTABLE_PlayerCharacter[0] };
 
 			_Update = PlayerCharacterVtbl.write_vfunc(0xAD, Update);
-			logger::info("Player update hook installed");
+			logger::info("hook:OnPlayerUpdate");
 		}
 
 	private:
@@ -172,6 +172,7 @@ namespace Hooks
 
 			_arrowCollission = arrowProjectileVtbl.write_vfunc(190, OnArrowCollision);
 			_missileCollission = missileProjectileVtbl.write_vfunc(190, OnMissileCollision);
+			logger::info("hook:OnProjectileCollision");
 		};
 
 	private:
@@ -194,12 +195,34 @@ namespace Hooks
 #else
 			_ProcessHit = trampoline.write_call<5>(hook.address() + 0x38B, processHit);
 #endif
-			logger::info("Melee Hit hook installed.");
+			logger::info("hook:OnMeleeCollision");
 		}
 	private:
 		static void processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, std::int64_t a_int1, bool a_bool, void* a_unkptr);
 		
 		static inline REL::Relocation<decltype(processHit)> _ProcessHit;
+	};
+
+	class Hook_OnAttackAction
+	{
+	public:
+		static void install()
+		{
+#if SKYRIM_SUPPORT_AE
+			std::uint32_t offset = 0x435; 
+#else
+			std::uint32_t offset = 0x4D7;  
+#endif
+			auto& trampoline = SKSE::GetTrampoline();
+			REL::Relocation<std::uintptr_t> AttackActionBase{ RELOCATION_ID(48139, 49170) };
+			_PerformAttackAction = trampoline.write_call<5>(AttackActionBase.address() + offset, PerformAttackAction);
+			logger::info("hook:OnAttackAction");
+		}
+
+	private:
+		static bool PerformAttackAction(RE::TESActionData* a_actionData);
+
+		static inline REL::Relocation<decltype(PerformAttackAction)> _PerformAttackAction;
 	};
 
 	static void install()
@@ -212,6 +235,7 @@ namespace Hooks
 		Hook_OnPlayerUpdate::install();
 		Hook_OnProjectileCollision::install();
 		Hook_OnMeleeCollision::install();
+		Hook_OnAttackAction::install();
 		logger::info("...done");
 	}
 }

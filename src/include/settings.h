@@ -70,8 +70,14 @@ public:
 	static inline float fTimedBlockCooldownTime = 0.5;
 	static inline float fTimedBlockStaminaCostMult = 0.5;
 
+
 	static inline float fTackleWindow = 0.2;
 	static inline float fTackleCooldownTime = 2;
+
+	static inline float fTimedBlockMeleeExp = 10;
+	
+	static inline float fParryProjectileExp = 5;
+	static inline float fTimedBlockProjectileExp = 10;
 
 	static inline bool bTimedBlockScreenShake = true;
 	static inline bool bTimeBlockSFX = true;

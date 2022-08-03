@@ -56,9 +56,18 @@ namespace inlineUtils
 
 
 	inline bool isPowerAttacking(RE::Actor* a_actor) {
-		return
-			a_actor->currentProcess && a_actor->currentProcess->high && a_actor->currentProcess->high->attackData
-			&& a_actor->currentProcess->high->attackData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack);
+		auto currentProcess = a_actor->currentProcess;
+		if (currentProcess) {
+			auto highProcess = currentProcess->high;
+			if (highProcess) {
+				auto attackData = highProcess->attackData;
+				if (attackData) {
+					auto flags = attackData->data.flags;
+					return flags.any(RE::AttackData::AttackFlag::kPowerAttack) && !flags.any(RE::AttackData::AttackFlag::kBashAttack);
+				}
+			}
+		}
+		return false;
 	}
 	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
 	{
@@ -204,8 +213,7 @@ namespace inlineUtils
 		}
 
 		inline bool isEquippedShield(RE::Actor* a_actor) {
-			auto lhs = a_actor->GetEquippedObject(true);
-			return lhs && lhs->IsArmor();
+			return RE::Offset::getEquippedShield(a_actor);
 		}
 	}
 	
@@ -511,7 +519,11 @@ public:
 		pos = targetPoint->world.translate;
 	}
 
-	/*Deflect this projectile, aiming it at a_target.*/
+	/// <summary>
+	/// Change the projectile's trajectory, aiming it at the target.
+	/// </summary>
+	/// <param name="a_projectile">Projectile whose trajectory will be changed.</param>
+	/// <param name="a_target">New target to be aimed at.</param>
 	static void RetargetProjectile(RE::Projectile* a_projectile, RE::TESObjectREFR* a_target)
 	{
 		a_projectile->desiredTarget = a_target;
