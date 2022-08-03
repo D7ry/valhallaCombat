@@ -47,15 +47,26 @@ public:
 	static inline float fBckWpnStaminaMult_NPC_Block_NPC = 1;
 
 	static inline bool bStaminaDebuffToggle = true;
-	static inline bool bAttackStaminaToggle = false;
+	//static inline bool bAttackStaminaToggle = false;
 	static inline bool bBlockedHitRegenStamina = false;
 
 	
-	static inline float fMeleeCostLightMiss_Point = 30;
-	static inline float fMeleeRewardLightHit_Percent = 0.2f;
-	static inline float fMeleeCostHeavyMiss_Percent = 0.4f;
-	static inline float fMeleeCostHeavyHit_Percent = 0.333f;
+	//static inline float fMeleeCostLightMiss_Point = 30;
+	//static inline float fMeleeRewardLightHit_Percent = 0.2f;
+	//static inline float fMeleeCostHeavyMiss_Percent = 0.4f;
+	//static inline float fMeleeCostHeavyHit_Percent = 0.333f;
 
+#pragma endregion
+
+#pragma region spiritSettings
+	static inline bool bSpiritToggle = true;
+	static inline bool bSpiritGuardStanceToggle = true;
+	
+	static inline float fHeavyAttackSpiritGain = 20.f;
+	static inline float fLightAttackSpiritLoss = 5.f;
+	static inline float fSpiritDamageBuff_1 = 1.2;
+	static inline float fSpiritDamageBuff_2 = 1.4;
+	static inline float fSpiritDamageBuff_3 = 1.6;
 #pragma endregion
 #pragma region timedBlockSettings
 	/*perfect blocking*/
@@ -75,9 +86,8 @@ public:
 	static inline float fTackleCooldownTime = 2;
 
 	static inline float fTimedBlockMeleeExp = 10;
-	
-	static inline float fBlockProjectileExp = 5;
 	static inline float fTimedBlockProjectileExp = 10;
+	static inline float fBlockProjectileExp = 5;
 
 	static inline bool bTimedBlockScreenShake = true;
 	static inline bool bTimeBlockSFX = true;

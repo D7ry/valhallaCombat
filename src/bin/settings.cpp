@@ -57,12 +57,14 @@ void settings::readSettings() {
 	loader.FETCH(fBckShdStaminaMult_NPC_Block_PC);
 	loader.FETCH(fBckShdStaminaMult_PC_Block_NPC);
 	loader.FETCH(bStaminaDebuffToggle);
-	loader.FETCH(bAttackStaminaToggle);
+	
 	loader.FETCH(bBlockedHitRegenStamina);
-	loader.FETCH(fMeleeCostLightMiss_Point);
-	loader.FETCH(fMeleeRewardLightHit_Percent);
-	loader.FETCH(fMeleeCostHeavyMiss_Percent);
-	loader.FETCH(fMeleeCostHeavyHit_Percent);
+	
+	//loader.FETCH(bAttackStaminaToggle);
+	//loader.FETCH(fMeleeCostLightMiss_Point);
+	//loader.FETCH(fMeleeRewardLightHit_Percent);
+	//loader.FETCH(fMeleeCostHeavyMiss_Percent);
+	//loader.FETCH(fMeleeCostHeavyHit_Percent);
 	
 	loader.setActiveSection("TimedBlocking");
 	loader.FETCH(bBlockProjectileToggle);
@@ -78,6 +80,10 @@ void settings::readSettings() {
 	loader.FETCH(fTimedBlockSlowTime_Perfect);
 	loader.FETCH(fTimedBlockCooldownTime);
 	loader.FETCH(fTimedBlockStaminaCostMult);
+	loader.FETCH(fBlockProjectileExp);
+	loader.FETCH(fTimedBlockProjectileExp);
+	loader.FETCH(fTimedBlockMeleeExp);
+	
 	loader.FETCH(uAltBlockKey);
 	
 	loader.setActiveSection("Stun");
