@@ -30,7 +30,7 @@ void animEventHandler::ProcessEvent(RE::BSTEventSink<RE::BSAnimationGraphEvent>*
 	switch (hash(eventTag.data(), eventTag.size())) {
 	case "preHitFrame"_h:
 		if (settings::bAttackStaminaToggle) {
-			attackHandler::GetSingleton()->registerAtk(const_cast<RE::TESObjectREFR*>(a_event->holder)->As<RE::Actor>());
+			attackHandler::GetSingleton()->cacheAttack(const_cast<RE::TESObjectREFR*>(a_event->holder)->As<RE::Actor>());
 		} else if (settings::bStaminaDebuffToggle) {
 			staminaHandler::checkStamina(const_cast<RE::TESObjectREFR*>(a_event->holder)->As<RE::Actor>());
 		}

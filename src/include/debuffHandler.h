@@ -23,12 +23,14 @@ public:
 	/*@return whether this actor is in stamina debuff.*/
 	bool isInDebuff(RE::Actor* actor);
 
-	void initStaminaDebuff(RE::Actor* actor);
+	bool isInDebuff(RE::ActorValueOwner* a_avOwner);
+
+	void initStaminaDebuff(RE::Actor* aactor);
 	void revertDebuffUI(RE::Actor* a_actor);
 	void initDebuffUI(RE::Actor* a_actor);
 	/*Quickly stop stamina debuff without using the iterator.
 	a convenience method for outside class.*/
-	void quickStopStaminaDebuff(RE::Actor* actor);
+	void stopDebuff(RE::Actor* actor);
 private:
 
 

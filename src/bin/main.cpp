@@ -58,7 +58,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		break;
 	case SKSE::MessagingInterface::kPostLoadGame:
 		logger::info("Post load game");
-		debuffHandler::GetSingleton()->quickStopStaminaDebuff(RE::PlayerCharacter::GetSingleton());
+		debuffHandler::GetSingleton()->stopDebuff(RE::PlayerCharacter::GetSingleton());
 		stunHandler::GetSingleton()->reset();
 		//balanceHandler::GetSingleton()->reset();
 		settings::updateGlobals();

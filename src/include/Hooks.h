@@ -222,11 +222,12 @@ namespace Hooks
 		static inline REL::Relocation<decltype(PerformAttackAction)> _PerformAttackAction;
 	};
 
+
 	static void install()
 	{
 		logger::info("Installing hooks...");
 		SKSE::AllocTrampoline(1 << 8);
-		Hook_OnGetAttackStaminaCost::install();
+		//Hook_OnGetAttackStaminaCost::install();
 		Hook_OnStaminaRegen::install();
 		Hook_OnMeleeHit::install();
 		Hook_OnPlayerUpdate::install();

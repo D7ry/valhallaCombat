@@ -15,12 +15,6 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	using HITFLAG = RE::HitData::Flag;
 	if (hitFlag.any(HITFLAG::kBlocked)) {
 		blockHandler::GetSingleton()->processPhysicalBlock(a_victim, a_aggressor, hitFlag, a_hitData);
-		
-		if (settings::bBlockedHitRegenStamina && !(hitFlag.any(HITFLAG::kBash))) {
-			if (settings::bAttackStaminaToggle) {
-				attackHandler::GetSingleton()->registerHit(a_aggressor);
-			}
-		}
 		return;
 	}
 
@@ -39,7 +33,9 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 
 	//from this point on the hit can only be unblocked melee hit.
 	if (settings::bAttackStaminaToggle) {
-		attackHandler::GetSingleton()->registerHit(a_aggressor);
+		if (!hitFlag.any(HITFLAG::kPowerAttack)) {
+			attackHandler::GetSingleton()->OnLightHit(a_aggressor);
+		}
 	}
 
 

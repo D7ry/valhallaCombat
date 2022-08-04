@@ -58,11 +58,10 @@ void settings::readSettings() {
 	loader.FETCH(fBckShdStaminaMult_PC_Block_NPC);
 	loader.FETCH(bStaminaDebuffToggle);
 	
-	loader.FETCH(bBlockedHitRegenStamina);
 	
-	//loader.FETCH(bAttackStaminaToggle);
-	//loader.FETCH(fMeleeCostLightMiss_Point);
-	//loader.FETCH(fMeleeRewardLightHit_Percent);
+	loader.FETCH(bAttackStaminaToggle);
+	loader.FETCH(fMeleeCostLightMiss_Point);
+	loader.FETCH(fMeleeRewardLightHit_Percent);
 	//loader.FETCH(fMeleeCostHeavyMiss_Percent);
 	//loader.FETCH(fMeleeCostHeavyHit_Percent);
 	

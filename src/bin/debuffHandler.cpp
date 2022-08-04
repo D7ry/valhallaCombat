@@ -33,6 +33,9 @@ void debuffHandler::update() {
 			+ actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina)) { //offset max stamina based on modifier
 			revertDebuffUI(actor);
 			it = actorInDebuff.erase(it);
+			if (actor->IsPlayerRef()) {
+				inlineUtils::safeRemovePerk(data::debuffPerk, actor);
+			}
 			continue;
 		}
 		++it;
@@ -53,6 +56,11 @@ void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {
 		}
 		actorInDebuff.insert(handle);	
 	}
+
+	if (a_actor->IsPlayerRef()) {
+		inlineUtils::safeApplyPerk(data::debuffPerk, a_actor);
+	}
+	initDebuffUI(a_actor);
 
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::debuffHandler);
 }
@@ -89,6 +97,10 @@ void debuffHandler::stopDebuff(RE::Actor* a_actor) {
 	}
 	actorInDebuff.erase(it);
 	revertDebuffUI(a_actor);
+
+	if (a_actor->IsPlayerRef()) {
+		inlineUtils::safeRemovePerk(data::debuffPerk, a_actor);
+	}
 }
 
 	
@@ -97,7 +109,9 @@ bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
 	sharedLocker lock(mtx_actorInDebuff);
 	auto handle = a_actor->GetHandle();
 	return actorInDebuff.contains(handle);
-} 
+}
+
+ 
 
 
 void debuffHandler::async_pcStaminaMeterFlash() {

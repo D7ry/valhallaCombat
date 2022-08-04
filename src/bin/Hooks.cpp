@@ -153,4 +153,5 @@ used to block stamina regen in certain situations.*/
 
 		return _PerformAttackAction(a_actionData);
 	}
+
 }

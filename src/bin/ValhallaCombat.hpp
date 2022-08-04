@@ -81,7 +81,7 @@ public:
 	void requestTrueHudSpecialBarControl() {
 		logger::info("Requesting trueHUD API special bar control...");
 		if (!ersh_TrueHUD) {
-			logger::info("...Failure: TrueHUD API is a null pointer.");
+			logger::info("...aborted: TrueHUD API not acquired.");
 			return;
 		}
 
@@ -102,13 +102,18 @@ public:
 
 	void releaseTrueHudSpecialBarControl() {
 		logger::info("Release trueHUD API special bar control...");
-		if (ValhallaCombat::GetSingleton()->ersh_TrueHUD
-			->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
+		if (!ersh_TrueHUD) {
+			logger::info("...aborted: TrueHUD API not acquired.");
+			return;
+		}
+		auto res = ersh_TrueHUD->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle());
+		if (res == TRUEHUD_API::APIResult::OK) {
 			settings::facts::TrueHudAPI_HasSpecialBarControl = false;
 			settings::updateGlobals();
 			logger::info("...Success");
 		}
 		else {
+			logger::info("...Failure");
 			//logger::info("...Failure");
 		}
 	}

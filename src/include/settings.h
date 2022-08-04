@@ -46,15 +46,13 @@ public:
 	static inline float fBckShdStaminaMult_NPC_Block_NPC = 1;
 	static inline float fBckWpnStaminaMult_NPC_Block_NPC = 1;
 
-	static inline bool bStaminaDebuffToggle = true;
-	//static inline bool bAttackStaminaToggle = false;
-	static inline bool bBlockedHitRegenStamina = false;
+	static inline bool bAttackStaminaToggle = false;
 
-	
-	//static inline float fMeleeCostLightMiss_Point = 30;
-	//static inline float fMeleeRewardLightHit_Percent = 0.2f;
-	//static inline float fMeleeCostHeavyMiss_Percent = 0.4f;
-	//static inline float fMeleeCostHeavyHit_Percent = 0.333f;
+	static inline bool bStaminaDebuffToggle = true;
+	static inline float fMeleeCostLightMiss_Point = 30;
+	static inline float fMeleeRewardLightHit_Percent = 0.2f;
+	static inline float fMeleeCostHeavyMiss_Percent = 0.4f;
+	static inline float fMeleeCostHeavyHit_Percent = 0.333f;
 
 #pragma endregion
 

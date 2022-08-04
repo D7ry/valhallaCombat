@@ -440,7 +440,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 
 	if (isPerfectblock) {//stagger opponent immediately on perfect block.
 		reactionHandler::triggerStagger(a_blocker, a_attacker, reactionHandler::reactionType::kLarge);
-		debuffHandler::GetSingleton()->quickStopStaminaDebuff(a_blocker);
+		debuffHandler::GetSingleton()->stopDebuff(a_blocker);
 		inlineUtils::refillActorValue(a_blocker, RE::ActorValue::kStamina); //perfect blocking completely restores actor value.
 	}
 	else {
