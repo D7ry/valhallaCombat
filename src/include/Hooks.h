@@ -28,7 +28,7 @@ namespace Hooks
 	};
 
 
-	class Hook_OnStaminaRegen  //block stamina regen during weapon swing
+	class Hook_OnCheckStaminaRegenCondition  //block stamina regen during weapon swing
 	{
 	public:
 		static void install()
@@ -41,12 +41,33 @@ namespace Hooks
 			int offset = 0x62;
 #endif
 			_HasFlags1 = trampoline.write_call<5>(hook.address() + offset, HasFlags1);
-			logger::info("hook:OnStaminaRegen");
+			logger::info("hook:CheckStaminaRegenCondition");
 		}
 
 	private:
 		static bool HasFlags1(RE::ActorState* a_this, uint16_t a_flags);
 		static inline REL::Relocation<decltype(HasFlags1)> _HasFlags1;  //14063C330       140662930
+	};
+
+	class Hook_OnRestoreActorValue
+	{
+	public:
+		static void install()
+		{
+			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37510, 38452) };// 140620690       140645AA0
+			auto& trampoline = SKSE::GetTrampoline();
+#ifdef SKYRIM_SUPPORT_AE
+			int offset = 0xE1;
+#else
+			int offset = 0x176;
+#endif
+			_RestoreActorValue = trampoline.write_call<5>(hook.address() + offset, RestoreActorValue);
+			logger::info("hook:OnRestoresActorValue");
+		}
+
+	private:
+		static void RestoreActorValue(RE::Actor* a, RE::ActorValue av, float val);
+		static inline REL::Relocation<decltype(RestoreActorValue)> _RestoreActorValue; //140620900		140645d30
 	};
 
 	class Hook_OnMeleeHit
@@ -227,8 +248,9 @@ namespace Hooks
 	{
 		logger::info("Installing hooks...");
 		SKSE::AllocTrampoline(1 << 8);
-		//Hook_OnGetAttackStaminaCost::install();
-		Hook_OnStaminaRegen::install();
+		Hook_OnGetAttackStaminaCost::install();
+		Hook_OnCheckStaminaRegenCondition::install();
+		Hook_OnRestoreActorValue::install();
 		Hook_OnMeleeHit::install();
 		Hook_OnPlayerUpdate::install();
 		Hook_OnProjectileCollision::install();

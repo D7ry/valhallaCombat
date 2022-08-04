@@ -3,8 +3,6 @@
 #include "include/Utils.h"
 void staminaHandler::checkStamina(RE::Actor* a_actor) {
 	if (a_actor->GetActorValue(RE::ActorValue::kStamina) <= 0) {
-		//
-		("{}'s stamina is less than 0, initializing debuff.", a_actor->GetName());
 		debuffHandler::GetSingleton()->initStaminaDebuff(a_actor);
 	}
 }

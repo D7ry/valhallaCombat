@@ -3,7 +3,60 @@
 #include "include/Utils.h"
 #include "ValhallaCombat.hpp"
 using namespace inlineUtils;
+/*tweaks the value of designated game setting
+	@param gameSettingStr game setting to be tweaked.
+	@param val desired float value of gamesetting.*/
+static void setGameSettingf(const char* a_setting, float a_value)
+{
+	RE::Setting* setting = nullptr;
+	RE::GameSettingCollection* _settingCollection = RE::GameSettingCollection::GetSingleton();
+	setting = _settingCollection->GetSetting(a_setting);
+	if (!setting) {
+		logger::info("Error: invalid setting: {}", a_setting);
+	} else {
+		//logger::info("setting {} from {} to {}", settingStr, setting->GetFloat(), val);
+		setting->data.f = a_value;
+	}
+}
 
+static void setGameSettingb(const char* a_setting, bool a_value)
+{
+	RE::Setting* setting = nullptr;
+	RE::GameSettingCollection* _settingCollection = RE::GameSettingCollection::GetSingleton();
+	setting = _settingCollection->GetSetting(a_setting);
+	if (!setting) {
+		logger::info("invalid setting: {}", a_setting);
+	} else {
+		logger::info("setting {} from {} to {}", a_setting, setting->GetFloat(), a_value);
+		setting->data.b = false;
+	}
+}
+
+/*a map of all game races' original stamina regen, in case player wants to tweak the stamina regen values again*/
+static inline robin_hood::unordered_map<RE::TESRace*, float> staminaRegenMap;
+
+/*multiplies stamina regen of every single race by MULT.
+	@param mult multiplier for stamina regen.
+	@param upperLimit upper limit for stamina regen.*/
+static void multStaminaRegen(float mult, float upperLimit)
+{
+	for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
+		if (race && race->data.staminaRegen) {
+			float staminaRegen;
+			if (staminaRegenMap.find(race) == staminaRegenMap.end()) {
+				staminaRegenMap[race] = race->data.staminaRegen;
+				staminaRegen = staminaRegenMap[race] * mult;
+			} else {
+				staminaRegen = mult * staminaRegenMap[race];
+			}
+			if (staminaRegen > upperLimit) {
+				staminaRegen = upperLimit;
+			}
+			race->data.staminaRegen = staminaRegen;
+			//logger::info("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
+		}
+	}
+}
 
 void settings::init() {
 	logger::info("Initilize settings...");
@@ -50,6 +103,7 @@ void settings::readSettings() {
 	loader.FETCH(fStaminaRegenMult);
 	loader.FETCH(fStaminaRegenLimit);
 	loader.FETCH(fCombatStaminaRegenMult);
+	loader.FETCH(fBlockingStaminaRegenMult);
 	loader.FETCH(fStaminaRegenDelay);
 	loader.FETCH(bBlockStaminaToggle);
 	loader.FETCH(bGuardBreak);
@@ -118,6 +172,8 @@ void settings::readSettings() {
 	/*Set some game settings*/
 	setGameSettingf("fDamagedStaminaRegenDelay", fStaminaRegenDelay);
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
+	
+	
 	multStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
 	
 	/*Release truehud meter if set so.*/

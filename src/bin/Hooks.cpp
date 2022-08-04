@@ -15,12 +15,7 @@ namespace Hooks
 		RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
 		if (!settings::bNonCombatStaminaCost && !a_actor->IsInCombat()) {
 			return 0;
-		} else if (settings::bAttackStaminaToggle) {  //negate vanilla heavy attack stamina cost
-			if (atkData->data.flags.any(RE::AttackData::AttackFlag::kPowerAttack) && !atkData->data.flags.any(RE::AttackData::AttackFlag::kBashAttack)) {
-				return 0;
-			}
 		}
-
 		return _getAttackStaminaCost(avOwner, atkData);
 	}
 #pragma endregion
@@ -28,7 +23,7 @@ namespace Hooks
 #pragma region StaminaRegen
 	/*function generating conditions for stamina regen. Iff returned value is true, no regen.
 used to block stamina regen in certain situations.*/
-	bool Hook_OnStaminaRegen::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
+	bool Hook_OnCheckStaminaRegenCondition::HasFlags1(RE::ActorState* a_this, uint16_t a_flags)
 	{
 		//if bResult is true, prevents regen.
 		bool bResult = _HasFlags1(a_this, a_flags);  // is sprinting?
@@ -38,10 +33,18 @@ used to block stamina regen in certain situations.*/
 			auto attackState = actor->GetAttackState();
 			if (actor != attackHandler::GetSingleton()->actorToRegenStamina) {
 				//if melee hit regen is needed, no need to disable regen.
-				bResult = (attackState > RE::ATTACK_STATE_ENUM::kNone && attackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) || actor->IsBlocking();  //when attacking or blocking, doens't regen stmaina.
+				bResult = (attackState > RE::ATTACK_STATE_ENUM::kNone && attackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough);  //don't regen stamina if attacking
 			}
 		}
 		return bResult;
+	}
+
+	void Hook_OnRestoreActorValue::RestoreActorValue(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_val)
+	{
+		if (a_actor->IsBlocking() && a_actorValue == RE::ActorValue::kStamina) {
+			a_val *= 0.5;
+		}
+		_RestoreActorValue(a_actor, a_actorValue, a_val);
 	}
 #pragma endregion
 
@@ -153,5 +156,7 @@ used to block stamina regen in certain situations.*/
 
 		return _PerformAttackAction(a_actionData);
 	}
+
+
 
 }

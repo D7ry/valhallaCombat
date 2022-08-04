@@ -38,7 +38,8 @@ void animEventHandler::ProcessEvent(RE::BSTEventSink<RE::BSAnimationGraphEvent>*
 	case "attackStop"_h:
 		if (settings::bAttackStaminaToggle) {
 			attackHandler::GetSingleton()->checkout(const_cast<RE::TESObjectREFR*>(a_event->holder)->As<RE::Actor>());
-		} else if (settings::bStaminaDebuffToggle) {
+		}
+		if (settings::bStaminaDebuffToggle) {
 			staminaHandler::checkStamina(const_cast<RE::TESObjectREFR*>(a_event->holder)->As<RE::Actor>());
 		}
 		break;
