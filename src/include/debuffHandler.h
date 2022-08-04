@@ -24,16 +24,13 @@ public:
 	bool isInDebuff(RE::Actor* actor);
 
 	void initStaminaDebuff(RE::Actor* actor);
-	void stopStaminaDebuff(RE::Actor* actor);
+	void revertDebuffUI(RE::Actor* a_actor);
+	void initDebuffUI(RE::Actor* a_actor);
 	/*Quickly stop stamina debuff without using the iterator.
 	a convenience method for outside class.*/
 	void quickStopStaminaDebuff(RE::Actor* actor);
 private:
 
-
-	void addDebuffPerk(RE::Actor* a_actor);
-
-	void removeDebuffPerk(RE::Actor* a_actor);
 
 	static void async_pcStaminaMeterFlash();
 	static inline std::atomic<bool> async_pcStaminaMeterFlash_b;

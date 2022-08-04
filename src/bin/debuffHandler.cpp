@@ -31,9 +31,7 @@ void debuffHandler::update() {
 		if (actor->GetActorValue(RE::ActorValue::kStamina) >= 
 			actor->GetPermanentActorValue(RE::ActorValue::kStamina) 
 			+ actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina)) { //offset max stamina based on modifier
-			//DEBUG("{}'s stamina has fully recovered.", actor->GetName());
-			stopStaminaDebuff(actor);
-			//DEBUG("erasing actor");
+			revertDebuffUI(actor);
 			it = actorInDebuff.erase(it);
 			continue;
 		}
@@ -41,77 +39,58 @@ void debuffHandler::update() {
 	}	
 }
 
-/*Initialize a stmaina debuff for actor, giving them exhaustion perk, and putting them into the debuff map.
-If the actor is already in the debuff map(i.e. they are already experiencing debuff), do nothing.
-@param actor actor who will receive debuff.*/
+
 void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {	
 	if (!settings::bStaminaDebuffToggle) {
 		return;
 	}
+	RE::ActorHandle handle = a_actor->GetHandle();
 	{
-		RE::ActorHandle handle = a_actor->GetHandle();
 		uniqueLocker lock(mtx_actorInDebuff);
-		if (actorInDebuff.contains(handle)) {
+		auto it = actorInDebuff.find(handle);
+		if (it != actorInDebuff.end()) {
 			return;
 		}
 		actorInDebuff.insert(handle);	
 	}
 
-
-	if (a_actor->IsPlayerRef()) {
-		addDebuffPerk(a_actor);
-	}
-	if (settings::bUIAlert) {
-		TrueHUDUtils::greyoutAvMeter(a_actor, RE::ActorValue::kStamina);
-		if (a_actor->IsPlayerRef()) {
-			std::jthread t(async_pcStaminaMeterFlash);
-			t.detach();
-			async_pcStaminaMeterFlash_b = true;
-		}
-	}
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::debuffHandler);
 }
 
-/*Stamina the actor's stamina debuff, remove their debuff perk, and revert their UI meter.
-@param actor actor whose stamina debuff will stop.*/
-void debuffHandler::stopStaminaDebuff(RE::Actor* a_actor) {
-	//DEBUG("Stopping stamina debuff for {}", actor->GetName());
-	removeDebuffPerk(a_actor);
-	if (settings::bUIAlert) {
-		if (a_actor->IsPlayerRef()) {
-			async_pcStaminaMeterFlash_b = false;
-		}
-		TrueHUDUtils::revertAvMeter(a_actor, RE::ActorValue::kStamina);
+void debuffHandler::initDebuffUI(RE::Actor* a_actor) {
+	if (!settings::bUIAlert) {
+		return;
+	}
+	TrueHUDUtils::greyoutAvMeter(a_actor, RE::ActorValue::kStamina);
+	if (a_actor->IsPlayerRef() && !async_pcStaminaMeterFlash_b) {
+		std::jthread t(async_pcStaminaMeterFlash);
+		t.detach();
+		async_pcStaminaMeterFlash_b = true;
 	}
 }
 
-void debuffHandler::quickStopStaminaDebuff(RE::Actor* a_actor) {
-	{
-		auto handle = a_actor->GetHandle();
-		uniqueLocker lock(mtx_actorInDebuff);
-		if (!actorInDebuff.contains(handle)) {
-			return;
-		}
-		actorInDebuff.erase(handle);
-		stopStaminaDebuff(a_actor);
-		if (actorInDebuff.size() == 0) {
-			ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::debuffHandler);
-		}
+
+void debuffHandler::revertDebuffUI(RE::Actor* a_actor) {
+	if (!settings::bUIAlert) {
+		return;
 	}
-	
+	if (a_actor->IsPlayerRef()) {
+		async_pcStaminaMeterFlash_b = false;
+	}
+	TrueHUDUtils::revertAvMeter(a_actor, RE::ActorValue::kStamina);
 }
 
-/*Attach stamina debuff perk to actor.
-@param a_actor actor who will receive the debuff perk.*/
-void debuffHandler::addDebuffPerk(RE::Actor* a_actor) {
-	inlineUtils::safeApplyPerk(data::debuffPerk, a_actor);
+void debuffHandler::stopDebuff(RE::Actor* a_actor) {
+	auto handle = a_actor->GetHandle();
+	uniqueLocker lock(mtx_actorInDebuff);
+	auto it = actorInDebuff.find(handle);
+	if (it == actorInDebuff.end()) {
+		return;
+	}
+	actorInDebuff.erase(it);
+	revertDebuffUI(a_actor);
 }
 
-/*Remove stamina debuff perk from actor.
-@param a_actor actor who will gets the perk removed.*/
-void debuffHandler::removeDebuffPerk(RE::Actor* a_actor) {
-	inlineUtils::safeRemovePerk(data::debuffPerk, a_actor);
-}
 	
 
 bool debuffHandler::isInDebuff(RE::Actor* a_actor) {
