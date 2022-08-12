@@ -297,7 +297,7 @@ public:
 	/*Play sound with formid at a certain actor's position.
 	@param a: actor on which to play sonud.
 	@param formid: formid of the sound descriptor.*/
-	static void playSound(RE::Actor* a, RE::BGSSoundDescriptorForm* a_descriptor)
+	static void playSound(RE::Actor* a, RE::BGSSoundDescriptorForm* a_descriptor, float a_volumeOverride = 1)
 	{
 
 		RE::BSSoundHandle handle;
@@ -307,6 +307,7 @@ public:
 
 		RE::Offset::soundHelper_a(RE::BSAudioManager::GetSingleton(), &handle, a_descriptor->GetFormID(), 16);
 		if (RE::Offset::set_sound_position(&handle, a->data.location.x, a->data.location.y, a->data.location.z)) {
+			handle.SetVolume(a_volumeOverride);
 			RE::Offset::soundHelper_b(&handle, a->Get3D());
 			RE::Offset::soundHelper_c(&handle);
 		}

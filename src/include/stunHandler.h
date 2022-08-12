@@ -42,6 +42,7 @@ private:
 			_currentStun = _maxStun;
 			_regenCountDownMax = a_regenCountdown;
 			_regenCountDown = _regenCountDownMax;
+			_combatRegeneration = false;
 		}
 		/*Damage this actor's stun. Stun cannot go below 0
 		@return if the stun is depleted(sub 0) after this damage.*/

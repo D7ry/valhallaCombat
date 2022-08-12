@@ -106,6 +106,7 @@ void settings::readSettings() {
 	loader.FETCH(fBlockingStaminaRegenMult);
 	loader.FETCH(fStaminaRegenDelay);
 	loader.FETCH(bBlockStaminaToggle);
+	loader.FETCH(bBlockedHitRegenStamina);
 	loader.FETCH(bGuardBreak);
 	loader.FETCH(fBckShdStaminaMult_NPC_Block_NPC);
 	loader.FETCH(fBckShdStaminaMult_NPC_Block_PC);
@@ -125,6 +126,7 @@ void settings::readSettings() {
 	loader.FETCH(bTimedBlockProjectileToggle);
 	loader.FETCH(bTimedBlockScreenShake);
 	loader.FETCH(bTimeBlockSFX);
+	loader.FETCH(fTimedBlockSFXVolume);
 	loader.FETCH(uTimedBlockSparkType);
 	loader.FETCH(bTimedBlockSlowTime);
 	loader.FETCH(fTimedBlockWindow);
@@ -136,6 +138,7 @@ void settings::readSettings() {
 	loader.FETCH(fBlockProjectileExp);
 	loader.FETCH(fTimedBlockProjectileExp);
 	loader.FETCH(fTimedBlockMeleeExp);
+	loader.FETCH(bTackleToggle);
 	
 	loader.FETCH(uAltBlockKey);
 	

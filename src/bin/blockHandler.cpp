@@ -8,6 +8,7 @@
 #include "include/AI.h"
 #include "include/lib/BlockSpark.h"
 #include "include/offsets.h"
+#include "include/staminaHandler.h"
 #include "ValhallaCombat.hpp"
 using HITFLAG = RE::HitData::Flag;
 /*Called every frame.
@@ -438,6 +439,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	}
 
 
+
 	if (isPerfectblock) {//stagger opponent immediately on perfect block.
 		reactionHandler::triggerStagger(a_blocker, a_attacker, reactionHandler::reactionType::kLarge);
 		debuffHandler::GetSingleton()->stopDebuff(a_blocker);
@@ -450,8 +452,8 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 		hitData.Populate(a_attacker, a_blocker, attackerWeapon);
 		inlineUtils::damageav(a_blocker, RE::ActorValue::kStamina,
 			hitData.totalDamage * getBlockStaminaCostMult(a_blocker, a_attacker, hitData.flags) * settings::fTimedBlockStaminaCostMult);
+		
 	}
-	inlineUtils::damageav(a_attacker, RE::ActorValue::kStamina, a_attacker->GetPermanentActorValue(RE::ActorValue::kStamina) * 0.333);
 
 	return true;
 }
@@ -507,21 +509,33 @@ PRECISION_API::PreHitCallbackReturn blockHandler::precisionPrehitCallbackFunc(co
 void blockHandler::playBlockSFX(RE::Actor* blocker, blockType blockType, bool blockedWithWeapon) {
 	if (blockedWithWeapon) {
 		switch (blockType) {
-		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryWeapon_gb); break;
-		case blockType::perfect: ValhallaUtils::playSound(blocker, data::soundParryWeapon_perfect); break;
-		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryWeapon); break;
+		case blockType::guardBreaking:
+			ValhallaUtils::playSound(blocker, data::soundParryWeapon_gb, settings::fTimedBlockSFXVolume);
+			break;
+		case blockType::perfect:
+			ValhallaUtils::playSound(blocker, data::soundParryWeapon_perfect, settings::fTimedBlockSFXVolume);
+			break;
+		case blockType::timed:
+			ValhallaUtils::playSound(blocker, data::soundParryWeapon, settings::fTimedBlockSFXVolume);
+			break;
 		case blockType::tackle:
-			ValhallaUtils::playSound(blocker, data::soundParryWeapon);
+			ValhallaUtils::playSound(blocker, data::soundParryWeapon, settings::fTimedBlockSFXVolume);
 			break;
 		}
 	}
 	else {
 		switch (blockType) {
-		case blockType::guardBreaking: ValhallaUtils::playSound(blocker, data::soundParryShield_gb); break;
-		case blockType::perfect: ValhallaUtils::playSound(blocker, data::soundParryShield_perfect); break;
-		case blockType::timed: ValhallaUtils::playSound(blocker, data::soundParryShield); break;
+		case blockType::guardBreaking:
+			ValhallaUtils::playSound(blocker, data::soundParryShield_gb, settings::fTimedBlockSFXVolume);
+			break;
+		case blockType::perfect:
+			ValhallaUtils::playSound(blocker, data::soundParryShield_perfect, settings::fTimedBlockSFXVolume);
+			break;
+		case blockType::timed:
+			ValhallaUtils::playSound(blocker, data::soundParryShield, settings::fTimedBlockSFXVolume);
+			break;
 		case blockType::tackle:
-			ValhallaUtils::playSound(blocker, data::soundParryWeapon);
+			ValhallaUtils::playSound(blocker, data::soundParryWeapon, settings::fTimedBlockSFXVolume);
 			break;
 		}
 	}

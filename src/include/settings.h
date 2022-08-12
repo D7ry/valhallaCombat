@@ -36,6 +36,8 @@ public:
 	static inline float fBlockingStaminaRegenMult = 0.5;
 	static inline float fStaminaRegenDelay = 2;
 
+	static inline float bBlockedHitRegenStamina = false;
+
 	static inline bool bBlockStaminaToggle = false;
 	static inline bool bGuardBreak = true;
 	static inline float fBckShdStaminaMult_PC_Block_NPC = 1;
@@ -72,14 +74,13 @@ public:
 	//static inline bool bPoiseCompatibility = false;
 	static inline bool bBlockProjectileToggle = true;
 	static inline bool bTimedBlockToggle = true;
-	static inline bool bTackleToggle = true;
+	static inline bool bTackleToggle = false;
 	static inline bool bTimedBlockProjectileToggle = true;
 	
 	static inline float fTimedBlockWindow = 0.3;
 	static inline float fPerfectBlockWindow = 0.15;
 	static inline float fTimedBlockCooldownTime = 0.5;
 	static inline float fTimedBlockStaminaCostMult = 0.5;
-
 
 	static inline float fTackleWindow = 0.2;
 	static inline float fTackleCooldownTime = 2;
@@ -90,6 +91,7 @@ public:
 
 	static inline bool bTimedBlockScreenShake = true;
 	static inline bool bTimeBlockSFX = true;
+	static inline float fTimedBlockSFXVolume = 1;
 	static inline uint32_t uTimedBlockSparkType = 0;  //0 = fantasy, 1 = realism, 2 = none
 	static inline bool bTimedBlockSlowTime = true;
 	
@@ -132,6 +134,12 @@ public:
 #pragma region BalanceSettings
 	static inline bool bBalanceToggle = true;
 
+#pragma endregion
+
+#pragma region AISettings
+	static inline bool bExhaustionAIToggle = true;
+	static inline bool bCirclingAIToggle = true;
+	static inline bool bPerilousAttackAIToggle = true;
 #pragma endregion
 #pragma region Compatibility
 	static inline bool bPoiseCompatibility = false;

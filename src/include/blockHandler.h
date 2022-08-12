@@ -21,7 +21,7 @@ public:
 		timed,
 		perfect,
 		guardBreaking,
-		tackle
+		tackle,
 	};
 	
 	bool getIsPcTimedBlocking();

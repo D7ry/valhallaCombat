@@ -18,18 +18,30 @@ public:
 	* */
 	void tryPcExecution();
 
-	/*Play an execution idle animation.
-	@param executor: the actor the execute.
-	@param victim: the actor to be executed.
-	@param executionIdle: the execution idle to be played.*/
-	void playExecutionIdle(RE::Actor* executor, RE::Actor* victim, RE::TESIdleForm* executionIdle);
-	void playExecutionIdle(RE::Actor* executor, RE::Actor* victim, std::vector<RE::TESIdleForm*> executionIdleV);
+	/// <summary>
+	/// Queue an execution idle for 10 times.
+	/// </summary>
+	/// <param name="a_executor"></param>
+	/// <param name="a_victim"></param>
+	/// <param name="a_executionIdle"></param>
+	/// <param name="i"></param>
+	void queueExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, RE::TESIdleForm* a_executionIdle, int i);
+
+	/// <summary>
+	/// Queue one of execution idle, selected randomly from the vector, for 10 times.
+	/// </summary>
+	/// <param name="a_executor"></param>
+	/// <param name="a_victim"></param>
+	/// <param name="a_executionIdleV"></param>
+	/// <param name="i"></param>
+	void queueExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, std::vector<RE::TESIdleForm*> a_executionIdleV, int i);
+
 	/*Attempt an execution. Help aggressor decide which killmove to use
 	based on aggressor/victim's relative position, rotation, and victim's race.
 	Also performs a check on whether the aggressor can execute victim.
 	@param executor: actor to perform killmove.
 	@param victim: actor to be executed.*/
-	void attemptExecute(RE::Actor* executor, RE::Actor* victim);
+	bool attemptExecute(RE::Actor* executor, RE::Actor* victim);
 
 
 private:
@@ -53,6 +65,9 @@ private:
 	void executeChaurusFlyer(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
 	void executeLurker(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
 	void executeDragon(RE::Actor* executer, RE::Actor* victim, RE::WEAPON_TYPE weaponType);
+
+	static inline void async_queueExecutionThreadFunc(RE::Actor* a_executor, RE::Actor* a_victim, std::vector<RE::TESIdleForm*> a_executionIdleV, int i);
+	static inline void async_queueExecutionThreadFun(RE::Actor* a_executor, RE::Actor* a_victim, RE::TESIdleForm* a_executionIdle, int i);
 
 };
 

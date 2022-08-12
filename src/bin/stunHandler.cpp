@@ -127,7 +127,7 @@ void stunHandler::update() {
 		
 		if (actor->IsDead()) {
 			safeErase_StunBrokenActors(one_handle);
-			
+			TrueHUDUtils::revertSpecialMeter(actor);
 			it = actorStunDataMap.erase(it);
 			continue;
 		}
@@ -140,18 +140,20 @@ void stunHandler::update() {
 			continue;
 		}
 			
-		if (stunData->canRegen() && stunData->regenStun()) {
-			stunData->setCombatRegeneration(false);
-			TrueHUDUtils::revertSpecialMeter(actor);
+		if (stunData->canRegen()) {
+			if (stunData->regenStun()) {
+				stunData->setCombatRegeneration(false);
+				TrueHUDUtils::revertSpecialMeter(actor);
 
-			if (settings::bDownedStateToggle) {
-				reactionHandler::recoverDownedState(actor);
+				if (settings::bDownedStateToggle) {
+					reactionHandler::recoverDownedState(actor);
+				}
+
+				safeErase_StunBrokenActors(one_handle);
+
+				it = actorStunDataMap.erase(it);
+				continue;
 			}
-
-			safeErase_StunBrokenActors(one_handle);
-			
-			it = actorStunDataMap.erase(it);
-			continue;
 		}
 		it++;
 		
