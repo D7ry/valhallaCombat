@@ -52,13 +52,13 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 			default:
 				continue;
 			}
-			if (key == settings::uExecutionKey) {
+			if (key == settings::iExecutionKey) {
 				if (button->IsDown()) {
 					executionHandler::GetSingleton()->tryPcExecution();
 				}
 				break;
 			}
-			if (key == settings::uAltBlockKey || button->QUserEvent() == "Left Attack/Block") {
+			if (key == settings::iAltBlockKey || button->QUserEvent() == "Left Attack/Block") {
 				if (button->IsDown()) {
 					if (settings::bTimedBlockToggle || settings::bTimedBlockProjectileToggle) {
 						blockHandler::GetSingleton()->onBlockKeyDown();

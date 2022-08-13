@@ -15,7 +15,7 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	using HITFLAG = RE::HitData::Flag;
 	if (hitFlag.any(HITFLAG::kBlocked)) {
 		blockHandler::GetSingleton()->processPhysicalBlock(a_victim, a_aggressor, hitFlag, a_hitData);
-		if (settings::bBlockedHitRegenStamina) {
+		if (settings::bBlockedHitRegenStamina && settings::bAttackStaminaToggle) {
 			if (!hitFlag.any(HITFLAG::kPowerAttack)) {
 				attackHandler::GetSingleton()->OnLightHit(a_aggressor);
 			}

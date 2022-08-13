@@ -48,20 +48,23 @@ used to block stamina regen in certain situations.*/
 	}
 #pragma endregion
 
-#pragma region getStaggerMagnitude_Weapon
-	float Hook_OnGetStaggerMagnitude::getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4)
-	{
-		if (settings::bBalanceToggle) {
-			return 0;
-		}
-	}
-
-	float Hook_OnGetStaggerMagnitude::getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2)
-	{
-		if (settings::bBalanceToggle) {
-			return 0;
-		}
-	}
+//#pragma region getStaggerMagnitude_Weapon
+//	float Hook_OnGetStaggerMagnitude::getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4)
+//	{
+//		if (settings::bBalanceToggle) {
+//			return 0;
+//		}
+//		return _getStaggerMagnitude_Weapon(a1, a2, a3, a4);
+//	}
+//
+//	float Hook_OnGetStaggerMagnitude::getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2)
+//	{
+//		if (settings::bBalanceToggle) {
+//			return 0;
+//		}
+//		return _getStaggerManitude_Bash(a1, a2);
+//
+//	}
 
 #pragma endregion
 #pragma region MeleeHit
@@ -79,13 +82,13 @@ used to block stamina regen in certain situations.*/
 
 #pragma endregion
 
-#pragma region MainUpdate
-	void Hook_MainUpdate::Update(RE::Main* a_this, float a2)
-	{
-		ValhallaCombat::GetSingleton()->update();
-		_Update(a_this, a2);
-	}
-#pragma endregion
+//#pragma region MainUpdate
+//	void Hook_MainUpdate::Update(RE::Main* a_this, float a2)
+//	{
+//		ValhallaCombat::GetSingleton()->update();
+//		_Update(a_this, a2);
+//	}
+//#pragma endregion
 
 #pragma region projectileHit
 	/*Decide whether the collision is a actor-projectile collision. If it is, initialize a deflection attempt by the actor.

@@ -14,11 +14,9 @@ namespace Hooks
 			auto& trampoline = SKSE::GetTrampoline();
 
 			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37650, 38603) };  //SE:627930 + 16E => 3BEC90 AE:64D350 + 171 => 3D6720
-#ifdef SKYRIM_SUPPORT_AE
-			_getAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0x171, getAttackStaminaCost);
-#else
-			_getAttackStaminaCost = trampoline.write_call<5>(hook.address() + 0x16E, getAttackStaminaCost);
-#endif
+
+			_getAttackStaminaCost = trampoline.write_call<5>(hook.address() + RELOCATION_OFFSET(0x16E, 0x171), getAttackStaminaCost);
+			
 			logger::info("hook:OnGetAttackStaminaCost");
 		}
 
@@ -35,12 +33,7 @@ namespace Hooks
 		{
 			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37510, 38452) };  // 140620690       140645AA0
 			auto& trampoline = SKSE::GetTrampoline();
-#ifdef SKYRIM_SUPPORT_AE
-			int offset = 0x6F;
-#else
-			int offset = 0x62;
-#endif
-			_HasFlags1 = trampoline.write_call<5>(hook.address() + offset, HasFlags1);
+			_HasFlags1 = trampoline.write_call<5>(hook.address() + RELOCATION_OFFSET(0x62, 0x6F), HasFlags1);
 			logger::info("hook:CheckStaminaRegenCondition");
 		}
 
@@ -56,12 +49,7 @@ namespace Hooks
 		{
 			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37510, 38452) };// 140620690       140645AA0
 			auto& trampoline = SKSE::GetTrampoline();
-#ifdef SKYRIM_SUPPORT_AE
-			int offset = 0xE1;
-#else
-			int offset = 0x176;
-#endif
-			_RestoreActorValue = trampoline.write_call<5>(hook.address() + offset, RestoreActorValue);
+			_RestoreActorValue = trampoline.write_call<5>(hook.address() + RELOCATION_OFFSET(0x176, 0xE1), RestoreActorValue);
 			logger::info("hook:OnRestoresActorValue");
 		}
 
@@ -76,13 +64,8 @@ namespace Hooks
 		static void install()
 		{
 			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37673, 38627) };  //140628C20       14064E760
-#ifdef SKYRIM_SUPPORT_AE
-			int offset = 0x4A8;
-#else
-			int offset = 0x3C0;
-#endif
 			auto& trampoline = SKSE::GetTrampoline();
-			_ProcessHit = trampoline.write_call<5>(hook.address() + offset, processHit);
+			_ProcessHit = trampoline.write_call<5>(hook.address() + RELOCATION_OFFSET(0x3C0, 0x4A8), processHit);
 			logger::info("hook:OnMeleeHit");
 		}
 
@@ -92,72 +75,72 @@ namespace Hooks
 	};
 
 	/*Remove vanilla stagger by setting return value of all vanilla stagger magnitude calculations to 0.*/
-	class Hook_OnGetStaggerMagnitude
-	{
-	public:
-		static void install()
-		{
-			auto& trampoline = SKSE::GetTrampoline();
-			REL::Relocation<uintptr_t> hook1{ REL::ID(42839) };  //Down	p	Character__sub_1407431D0+81	call    ActorValueOwner__sub_1403BEB10
-			_getStaggerMagnitude_Weapon = trampoline.write_call<5>(hook1.address() + 0x81, getStaggerMagnitude_Weapon);
+	//class Hook_OnGetStaggerMagnitude
+	//{
+	//public:
+	//	static void install()
+	//	{
+	//		auto& trampoline = SKSE::GetTrampoline();
+	//		REL::Relocation<uintptr_t> hook1{ REL::ID(42839) };  //Down	p	Character__sub_1407431D0+81	call    ActorValueOwner__sub_1403BEB10
+	//		_getStaggerMagnitude_Weapon = trampoline.write_call<5>(hook1.address() + 0x81, getStaggerMagnitude_Weapon);
 
-			REL::Relocation<uintptr_t> hook2{ REL::ID(42839) };  //Down	p	Character__sub_1407431D0+5B	call    sub_1403BE760
-			_getStaggerManitude_Bash = trampoline.write_call<5>(hook2.address() + 0x5B, getStaggerManitude_Bash);
-			logger::info("hook:OnGetStaggerMagnitude");
-		}
+	//		REL::Relocation<uintptr_t> hook2{ REL::ID(42839) };  //Down	p	Character__sub_1407431D0+5B	call    sub_1403BE760
+	//		_getStaggerManitude_Bash = trampoline.write_call<5>(hook2.address() + 0x5B, getStaggerManitude_Bash);
+	//		logger::info("hook:OnGetStaggerMagnitude");
+	//	}
 
-	private:
-		static float getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4);
-		static inline REL::Relocation<decltype(getStaggerMagnitude_Weapon)> _getStaggerMagnitude_Weapon;
+	//private:
+	//	static float getStaggerMagnitude_Weapon(RE::ActorValueOwner* a1, RE::ActorValueOwner* a2, RE::TESObjectWEAP* a3, float a4);
+	//	static inline REL::Relocation<decltype(getStaggerMagnitude_Weapon)> _getStaggerMagnitude_Weapon;
 
-		static float getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2);
-		static inline REL::Relocation<decltype(getStaggerManitude_Bash)> _getStaggerManitude_Bash;
-	};
+	//	static float getStaggerManitude_Bash(uintptr_t a1, uintptr_t a2);
+	//	static inline REL::Relocation<decltype(getStaggerManitude_Bash)> _getStaggerManitude_Bash;
+	//};
 
-	class Hook_MagicHit
-	{  //not used now
-	public:
-		static void install()
-		{
-			auto& trampoline = SKSE::GetTrampoline();
-			REL::Relocation<uintptr_t> hook{ REL::ID(43015) };  // magic hit process
-			_processMagicHit = trampoline.write_call<5>(hook.address() + 0x216, processMagicHit);
-			logger::debug("hook:OnMagicHit");
-		}
+	//class Hook_MagicHit
+	//{  //not used now
+	//public:
+	//	static void install()
+	//	{
+	//		auto& trampoline = SKSE::GetTrampoline();
+	//		REL::Relocation<uintptr_t> hook{ REL::ID(43015) };  // magic hit process
+	//		_processMagicHit = trampoline.write_call<5>(hook.address() + 0x216, processMagicHit);
+	//		logger::debug("hook:OnMagicHit");
+	//	}
 
-	private:
-		static void __fastcall processMagicHit([[maybe_unused]] RE::ActorMagicCaster* attacker, [[maybe_unused]] RE::NiPoint3* rdx0, [[maybe_unused]] RE::Projectile* a_projectile, [[maybe_unused]] RE::TESObjectREFR* victim, [[maybe_unused]] float a5, [[maybe_unused]] float a6, [[maybe_unused]] char a7, [[maybe_unused]] char a8)
-		{
-			if (!attacker || !victim) {
-				_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
-			}
-			if (victim && victim->IsPlayerRef()) {
-			}
-			_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
-		}
-		static inline REL::Relocation<decltype(processMagicHit)> _processMagicHit;
-	};
+	//private:
+	//	static void __fastcall processMagicHit([[maybe_unused]] RE::ActorMagicCaster* attacker, [[maybe_unused]] RE::NiPoint3* rdx0, [[maybe_unused]] RE::Projectile* a_projectile, [[maybe_unused]] RE::TESObjectREFR* victim, [[maybe_unused]] float a5, [[maybe_unused]] float a6, [[maybe_unused]] char a7, [[maybe_unused]] char a8)
+	//	{
+	//		if (!attacker || !victim) {
+	//			_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
+	//		}
+	//		if (victim && victim->IsPlayerRef()) {
+	//		}
+	//		_processMagicHit(attacker, rdx0, a_projectile, victim, a5, a6, a7, a8);
+	//	}
+	//	static inline REL::Relocation<decltype(processMagicHit)> _processMagicHit;
+	//};
 
-	class Hook_MainUpdate
-	{
-	public:
-		static void install()
-		{
-			auto& trampoline = SKSE::GetTrampoline();
-			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(35551, 36544) };  // 5AF3D0, 5D29F0, main loop
-
-#ifdef SKYRIM_SUPPORT_AE
-			_Update = trampoline.write_call<5>(hook.address() + 0x160, Update);
-#else
-			_Update = trampoline.write_call<5>(hook.address() + 0x11F, Update);
-#endif
-			logger::info("hook:OnMainUpdate");
-		}
-
-	private:
-		static void Update(RE::Main* a_this, float a2);
-		static inline REL::Relocation<decltype(Update)> _Update;
-	};
+//	class Hook_MainUpdate
+//	{
+//	public:
+//		static void install()
+//		{
+//			auto& trampoline = SKSE::GetTrampoline();
+//			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(35551, 36544) };  // 5AF3D0, 5D29F0, main loop
+//
+//#ifdef SKYRIM_SUPPORT_AE
+//			_Update = trampoline.write_call<5>(hook.address() + 0x160, Update);
+//#else
+//			_Update = trampoline.write_call<5>(hook.address() + 0x11F, Update);
+//#endif
+//			logger::info("hook:OnMainUpdate");
+//		}
+//
+//	private:
+//		static void Update(RE::Main* a_this, float a2);
+//		static inline REL::Relocation<decltype(Update)> _Update;
+//	};
 
 	class Hook_OnPlayerUpdate  //no longer used
 	{
@@ -206,13 +189,11 @@ namespace Hooks
 	public:
 		static void install()
 		{
-			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37650, 38603) };  //SE:627930 + 38B AE:64D350 + 40A / 45A
+			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37650, 38603) };  //SE:627930 + 38B AE:64D350 +  45A
 			auto& trampoline = SKSE::GetTrampoline();
-#ifdef SKYRIM_SUPPORT_AE
-			_ProcessHit = trampoline.write_call<5>(hook.address() + 0x45A, processHit);
-#else
-			_ProcessHit = trampoline.write_call<5>(hook.address() + 0x38B, processHit);
-#endif
+
+			_ProcessHit = trampoline.write_call<5>(hook.address() + RELOCATION_OFFSET(0x38B, 0x45A), processHit);
+
 			logger::info("hook:OnMeleeCollision");
 		}
 	private:
@@ -226,14 +207,9 @@ namespace Hooks
 	public:
 		static void install()
 		{
-#if SKYRIM_SUPPORT_AE
-			std::uint32_t offset = 0x435; 
-#else
-			std::uint32_t offset = 0x4D7;  
-#endif
 			auto& trampoline = SKSE::GetTrampoline();
 			REL::Relocation<std::uintptr_t> AttackActionBase{ RELOCATION_ID(48139, 49170) };
-			_PerformAttackAction = trampoline.write_call<5>(AttackActionBase.address() + offset, PerformAttackAction);
+			_PerformAttackAction = trampoline.write_call<5>(AttackActionBase.address() + RELOCATION_OFFSET(0x4D7, 0x435), PerformAttackAction);
 			logger::info("hook:OnAttackAction");
 		}
 

@@ -8,6 +8,18 @@
 #define CONSOLELOG(msg) 	RE::ConsoleLog::GetSingleton()->Print(msg);
 #define PI 3.1415926535897932384626
 //TODO:clear this up a bit
+namespace RE
+{
+	enum DIFFICULTY
+	{
+		kNovice = 0,
+		kApprentice = 1,
+		kAdept = 2,
+		kExpert = 3,
+		kMaster = 4,
+		kLegendary = 5
+	};
+};
 namespace inlineUtils
 {
 	inline static bool isEquippedShield(RE::Actor* a_actor) {
@@ -121,7 +133,7 @@ namespace inlineUtils
 	@param victim: victim of this damage.*/
 	inline void offsetRealDamage(float& damage, RE::Actor* aggressor, RE::Actor* victim) {
 		if ((aggressor) && (aggressor->IsPlayerRef() || aggressor->IsPlayerTeammate())) {
-			switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
+			switch (RE::PlayerCharacter::GetSingleton()->difficulty) {
 			case RE::DIFFICULTY::kNovice: damage *= data::fDiffMultHPByPCVE; break;
 			case RE::DIFFICULTY::kApprentice: damage *= data::fDiffMultHPByPCE; break;
 			case RE::DIFFICULTY::kAdept: damage *= data::fDiffMultHPByPCN; break;
@@ -131,7 +143,7 @@ namespace inlineUtils
 			}
 		}
 		else if ((victim) && (victim->IsPlayerRef() || victim->IsPlayerTeammate())) {
-			switch (RE::PlayerCharacter::GetSingleton()->getDifficultySetting()) {
+			switch (RE::PlayerCharacter::GetSingleton()->difficulty) {
 			case RE::DIFFICULTY::kNovice: damage *= data::fDiffMultHPToPCVE; break;
 			case RE::DIFFICULTY::kApprentice: damage *= data::fDiffMultHPToPCE; break;
 			case RE::DIFFICULTY::kAdept: damage *= data::fDiffMultHPToPCN; break;
@@ -571,7 +583,7 @@ public:
 		}
 
 		if (direction.x < 0.0) {
-			a_projectile->data.angle.z += PI;
+a_projectile->data.angle.z += PI;
 		}
 
 		inlineUtils::SetRotationMatrix(projectileNode->local.rotate, -direction.x, direction.y, direction.z);
@@ -618,7 +630,7 @@ namespace DtryUtils
 			_loadedForms++;
 		}
 	};
-	
+
 	/*Helper class to load from a simple ini file.*/
 	class settingsLoader
 	{
@@ -660,11 +672,20 @@ namespace DtryUtils
 				_loadedSettings++;
 			}
 		}
-		/*Load an integer value if present.*/
+		/*Load an unsigned int value if present.*/
 		void load(uint32_t& settingRef, const char* key)
 		{
 			if (_ini->GetValue(_section, key)) {
 				uint32_t val = static_cast<uint32_t>(_ini->GetDoubleValue(_section, key));
+				settingRef = val;
+				_loadedSettings++;
+			}
+		}
+
+		/*Load an integer value if present.*/
+		void load(int& settingRef, const char* key) {
+			if (_ini->GetValue(_section, key)) {
+				int val = static_cast<int>(_ini->GetDoubleValue(_section, key));
 				settingRef = val;
 				_loadedSettings++;
 			}

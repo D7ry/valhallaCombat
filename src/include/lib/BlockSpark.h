@@ -55,16 +55,13 @@ namespace MaxsuBlockSpark
 				return;
 			}
 
-			auto cell = defender->GetParentCell();
-
 			const auto modelName = 
 				BipeObjIndex == RE::BIPED_OBJECT::kShield && defenderLeftEquipped && defenderLeftEquipped->IsArmor() ? "ValhallaCombat\\impactShieldRoot.nif" : "ValhallaCombat\\impactWeaponRoot.nif";
 			
 			RE::NiPoint3 sparkPos = defenderNode->worldBound.center;
 
 			//DEBUG("Get Weapon Spark Position!");
-			cell->PlaceParticleEffect(0.0f, modelName, defenderNode->world.rotate, sparkPos, 1.0f, 4U, defenderNode.get());
-		}
+			RE::BSTempEffectParticle::Spawn(defender->GetParentCell(), 0.0f, modelName, defenderNode->world.rotate, sparkPos, 1.0f, 4U, defenderNode.get());		}
 	};
 }
 

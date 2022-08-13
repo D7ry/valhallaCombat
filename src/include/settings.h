@@ -50,6 +50,7 @@ public:
 	static inline float fBckWpnStaminaMult_NPC_Block_NPC = 1;
 
 	static inline bool bAttackStaminaToggle = true;
+	static inline bool bAttackStaminaToggle_NPC = false;
 
 	static inline bool bStaminaDebuffToggle = true;
 	static inline float fMeleeCostLightMiss_Point = 30;
@@ -65,9 +66,9 @@ public:
 	
 	static inline float fHeavyAttackSpiritGain = 20.f;
 	static inline float fLightAttackSpiritLoss = 5.f;
-	static inline float fSpiritDamageBuff_1 = 1.2;
-	static inline float fSpiritDamageBuff_2 = 1.4;
-	static inline float fSpiritDamageBuff_3 = 1.6;
+	static inline float fSpiritDamageBuff_1 = 1.2f;
+	static inline float fSpiritDamageBuff_2 = 1.4f;
+	static inline float fSpiritDamageBuff_3 = 1.6f;
 #pragma endregion
 #pragma region timedBlockSettings
 	/*perfect blocking*/
@@ -77,17 +78,17 @@ public:
 	static inline bool bTackleToggle = false;
 	static inline bool bTimedBlockProjectileToggle = true;
 	
-	static inline float fTimedBlockWindow = 0.3;
-	static inline float fPerfectBlockWindow = 0.15;
-	static inline float fTimedBlockCooldownTime = 0.5;
-	static inline float fTimedBlockStaminaCostMult = 0.5;
+	static inline float fTimedBlockWindow = 0.3f;
+	static inline float fPerfectBlockWindow = 0.15f;
+	static inline float fTimedBlockCooldownTime = 0.5f;
+	static inline float fTimedBlockStaminaCostMult = 0.5f;
 
-	static inline float fTackleWindow = 0.2;
-	static inline float fTackleCooldownTime = 2;
+	static inline float fTackleWindow = 0.2f;
+	static inline float fTackleCooldownTime = 2.f;
 
-	static inline float fTimedBlockMeleeExp = 10;
-	static inline float fTimedBlockProjectileExp = 10;
-	static inline float fBlockProjectileExp = 5;
+	static inline float fTimedBlockMeleeExp = 10.f;
+	static inline float fTimedBlockProjectileExp = 10.f;
+	static inline float fBlockProjectileExp = 5.f;
 
 	static inline bool bTimedBlockScreenShake = true;
 	static inline bool bTimeBlockSFX = true;
@@ -98,7 +99,7 @@ public:
 	static inline float fTimedBlockSlowTime_Timed = 0.0f;
 	static inline float fTimedBlockSlowTime_Perfect = 0.3f;
 
-	static inline uint32_t uAltBlockKey = -1;
+	static inline int iAltBlockKey = -1;
 #pragma endregion
 #pragma region StunSettings
 
@@ -108,28 +109,28 @@ public:
 	static inline bool bFriendlyStunToggle = false;
 	static inline bool bDownedStateToggle = false;
 	
-	static inline float fStunTimedBlockMult = 1;
-	static inline float fStunParryMult = 1;
-	static inline float fStunBashMult = 0.3;
-	static inline float fStunPowerBashMult = 1;
-	static inline float fStunNormalAttackMult = 0;
-	static inline float fStunPowerAttackMult = 1;
-	static inline float fStunCounterAttackMult = 1.2;
+	static inline float fStunTimedBlockMult = 1.f;
+	static inline float fStunParryMult = 1.f;
+	static inline float fStunBashMult = 0.3f;
+	static inline float fStunPowerBashMult = 1.f;
+	static inline float fStunNormalAttackMult = 0.f;
+	static inline float fStunPowerAttackMult = 1.f;
+	static inline float fStunCounterAttackMult = 1.2f;
 
-	static inline float fStunUnarmedMult = 1;
-	static inline float fStunDaggerMult = 0.5;
-	static inline float fStunSwordMult = 1;
-	static inline float fStunWarAxeMult = 1.1;
-	static inline float fStunMaceMult = 1.1;
-	static inline float fStunGreatSwordMult = 1.2;
-	static inline float fStun2HBluntMult = 1.2;
+	static inline float fStunUnarmedMult = 1.f;
+	static inline float fStunDaggerMult = 0.5f;
+	static inline float fStunSwordMult = 1.f;
+	static inline float fStunWarAxeMult = 1.1f;
+	static inline float fStunMaceMult = 1.1f;
+	static inline float fStunGreatSwordMult = 1.2f;
+	static inline float fStun2HBluntMult = 1.2f;
 
 	/*Toggle for player to be executed.*/
 	static inline bool bPlayerExecution = false;
 	/*Toggle for essential NPCs to be executed.*/
 	static inline bool bExecutionLimit = true; //NPCs with level higher than player cannot be executed unless under certain health threshold.
 	static inline bool bAutoExecution = false; //automatically execute on hit.
-	static inline uint32_t uExecutionKey = -1;
+	static inline int iExecutionKey = -1;
 #pragma endregion
 #pragma region BalanceSettings
 	static inline bool bBalanceToggle = true;

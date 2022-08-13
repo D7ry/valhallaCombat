@@ -5,7 +5,6 @@
 #include "include/debuffHandler.h"
 #include "include/events.h"
 #include "include/lib/TrueHUDAPI.h"
-#include "include/PCH.h"
 #include "ValhallaCombat.hpp"
 #include "include/settings.h"
 #include "include/Utils.h"
@@ -38,36 +37,50 @@ void initPrecisionAPI() {
 		settings::facts::PrecisionAPI_Obtained = false;
 	}
 }
+
+void onDataLoaded() {
+	Hooks::install();  //hook install has been postponed for compatibility with other plugins.
+	settings::init();
+	settings::readSettings();
+	events::registerAllEventHandlers();
+	data::loadData();
+}
+
+void onPostLoad() {
+	logger::info("Initializing API fetch...");
+	initTrueHUDAPI();
+	initPrecisionAPI();
+	logger::info("...done");
+}
+
+void onPostLoadGame() {
+	debuffHandler::GetSingleton()->stopDebuff(RE::PlayerCharacter::GetSingleton());
+	stunHandler::GetSingleton()->reset();
+	settings::updateGlobals();
+}
+
+
+
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
-		logger::info("Data loaded");
-		Hooks::install(); //hook install has been postponed for compatibility with other plugins.
-		settings::init();
-		settings::readSettings();
-		events::registerAllEventHandlers();
-		data::loadData();
+		onDataLoaded();
 		break;
 	case SKSE::MessagingInterface::kPostLoad:
-		logger::info("Post load");
-		logger::info("Initializing API fetch...");
-		initTrueHUDAPI();
-		initPrecisionAPI();
-		logger::info("...done");
+		onPostLoad();
 		break;
 	case SKSE::MessagingInterface::kPostLoadGame:
-		logger::info("Post load game");
-		debuffHandler::GetSingleton()->stopDebuff(RE::PlayerCharacter::GetSingleton());
-		stunHandler::GetSingleton()->reset();
-		//balanceHandler::GetSingleton()->reset();
-		settings::updateGlobals();
-		break;
-	case SKSE::MessagingInterface::kPostPostLoad:
-		logger::info("Post post load");
+		onPostLoadGame();
 		break;
 	}
 }
+
+void onSKSEInit()
+{
+	Papyrus::Register();
+}
+
 namespace
 {
 	void InitializeLog()
@@ -98,6 +111,7 @@ namespace
 		spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
 	}
 }
+
 std::string wstring2string(const std::wstring& wstr, UINT CodePage)
 
 {
@@ -117,11 +131,9 @@ std::string wstring2string(const std::wstring& wstr, UINT CodePage)
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
-	//DKUtil::Logger::Init(Version::PROJECT, Version::NAME);
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
 	a_info->name = Plugin::NAME.data();
 	a_info->version = Plugin::VERSION[0];
-
 
 	if (a_skse->IsEditor()) {
 		logger::critical("Loaded in editor, marking as incompatible"sv);
@@ -129,15 +141,14 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	}
 
 	const auto ver = a_skse->RuntimeVersion();
-	if (ver < SKSE::RUNTIME_1_5_39) {
-		logger::critical("Unable to load this plugin, incompatible runtime version!\nExpected: Newer than 1-5-39-0 (A.K.A Special Edition)\nDetected: {}", ver.string());
+	if (ver < SKSE::RUNTIME_SSE_1_5_39) {
+		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
 		return false;
 	}
 
 	return true;
 }
 
-#ifdef SKYRIM_SUPPORT_AE
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	SKSE::PluginVersionData v;
 
@@ -145,29 +156,33 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	v.PluginName(Plugin::NAME);
 
 	v.UsesAddressLibrary(true);
-	v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+	v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST });
 
 	return v;
 }();
-#endif
 
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
-#ifndef NDEBUG
+    #ifndef NDEBUG
 	while (!IsDebuggerPresent()) { Sleep(100); }
 #endif
+	REL::Module::reset();  // Clib-NG bug workaround
+
 	InitializeLog();
-	logger::info("{} v{} loaded", Plugin::NAME, Plugin::VERSION.string());
+	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
+
 	SKSE::Init(a_skse);
-	logger::info("Initializing...");
+
 	auto messaging = SKSE::GetMessagingInterface();
 	if (!messaging->RegisterListener("SKSE", MessageHandler)) {
 		return false;
 	}
+	
+	onSKSEInit();
 
-	Papyrus::Register();
-    return true;
+
+	return true;
 }
 
 
@@ -175,7 +190,7 @@ extern "C" DLLEXPORT void* SKSEAPI RequestPluginAPI(const VAL_API::InterfaceVers
 {
 	//auto api = Messaging::TrueHUDInterface::GetSingleton();
 	auto api = ModAPI::VALInterface::GetSingleton();
-	logger::info("ValhallaCombat::RequestPluginAPI called, InterfaceVersion {}", a_interfaceVersion);
+	logger::info("ValhallaCombat::RequestPluginAPI called");
 
 	switch (a_interfaceVersion) {
 	case VAL_API::InterfaceVersion::V1:

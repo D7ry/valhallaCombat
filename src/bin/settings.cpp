@@ -115,6 +115,7 @@ void settings::readSettings() {
 	
 	
 	loader.FETCH(bAttackStaminaToggle);
+	loader.FETCH(bAttackStaminaToggle_NPC);
 	loader.FETCH(fMeleeCostLightMiss_Point);
 	loader.FETCH(fMeleeRewardLightHit_Percent);
 	//loader.FETCH(fMeleeCostHeavyMiss_Percent);
@@ -140,7 +141,7 @@ void settings::readSettings() {
 	loader.FETCH(fTimedBlockMeleeExp);
 	loader.FETCH(bTackleToggle);
 	
-	loader.FETCH(uAltBlockKey);
+	loader.FETCH(iAltBlockKey);
 	
 	loader.setActiveSection("Stun");
 	loader.FETCH(bStunToggle);
@@ -163,7 +164,7 @@ void settings::readSettings() {
 	loader.FETCH(fStunGreatSwordMult);
 	loader.FETCH(fStun2HBluntMult);
 	loader.FETCH(bAutoExecution);
-	loader.FETCH(uExecutionKey);
+	loader.FETCH(iExecutionKey);
 
 	loader.setActiveSection("Compatibility");
 	loader.FETCH(bPoiseCompatibility);

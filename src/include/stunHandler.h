@@ -32,11 +32,11 @@ private:
 		//The constructor assumes param a_actor is currently loaded.
 		actorStunData(RE::ActorHandle a_actorHandle, float a_regenCountdown = 3) {
 			if (!a_actorHandle) {
-				ERROR("Error: Actor not loaded while attempting to construct stun data.");
+				logger::error("Error: Actor not loaded while attempting to construct stun data.");
 			}
 			_actor = a_actorHandle.get().get();
 			if (!_actor) {
-				ERROR("Error: Actor obtained from handle is a null ref when constructing stun data.");
+				logger::error("Error: Actor obtained from handle is a null ref when constructing stun data.");
 			}
 			_maxStun = calculateMaxStun(_actor);
 			_currentStun = _maxStun;

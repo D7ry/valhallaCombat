@@ -12,7 +12,6 @@ namespace VAL_API
 	using PluginHandle = SKSE::PluginHandle;
 	using ActorHandle = RE::ActorHandle;
 
-	// Available True Directional Movement interface versions
 	enum class InterfaceVersion : uint8_t
 	{
 		V1,
