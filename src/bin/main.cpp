@@ -38,12 +38,17 @@ void initPrecisionAPI() {
 	}
 }
 
-void onDataLoaded() {
+void onDataLoaded() 
+{
 	Hooks::install();  //hook install has been postponed for compatibility with other plugins.
+
 	settings::init();
 	settings::readSettings();
 	events::registerAllEventHandlers();
 	data::loadData();
+	if (EldenCounterCompatibility::attemptInit()) {
+		settings::facts::EldenCounter_EspPluginLoaded = true;
+	}
 }
 
 void onPostLoad() {

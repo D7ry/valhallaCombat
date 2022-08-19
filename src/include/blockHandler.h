@@ -189,3 +189,23 @@ private:
 	/// <param name="a_projectile">Projectile to be destroyed.</param>
 	inline void destroyProjectile(RE::Projectile* a_projectile);
 };
+
+
+
+class EldenCounterCompatibility
+{
+public:
+
+	static bool attemptInit();
+
+	static void triggerCounter(RE::Actor* a_actor);
+
+private:
+	static inline RE::SpellItem* ec_triggerSpell;
+
+	static inline float ec_Time = 1;
+	
+	static inline void async_removeECTriggerSpell(RE::Actor* a_actor);
+
+	static void readSettings();
+};

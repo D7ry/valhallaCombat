@@ -14,6 +14,7 @@ public:
 		static inline bool TrueHudAPI_Obtained;
 		static inline bool PrecisionAPI_Obtained;
 		static inline bool EldenParry_ObtainedAPI;
+		static inline bool EldenCounter_EspPluginLoaded = false;
 	};
 
 	
@@ -22,6 +23,7 @@ public:
 	static inline RE::TESGlobal* glob_TrueHudAPI_SpecialMeter;
 	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_NPC;
 	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_Damage;
+	static inline RE::TESGlobal* glob_EldenCounter_EspPluginLoaded;
 
 #pragma endregion
 
@@ -92,7 +94,7 @@ public:
 
 	static inline bool bTimedBlockScreenShake = true;
 	static inline bool bTimeBlockSFX = true;
-	static inline float fTimedBlockSFXVolume = 1;
+	static inline float fTimedBlockSFXVolume = 0.5;
 	static inline uint32_t uTimedBlockSparkType = 0;  //0 = fantasy, 1 = realism, 2 = none
 	static inline bool bTimedBlockSlowTime = true;
 	
