@@ -321,6 +321,15 @@ void stunHandler::processStunDamage(
 	}
 }
 
+void stunHandler::modStun(RE::Actor* a_actor, float a_mod)
+{
+	if (!a_actor) {
+		return;
+	}
+	safeGet_ActorStunData(a_actor)->modStun(a_mod);
+	
+}
+
 std::unordered_set<RE::ActorHandle> stunHandler::getStunBrokenActors() {
 	return stunBrokenActors;
 }

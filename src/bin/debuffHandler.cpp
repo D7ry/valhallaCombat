@@ -59,16 +59,18 @@ void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {
 
 	if (a_actor->IsPlayerRef()) {
 		inlineUtils::safeApplyPerk(data::debuffPerk, a_actor);
+	} else {
+		/*ValhallaUtils::Papyrus::AddPackageOverride(a_actor, data::PKG_CirclingBehavior, 100, 1);
+		a_actor->EvaluatePackage(true, false);*/
 	}
-	initDebuffUI(a_actor);
+	if (settings::bUIAlert) {
+		initDebuffUI(a_actor);
+	}
 
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::debuffHandler);
 }
 
 void debuffHandler::initDebuffUI(RE::Actor* a_actor) {
-	if (!settings::bUIAlert) {
-		return;
-	}
 	TrueHUDUtils::greyoutAvMeter(a_actor, RE::ActorValue::kStamina);
 	if (a_actor->IsPlayerRef() && !async_pcStaminaMeterFlash_b) {
 		std::jthread t(async_pcStaminaMeterFlash);
@@ -90,16 +92,22 @@ void debuffHandler::revertDebuffUI(RE::Actor* a_actor) {
 
 void debuffHandler::stopDebuff(RE::Actor* a_actor) {
 	auto handle = a_actor->GetHandle();
-	uniqueLocker lock(mtx_actorInDebuff);
-	auto it = actorInDebuff.find(handle);
-	if (it == actorInDebuff.end()) {
-		return;
+	{
+		uniqueLocker lock(mtx_actorInDebuff);
+		auto it = actorInDebuff.find(handle);
+		if (it == actorInDebuff.end()) {
+			return;
+		}
+		actorInDebuff.erase(it);
 	}
-	actorInDebuff.erase(it);
+	
 	revertDebuffUI(a_actor);
 
 	if (a_actor->IsPlayerRef()) {
 		inlineUtils::safeRemovePerk(data::debuffPerk, a_actor);
+	} else {
+		//ValhallaUtils::Papyrus::RemovePackageOverride(a_actor, data::PKG_CirclingBehavior);
+		//a_actor->EvaluatePackage(true, false);
 	}
 }
 

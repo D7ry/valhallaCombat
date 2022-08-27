@@ -19,6 +19,8 @@ public:
 	const static inline std::string AnimEvent_GuardCounter = "Val_GuardCounter_Trigger";
 	const static inline std::string GraphBool_IsGuardCountering = "is_Guard_Countering";
 
+	static inline RE::TESPackage* PKG_CirclingBehavior;
+
 #pragma region blockFX
 	static inline RE::TESObjectACTI* BlockFX;
 	static inline RE::Explosion* BlockSpark;
@@ -223,7 +225,7 @@ private:
 
 	static void loadBlockFX(RE::TESDataHandler* data);
 
-
+	static void loadAIPackage(RE::TESDataHandler* a_data);
 
 };
 

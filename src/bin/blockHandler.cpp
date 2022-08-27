@@ -411,6 +411,10 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 		return false;
 	}
 
+	if (!a_blocker->IsBlocking()) {
+		return false;
+	}
+
 	if (!isInBlockAngle(a_blocker, a_attacker)) {
 		return false;
 	}
@@ -460,6 +464,8 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	if (settings::facts::EldenCounter_EspPluginLoaded) {
 		EldenCounterCompatibility::triggerCounter(a_blocker);
 	}
+	
+	a_blocker->NotifyAnimationGraph("BlockHitStart");
 
 	return true;
 }
@@ -654,7 +660,6 @@ void EldenCounterCompatibility::async_removeECTriggerSpell(RE::Actor* a_actor)
 	if (!a_actor) {
 		return;
 	}
-	
 	a_actor->RemoveSpell(ec_triggerSpell);
 	
 }

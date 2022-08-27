@@ -10,12 +10,13 @@ void data::loadData() {
 		logger::critical("Error: TESDataHandler not found.");
 		return;
 	}
+	loadAIPackage(data);
 	loadBlockFX(data);
 	loadSound(data);
 	loadPerk(data);
 	loadIdle(data);
 	loadExecutableRace(data);
-
+	
 
 	auto gameSettings = RE::GameSettingCollection::GetSingleton();
 	if (!gameSettings) {
@@ -58,6 +59,15 @@ void data::loadBlockFX(RE::TESDataHandler* a_data) {
 	loader.load(BlockSpark, 0x60c30);
 	loader.load(BlockSparkFlare, 0x60c31);
 	loader.load(BlockSparkRing, 0x60c32);
+	loader.log();
+	logger::info("...done");
+}
+
+void data::loadAIPackage(RE::TESDataHandler* a_data)
+{
+	logger::info("Loading AI Package...");
+	DtryUtils::formLoader loader("WaitYourTurn.esp");
+	loader.load(PKG_CirclingBehavior, 0x800);
 	loader.log();
 	logger::info("...done");
 }

@@ -19,4 +19,6 @@ public:
 	void action_PerformEldenCounter(RE::Actor* actor);
 
 	bool getShouldTimedBlock(RE::Actor* actor);
+
+	bool getShouldPerilousAttack(RE::Actor* a_actor);
 };

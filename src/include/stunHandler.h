@@ -77,6 +77,16 @@ private:
 		void refillStun() {
 			_currentStun = _maxStun;
 		}
+
+		void modStun(float a_val) {
+			_currentStun += a_val;
+			if (_currentStun > _maxStun) {
+				_currentStun = _maxStun;
+			}
+			if (_currentStun < 0) {
+				_currentStun = 0;
+			}
+		}
 		
 		float getCurrentStun() {
 			return _currentStun;
@@ -220,6 +230,7 @@ public:
 	*/
 	void processStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage);
 
+	void modStun(RE::Actor* a_actor, float a_mod);
 	/*Getter for a copy of stun broken actors.*/
 	std::unordered_set<RE::ActorHandle> getStunBrokenActors();
 

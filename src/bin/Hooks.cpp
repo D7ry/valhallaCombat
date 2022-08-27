@@ -41,9 +41,16 @@ used to block stamina regen in certain situations.*/
 
 	void Hook_OnRestoreActorValue::RestoreActorValue(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_val)
 	{
-		if (a_actor->IsBlocking() && a_actorValue == RE::ActorValue::kStamina) {
-			a_val *= 0.5;
+		switch (a_actorValue) {
+		case RE::ActorValue::kStamina:
+			if (a_actor->IsBlocking()) {
+				a_val *= settings::fBlockingStaminaRegenMult;
+			}
+			break;
+		case RE::ActorValue::kHealth:
+			stunHandler::GetSingleton()->modStun(a_actor, a_val);
 		}
+
 		_RestoreActorValue(a_actor, a_actorValue, a_val);
 	}
 #pragma endregion

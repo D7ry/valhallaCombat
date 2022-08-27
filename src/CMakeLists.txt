@@ -49,6 +49,9 @@ set(SOURCE_FILES
 	"${SOURCE_DIR}/include/lib/TrueHUDAPI.h"
 	"${SOURCE_DIR}/include/lib/ValhallaCombatAPI.h"
 	"${SOURCE_DIR}/include/lib/PrecisionAPI.h"
+
+	"${SOURCE_DIR}/include/perilousAttack.h"
+	"${SOURCE_DIR}/bin/perilousAttack.cpp"
 )
 
 source_group(TREE "${ROOT_DIR}" FILES ${SOURCE_FILES})

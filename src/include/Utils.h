@@ -290,6 +290,25 @@ namespace TrueHUDUtils
 class ValhallaUtils
 {
 public:
+	class Papyrus
+	{
+	public:
+		static void AddPackageOverride(RE::Actor* a_actor, RE::TESPackage* a_package, int priority, int flags)
+		{
+			auto callback = RE::BSTSmartPointer<RE::BSScript::IStackCallbackFunctor>();
+			auto args = RE::MakeFunctionArguments(std::move(a_actor), std::move(a_package), std::move(priority), std::move(flags));
+			RE::BSScript::Internal::VirtualMachine::GetSingleton()->DispatchStaticCall("ActorUtil", "AddPackageOverride", args, callback);
+		}
+
+		static void RemovePackageOverride(RE::Actor* a_actor, RE::TESPackage* a_package)
+		{
+			auto callback = RE::BSTSmartPointer<RE::BSScript::IStackCallbackFunctor>();
+			auto args = RE::MakeFunctionArguments(std::move(a_actor), std::move(a_package));
+			RE::BSScript::Internal::VirtualMachine::GetSingleton()->DispatchStaticCall("ActorUtil", "RemovePackageOverride", args, callback);
+		}
+	};
+
+	
 	/*Whether the actor's back is facing the other actor's front.
 	@param actor1: actor whose facing will be returned
 	@param actor2: actor whose relative location to actor1 will be calculated.*/
