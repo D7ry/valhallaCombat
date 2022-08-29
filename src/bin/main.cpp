@@ -199,6 +199,7 @@ extern "C" DLLEXPORT void* SKSEAPI RequestPluginAPI(const VAL_API::InterfaceVers
 
 	switch (a_interfaceVersion) {
 	case VAL_API::InterfaceVersion::V1:
+	case VAL_API::InterfaceVersion::V2:
 		logger::info("ValhallaCombat::RequestPluginAPI returned the API singleton");
 		return static_cast<void*>(api);
 	}

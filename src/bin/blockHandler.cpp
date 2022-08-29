@@ -432,6 +432,8 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	auto blockerWeapon = inlineUtils::actor::getWieldingWeapon(a_blocker);
 	if (blockerWeapon) {
 		reflectedDamage = blockerWeapon->GetAttackDamage();//get attack damage of blocker's weapon
+	} else {
+		reflectedDamage = a_blocker->CalcUnarmedDamage();
 	}
 	inlineUtils::offsetRealDamage(reflectedDamage, a_blocker, a_attacker);
 	float stunDmg = reflectedDamage;

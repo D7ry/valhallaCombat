@@ -5,7 +5,6 @@ void attackHandler::cacheAttack(RE::Actor* a_actor) {
 	if (!a_actor->IsPlayerRef() && !settings::bAttackStaminaToggle_NPC) {
 		return;
 	}
-	
 	checkout(a_actor);
 	//TODO:fix bash implementation
 	//DEBUG("registering attack for {}", actor->GetName());

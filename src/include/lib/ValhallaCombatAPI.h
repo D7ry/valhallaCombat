@@ -15,6 +15,7 @@ namespace VAL_API
 	enum class InterfaceVersion : uint8_t
 	{
 		V1,
+		V2
 	};
 
 	enum STUNSOURCE
@@ -28,12 +29,19 @@ namespace VAL_API
 		counterAttack
 	};
 
-
-	// True Directional Movement's modder interface
+	// Valhalla Combat's modder interface
 	class IVVAL1
 	{
 	public:
 		virtual void processStunDamage(STUNSOURCE stunSource, RE::TESObjectWEAP* weapon, RE::Actor* aggressor, RE::Actor* victim, float baseDamage) noexcept = 0;
+	};
+
+	class IVVAL2 : IVVAL1
+	{
+	public:
+		virtual bool getIsPCTimedBlocking() noexcept = 0;
+
+		virtual bool getIsPCPerfectBlocking() noexcept = 0;
 	};
 
 

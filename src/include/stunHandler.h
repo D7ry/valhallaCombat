@@ -78,6 +78,7 @@ private:
 			_currentStun = _maxStun;
 		}
 
+		/*Simply modify this actor's stun value.*/
 		void modStun(float a_val) {
 			_currentStun += a_val;
 			if (_currentStun > _maxStun) {

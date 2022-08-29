@@ -48,7 +48,7 @@ used to block stamina regen in certain situations.*/
 			}
 			break;
 		case RE::ActorValue::kHealth:
-			stunHandler::GetSingleton()->modStun(a_actor, a_val);
+			stunHandler::GetSingleton()->modStun(a_actor, a_val);//stun regen on health regen
 		}
 
 		_RestoreActorValue(a_actor, a_actorValue, a_val);
