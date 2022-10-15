@@ -35,9 +35,7 @@ void attackHandler::OnLightHit(RE::Actor* a_actor) {
 		return;
 	}
 	
-	actorToRegenStamina = a_actor;
 	staminaHandler::staminaLightHit(a_actor);
-	actorToRegenStamina = nullptr;
 
 	mtx.lock();
 	cachedAttackers.erase(a_actor);

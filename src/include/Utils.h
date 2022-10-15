@@ -75,7 +75,7 @@ namespace inlineUtils
 			return;
 		}
 		if (a) {
-			a->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
+			a->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
 		}
 	}
 
@@ -95,7 +95,7 @@ namespace inlineUtils
 			return;
 		}
 		if (a_actor) {
-			a_actor->As<RE::ActorValueOwner>()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, a_actorValue, a_value);
+			a_actor->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, a_actorValue, a_value);
 		}
 	}
 

@@ -27,7 +27,6 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 		}
 		return;
 	}
-
 	//from this point on the hit is not blocked/
 
 	//bash hit
@@ -50,7 +49,6 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 			inlineUtils::restoreav(a_victim, RE::ActorValue::kStamina, a_victim->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
 		}
 	}
-
 
 	if (stunHandler::GetSingleton()->getIsStunBroken(a_victim) && a_hitData.weapon->IsMelee()) {
 		if (a_aggressor->IsPlayerRef()) {
