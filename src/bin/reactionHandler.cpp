@@ -77,7 +77,7 @@ void reactionHandler::triggerPoiseReaction(RE::Actor* a_aggressor, RE::Actor* a_
 
 
 void reactionHandler::triggerStagger(RE::Actor* a_causer, RE::Actor* a_reactor, reactionType a_reactionType) {
-	if (a_reactor->IsSwimming() || a_reactor->IsInKillMove() || !a_reactor->Is3DLoaded()) {
+	if (a_reactor->AsActorState()->IsSwimming() || a_reactor->IsInKillMove() || !a_reactor->Is3DLoaded()) {
 		return;
 	}
 	if (settings::bStunToggle) {
@@ -104,7 +104,7 @@ void reactionHandler::triggerStagger(RE::Actor* a_causer, RE::Actor* a_reactor, 
 }
 
 void reactionHandler::triggerDownedState(RE::Actor* a_actor) {
-	if (!a_actor || a_actor->IsSwimming() || a_actor->IsInKillMove() || !a_actor->Is3DLoaded()) {
+	if (!a_actor || a_actor->AsActorState()->IsSwimming() || a_actor->IsInKillMove() || !a_actor->Is3DLoaded()) {
 		return;
 	}
 	auto race = a_actor->GetRace();
@@ -122,7 +122,7 @@ void reactionHandler::triggerDownedState(RE::Actor* a_actor) {
 }
 
 void reactionHandler::recoverDownedState(RE::Actor* a_actor) {
-	if (!a_actor || a_actor->IsSwimming() || a_actor->IsInKillMove() || !a_actor->Is3DLoaded()) {
+	if (!a_actor || a_actor->AsActorState()->IsSwimming() || a_actor->IsInKillMove() || !a_actor->Is3DLoaded()) {
 		return;
 	}
 	auto race = a_actor->GetRace();

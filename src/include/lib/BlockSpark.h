@@ -8,7 +8,7 @@ namespace MaxsuBlockSpark
 	{
 	public:
 		static void playPerfectBlockSpark(RE::Actor* defender) {
-			if (!defender || !defender->currentProcess || !defender->currentProcess->high || !defender->Get3D()) {
+			if (!defender || !defender->GetActorRuntimeData().currentProcess || !defender->GetActorRuntimeData().currentProcess->high || !defender->Get3D()) {
 				return;
 			}
 			auto GetBipeObjIndex = [](RE::TESForm* parryEquipment, bool rightHand) -> RE::BIPED_OBJECT {

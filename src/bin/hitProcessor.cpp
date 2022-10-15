@@ -20,6 +20,11 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 				attackHandler::GetSingleton()->OnLightHit(a_aggressor);
 			}
 		}
+		if (settings::bAttackStaminaToggle) {
+			if (debuffHandler::GetSingleton()->isInDebuff(a_victim)) {
+				reactionHandler::triggerStagger(a_aggressor, a_victim, reactionHandler::kLargest);
+			}
+		}
 		return;
 	}
 
@@ -40,6 +45,9 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	if (settings::bAttackStaminaToggle) {
 		if (!hitFlag.any(HITFLAG::kPowerAttack)) {
 			attackHandler::GetSingleton()->OnLightHit(a_aggressor);
+		}
+		if (debuffHandler::GetSingleton()->isInDebuff(a_victim)) {
+			inlineUtils::restoreav(a_victim, RE::ActorValue::kStamina, a_victim->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
 		}
 	}
 

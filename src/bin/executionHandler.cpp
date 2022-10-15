@@ -21,7 +21,7 @@ void executionHandler::tryPcExecution() {
 		auto actor = handle.get().get();
 		
 		if (!actor || !actor->Is3DLoaded() || actor->IsDead() || actor->IsInKillMove() ||
-			!actor->currentProcess || !actor->currentProcess->InHighProcess()) {
+			!actor->GetActorRuntimeData().currentProcess || !actor->GetActorRuntimeData().currentProcess->InHighProcess()) {
 			return;
 		}
 		float dist = pc->GetPosition().GetDistance(actor->GetPosition());
@@ -46,8 +46,7 @@ bool executionHandler::attemptExecute(RE::Actor* a_executor, RE::Actor* a_victim
 		|| a_executor->IsInKillMove() || a_victim->IsInKillMove()
 		|| a_executor->IsOnMount() || a_victim->IsOnMount()
 		|| a_victim->IsPlayerRef() || a_victim->IsPlayerTeammate()
-		|| a_victim->IsEssential() || a_victim->IsInKillMove()
-		|| a_victim->HasEffectWithArchetype(RE::MagicTarget::Archetype::kParalysis)) {
+		|| a_victim->IsEssential() || a_victim->IsInKillMove() || a_victim->AsMagicTarget()->HasEffectWithArchetype(RE::MagicTarget::Archetype::kParalysis)) {
 		//logger::info("Execution preconditions not met, terminating execution.");
 		return false;
 	}
@@ -120,7 +119,7 @@ bool executionHandler::attemptExecute(RE::Actor* a_executor, RE::Actor* a_victim
 };
 
 inline void playExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, RE::TESIdleForm* a_executionIdle) {
-	RE::Offset::playPairedIdle(a_executor->currentProcess, a_executor, RE::DEFAULT_OBJECT::kActionIdle, a_executionIdle, true, false, a_victim);
+	RE::Offset::playPairedIdle(a_executor->GetActorRuntimeData().currentProcess, a_executor, RE::DEFAULT_OBJECT::kActionIdle, a_executionIdle, true, false, a_victim);
 }
 
 void executionHandler::async_queueExecutionThreadFunc(RE::Actor* a_executor, RE::Actor* a_victim, std::vector<RE::TESIdleForm*> a_executionIdleV, int i)

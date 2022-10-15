@@ -18,10 +18,10 @@ namespace inlineUtils
 	@param magnitude: strength of a push.*/
 	inline static void PushActorAway(RE::Actor* causer, RE::Actor* target, float magnitude)
 	{
-		auto targetPoint = causer->GetNodeByName(causer->race->bodyPartData->parts[0]->targetName.c_str());
+		auto targetPoint = causer->GetNodeByName(causer->GetActorRuntimeData().race->bodyPartData->parts[0]->targetName.c_str());
 		RE::NiPoint3 vec = targetPoint->world.translate;
 		//RE::NiPoint3 vec = causer->GetPosition();
-		RE::Offset::pushActorAway(causer->currentProcess, target, vec, magnitude);
+		RE::Offset::pushActorAway(causer->GetActorRuntimeData().currentProcess, target, vec, magnitude);
 	}
 
 	inline void SetRotationMatrix(RE::NiMatrix3& a_matrix, float sacb, float cacb, float sb)
@@ -56,7 +56,7 @@ namespace inlineUtils
 
 
 	inline bool isPowerAttacking(RE::Actor* a_actor) {
-		auto currentProcess = a_actor->currentProcess;
+		auto currentProcess = a_actor->GetActorRuntimeData().currentProcess;
 		if (currentProcess) {
 			auto highProcess = currentProcess->high;
 			if (highProcess) {
@@ -81,7 +81,7 @@ namespace inlineUtils
 
 	/*Try to damage this actor's actorvalue. If the actor does not have enough value, do not damage and return false;*/
 	inline bool tryDamageAv(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_damage) {
-		auto currentAv = a_actor->GetActorValue(a_actorValue);
+		auto currentAv = a_actor->AsActorValueOwner()->GetActorValue(a_actorValue);
 		if (currentAv - a_damage <= 0) {
 			return false;
 		}
@@ -121,7 +121,7 @@ namespace inlineUtils
 	@param victim: victim of this damage.*/
 	inline void offsetRealDamage(float& damage, RE::Actor* aggressor, RE::Actor* victim) {
 		if ((aggressor) && (aggressor->IsPlayerRef() || aggressor->IsPlayerTeammate())) {
-			switch (RE::PlayerCharacter::GetSingleton()->difficulty) {
+			switch (RE::PlayerCharacter::GetSingleton()->GetPlayerRuntimeData().difficulty) {
 			case RE::DIFFICULTY::kNovice: damage *= data::fDiffMultHPByPCVE; break;
 			case RE::DIFFICULTY::kApprentice: damage *= data::fDiffMultHPByPCE; break;
 			case RE::DIFFICULTY::kAdept: damage *= data::fDiffMultHPByPCN; break;
@@ -131,7 +131,7 @@ namespace inlineUtils
 			}
 		}
 		else if ((victim) && (victim->IsPlayerRef() || victim->IsPlayerTeammate())) {
-			switch (RE::PlayerCharacter::GetSingleton()->difficulty) {
+			switch (RE::PlayerCharacter::GetSingleton()->GetPlayerRuntimeData().difficulty) {
 			case RE::DIFFICULTY::kNovice: damage *= data::fDiffMultHPToPCVE; break;
 			case RE::DIFFICULTY::kApprentice: damage *= data::fDiffMultHPToPCE; break;
 			case RE::DIFFICULTY::kAdept: damage *= data::fDiffMultHPToPCN; break;
@@ -174,8 +174,8 @@ namespace inlineUtils
 	@param a_actor actor whose actorValue will be refilled.
 	@param actorValue type of actor value to refill.*/
 	inline void refillActorValue(RE::Actor* a_actor, RE::ActorValue a_actorValue) {
-		float av = a_actor->GetActorValue(a_actorValue);
-		float pav = a_actor->GetPermanentActorValue(a_actorValue);
+		float av = a_actor->AsActorValueOwner()->GetActorValue(a_actorValue);
+		float pav = a_actor->AsActorValueOwner()->GetPermanentActorValue(a_actorValue);
 		if (av >= pav) {
 			return;
 		}
@@ -392,7 +392,7 @@ public:
 	@param a_projectile_collidable: pointer to the projectile collidable to rset its collision mask.*/
 	static void resetProjectileOwner(RE::Projectile* a_projectile, RE::Actor* a_actor, RE::hkpCollidable* a_projectile_collidable) {
 		a_projectile->SetActorCause(a_actor->GetActorCause());
-		a_projectile->shooter = a_actor->GetHandle();
+		a_projectile->GetProjectileRuntimeData().shooter = a_actor->GetHandle();
 		uint32_t a_collisionFilterInfo;
 		a_actor->GetCollisionFilterInfo(a_collisionFilterInfo);
 		a_projectile_collidable->broadPhaseHandle.collisionFilterInfo &= (0x0000FFFF);
@@ -497,13 +497,13 @@ public:
 
 	static void ReflectProjectile(RE::Projectile* a_projectile)
 	{
-		a_projectile->linearVelocity *= -1.f;
+		a_projectile->GetProjectileRuntimeData().linearVelocity *= -1.f;
 
 		// rotate model
 		auto projectileNode = a_projectile->Get3D2();
 		if (projectileNode)
 		{
-			RE::NiPoint3 direction = a_projectile->linearVelocity;
+			RE::NiPoint3 direction = a_projectile->GetProjectileRuntimeData().linearVelocity;
 			direction.Unitize();
 
 			a_projectile->data.angle.x = asin(direction.z);
@@ -524,10 +524,10 @@ public:
 	/*Get the body position of this actor.*/
 	static void getBodyPos(RE::Actor* a_actor, RE::NiPoint3& pos)
 	{
-		if (!a_actor->race) {
+		if (!a_actor->GetActorRuntimeData().race) {
 			return;
 		}
-		RE::BGSBodyPart* bodyPart = a_actor->race->bodyPartData->parts[0];
+		RE::BGSBodyPart* bodyPart = a_actor->GetActorRuntimeData().race->bodyPartData->parts[0];
 		if (!bodyPart) {
 			return;
 		}
@@ -546,7 +546,7 @@ public:
 	/// <param name="a_target">New target to be aimed at.</param>
 	static void RetargetProjectile(RE::Projectile* a_projectile, RE::TESObjectREFR* a_target)
 	{
-		a_projectile->desiredTarget = a_target;
+		a_projectile->GetProjectileRuntimeData().desiredTarget = a_target;
 
 		auto projectileNode = a_projectile->Get3D2();
 		auto targetHandle = a_target->GetHandle();
@@ -561,7 +561,7 @@ public:
 		targetHandle.get()->GetLinearVelocity(targetVelocity);
 
 		float projectileGravity = 0.f;
-		if (auto ammo = a_projectile->ammoSource) {
+		if (auto ammo = a_projectile->GetProjectileRuntimeData().ammoSource) {
 			if (auto bgsProjectile = ammo->data.projectile) {
 				projectileGravity = bgsProjectile->data.gravity;
 				if (auto bhkWorld = a_projectile->parentCell->GetbhkWorld()) {
@@ -576,10 +576,10 @@ public:
 			}
 		}
 
-		PredictAimProjectile(a_projectile->data.location, targetPos, targetVelocity, projectileGravity, a_projectile->linearVelocity);
+		PredictAimProjectile(a_projectile->data.location, targetPos, targetVelocity, projectileGravity, a_projectile->GetProjectileRuntimeData().linearVelocity);
 
 		// rotate
-		RE::NiPoint3 direction = a_projectile->linearVelocity;
+		RE::NiPoint3 direction = a_projectile->GetProjectileRuntimeData().linearVelocity;
 		direction.Unitize();
 
 		a_projectile->data.angle.x = asin(direction.z);

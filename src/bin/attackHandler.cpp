@@ -8,8 +8,8 @@ void attackHandler::cacheAttack(RE::Actor* a_actor) {
 	checkout(a_actor);
 	//TODO:fix bash implementation
 	//DEBUG("registering attack for {}", actor->GetName());
-	if (a_actor->currentProcess && a_actor->currentProcess->high) {
-		auto attckData = a_actor->currentProcess->high->attackData;
+	if (a_actor->GetActorRuntimeData().currentProcess && a_actor->GetActorRuntimeData().currentProcess->high) {
+		auto attckData = a_actor->GetActorRuntimeData().currentProcess->high->attackData;
 		if (!attckData) {
 			return;
 		}

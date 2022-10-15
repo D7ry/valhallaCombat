@@ -28,8 +28,8 @@ void debuffHandler::update() {
 			it = actorInDebuff.erase(it);  //erase actor from debuff set.
 			continue;
 		}
-		if (actor->GetActorValue(RE::ActorValue::kStamina) >= 
-			actor->GetPermanentActorValue(RE::ActorValue::kStamina) 
+		if (actor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kStamina) >= 
+			actor->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) 
 			+ actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kStamina)) { //offset max stamina based on modifier
 			revertDebuffUI(actor);
 			it = actorInDebuff.erase(it);

@@ -264,15 +264,15 @@ void stunHandler::processStunDamage(
 		stunDamage = a_baseDamage * settings::fStunTimedBlockMult;
 		break;
 	case STUNSOURCE::bash:
-		stunDamage = a_aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult;
+		stunDamage = a_aggressor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kBlock) * settings::fStunBashMult;
 		inlineUtils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
 		break;
 	case STUNSOURCE::powerBash:
-		stunDamage = a_aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunPowerBashMult;
+		stunDamage = a_aggressor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kBlock) * settings::fStunPowerBashMult;
 		inlineUtils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
 		break;
 	case STUNSOURCE::parry:
-		stunDamage = a_aggressor->GetActorValue(RE::ActorValue::kBlock) * settings::fStunParryMult;
+		stunDamage = a_aggressor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kBlock) * settings::fStunParryMult;
 		inlineUtils::offsetRealDamage(stunDamage, a_aggressor, a_victim);
 		break;
 	case STUNSOURCE::lightAttack:

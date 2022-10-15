@@ -30,7 +30,7 @@ used to block stamina regen in certain situations.*/
 
 		if (!bResult) {
 			RE::Actor* actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, -0xB8);
-			auto attackState = actor->GetAttackState();
+			auto attackState = actor->AsActorState()->GetAttackState();
 			if (actor != attackHandler::GetSingleton()->actorToRegenStamina) {
 				//if melee hit regen is needed, no need to disable regen.
 				bResult = (attackState > RE::ATTACK_STATE_ENUM::kNone && attackState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough);  //don't regen stamina if attacking
@@ -154,12 +154,14 @@ used to block stamina regen in certain situations.*/
 		if (!settings::bStaminaDebuffToggle) {
 			return _PerformAttackAction(a_actionData);
 		}
-		if (!a_actionData->Subject_8) {
+		auto ref = a_actionData->source.get();
+		if (!ref) {
 			return _PerformAttackAction(a_actionData);
 		}
-
-		RE::Actor* actor = a_actionData->Subject_8->As<RE::Actor>();
-
+		RE::Actor* actor = ref->As<RE::Actor>();
+		if (!actor) {
+			return _PerformAttackAction(a_actionData);
+		}
 		if (debuffHandler::GetSingleton()->isInDebuff(actor)) {
 			return false;
 		}

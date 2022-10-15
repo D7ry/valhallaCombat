@@ -169,7 +169,7 @@ bool blockHandler::tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile
 				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fTimedBlockProjectileExp);
 			}
 		}
-		float cost = a_projectile->spell->CalculateMagickaCost(a_blocker);
+		float cost = a_projectile->GetProjectileRuntimeData().spell->CalculateMagickaCost(a_blocker);
 		if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {  //parry only happnens when there's enough magicka.
 			deflectProjectile(a_blocker, a_projectile, a_projectile_collidable);
 		} else {
@@ -194,8 +194,8 @@ bool blockHandler::tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fTimedBlockProjectileExp);
 			}
 		}
-		auto launcher = a_projectile->weaponSource;
-		auto ammo = a_projectile->ammoSource;
+		auto launcher = a_projectile->GetProjectileRuntimeData().weaponSource;
+		auto ammo = a_projectile->GetProjectileRuntimeData().ammoSource;
 		float cost = 0;
 		if (launcher) {
 			cost += launcher->GetAttackDamage();
@@ -221,7 +221,7 @@ bool blockHandler::tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 
 bool blockHandler::tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile) 
 {
-	auto cost = a_projectile->spell->CalculateMagickaCost(a_blocker);
+	auto cost = a_projectile->GetProjectileRuntimeData().spell->CalculateMagickaCost(a_blocker);
 	if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
 		if (a_blocker->IsPlayerRef()) {
 			auto pc = RE::PlayerCharacter::GetSingleton();
@@ -241,8 +241,8 @@ bool blockHandler::tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile
 
 bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile) 
 {
-	auto launcher = a_projectile->weaponSource;
-	auto ammo = a_projectile->ammoSource;
+	auto launcher = a_projectile->GetProjectileRuntimeData().weaponSource;
+	auto ammo = a_projectile->GetProjectileRuntimeData().ammoSource;
 	float cost = 0;
 	if (launcher) {
 		cost += launcher->GetAttackDamage();
@@ -276,7 +276,7 @@ bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* 
 			
 			//try timed block
 			if (settings::bTimedBlockProjectileToggle) {
-				if (a_projectile->spell && tryParryProjectile_Spell(a_blocker, a_projectile, a_projectile_collidable)) {
+				if (a_projectile->GetProjectileRuntimeData().spell && tryParryProjectile_Spell(a_blocker, a_projectile, a_projectile_collidable)) {
 					return true;
 				} else if (tryParryProjectile_Arrow(a_blocker, a_projectile, a_projectile_collidable)) {
 					return true;
@@ -285,7 +285,7 @@ bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* 
 			
 			//try projectile parry
 			if (settings::bBlockProjectileToggle) {
-				if (a_projectile->spell) {
+				if (a_projectile->GetProjectileRuntimeData().spell) {
 					return tryBlockProjectile_Spell(a_blocker, a_projectile);
 				} else if (!inlineUtils::actor::isEquippedShield(a_blocker)) {  //physical projectile blocking only applies to none-shield.
 					return tryBlockProjectile_Arrow(a_blocker, a_projectile);
@@ -300,8 +300,8 @@ bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* 
 void blockHandler::deflectProjectile(RE::Actor* a_deflector, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) 
 {
 	RE::TESObjectREFR* shooter = nullptr;
-	if (a_projectile->shooter && a_projectile->shooter.get()) {
-		shooter = a_projectile->shooter.get().get();
+	if (a_projectile->GetProjectileRuntimeData().shooter && a_projectile->GetProjectileRuntimeData().shooter.get()) {
+		shooter = a_projectile->GetProjectileRuntimeData().shooter.get().get();
 	}
 	ValhallaUtils::resetProjectileOwner(a_projectile, a_deflector, a_projectile_collidable);
 
@@ -369,7 +369,7 @@ void blockHandler::processStaminaBlock(RE::Actor* a_blocker, RE::Actor* a_aggres
 	inlineUtils::offsetRealDamage(staminaDamage, a_aggressor, a_blocker);
 	float staminaDamageMult = getBlockStaminaCostMult(a_blocker, a_aggressor, a_hitFlag);
 	staminaDamage *= staminaDamageMult;
-	float targetStamina = a_blocker->GetActorValue(RE::ActorValue::kStamina);
+	float targetStamina = a_blocker->AsActorValueOwner()->GetActorValue(RE::ActorValue::kStamina);
 
 	//check whether there's enough stamina to block incoming attack
 	if (targetStamina < staminaDamage) {
@@ -510,7 +510,7 @@ PRECISION_API::PreHitCallbackReturn blockHandler::precisionPrehitCallbackFunc(co
 		return ret;
 	}
 	RE::Actor* targetActor = target->As<RE::Actor>();
-	if (targetActor->GetAttackState() == RE::ATTACK_STATE_ENUM::kNone) {
+	if (targetActor->AsActorState()->GetAttackState() == RE::ATTACK_STATE_ENUM::kNone) {
 		if (settings::bTimedBlockToggle && blockHandler::GetSingleton()->processMeleeTimedBlock(targetActor, attacker)) {
 			ret.bIgnoreHit = true;
 		}

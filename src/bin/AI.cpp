@@ -17,8 +17,8 @@ void AI::calculateCounterChance(RE::Actor* actor) {
 	if (debuffHandler::GetSingleton()->isInDebuff(actor)) {
 		return;
 	}
-	auto currStamina = actor->GetActorValue(RE::ActorValue::kStamina);
-	auto permStamina = actor->GetPermanentActorValue(RE::ActorValue::kStamina);
+	auto currStamina = actor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kStamina);
+	auto permStamina = actor->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina);
 	auto num = std::rand() % 100;
 	if (currStamina >= permStamina * 1 / 2) { //100% - 50% stmaina, 20% counter chance
 		//if (num > 80) {
