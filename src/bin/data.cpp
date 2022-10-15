@@ -10,7 +10,6 @@ void data::loadData() {
 		logger::critical("Error: TESDataHandler not found.");
 		return;
 	}
-	loadAIPackage(data);
 	loadBlockFX(data);
 	loadSound(data);
 	loadPerk(data);
@@ -63,14 +62,6 @@ void data::loadBlockFX(RE::TESDataHandler* a_data) {
 	logger::info("...done");
 }
 
-void data::loadAIPackage(RE::TESDataHandler* a_data)
-{
-	logger::info("Loading AI Package...");
-	DtryUtils::formLoader loader("WaitYourTurn.esp");
-	loader.load(PKG_CirclingBehavior, 0x800);
-	loader.log();
-	logger::info("...done");
-}
 
 bool data::lookupIdle(RE::TESDataHandler* data, RE::FormID form, std::string pluginName, 
 	std::vector<RE::TESIdleForm*>* idleContainer) {

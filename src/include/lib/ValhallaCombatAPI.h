@@ -40,8 +40,14 @@ namespace VAL_API
 	{
 	public:
 		virtual bool getIsPCTimedBlocking() noexcept = 0;
-
 		virtual bool getIsPCPerfectBlocking() noexcept = 0;
+		virtual void triggerPcTimedBlockSuccess() noexcept = 0;
+
+		//virtual bool isActorStunned(RE::Actor* a_actor) noexcept = 0;
+		//virtual bool isActorExhausted(RE::Actor* a_actor) noexcept = 0;
+		//virtual float getActorStun(RE::Actor* a_actor) noexcept = 0;
+
+		
 	};
 
 
@@ -53,7 +59,7 @@ namespace VAL_API
 	/// </summary>
 	/// <param name="a_interfaceVersion">The interface version to request</param>
 	/// <returns>The pointer to the API singleton, or nullptr if request failed</returns>
-	[[nodiscard]] inline void* RequestPluginAPI(const InterfaceVersion a_interfaceVersion = InterfaceVersion::V1)
+	[[nodiscard]] inline void* RequestPluginAPI(const InterfaceVersion a_interfaceVersion = InterfaceVersion::V2)
 	{
 		auto pluginHandle = GetModuleHandle("ValhallaCombat.dll");
 		_RequestPluginAPI requestAPIFunction = (_RequestPluginAPI)GetProcAddress(pluginHandle, "RequestPluginAPI");

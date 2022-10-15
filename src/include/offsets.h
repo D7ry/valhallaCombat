@@ -1,6 +1,16 @@
 #pragma once
 namespace RE
 {
+
+	enum DIFFICULTY
+	{
+		kNovice = 0,
+		kApprentice = 1,
+		kAdept = 2,
+		kExpert = 3,
+		kMaster = 4,
+		kLegendary = 5
+	};
 	namespace Offset
 	{
 

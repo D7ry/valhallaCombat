@@ -225,7 +225,6 @@ private:
 
 	static void loadBlockFX(RE::TESDataHandler* data);
 
-	static void loadAIPackage(RE::TESDataHandler* a_data);
 
 };
 

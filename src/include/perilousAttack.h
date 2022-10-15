@@ -17,7 +17,6 @@ public:
 	
 private:
 	std::unordered_set<RE::Actor*> m_perilousAttackActors;
-	/
 	
 	
 };

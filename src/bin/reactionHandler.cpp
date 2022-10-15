@@ -4,8 +4,8 @@
 #include "include/data.h"
 static inline const RE::BSFixedString poise_largest = "poise_largest_start";
 static inline const RE::BSFixedString poise_largest_fwd = "poise_largest_start_fwd";
-static inline const RE::BSFixedString poise_large = "poise_large_start";
-static inline const RE::BSFixedString poise_large_fwd = "poise_large_start_fwd";
+static inline const RE::BSFixedString poise_large = "poise_med_start";
+static inline const RE::BSFixedString poise_large_fwd = "poise_med_start_fwd";
 static inline const RE::BSFixedString poise_med = "poise_med_start";
 static inline const RE::BSFixedString poise_med_fwd = "poise_med_start_fwd";
 static inline const RE::BSFixedString poise_small = "poise_small_start";
@@ -51,7 +51,6 @@ void reactionHandler::triggerRecoil(RE::Actor* a_reactor, reactionType a_reactio
 
 void reactionHandler::triggerKnockBack(RE::Actor* a_aggressor, RE::Actor* a_reactor) {
 	inlineUtils::PushActorAway(a_aggressor, a_reactor, 9);
-	inlineUtils::slowTime(0.2, 0.1);
 }
 
 void reactionHandler::triggerPoiseReaction(RE::Actor* a_aggressor, RE::Actor* a_reactor, reactionType a_reactionType) {

@@ -8,18 +8,6 @@
 #define CONSOLELOG(msg) 	RE::ConsoleLog::GetSingleton()->Print(msg);
 #define PI 3.1415926535897932384626
 //TODO:clear this up a bit
-namespace RE
-{
-	enum DIFFICULTY
-	{
-		kNovice = 0,
-		kApprentice = 1,
-		kAdept = 2,
-		kExpert = 3,
-		kMaster = 4,
-		kLegendary = 5
-	};
-};
 namespace inlineUtils
 {
 	inline static bool isEquippedShield(RE::Actor* a_actor) {

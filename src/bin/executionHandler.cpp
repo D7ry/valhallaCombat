@@ -117,7 +117,6 @@ bool executionHandler::attemptExecute(RE::Actor* a_executor, RE::Actor* a_victim
 	default: return false; //iff no body part match, no need to set ghost.
 	}
 	return true;
-	a_victim->SetGraphVariableBool("bIdlePlaying", true); //DHAF compatibility
 };
 
 inline void playExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, RE::TESIdleForm* a_executionIdle) {
@@ -160,13 +159,13 @@ void executionHandler::async_queueExecutionThreadFun(RE::Actor* a_executor, RE::
 
 
 
-void executionHandler::queueExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, RE::TESIdleForm* a_executionIdle, int i = 10) 
+void executionHandler::queueExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, RE::TESIdleForm* a_executionIdle, int i = 1) 
 {
 	std::thread t(async_queueExecutionThreadFun, a_executor, a_victim, a_executionIdle, i);
 	t.detach();
 }
 
-void executionHandler::queueExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, std::vector<RE::TESIdleForm*> a_executionIdleVector, int i = 10) 
+void executionHandler::queueExecutionIdle(RE::Actor* a_executor, RE::Actor* a_victim, std::vector<RE::TESIdleForm*> a_executionIdleVector, int i = 1) 
 {
 	std::jthread t(async_queueExecutionThreadFunc, a_executor, a_victim, a_executionIdleVector, i);
 	t.detach();

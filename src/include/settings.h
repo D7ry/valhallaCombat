@@ -14,7 +14,6 @@ public:
 		static inline bool TrueHudAPI_Obtained;
 		static inline bool PrecisionAPI_Obtained;
 		static inline bool EldenParry_ObtainedAPI;
-		static inline bool EldenCounter_EspPluginLoaded = false;
 	};
 
 	

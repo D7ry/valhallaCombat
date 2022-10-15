@@ -404,6 +404,9 @@ bool blockHandler::getIsPcPerfectBlocking() {
 
 
 bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker) {
+	if (ValgrindCompatibility::on && ValgrindCompatibility::isPerilousAttacking(a_attacker)) { /*Perilous attacks are unblockable*/
+		return false;
+	}
 	if (!a_blocker->IsPlayerRef()) {
 		return false;
 	}
@@ -418,6 +421,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	if (!isInBlockAngle(a_blocker, a_attacker)) {
 		return false;
 	}
+	
 	bool isPerfectblock = this->getIsPcPerfectBlocking();
 
 	if (a_blocker->IsPlayerRef()) {
@@ -463,7 +467,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 		
 	}
 
-	if (settings::facts::EldenCounter_EspPluginLoaded) {
+	if (EldenCounterCompatibility::on) {
 		EldenCounterCompatibility::triggerCounter(a_blocker);
 	}
 	
@@ -632,17 +636,17 @@ void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, blo
 	}
 }
 
-bool EldenCounterCompatibility::attemptInit()
+void EldenCounterCompatibility::attemptInit()
 {
 	logger::info("Initializing Elden Counter compatibility");
 	ec_triggerSpell = RE::TESDataHandler::GetSingleton()->LookupForm<RE::SpellItem>(0x801, "EldenCounter.esp");
 	if (!ec_triggerSpell) {
 		logger::info("EldenCounter.esp not found");
-		return false;
+		on = false;
 	} else {
 		logger::info("found Elden Counter plugin; compatibility enabled.");
 		EldenCounterCompatibility::readSettings();
-		return true;
+		on = true;
 	}
 }
 
@@ -674,4 +678,22 @@ void EldenCounterCompatibility::readSettings()
 	ini.LoadFile(SETTINGFILE_PATH);
 	ec_Time = std::stof(ini.GetValue("General", "Time"));
 	logger::info("EldenCounter compatibilty: settings loaded.");
+}
+
+void ValgrindCompatibility::attemptInit()
+{
+	DtryUtils::formLoader loader("Valgrind.esp");
+	loader.load(VG_PerilousSpell, 0xD6B);
+	if (!VG_PerilousSpell) {
+		logger::info("Valgrind.esp not found");
+		on = false;
+	} else {
+		logger::info("found Valgrind.esp; compatibility enabled.");
+		on = true;
+	}
+}
+
+bool ValgrindCompatibility::isPerilousAttacking(RE::Actor* a_actor)
+{
+	return a_actor->HasSpell(VG_PerilousSpell);
 }

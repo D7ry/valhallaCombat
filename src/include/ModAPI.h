@@ -27,6 +27,8 @@ public:
 		// InterfaceVersion2
 		virtual bool getIsPCTimedBlocking() noexcept override;
 		virtual bool getIsPCPerfectBlocking() noexcept override;
+		virtual void triggerPcTimedBlockSuccess() noexcept override;
+		//virtual bool isActorExhausted(RE::Actor* a_actor) noexcept override;
 		
 	private:
 		unsigned long apiTID = 0;

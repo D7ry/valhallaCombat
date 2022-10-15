@@ -6,12 +6,17 @@ void ModAPI::VALInterface::processStunDamage(VAL_API::STUNSOURCE stunSource, RE:
 	stunHandler::GetSingleton()->processStunDamage(static_cast<stunHandler::STUNSOURCE>(stunSource), weapon, aggressor, victim, baseDamage);
 }
 
-bool ModAPI::VALInterface::getIsPCTimedBlocking() 
+bool ModAPI::VALInterface::getIsPCTimedBlocking() noexcept
 {
 	return blockHandler::GetSingleton()->getIsPcTimedBlocking();
 }
 
-bool ModAPI::VALInterface::getIsPCPerfectBlocking() 
+bool ModAPI::VALInterface::getIsPCPerfectBlocking() noexcept
 {
 	return blockHandler::GetSingleton()->getIsPcPerfectBlocking();
+}
+
+void ModAPI::VALInterface::triggerPcTimedBlockSuccess() noexcept
+{
+	blockHandler::GetSingleton()->OnPcSuccessfulTimedBlock();
 }

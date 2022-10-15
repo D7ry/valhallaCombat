@@ -46,9 +46,8 @@ void onDataLoaded()
 	settings::readSettings();
 	events::registerAllEventHandlers();
 	data::loadData();
-	if (EldenCounterCompatibility::attemptInit()) {
-		settings::facts::EldenCounter_EspPluginLoaded = true;
-	}
+	EldenCounterCompatibility::attemptInit();
+	ValgrindCompatibility::attemptInit();
 }
 
 void onPostLoad() {

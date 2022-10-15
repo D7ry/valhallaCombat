@@ -31,6 +31,7 @@ public:
 	void onBlockKeyDown();
 	void onBlockKeyUp();
 	void onBlockStop();
+	void OnPcSuccessfulTimedBlock();
 
 	
 private:
@@ -59,7 +60,6 @@ private:
 	bool isPcTimedBlockSuccess;
 	bool bKeyUpTimeBuffer;
 	
-	void OnPcSuccessfulTimedBlock();
 	void onPcTimedBlockEnd();
 
 	inline bool isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj);
@@ -195,17 +195,28 @@ private:
 class EldenCounterCompatibility
 {
 public:
-
-	static bool attemptInit();
-
+	static void attemptInit();
 	static void triggerCounter(RE::Actor* a_actor);
+	static inline bool on = false;
+
 
 private:
-	static inline RE::SpellItem* ec_triggerSpell;
+	static inline RE::SpellItem* ec_triggerSpell = nullptr;
 
 	static inline float ec_Time = 1;
 	
 	static inline void async_removeECTriggerSpell(RE::Actor* a_actor);
-
 	static void readSettings();
+};
+
+
+class ValgrindCompatibility
+{
+public:
+	static void attemptInit();
+	static bool isPerilousAttacking(RE::Actor* a_actor);
+	static inline bool on = false;
+
+private:
+	static inline RE::SpellItem* VG_PerilousSpell = nullptr;
 };
