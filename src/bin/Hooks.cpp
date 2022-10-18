@@ -29,7 +29,7 @@ used to block stamina regen in certain situations.*/
 		bool bResult = _HasFlags1(a_this, a_flags);  // is sprinting?
 
 		if (!bResult) {
-			RE::Actor* actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, -0xB8);
+			RE::Actor* actor = SKSE::stl::adjust_pointer<RE::Actor>(a_this, -0xB8); //apparently the offset is different for the newest AE build; TODO:find the offset. currently using restoreactorvalue hook instead to block regen.
 			auto attackState = actor->AsActorState()->GetAttackState();
 			if (actor != attackHandler::GetSingleton()->actorToRegenStamina) {
 				//if melee hit regen is needed, no need to disable regen.
@@ -45,6 +45,11 @@ used to block stamina regen in certain situations.*/
 		case RE::ActorValue::kStamina:
 			if (a_actor->IsBlocking()) {
 				a_val *= settings::fBlockingStaminaRegenMult;
+			} else if (a_actor != attackHandler::GetSingleton()->actorToRegenStamina) {
+				RE::ATTACK_STATE_ENUM atkState = a_actor->AsActorState()->GetAttackState();
+				if (atkState > RE::ATTACK_STATE_ENUM::kNone && atkState <= RE::ATTACK_STATE_ENUM::kBowFollowThrough) {
+					return;  //don't regen stamina if attacking
+				}
 			}
 			break;
 		case RE::ActorValue::kHealth:

@@ -225,7 +225,7 @@ namespace Hooks
 		logger::info("Installing hooks...");
 		SKSE::AllocTrampoline(1 << 8);
 		Hook_OnGetAttackStaminaCost::install();
-		Hook_OnCheckStaminaRegenCondition::install();
+		//Hook_OnCheckStaminaRegenCondition::install(); //todo: fix this hook
 		Hook_OnRestoreActorValue::install();
 		Hook_OnMeleeHit::install();
 		Hook_OnPlayerUpdate::install();
