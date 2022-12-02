@@ -41,7 +41,7 @@ void executionHandler::tryPcExecution() {
 bool executionHandler::attemptExecute(RE::Actor* a_executor, RE::Actor* a_victim) {
 	//check if victim can be executed
 	if (!settings::bStunToggle
-		|| a_executor->IsDead() || a_victim->IsDead()
+		|| !Utils::Actor::isHumanoid(a_executor) || a_executor->IsDead() || a_victim->IsDead()
 		|| !a_executor->Is3DLoaded() || !a_victim->Is3DLoaded()
 		|| a_executor->IsInKillMove() || a_victim->IsInKillMove()
 		|| a_executor->IsOnMount() || a_victim->IsOnMount()
@@ -51,20 +51,8 @@ bool executionHandler::attemptExecute(RE::Actor* a_executor, RE::Actor* a_victim
 		return false;
 	}
 
-	auto executorRace = a_executor->GetRace();
 	auto victimRace = a_victim->GetRace();
-	if (!executorRace || !victimRace) {
-		//logger::info("race not found, terminating execution");
-		return false;
-	}
-
-	auto it1 = data::raceMapping.find(executorRace);
-	if (it1 == data::raceMapping.end()) {
-		//logger::info("race not found, terminating execution");
-		return false;
-	}
-	if (it1->second != data::raceCatagory::Humanoid) {
-		//logger::info("executor is not human");
+	if (!victimRace) {
 		return false;
 	}
 	

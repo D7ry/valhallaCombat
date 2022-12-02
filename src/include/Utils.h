@@ -703,3 +703,11 @@ namespace DtryUtils
 		}
 	};
 }
+
+namespace Utils
+{
+	namespace Actor
+	{
+		bool isHumanoid(RE::Actor* a_actor);
+	}
+}
