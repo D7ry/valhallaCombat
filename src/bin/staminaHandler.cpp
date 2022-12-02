@@ -10,7 +10,7 @@ void staminaHandler::staminaLightMiss(RE::Actor* a_actor) {
 	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaCost) {
 		return;
 	}
-	inlineUtils::damageav(a_actor, RE::ActorValue::kStamina, settings::fMeleeCostLightMiss_Point);
+	Utils::Actor::damageav(a_actor, RE::ActorValue::kStamina, settings::fMeleeCostLightMiss_Point);
 	checkStamina(a_actor);
 }
 
@@ -18,7 +18,7 @@ void staminaHandler::staminaLightHit(RE::Actor* a_actor) {
 	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaCost) {
 		return;
 	}
-	inlineUtils::restoreav(a_actor, RE::ActorValue::kStamina, a_actor->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
+	Utils::Actor::restoreav(a_actor, RE::ActorValue::kStamina, a_actor->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
 	checkStamina(a_actor);
 }
 
@@ -26,7 +26,7 @@ void staminaHandler::staminaHeavyMiss(RE::Actor* a_actor) {
 	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaCost) {
 		return;
 	}
-	inlineUtils::damageav(a_actor, RE::ActorValue::kStamina, a_actor->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyMiss_Percent);
+	Utils::Actor::damageav(a_actor, RE::ActorValue::kStamina, a_actor->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyMiss_Percent);
 	checkStamina(a_actor);
 }
 
@@ -35,6 +35,6 @@ void staminaHandler::staminaHeavyHit(RE::Actor* a_actor) {
 	if (!a_actor->IsInCombat() && !settings::bNonCombatStaminaCost) {
 		return;
 	}
-	inlineUtils::damageav(a_actor, RE::ActorValue::kStamina, a_actor->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyHit_Percent);
+	Utils::Actor::damageav(a_actor, RE::ActorValue::kStamina, a_actor->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeCostHeavyHit_Percent);
 	checkStamina(a_actor);
 }

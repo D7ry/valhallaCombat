@@ -122,7 +122,7 @@ void blockHandler::onBlockKeyDown() {
 
 void blockHandler::onTackleKeyDown() {
 	auto pc = RE::PlayerCharacter::GetSingleton();
-	if (!pc || !inlineUtils::isPowerAttacking(pc)) {
+	if (!pc || !Utils::Actor::isPowerAttacking(pc)) {
 		return;
 	}
 	if (isPcTackling || isPcTackleCooldown) {
@@ -170,7 +170,7 @@ bool blockHandler::tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile
 			}
 		}
 		float cost = a_projectile->GetProjectileRuntimeData().spell->CalculateMagickaCost(a_blocker);
-		if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {  //parry only happnens when there's enough magicka.
+		if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {  //parry only happnens when there's enough magicka.
 			deflectProjectile(a_blocker, a_projectile, a_projectile_collidable);
 		} else {
 			destroyProjectile(a_projectile);
@@ -204,7 +204,7 @@ bool blockHandler::tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 			cost += ammo->data.damage;
 		}
 		inlineUtils::offsetRealDamageForPc(cost);
-		if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) { //parry only happens when there's enough magicka
+		if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {  //parry only happens when there's enough magicka
 			deflectProjectile(a_blocker, a_projectile, a_projectile_collidable);
 		} else {
 			destroyProjectile(a_projectile);
@@ -222,7 +222,7 @@ bool blockHandler::tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 bool blockHandler::tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile) 
 {
 	auto cost = a_projectile->GetProjectileRuntimeData().spell->CalculateMagickaCost(a_blocker);
-	if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
+	if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
 		if (a_blocker->IsPlayerRef()) {
 			auto pc = RE::PlayerCharacter::GetSingleton();
 			if (pc) {
@@ -252,7 +252,7 @@ bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 	}
 	
 	inlineUtils::offsetRealDamageForPc(cost);
-	if (inlineUtils::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
+	if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
 		if (a_blocker->IsPlayerRef()) {
 			auto pc = RE::PlayerCharacter::GetSingleton();
 			if (pc) {
@@ -287,7 +287,7 @@ bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* 
 			if (settings::bBlockProjectileToggle) {
 				if (a_projectile->GetProjectileRuntimeData().spell) {
 					return tryBlockProjectile_Spell(a_blocker, a_projectile);
-				} else if (!inlineUtils::actor::isEquippedShield(a_blocker)) {  //physical projectile blocking only applies to none-shield.
+				} else if (!Utils::Actor::isEquippedShield(a_blocker)) {  //physical projectile blocking only applies to none-shield.
 					return tryBlockProjectile_Arrow(a_blocker, a_projectile);
 				}
 			}
@@ -385,12 +385,12 @@ void blockHandler::processStaminaBlock(RE::Actor* a_blocker, RE::Actor* a_aggres
 			(staminaDamage - (targetStamina / staminaDamageMult))  //real damage actor will be receiving.
 			* (a_hitData.totalDamage) / staminaDamage;             //offset real damage back into raw damage to be converted into real damage again later.
 		
-		inlineUtils::damageav(a_blocker, RE::ActorValue::kStamina,targetStamina);
+		Utils::Actor::damageav(a_blocker, RE::ActorValue::kStamina,targetStamina);
 		debuffHandler::GetSingleton()->initStaminaDebuff(a_blocker); //initialize debuff for the failed blocking attempt
 	}
 	else {
 		a_hitData.totalDamage = 0;
-		inlineUtils::damageav(a_blocker, RE::ActorValue::kStamina,
+		Utils::Actor::damageav(a_blocker, RE::ActorValue::kStamina,
 			staminaDamage);
 	}
 }
@@ -433,7 +433,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	}
 	
 	float reflectedDamage = 0;
-	auto blockerWeapon = inlineUtils::actor::getWieldingWeapon(a_blocker);
+	auto blockerWeapon = Utils::Actor::getWieldingWeapon(a_blocker);
 	if (blockerWeapon) {
 		reflectedDamage = blockerWeapon->GetAttackDamage();//get attack damage of blocker's weapon
 	} else {
@@ -455,14 +455,14 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	if (isPerfectblock) {//stagger opponent immediately on perfect block.
 		reactionHandler::triggerStagger(a_blocker, a_attacker, reactionHandler::reactionType::kLarge);
 		debuffHandler::GetSingleton()->stopDebuff(a_blocker);
-		inlineUtils::refillActorValue(a_blocker, RE::ActorValue::kStamina); //perfect blocking completely restores actor value.
+		Utils::Actor::refillActorValue(a_blocker, RE::ActorValue::kStamina); //perfect blocking completely restores actor value.
 	}
 	else {
 		RE::HitData hitData;
 		RE::InventoryEntryData* attackerWeapon = a_attacker->GetAttackingWeapon();
 		
 		hitData.Populate(a_attacker, a_blocker, attackerWeapon);
-		inlineUtils::damageav(a_blocker, RE::ActorValue::kStamina,
+		Utils::Actor::damageav(a_blocker, RE::ActorValue::kStamina,
 			hitData.totalDamage * getBlockStaminaCostMult(a_blocker, a_attacker, hitData.flags) * settings::fTimedBlockStaminaCostMult);
 		
 	}
@@ -484,7 +484,7 @@ bool blockHandler::processMeleeTackle(RE::Actor* a_tackler, RE::Actor* a_attacke
 		return false;
 	}
 	
-	if (!inlineUtils::isPowerAttacking(a_tackler)) { //tackle only happens in power attacks.
+	if (!Utils::Actor::isPowerAttacking(a_tackler)) { //tackle only happens in power attacks.
 		return false;
 	}
 

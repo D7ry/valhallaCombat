@@ -46,7 +46,7 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 			attackHandler::GetSingleton()->OnLightHit(a_aggressor);
 		}
 		if (debuffHandler::GetSingleton()->isInDebuff(a_victim)) {
-			inlineUtils::restoreav(a_victim, RE::ActorValue::kStamina, a_victim->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
+			Utils::Actor::restoreav(a_victim, RE::ActorValue::kStamina, a_victim->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kStamina) * settings::fMeleeRewardLightHit_Percent);
 		}
 	}
 

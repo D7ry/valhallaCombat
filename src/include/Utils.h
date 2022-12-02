@@ -7,20 +7,41 @@
 #include  <iterator>
 #define CONSOLELOG(msg) 	RE::ConsoleLog::GetSingleton()->Print(msg);
 #define PI 3.1415926535897932384626
-//TODO:clear this up a bit
+namespace Utils
+{
+	namespace Actor
+	{
+		bool isHumanoid(RE::Actor* a_actor);
+		RE::TESObjectWEAP* getWieldingWeapon(RE::Actor* a_actor);
+		bool isDualWielding(RE::Actor* a_actor);
+		bool isEquippedShield(RE::Actor* a_actor);
+		bool isPowerAttacking(RE::Actor* a_actor);
+
+		void damageav(RE::Actor* a, RE::ActorValue av, float val);
+		bool tryDamageAv(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_damage);
+		void restoreav(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_value);
+
+		void refillActorValue(RE::Actor* a_actor, RE::ActorValue a_actorValue);
+
+		void safeApplySpell(RE::SpellItem* a_spell, RE::Actor* a_actor);
+
+		void safeRemoveSpell(RE::SpellItem* a_spell, RE::Actor* a_actor);
+
+		void safeApplyPerk(RE::BGSPerk* a_perk, RE::Actor* a_actor);
+
+		void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor);
+	}
+}
+
+
 namespace inlineUtils
 {
-	inline static bool isEquippedShield(RE::Actor* a_actor) {
-		return RE::Offset::getEquippedShield(a_actor) != nullptr;
-	}
-
 	/*Send the target flying based on causer's location.
 	@param magnitude: strength of a push.*/
 	inline static void PushActorAway(RE::Actor* causer, RE::Actor* target, float magnitude)
 	{
 		auto targetPoint = causer->GetNodeByName(causer->GetActorRuntimeData().race->bodyPartData->parts[0]->targetName.c_str());
 		RE::NiPoint3 vec = targetPoint->world.translate;
-		//RE::NiPoint3 vec = causer->GetPosition();
 		RE::Offset::pushActorAway(causer->GetActorRuntimeData().currentProcess, target, vec, magnitude);
 	}
 
@@ -55,49 +76,6 @@ namespace inlineUtils
 	}
 
 
-	inline bool isPowerAttacking(RE::Actor* a_actor) {
-		auto currentProcess = a_actor->GetActorRuntimeData().currentProcess;
-		if (currentProcess) {
-			auto highProcess = currentProcess->high;
-			if (highProcess) {
-				auto attackData = highProcess->attackData;
-				if (attackData) {
-					auto flags = attackData->data.flags;
-					return flags.any(RE::AttackData::AttackFlag::kPowerAttack) && !flags.any(RE::AttackData::AttackFlag::kBashAttack);
-				}
-			}
-		}
-		return false;
-	}
-	inline void damageav(RE::Actor* a, RE::ActorValue av, float val)
-	{
-		if (val == 0) {
-			return;
-		}
-		if (a) {
-			a->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, av, -val);
-		}
-	}
-
-	/*Try to damage this actor's actorvalue. If the actor does not have enough value, do not damage and return false;*/
-	inline bool tryDamageAv(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_damage) {
-		auto currentAv = a_actor->AsActorValueOwner()->GetActorValue(a_actorValue);
-		if (currentAv - a_damage <= 0) {
-			return false;
-		}
-		damageav(a_actor, a_actorValue, a_damage);
-		return true;
-	}
-
-	inline void restoreav(RE::Actor* a_actor, RE::ActorValue a_actorValue, float a_value)
-	{
-		if (a_value == 0) {
-			return;
-		}
-		if (a_actor) {
-			a_actor->AsActorValueOwner()->RestoreActorValue(RE::ACTOR_VALUE_MODIFIER::kDamage, a_actorValue, a_value);
-		}
-	}
 
 	/*Slow down game time for a set period.
 	@param a_duration: duration of the slow time.
@@ -146,77 +124,6 @@ namespace inlineUtils
 		offsetRealDamage(damage, nullptr, RE::PlayerCharacter::GetSingleton());
 	}
 
-	inline void safeApplySpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
-		if (a_actor && a_spell) {
-			a_actor->AddSpell(a_spell);
-		}
-	}
-
-	inline void safeRemoveSpell(RE::SpellItem* a_spell, RE::Actor* a_actor) {
-		if (a_actor && a_spell) {
-			a_actor->RemoveSpell(a_spell);
-		}
-	}
-
-	inline void safeApplyPerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
-		if (a_actor && a_perk && !a_actor->HasPerk(a_perk)) {
-			a_actor->AddPerk(a_perk);
-		}
-	}
-
-	inline void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor) {
-		if (a_actor && a_perk && a_actor->HasPerk(a_perk)) {
-			a_actor->RemovePerk(a_perk);
-		}
-	}
-
-	/*Complete refills this actor's actor value.
-	@param a_actor actor whose actorValue will be refilled.
-	@param actorValue type of actor value to refill.*/
-	inline void refillActorValue(RE::Actor* a_actor, RE::ActorValue a_actorValue) {
-		float av = a_actor->AsActorValueOwner()->GetActorValue(a_actorValue);
-		float pav = a_actor->AsActorValueOwner()->GetPermanentActorValue(a_actorValue);
-		if (av >= pav) {
-			return;
-		}
-		float avToRestore = pav - av;
-		restoreav(a_actor, a_actorValue, avToRestore);
-	}
-
-	namespace actor
-	{
-		inline RE::TESObjectWEAP* getWieldingWeapon(RE::Actor* a_actor)
-		{
-			auto weapon = a_actor->GetAttackingWeapon();
-			if (weapon) {
-				return weapon->object->As<RE::TESObjectWEAP>();
-			}
-			auto rhs = a_actor->GetEquippedObject(false);
-			if (rhs && rhs->IsWeapon()) {
-				return rhs->As<RE::TESObjectWEAP>();
-			}
-			auto lhs = a_actor->GetEquippedObject(true);
-			if (lhs && lhs->IsWeapon()) {
-				return lhs->As<RE::TESObjectWEAP>();
-			}
-			return nullptr;
-		}
-
-		inline bool isDualWielding(RE::Actor* a_actor) {
-			auto lhs = a_actor->GetEquippedObject(true);
-			auto rhs = a_actor->GetEquippedObject(false);
-			if (lhs && rhs && lhs->IsWeapon() && rhs->IsWeapon()) {
-				auto weaponType = rhs->As<RE::TESObjectWEAP>()->GetWeaponType();
-				return weaponType != RE::WEAPON_TYPE::kTwoHandAxe && weaponType != RE::WEAPON_TYPE::kTwoHandSword;//can't be two hand sword.
-			}
-			return false;
-		}
-
-		inline bool isEquippedShield(RE::Actor* a_actor) {
-			return RE::Offset::getEquippedShield(a_actor);
-		}
-	}
-	
 };
 
 namespace TrueHUDUtils
@@ -366,7 +273,7 @@ public:
 #pragma endregion
 	/*Clamp the raw damage to be no more than the aggressor's max raw melee damage output.*/
 	static void clampDmg(float& dmg, RE::Actor* aggressor) {
-		auto a_weapon = inlineUtils::actor::getWieldingWeapon(aggressor);
+		auto a_weapon = Utils::Actor::getWieldingWeapon(aggressor);
 		if (a_weapon) {
 			//DEBUG("weapon to clamp damage: {}", a_weapon->GetName());
 			dmg = min(dmg, a_weapon->GetAttackDamage());
@@ -704,10 +611,3 @@ namespace DtryUtils
 	};
 }
 
-namespace Utils
-{
-	namespace Actor
-	{
-		bool isHumanoid(RE::Actor* a_actor);
-	}
-}

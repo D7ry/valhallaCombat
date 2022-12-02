@@ -58,13 +58,12 @@ bool executionHandler::attemptExecute(RE::Actor* a_executor, RE::Actor* a_victim
 	
 	auto it2 = data::raceMapping.find(victimRace);
 	if (it2 == data::raceMapping.end()) {
-		//logger::info("victim race not found");
 		return false;
 	}
 	auto victimRaceType = it2->second;
 
 	RE::WEAPON_TYPE weaponType;
-	auto weapon = inlineUtils::actor::getWieldingWeapon(a_executor);
+	auto weapon = Utils::Actor::getWieldingWeapon(a_executor);
 	if (!weapon) {
 		//logger::info("Executor weapon not found, using unarmed as weapon type.");
 		weaponType = RE::WEAPON_TYPE::kHandToHandMelee;
@@ -161,7 +160,7 @@ void executionHandler::queueExecutionIdle(RE::Actor* a_executor, RE::Actor* a_vi
 
 void executionHandler::executeHumanoid(RE::Actor* a_executor, RE::Actor* a_victim, RE::WEAPON_TYPE a_weaponType) {
 	//logger::info("executing humanoid!");
-	if (inlineUtils::actor::isDualWielding(a_executor)) {
+	if (Utils::Actor::isDualWielding(a_executor)) {
 		//logger::info("dual wielding!");
 		queueExecutionIdle(a_executor, a_victim, data::KM_Humanoid_DW);
 	}

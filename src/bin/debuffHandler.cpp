@@ -34,7 +34,7 @@ void debuffHandler::update() {
 			revertDebuffUI(actor);
 			it = actorInDebuff.erase(it);
 			if (actor->IsPlayerRef()) {
-				inlineUtils::safeRemovePerk(data::debuffPerk, actor);
+				Utils::Actor::safeRemovePerk(data::debuffPerk, actor);
 			}
 			continue;
 		}
@@ -58,7 +58,7 @@ void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {
 	}
 
 	if (a_actor->IsPlayerRef()) {
-		inlineUtils::safeApplyPerk(data::debuffPerk, a_actor);
+		Utils::Actor::safeApplyPerk(data::debuffPerk, a_actor);
 	} else {
 		/*ValhallaUtils::Papyrus::AddPackageOverride(a_actor, data::PKG_CirclingBehavior, 100, 1);
 		a_actor->EvaluatePackage(true, false);*/
@@ -104,7 +104,7 @@ void debuffHandler::stopDebuff(RE::Actor* a_actor) {
 	revertDebuffUI(a_actor);
 
 	if (a_actor->IsPlayerRef()) {
-		inlineUtils::safeRemovePerk(data::debuffPerk, a_actor);
+		Utils::Actor::safeRemovePerk(data::debuffPerk, a_actor);
 	} else {
 		//ValhallaUtils::Papyrus::RemovePackageOverride(a_actor, data::PKG_CirclingBehavior);
 		//a_actor->EvaluatePackage(true, false);
