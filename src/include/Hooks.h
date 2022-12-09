@@ -141,6 +141,22 @@ namespace Hooks
 //		static void Update(RE::Main* a_this, float a2);
 //		static inline REL::Relocation<decltype(Update)> _Update;
 //	};
+	class Hook_AttackBlockHandler_OnProcessButton //not used
+	{
+	public:
+		static void install() 
+		{
+			REL::Relocation<std::uintptr_t> atkbckVtbl{ RE::VTABLE_AttackBlockHandler[0] };
+
+			_ProcessButton = atkbckVtbl.write_vfunc(0x4, ProcessButton);
+			logger::info("hook:AttackBlockHandler_OnProcessButton");
+			
+		}
+
+	private:
+		static void ProcessButton(RE::AttackBlockHandler* a_this, RE::ButtonEvent* a_event, RE::PlayerControlsData* a_data);
+		static inline REL::Relocation<decltype(ProcessButton)> _ProcessButton;
+	};
 
 	class Hook_OnPlayerUpdate  //no longer used
 	{
@@ -156,7 +172,6 @@ namespace Hooks
 	private:
 		static void Update(RE::PlayerCharacter* a_this, float a_delta)
 		{
-			//DEBUG("PLAYER update");
 			ValhallaCombat::GetSingleton()->update();
 			_Update(a_this, a_delta);
 		}
@@ -232,6 +247,7 @@ namespace Hooks
 		Hook_OnProjectileCollision::install();
 		Hook_OnMeleeCollision::install();
 		Hook_OnAttackAction::install();
+		Hook_AttackBlockHandler_OnProcessButton::install();
 		logger::info("...done");
 	}
 }

@@ -85,18 +85,6 @@ namespace inlineUtils
 		}
 	}
 
-	/*Whether the actor's back is facing the other actor's front.
-	@param actor1: actor whose facing will be returned
-	@param actor2: actor whose relative location to actor1 will be calculated.*/
-	inline bool isBackFacing(RE::Actor* actor1, RE::Actor* actor2) {
-		auto angle = actor1->GetHeadingAngle(actor2->GetPosition(), false);
-		if (90 < angle || angle < -90) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
 	/*Get a random element from this vector.
 	@param in the vector containing strings.
 	@return a random element from the vector.*/

@@ -127,3 +127,13 @@ void Utils::Actor::safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor)
 		a_actor->RemovePerk(a_perk);
 	}
 }
+
+bool Utils::Actor::isBackFacing(RE::Actor* actor1, RE::Actor* actor2)
+{
+	auto angle = actor1->GetHeadingAngle(actor2);
+	if (90 < angle || angle < -90) {
+		return true;
+	} else {
+		return false;
+	}
+}

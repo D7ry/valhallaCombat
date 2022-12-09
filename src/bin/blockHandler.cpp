@@ -16,22 +16,14 @@ using HITFLAG = RE::HitData::Flag;
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
-	if (!isPcTimedBlocking && !isPcBlockingCoolDown && !bKeyUpTimeBuffer && !isPcTackling && !isPcTackleCooldown) {
+	if (!isPcTimedBlocking && !isPcBlockingCoolDown && !isPcTackling && !isPcTackleCooldown && !isBlockButtonPressed) {
 		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::HANDLER::blockHandler);
 	}
+	
 
-	if (bKeyUpTimeBuffer) {
-		pcTimedBlockKeyUpTimer -= *RE::Offset::g_deltaTime;
-		if (pcTimedBlockKeyUpTimer <= 0) {
-			bKeyUpTimeBuffer = false;
-			if (isPcTimedBlocking) {
-				onPcTimedBlockEnd();
-			}
-		}
-	}
 	if (isPcTimedBlocking) {
 		pcTimedBlockTimer -= *RE::Offset::g_deltaTime;
-		if (pcTimedBlockTimer <= 0 && isPcTimedBlocking) {
+		if (pcTimedBlockTimer <= 0) {
 			onPcTimedBlockEnd();
 		}
 	}
@@ -40,18 +32,7 @@ void blockHandler::update() {
 		if (pc && !pc->IsBlocking()) {
 			pcTimedBlockCooldownTimer -= *RE::Offset::g_deltaTime;
 			if (pcTimedBlockCooldownTimer <= 0) {
-				switch (pcBlockWindowPenalty) {
-				case blockWindowPenaltyLevel::light:
-					pcBlockWindowPenalty = none;
-					isPcBlockingCoolDown = false;
-					break;
-				case blockWindowPenaltyLevel::medium:
-					pcBlockWindowPenalty = light;
-					break;
-				case blockWindowPenaltyLevel::heavy:
-					pcBlockWindowPenalty = medium;
-					break;
-				}
+				pcBlockWindowPenalty_update(pcBlockWindowPenalty, false);
 				pcTimedBlockCooldownTimer = settings::fTimedBlockCooldownTime;
 			}
 		}
@@ -80,11 +61,7 @@ void blockHandler::onPcTimedBlockEnd() {
 		isPcBlockingCoolDown = true; //not a successful timed block, start penalty cool down.
 		pcTimedBlockCooldownTimer = settings::fTimedBlockCooldownTime;
 		//increment penalty.
-		switch (pcBlockWindowPenalty) {
-		case blockWindowPenaltyLevel::none: pcBlockWindowPenalty = light; break;
-		case blockWindowPenaltyLevel::light: pcBlockWindowPenalty = medium; break;
-		case blockWindowPenaltyLevel::medium: pcBlockWindowPenalty = heavy; break;
-		}
+		pcBlockWindowPenalty_update(pcBlockWindowPenalty, true);
 		ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::blockHandler);
 
 	}
@@ -92,7 +69,35 @@ void blockHandler::onPcTimedBlockEnd() {
 		isPcTimedBlockSuccess = false; //reset success state.
 	}
 	isPcTimedBlocking = false;
-	bKeyUpTimeBuffer = false;
+}
+
+inline void blockHandler::pcBlockWindowPenalty_update(blockWindowPenaltyLevel& a_penaltyLevel, bool increase)
+{
+	if (increase) {
+		switch (a_penaltyLevel) {
+		case blockWindowPenaltyLevel::none:
+			a_penaltyLevel = light;
+			break;
+		case blockWindowPenaltyLevel::light:
+			a_penaltyLevel = medium;
+			break;
+		case blockWindowPenaltyLevel::medium:
+			a_penaltyLevel = heavy;
+			break;
+		}
+	} else {
+		switch (a_penaltyLevel) {
+		case blockWindowPenaltyLevel::light:
+			a_penaltyLevel = none;
+			break;
+		case blockWindowPenaltyLevel::medium:
+			a_penaltyLevel = light;
+			break;
+		case blockWindowPenaltyLevel::heavy:
+			a_penaltyLevel = medium;
+			break;
+		}
+	}
 }
 
 inline bool blockHandler::isTimedBlockElapsedTimeLessThan(float a_in)
@@ -101,6 +106,9 @@ inline bool blockHandler::isTimedBlockElapsedTimeLessThan(float a_in)
 }
 
 void blockHandler::onBlockKeyDown() {
+	if (!settings::bTimedBlockToggle && !settings::bTimedBlockProjectileToggle) {
+		return;
+	}
 	if (isPcTimedBlocking) {
 		onPcTimedBlockEnd();
 	}
@@ -121,6 +129,9 @@ void blockHandler::onBlockKeyDown() {
 }
 
 void blockHandler::onTackleKeyDown() {
+	if (!settings::bTackleToggle) {
+		return;
+	}
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	if (!pc || !Utils::Actor::isPowerAttacking(pc)) {
 		return;
@@ -134,17 +145,21 @@ void blockHandler::onTackleKeyDown() {
 	ValhallaCombat::GetSingleton()->activateUpdate(ValhallaCombat::HANDLER::blockHandler);
 }
 
-void blockHandler::onBlockKeyUp() {
-	isBlockButtonPressed = false;
-	auto pc = RE::PlayerCharacter::GetSingleton();
-	if (pc && isPcTimedBlocking) {
-		pcTimedBlockKeyUpTimer = 0.1;
-		bKeyUpTimeBuffer = true;
+void blockHandler::onBlockKeyUp()
+{
+	if (!settings::bTimedBlockToggle && !settings::bTimedBlockProjectileToggle) {
+		return;
 	}
+	isBlockButtonPressed = false;
 }
 
+bool blockHandler::isBlockKeyHeld()
+{
+	return isBlockButtonPressed;
+}
+
+
 void blockHandler::onBlockStop() {
-	bKeyUpTimeBuffer = false;
 	onPcTimedBlockEnd();
 }
 
@@ -155,7 +170,7 @@ void blockHandler::OnPcSuccessfulTimedBlock() {
 
 bool blockHandler::isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj) 
 {
-	auto angle = blocker->GetHeadingAngle(a_obj->GetPosition(), false);
+	auto angle = blocker->GetHeadingAngle(a_obj);
 	return (angle <= data::fCombatHitConeAngle && angle >= -data::fCombatHitConeAngle);
 }
 
@@ -419,6 +434,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	}
 
 	if (!isInBlockAngle(a_blocker, a_attacker)) {
+		logger::info("pc isn't in block angle");
 		return false;
 	}
 	

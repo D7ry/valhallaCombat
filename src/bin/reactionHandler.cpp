@@ -38,7 +38,7 @@ void reactionHandler::async_triggerContinuousStagger(RE::Actor* a_causer, RE::Ac
 };
 	
 void reactionHandler::triggerStagger(RE::Actor* a_aggressor, RE::Actor* a_reactor, float a_reactionMagnitude) {
-	auto headingAngle = a_reactor->GetHeadingAngle(a_aggressor->GetPosition(), false);
+	auto headingAngle = a_reactor->GetHeadingAngle(a_aggressor);
 	auto direction = (headingAngle >= 0.0f) ? headingAngle / 360.0f : (360.0f + headingAngle) / 360.0f;
 	a_reactor->SetGraphVariableFloat(staggerDirection, direction);
 	a_reactor->SetGraphVariableFloat(StaggerMagnitude, a_reactionMagnitude);
@@ -55,7 +55,7 @@ void reactionHandler::triggerKnockBack(RE::Actor* a_aggressor, RE::Actor* a_reac
 
 void reactionHandler::triggerPoiseReaction(RE::Actor* a_aggressor, RE::Actor* a_reactor, reactionType a_reactionType) {
 	RE::BSFixedString reaction;
-	if (ValhallaUtils::isBackFacing(a_reactor, a_aggressor)) {
+	if (Utils::Actor::isBackFacing(a_reactor, a_aggressor)) {
 		switch (a_reactionType) {
 		case reactionType::kSmall: reaction = poise_small_fwd; break;
 		case reactionType::kMedium: reaction = poise_med_fwd; break;

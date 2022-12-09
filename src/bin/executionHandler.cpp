@@ -164,7 +164,7 @@ void executionHandler::executeHumanoid(RE::Actor* a_executor, RE::Actor* a_victi
 		//logger::info("dual wielding!");
 		queueExecutionIdle(a_executor, a_victim, data::KM_Humanoid_DW);
 	}
-	else if (isBackFacing(a_victim, a_executor)) {
+	else if (Utils::Actor::isBackFacing(a_victim, a_executor)) {
 		//logger::info("backstab!");
 		switch (a_weaponType) {
 		case RE::WEAPON_TYPE::kTwoHandAxe: queueExecutionIdle(a_executor, a_victim, data::KM_Humanoid_2hw_Back); break;

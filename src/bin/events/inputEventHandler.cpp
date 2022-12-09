@@ -7,24 +7,7 @@
 using EventType = RE::INPUT_EVENT_TYPE;
 using DeviceType = RE::INPUT_DEVICE;
 const auto ui = RE::UI::GetSingleton();
-uint32_t inputEventHandler::getBlockKey(RE::INPUT_DEVICE a_device){
-	using DeviceType = RE::INPUT_DEVICE;
-	const auto controlMap = RE::ControlMap::GetSingleton();
-	auto key = controlMap->GetMappedKey(RE::UserEvents::GetSingleton()->blockStart, a_device);
-	switch (a_device) {
-	case DeviceType::kMouse:
-		key += kMouseOffset;
-		break;
-	case DeviceType::kKeyboard:
-		key += kKeyboardOffset;
-		break;
-	case DeviceType::kGamepad:
-		key = GetGamepadIndex((RE::BSWin32GamepadDevice::Key)key);
-		break;
-	}
-	//DEBUG("block key is {}", key);
-	return key;
-}
+
 EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>*)
 {
 	if (!a_event || RE::UI::GetSingleton()->GameIsPaused()) {
@@ -58,7 +41,7 @@ EventResult inputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::
 				}
 				break;
 			}
-			if (key == settings::iAltBlockKey || button->QUserEvent() == "Left Attack/Block") {
+			if (key == settings::iAltBlockKey) {
 				if (button->IsDown()) {
 					if (settings::bTimedBlockToggle || settings::bTimedBlockProjectileToggle) {
 						blockHandler::GetSingleton()->onBlockKeyDown();

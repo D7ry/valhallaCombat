@@ -33,6 +33,7 @@ public:
 	
 	static inline float fStaminaRegenMult = 5;
 	static inline float fStaminaRegenLimit = 50;
+	static inline float fStaminaRegenMin = 10;
 	static inline float fCombatStaminaRegenMult = 1;
 	static inline float fBlockingStaminaRegenMult = 0.5;
 	static inline float fStaminaRegenDelay = 2;
@@ -78,6 +79,9 @@ public:
 	static inline bool bTimedBlockToggle = true;
 	static inline bool bTackleToggle = false;
 	static inline bool bTimedBlockProjectileToggle = true;
+
+	static inline bool bBlockCommitmentToggle = true;
+	static inline float fBlockCommitmentTime = 0.3f;
 	
 	static inline float fTimedBlockWindow = 0.3f;
 	static inline float fPerfectBlockWindow = 0.15f;

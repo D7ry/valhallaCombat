@@ -35,23 +35,24 @@ static void setGameSettingb(const char* a_setting, bool a_value)
 /*a map of all game races' original stamina regen, in case player wants to tweak the stamina regen values again*/
 static inline robin_hood::unordered_map<RE::TESRace*, float> staminaRegenMap;
 
-/*multiplies stamina regen of every single race by MULT.
+/*offset stamina regen of every single race. Multiplying values by MULT and clamping the final value.
 	@param mult multiplier for stamina regen.
 	@param upperLimit upper limit for stamina regen.*/
-static void multStaminaRegen(float mult, float upperLimit)
+static void offsetStaminaRegen(float mult, float upperLimit, float lowerLimit = 10)
 {
 	for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
-		if (race && race->data.staminaRegen) {
+		if (race) {
 			float staminaRegen;
-			if (staminaRegenMap.find(race) == staminaRegenMap.end()) {
-				staminaRegenMap[race] = race->data.staminaRegen;
-				staminaRegen = staminaRegenMap[race] * mult;
+			if (staminaRegenMap.contains(race)) {
+				float val = race->data.staminaRegen;
+				staminaRegenMap[race] = val;
+				staminaRegen = val * mult;
 			} else {
 				staminaRegen = mult * staminaRegenMap[race];
 			}
-			if (staminaRegen > upperLimit) {
-				staminaRegen = upperLimit;
-			}
+			/* Clamp regen val.*/
+			staminaRegen = min(staminaRegen, upperLimit);
+			staminaRegen = max(staminaRegen, lowerLimit);
 			race->data.staminaRegen = staminaRegen;
 			//logger::info("setting stamina regen rate for race {} to {}.", race->GetName(), staminaRegen);
 		}
@@ -102,6 +103,7 @@ void settings::readSettings() {
 	MCM_Settings.FETCH(bNonCombatStaminaCost);
 	MCM_Settings.FETCH(fStaminaRegenMult);
 	MCM_Settings.FETCH(fStaminaRegenLimit);
+	MCM_Settings.FETCH(fStaminaRegenMin);
 	MCM_Settings.FETCH(fCombatStaminaRegenMult);
 	MCM_Settings.FETCH(fBlockingStaminaRegenMult);
 	MCM_Settings.FETCH(fStaminaRegenDelay);
@@ -122,6 +124,8 @@ void settings::readSettings() {
 	//loader.FETCH(fMeleeCostHeavyHit_Percent);
 	
 	MCM_Settings.setActiveSection("TimedBlocking");
+	MCM_Settings.FETCH(bBlockCommitmentToggle);
+	MCM_Settings.FETCH(fBlockCommitmentTime);
 	MCM_Settings.FETCH(bBlockProjectileToggle);
 	MCM_Settings.FETCH(bTimedBlockToggle);
 	MCM_Settings.FETCH(bTimedBlockProjectileToggle);
@@ -178,7 +182,7 @@ void settings::readSettings() {
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
 	
 	
-	multStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
+	offsetStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
 	
 	/*Release truehud meter if set so.*/
 	if (bStunMeterToggle && bStunToggle){

@@ -174,6 +174,58 @@ used to block stamina regen in certain situations.*/
 		return _PerformAttackAction(a_actionData);
 	}
 
-
-
+	static void unblock_delayed_taskfunc(RE::AttackBlockHandler* a_this, RE::ButtonEvent* a_event, RE::PlayerControlsData* a_data) 
+	{
+		auto player = RE::PlayerCharacter::GetSingleton();
+		if (player && player->IsBlocking() && !blockHandler::GetSingleton()->isBlockKeyHeld()) {
+			if (a_event) {
+				a_this->ProcessButton(a_event, a_data);
+			}
+		}
+		if (a_event) {
+			delete (a_event);
+		}
+	}
+	
+	static void unblock_delayed_threadfunc(RE::AttackBlockHandler* a_this, RE::ButtonEvent* a_event, RE::PlayerControlsData* a_data, float a_time) 
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(a_time * 1000))); // wait for, by default, 0.3 sec
+		auto task = SKSE::GetTaskInterface();
+		if (task) {
+			task->AddTask([a_this, a_event, a_data]() {
+				unblock_delayed_taskfunc(a_this, a_event, a_data);
+			});
+		}
+	}
+	void Hook_AttackBlockHandler_OnProcessButton::ProcessButton(RE::AttackBlockHandler* a_this, RE::ButtonEvent* a_event, RE::PlayerControlsData* a_data)
+	{
+		if (a_event->QUserEvent() == "Left Attack/Block") {
+			blockHandler* blockHandler = blockHandler::GetSingleton();
+			if (a_event->IsDown()) {
+				if (settings::bTimedBlockToggle || settings::bTimedBlockProjectileToggle) {
+					blockHandler->onBlockKeyDown();
+				}
+				if (settings::bTackleToggle) {
+					blockHandler->onTackleKeyDown();
+				}
+			} else if (a_event->IsUp()) {
+				if (settings::bTimedBlockToggle || settings::bTimedBlockProjectileToggle) {
+					blockHandler->onBlockKeyUp();
+				}
+				if (settings::bBlockCommitmentToggle) {/* Block commitment; Immediately releasing the block key after pressing it will not cause the actor to immediately unblock.*/
+					auto pc = RE::PlayerCharacter::GetSingleton();
+					if (pc && pc->IsBlocking() && a_event->HeldDuration() < settings::fBlockCommitmentTime) { //do not process this request until later
+						RE::ButtonEvent* releaseEvent = RE::ButtonEvent::Create(a_event->GetDevice(), "forceRelease", a_event->GetIDCode(), a_event->Value(), a_event->HeldDuration());  // event to unblock, will be fired later.
+						if (releaseEvent) {
+							float delay_time = settings::fBlockCommitmentTime - a_event->HeldDuration();
+							std::jthread t(unblock_delayed_threadfunc, a_this, releaseEvent, a_data, delay_time);
+							t.detach();
+							return;
+						}
+					}
+				}
+			}
+		}
+		_ProcessButton(a_this, a_event, a_data);
+	}
 }

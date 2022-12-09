@@ -24,12 +24,10 @@ namespace Utils
 		void refillActorValue(RE::Actor* a_actor, RE::ActorValue a_actorValue);
 
 		void safeApplySpell(RE::SpellItem* a_spell, RE::Actor* a_actor);
-
 		void safeRemoveSpell(RE::SpellItem* a_spell, RE::Actor* a_actor);
-
 		void safeApplyPerk(RE::BGSPerk* a_perk, RE::Actor* a_actor);
-
 		void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor);
+		bool isBackFacing(RE::Actor* actor1, RE::Actor* actor2);
 	}
 }
 
@@ -202,22 +200,6 @@ public:
 			RE::BSScript::Internal::VirtualMachine::GetSingleton()->DispatchStaticCall("ActorUtil", "RemovePackageOverride", args, callback);
 		}
 	};
-
-	
-	/*Whether the actor's back is facing the other actor's front.
-	@param actor1: actor whose facing will be returned
-	@param actor2: actor whose relative location to actor1 will be calculated.*/
-	static bool isBackFacing(RE::Actor* actor1, RE::Actor* actor2) {
-		auto angle = actor1->GetHeadingAngle(actor2->GetPosition(), false);
-		if (90 < angle || angle < -90) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-
 
 
 	/*Play sound with formid at a certain actor's position.

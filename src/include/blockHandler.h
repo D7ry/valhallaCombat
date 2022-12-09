@@ -14,7 +14,6 @@ public:
 
 	void update();
 
-	bool isBlockButtonPressed;
 
 	enum blockType {
 		regular = 1,
@@ -30,6 +29,8 @@ public:
 	void onTackleKeyDown();
 	void onBlockKeyDown();
 	void onBlockKeyUp();
+	bool isBlockKeyHeld();
+	float getBlockKeyHeldDuration();
 	void onBlockStop();
 	void OnPcSuccessfulTimedBlock();
 
@@ -44,11 +45,12 @@ private:
 
 	blockWindowPenaltyLevel pcBlockWindowPenalty;
 	
+	inline void pcBlockWindowPenalty_update(blockWindowPenaltyLevel& a_penaltyLevel, bool increase);
+	
 	inline bool isTimedBlockElapsedTimeLessThan(float a_in);
 
 	float pcTimedBlockTimer = 0;
 	float pcTimedBlockCooldownTimer = 0;
-	float pcTimedBlockKeyUpTimer = 0;
 
 	bool isPcTackling = false;
 	bool isPcTackleCooldown = false;
@@ -58,8 +60,8 @@ private:
 	bool isPcTimedBlocking;
 	bool isPcBlockingCoolDown;
 	bool isPcTimedBlockSuccess;
-	bool bKeyUpTimeBuffer;
-	
+	bool isBlockButtonPressed;
+
 	void onPcTimedBlockEnd();
 
 	inline bool isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj);
