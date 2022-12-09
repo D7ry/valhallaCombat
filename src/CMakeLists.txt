@@ -1,58 +1,20 @@
 set(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
 set(SOURCE_DIR "${ROOT_DIR}/src")
-set(SOURCE_FILES
-	"${SOURCE_DIR}/bin/main.cpp"
-	"${SOURCE_DIR}/bin/AI.cpp"
-	"${SOURCE_DIR}/bin/attackHandler.cpp"
-	"${SOURCE_DIR}/bin/balanceHandler.cpp"
-	"${SOURCE_DIR}/bin/blockHandler.cpp"
-	"${SOURCE_DIR}/bin/data.cpp"
-	"${SOURCE_DIR}/bin/debuffHandler.cpp"
-	"${SOURCE_DIR}/bin/executionHandler.cpp"
-	"${SOURCE_DIR}/bin/hitProcessor.cpp"
-	"${SOURCE_DIR}/bin/Hooks.cpp"
-	"${SOURCE_DIR}/bin/main.cpp"
-	"${SOURCE_DIR}/bin/Papyrus.cpp"
-	"${SOURCE_DIR}/bin/reactionHandler.cpp"
-	"${SOURCE_DIR}/bin/settings.cpp"
-	"${SOURCE_DIR}/bin/staminaHandler.cpp"
-	"${SOURCE_DIR}/bin/stunHandler.cpp"
-	"${SOURCE_DIR}/bin/ValhallaCombat.hpp"
-	"${SOURCE_DIR}/bin/events/animEventHandler.cpp"
-	"${SOURCE_DIR}/bin/events/cellLoadEventHandler.cpp"
-	"${SOURCE_DIR}/bin/events/inputEventHandler.cpp"
-	"${SOURCE_DIR}/bin/ModAPI.cpp"
-	"${SOURCE_DIR}/include/ModAPI.h"
-	"${SOURCE_DIR}/include/actorManager.h"
-	"${SOURCE_DIR}/include/actorManager.h"
-	"${SOURCE_DIR}/include/AI.h"
-	"${SOURCE_DIR}/include/attackHandler.h"
-	"${SOURCE_DIR}/include/balanceHandler.h"
-	"${SOURCE_DIR}/include/blockHandler.h"
-	"${SOURCE_DIR}/include/data.h"
-	"${SOURCE_DIR}/include/debuffHandler.h"
-	"${SOURCE_DIR}/include/events.h"
-	"${SOURCE_DIR}/include/executionHandler.h"
-	"${SOURCE_DIR}/include/hitProcessor.h"
-	"${SOURCE_DIR}/include/Hooks.h"
-	"${SOURCE_DIR}/include/offsets.h"
-	"${SOURCE_DIR}/include/Papyrus.h"
-	"${SOURCE_DIR}/include/PCH.h"
-	"${SOURCE_DIR}/include/settings.h"
-	"${SOURCE_DIR}/include/staminaHandler.h"
-	"${SOURCE_DIR}/include/stunHandler.h"
-	"${SOURCE_DIR}/include/Utils.h"
-	"${SOURCE_DIR}/include/lib/BlockSpark.h"
-	"${SOURCE_DIR}/include/lib/robin_hood.h"
-	"${SOURCE_DIR}/include/lib/SimpleIni.h"
-	"${SOURCE_DIR}/include/lib/TrueHUDAPI.h"
-	"${SOURCE_DIR}/include/lib/ValhallaCombatAPI.h"
-	"${SOURCE_DIR}/include/lib/PrecisionAPI.h"
+file(GLOB_RECURSE SOURCE_FILES "${SOURCE_DIR}/*.cpp" "${SOURCE_DIR}/*.h" "${SOURCE_DIR}/*.hpp")	
 
-	"${SOURCE_DIR}/include/perilousAttack.h"
-	"${SOURCE_DIR}/bin/perilousAttack.cpp"
-)
+# 对 SourceFile 变量里面的所有文件分类(保留资源管理器的目录结构)
+foreach(fileItem ${SOURCE_FILES})       
+    # Get the directory of the source file
+    get_filename_component(PARENT_DIR "${fileItem}" DIRECTORY)
+    # Remove common directory prefix to make the group
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
+    # Make sure we are using windows slashes
+    string(REPLACE "/" "\\" GROUP "${GROUP}")
+    # Group into "Source Files" and "Header Files"
+    set(GROUP "${GROUP}")
+    source_group("${GROUP}" FILES "${fileItem}")
+endforeach()
 
 source_group(TREE "${ROOT_DIR}" FILES ${SOURCE_FILES})
 
