@@ -10,9 +10,9 @@
 namespace Hooks
 {
 #pragma region GetHeavyStaminaCost
-	float Hook_OnGetAttackStaminaCost::getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData)
+	float Hook_OnGetAttackStaminaCost::getAttackStaminaCost(RE::ActorValueOwner* avOwner, RE::BGSAttackData* atkData)
 	{
-		RE::Actor* a_actor = (RE::Actor*)(avOwner - 0xB0);
+		RE::Actor* a_actor = Utils::AvOwner::asActor(avOwner);
 		if (!settings::bNonCombatStaminaCost && !a_actor->IsInCombat()) {
 			return 0;
 		}
@@ -177,11 +177,12 @@ used to block stamina regen in certain situations.*/
 	static void unblock_delayed_taskfunc(RE::AttackBlockHandler* a_this, RE::ButtonEvent* a_event, RE::PlayerControlsData* a_data) 
 	{
 		auto player = RE::PlayerCharacter::GetSingleton();
-		if (player && player->IsBlocking() && !blockHandler::GetSingleton()->isBlockKeyHeld()) {
+		if (player &&!blockHandler::GetSingleton()->isBlockKeyHeld() && (player->IsBlocking() || player->AsActorState()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash)) {
 			if (a_event) {
 				a_this->ProcessButton(a_event, a_data);
 			}
 		}
+
 		if (a_event) {
 			delete (a_event);
 		}

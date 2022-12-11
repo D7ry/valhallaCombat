@@ -21,7 +21,7 @@ namespace Hooks
 		}
 
 	private:
-		static float getAttackStaminaCost(uintptr_t avOwner, RE::BGSAttackData* atkData);
+		static float getAttackStaminaCost(RE::ActorValueOwner* avOwner, RE::BGSAttackData* atkData);
 		static inline REL::Relocation<decltype(getAttackStaminaCost)> _getAttackStaminaCost;
 	};
 

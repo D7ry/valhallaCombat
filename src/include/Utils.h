@@ -29,6 +29,13 @@ namespace Utils
 		void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor);
 		bool isBackFacing(RE::Actor* actor1, RE::Actor* actor2);
 	}
+
+	namespace AvOwner
+	{
+		inline RE::Actor* asActor(RE::ActorValueOwner* a_avOwner) {
+			return &REL::RelocateParentIfNewer<RE::Actor>(SKSE::RUNTIME_SSE_1_6_629, a_avOwner, 0xB0, 0xB8);
+		}
+	}
 }
 
 
