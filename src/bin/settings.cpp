@@ -43,7 +43,7 @@ static void offsetStaminaRegen(float mult, float upperLimit, float lowerLimit = 
 	for (auto& race : RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESRace>()) {
 		if (race) {
 			float staminaRegen;
-			if (staminaRegenMap.contains(race)) {
+			if (!staminaRegenMap.contains(race)) {
 				float val = race->data.staminaRegen;
 				staminaRegenMap[race] = val;
 				staminaRegen = val * mult;
@@ -182,7 +182,7 @@ void settings::readSettings() {
 	setGameSettingf("fCombatStaminaRegenRateMult", fCombatStaminaRegenMult);
 	
 	
-	offsetStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit);
+	offsetStaminaRegen(fStaminaRegenMult, fStaminaRegenLimit, fStaminaRegenMin);
 	
 	/*Release truehud meter if set so.*/
 	if (bStunMeterToggle && bStunToggle){
