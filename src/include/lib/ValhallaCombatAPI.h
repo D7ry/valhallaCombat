@@ -43,9 +43,8 @@ namespace VAL_API
 		virtual bool getIsPCPerfectBlocking() noexcept = 0;
 		virtual void triggerPcTimedBlockSuccess() noexcept = 0;
 
-		//virtual bool isActorStunned(RE::Actor* a_actor) noexcept = 0;
-		//virtual bool isActorExhausted(RE::Actor* a_actor) noexcept = 0;
-		//virtual float getActorStun(RE::Actor* a_actor) noexcept = 0;
+		virtual bool isActorStunned(RE::Actor* a_actor) noexcept = 0;
+		virtual bool isActorExhausted(RE::Actor* a_actor) noexcept = 0;
 
 		
 	};

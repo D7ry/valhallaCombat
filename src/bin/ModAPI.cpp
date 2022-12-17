@@ -20,3 +20,20 @@ void ModAPI::VALInterface::triggerPcTimedBlockSuccess() noexcept
 {
 	blockHandler::GetSingleton()->OnPcSuccessfulTimedBlock();
 }
+
+bool ModAPI::VALInterface::isActorStunned(RE::Actor* a_actor) noexcept
+{
+	if (!a_actor) {
+		return false;
+	}
+	return stunHandler::GetSingleton()->getIsStunBroken(a_actor);
+}
+
+
+bool ModAPI::VALInterface::isActorExhausted(RE::Actor* a_actor) noexcept
+{
+	if (!a_actor) {
+		return false;
+	}
+	return debuffHandler::GetSingleton()->isInDebuff(a_actor);
+}
