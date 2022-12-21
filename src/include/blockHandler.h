@@ -190,35 +190,35 @@ private:
 	/// </summary>
 	/// <param name="a_projectile">Projectile to be destroyed.</param>
 	inline void destroyProjectile(RE::Projectile* a_projectile);
-};
 
-
-
-class EldenCounterCompatibility
-{
 public:
-	static void attemptInit();
-	static void triggerCounter(RE::Actor* a_actor);
-	static inline bool on = false;
+	class EldenCounterCompatibility
+	{
+	public:
+		static void attemptInit();
+		static void triggerCounter(RE::Actor* a_actor);
+		static inline bool on = false;
 
+	private:
+		static inline RE::SpellItem* ec_triggerSpell = nullptr;
 
-private:
-	static inline RE::SpellItem* ec_triggerSpell = nullptr;
+		static inline float ec_Time = 1;
 
-	static inline float ec_Time = 1;
-	
-	static inline void async_removeECTriggerSpell(RE::Actor* a_actor);
-	static void readSettings();
-};
+		static inline void async_removeECTriggerSpell(RE::Actor* a_actor);
+		static void readSettings();
+	};
 
-
-class ValgrindCompatibility
-{
-public:
-	static void attemptInit();
-	static bool isPerilousAttacking(RE::Actor* a_actor);
-	static inline bool on = false;
-
-private:
-	static inline RE::SpellItem* VG_PerilousSpell = nullptr;
+	class ValorCompatibility
+	{
+	public:
+		enum PERILOUS_TYPE
+		{
+			none = 0,
+			yellow = 1,  // all heavy attacks, cannot be blocked, can be parried, stagger on hit.
+			red = 2,     // cannot be blocked, cannot be parried, stagger on hit.
+			blue = 3     // cannot be blocked, cannot be parried, can be bashed to lead to attacker stagger, stagger on hit.
+		};
+		static inline RE::BSFixedString gv_int_perilous_attack_type = "val_perilous_attack_type";
+		static PERILOUS_TYPE get_perilous_state(RE::Actor* a_actor);
+	};
 };

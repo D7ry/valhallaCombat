@@ -28,6 +28,9 @@ namespace Utils
 		void safeApplyPerk(RE::BGSPerk* a_perk, RE::Actor* a_actor);
 		void safeRemovePerk(RE::BGSPerk* a_perk, RE::Actor* a_actor);
 		bool isBackFacing(RE::Actor* actor1, RE::Actor* actor2);
+
+		bool isBashing(RE::Actor* a_actor);
+		bool canBlock(RE::Actor* a_actor);
 	}
 
 	namespace AvOwner

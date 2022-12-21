@@ -137,3 +137,37 @@ bool Utils::Actor::isBackFacing(RE::Actor* actor1, RE::Actor* actor2)
 		return false;
 	}
 }
+inline bool isJumping(RE::Actor* a_actor)
+{
+	bool result = false;
+	return a_actor->GetGraphVariableBool("bInJumpState", result) && result;
+}
+
+/* Whether the actor is blocking or is in a state at which a block input transfer the actor into blocking state.*/
+bool Utils::Actor::canBlock(RE::Actor* a_actor)
+{
+	if (a_actor->IsBlocking()) {
+		return true;
+	}
+	RE::ActorState* state = a_actor->AsActorState();
+	return !isJumping(a_actor) && state->GetKnockState() == RE::KNOCK_STATE_ENUM::kNormal && state->GetAttackState() == RE::ATTACK_STATE_ENUM::kNone && !state->IsSwimming() && state->IsWeaponDrawn() && !state->IsSprinting() && !state->IsStaggered();
+}
+
+bool Utils::Actor::isBashing(RE::Actor* a_actor)
+{
+	if (a_actor->AsActorState()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) {
+		return true;
+	}
+	auto currentProcess = a_actor->GetActorRuntimeData().currentProcess;
+	if (currentProcess) {
+		auto highProcess = currentProcess->high;
+		if (highProcess) {
+			auto attackData = highProcess->attackData;
+			if (attackData) {
+				auto flags = attackData->data.flags;
+				return flags.any(RE::AttackData::AttackFlag::kBashAttack);
+			}
+		}
+	}
+	return false;
+}

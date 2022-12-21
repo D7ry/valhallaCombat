@@ -45,8 +45,6 @@ namespace VAL_API
 
 		virtual bool isActorStunned(RE::Actor* a_actor) noexcept = 0;
 		virtual bool isActorExhausted(RE::Actor* a_actor) noexcept = 0;
-
-		
 	};
 
 

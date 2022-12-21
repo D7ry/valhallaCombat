@@ -177,7 +177,7 @@ used to block stamina regen in certain situations.*/
 	static void unblock_delayed_taskfunc(RE::AttackBlockHandler* a_this, RE::ButtonEvent* a_event, RE::PlayerControlsData* a_data) 
 	{
 		auto player = RE::PlayerCharacter::GetSingleton();
-		if (player &&!blockHandler::GetSingleton()->isBlockKeyHeld() && (player->IsBlocking() || player->AsActorState()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash)) {
+		if (player &&!blockHandler::GetSingleton()->isBlockKeyHeld() && (player->IsBlocking() || player->AsActorState()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) || player->AsActorState()->IsStaggered()) {
 			if (a_event) {
 				a_this->ProcessButton(a_event, a_data);
 			}
@@ -221,7 +221,7 @@ used to block stamina regen in certain situations.*/
 							float delay_time = settings::fBlockCommitmentTime - a_event->HeldDuration();
 							std::jthread t(unblock_delayed_threadfunc, a_this, releaseEvent, a_data, delay_time);
 							t.detach();
-							return;
+							return; //discard the event
 						}
 					}
 				}

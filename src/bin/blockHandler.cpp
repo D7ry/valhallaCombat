@@ -109,6 +109,10 @@ void blockHandler::onBlockKeyDown() {
 	if (!settings::bTimedBlockToggle && !settings::bTimedBlockProjectileToggle) {
 		return;
 	}
+	RE::PlayerCharacter* pc = RE::PlayerCharacter::GetSingleton();
+	if (!Utils::Actor::canBlock(pc)) {
+		return;
+	}
 	if (isPcTimedBlocking) {
 		onPcTimedBlockEnd();
 	}
@@ -285,7 +289,8 @@ bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 }
 
 
-bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) {
+bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) 
+{
 	if (a_blocker->IsPlayerRef()) {
 		if (isInBlockAngle(a_blocker, a_projectile) && a_blocker->IsBlocking()) {
 			
@@ -419,25 +424,25 @@ bool blockHandler::getIsPcPerfectBlocking() {
 
 
 bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker) {
-	if (ValgrindCompatibility::on && ValgrindCompatibility::isPerilousAttacking(a_attacker)) { /*Perilous attacks are unblockable*/
-		return false;
-	}
 	if (!a_blocker->IsPlayerRef()) {
 		return false;
 	}
 	if (!isPcTimedBlocking) {
 		return false;
 	}
-
-	if (!a_blocker->IsBlocking()) {
+	
+	if (!Utils::Actor::canBlock(a_blocker)) {
 		return false;
 	}
 
 	if (!isInBlockAngle(a_blocker, a_attacker)) {
-		logger::info("pc isn't in block angle");
 		return false;
 	}
-	
+
+	if (ValorCompatibility::get_perilous_state(a_attacker) > ValorCompatibility::PERILOUS_TYPE::yellow) {
+		return false;
+	}
+
 	bool isPerfectblock = this->getIsPcPerfectBlocking();
 
 	if (a_blocker->IsPlayerRef()) {
@@ -469,7 +474,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 
 
 	if (isPerfectblock) {//stagger opponent immediately on perfect block.
-		reactionHandler::triggerStagger(a_blocker, a_attacker, reactionHandler::reactionType::kLarge);
+		reactionHandler::triggerRecoil(a_attacker, reactionHandler::reactionType::kLarge);
 		debuffHandler::GetSingleton()->stopDebuff(a_blocker);
 		Utils::Actor::refillActorValue(a_blocker, RE::ActorValue::kStamina); //perfect blocking completely restores actor value.
 	}
@@ -652,7 +657,7 @@ void blockHandler::playBlockEffects(RE::Actor* blocker, RE::Actor* attacker, blo
 	}
 }
 
-void EldenCounterCompatibility::attemptInit()
+void blockHandler::EldenCounterCompatibility::attemptInit()
 {
 	logger::info("Initializing Elden Counter compatibility");
 	ec_triggerSpell = RE::TESDataHandler::GetSingleton()->LookupForm<RE::SpellItem>(0x801, "EldenCounter.esp");
@@ -666,7 +671,7 @@ void EldenCounterCompatibility::attemptInit()
 	}
 }
 
-inline void EldenCounterCompatibility::triggerCounter(RE::Actor* a_actor)
+inline void blockHandler::EldenCounterCompatibility::triggerCounter(RE::Actor* a_actor)
 {
 	if (a_actor->HasSpell(ec_triggerSpell)) {
 		return;
@@ -676,7 +681,7 @@ inline void EldenCounterCompatibility::triggerCounter(RE::Actor* a_actor)
 	removeSpellThread.detach();
 }
 
-void EldenCounterCompatibility::async_removeECTriggerSpell(RE::Actor* a_actor)
+void blockHandler::EldenCounterCompatibility::async_removeECTriggerSpell(RE::Actor* a_actor)
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(ec_Time * 1000)));
 	if (!a_actor) {
@@ -686,7 +691,7 @@ void EldenCounterCompatibility::async_removeECTriggerSpell(RE::Actor* a_actor)
 	
 }
 
-void EldenCounterCompatibility::readSettings()
+void blockHandler::EldenCounterCompatibility::readSettings()
 {
 	logger::info("EldenCounter compatibility: reading settings...");
 	CSimpleIniA ini;
@@ -696,20 +701,15 @@ void EldenCounterCompatibility::readSettings()
 	logger::info("EldenCounter compatibilty: settings loaded.");
 }
 
-void ValgrindCompatibility::attemptInit()
+/// <summary>
+/// Get the Valor perilous state of A_ACTOR. This function may be called even when Valor isn't enabled, which will
+/// result in a return value of 0.
+/// </summary>
+blockHandler::ValorCompatibility::PERILOUS_TYPE blockHandler::ValorCompatibility::get_perilous_state(RE::Actor* a_actor)
 {
-	DtryUtils::formLoader loader("Valgrind.esp");
-	loader.load(VG_PerilousSpell, 0xD6B);
-	if (!VG_PerilousSpell) {
-		logger::info("Valgrind.esp not found");
-		on = false;
-	} else {
-		logger::info("found Valgrind.esp; compatibility enabled.");
-		on = true;
+	int gv;
+	if (a_actor->GetGraphVariableInt(gv_int_perilous_attack_type, gv)) {
+		return static_cast<PERILOUS_TYPE>(gv);
 	}
-}
-
-bool ValgrindCompatibility::isPerilousAttacking(RE::Actor* a_actor)
-{
-	return a_actor->HasSpell(VG_PerilousSpell);
+	return PERILOUS_TYPE::none;
 }

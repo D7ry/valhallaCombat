@@ -46,8 +46,7 @@ void onDataLoaded()
 	settings::readSettings();
 	events::registerAllEventHandlers();
 	data::loadData();
-	EldenCounterCompatibility::attemptInit();
-	ValgrindCompatibility::attemptInit();
+	blockHandler::EldenCounterCompatibility::attemptInit(); //todo: fix this jank
 }
 
 void onPostLoad() {
