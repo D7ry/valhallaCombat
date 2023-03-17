@@ -31,6 +31,10 @@ namespace Utils
 
 		bool isBashing(RE::Actor* a_actor);
 		bool canBlock(RE::Actor* a_actor);
+
+		bool getGraphVariable(bool& r_gv, RE::Actor* a_actor, const RE::BSFixedString& a_variableName);
+		bool getGraphVariable(float& r_gv, RE::Actor* a_actor, const RE::BSFixedString& a_variableName);
+		bool getGraphVariable(int& r_gv, RE::Actor* a_actor, const RE::BSFixedString& a_variableName);
 	}
 
 	namespace AvOwner
@@ -520,7 +524,7 @@ namespace DtryUtils
 			logger::info("Loading from plugin {}...", pluginName);
 		}
 
-		void log()
+		~formLoader()
 		{
 			logger::info("Loaded {} forms from {}", _loadedForms, _pluginName);
 		}

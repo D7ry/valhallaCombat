@@ -21,7 +21,7 @@ private:
 	static EventResult ProcessEvent_PC(RE::BSTEventSink<RE::BSAnimationGraphEvent>* a_sink, RE::BSAnimationGraphEvent* a_event, RE::BSTEventSource<RE::BSAnimationGraphEvent>* a_eventSource);
 
 	static inline REL::Relocation<decltype(ProcessEvent_NPC)> _ProcessEvent_NPC;
-	static inline REL::Relocation<decltype(ProcessEvent_NPC)> _ProcessEvent_PC;
+	static inline REL::Relocation<decltype(ProcessEvent_PC)> _ProcessEvent_PC;
 };
 
 class cellLoadEventHandler : public RE::BSTEventSink<RE::TESCellFullyLoadedEvent>

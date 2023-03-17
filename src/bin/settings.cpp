@@ -66,7 +66,6 @@ void settings::init() {
 	loader.load(glob_Nemesis_EldenCounter_NPC, 0x56A24);
 	loader.load(glob_TrueHudAPI, 0x56A25);
 	loader.load(glob_TrueHudAPI_SpecialMeter, 0x56A26);
-	loader.log();
 	logger::info("...done");
 }
 void settings::updateGlobals() {

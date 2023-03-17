@@ -25,6 +25,7 @@ public:
 	
 	bool getIsPcTimedBlocking();
 	bool getIsPcPerfectBlocking();
+	bool getIsPcForcedTimedBlocking();
 
 	void onTackleKeyDown();
 	void onBlockKeyDown();
@@ -191,7 +192,10 @@ private:
 	/// <param name="a_projectile">Projectile to be destroyed.</param>
 	inline void destroyProjectile(RE::Projectile* a_projectile);
 
-public:
+	static const inline RE::BSFixedString gv_bool_force_timed_blocking = "val_bForceTimedBlocking";
+	static const inline RE::BSFixedString gv_bool_force_perfect_blocking = "val_bForcePerfectBlocking";
+
+public: // plz don't look at this ugly compatiblity thing
 	class EldenCounterCompatibility
 	{
 	public:

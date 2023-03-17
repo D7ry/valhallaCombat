@@ -174,29 +174,25 @@ used to block stamina regen in certain situations.*/
 		return _PerformAttackAction(a_actionData);
 	}
 
-	static void unblock_delayed_taskfunc(RE::AttackBlockHandler* a_this, RE::ButtonEvent* a_event, RE::PlayerControlsData* a_data) 
-	{
-		auto player = RE::PlayerCharacter::GetSingleton();
-		if (player &&!blockHandler::GetSingleton()->isBlockKeyHeld() && (player->IsBlocking() || player->AsActorState()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) || player->AsActorState()->IsStaggered()) {
-			if (a_event) {
-				a_this->ProcessButton(a_event, a_data);
-			}
-		}
 
-		if (a_event) {
-			delete (a_event);
-		}
-	}
-	
 	static void unblock_delayed_threadfunc(RE::AttackBlockHandler* a_this, RE::ButtonEvent* a_event, RE::PlayerControlsData* a_data, float a_time) 
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(a_time * 1000))); // wait for, by default, 0.3 sec
-		auto task = SKSE::GetTaskInterface();
-		if (task) {
-			task->AddTask([a_this, a_event, a_data]() {
-				unblock_delayed_taskfunc(a_this, a_event, a_data);
-			});
-		}
+		SKSE_ADDTASK
+		(
+			[a_this, a_event, a_data]() 
+			{
+				auto player = RE::PlayerCharacter::GetSingleton();
+				if (player && !blockHandler::GetSingleton()->isBlockKeyHeld() && (player->IsBlocking() || player->AsActorState()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) || player->AsActorState()->IsStaggered()) {
+					if (a_event) {
+						a_this->ProcessButton(a_event, a_data);
+					}
+				}
+				if (a_event) {
+					delete (a_event);
+				}
+			}
+		)
 	}
 	void Hook_AttackBlockHandler_OnProcessButton::ProcessButton(RE::AttackBlockHandler* a_this, RE::ButtonEvent* a_event, RE::PlayerControlsData* a_data)
 	{

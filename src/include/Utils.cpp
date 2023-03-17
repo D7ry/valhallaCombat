@@ -153,6 +153,31 @@ bool Utils::Actor::canBlock(RE::Actor* a_actor)
 	return !isJumping(a_actor) && state->GetKnockState() == RE::KNOCK_STATE_ENUM::kNormal && state->GetAttackState() == RE::ATTACK_STATE_ENUM::kNone && !state->IsSwimming() && state->IsWeaponDrawn() && !state->IsSprinting() && !state->IsStaggered();
 }
 
+bool Utils::Actor::getGraphVariable(bool& r_gv, RE::Actor* a_actor, const RE::BSFixedString& a_variableName)
+{
+	if (!a_actor) {
+		return false;
+	}
+	return a_actor->GetGraphVariableBool(a_variableName, r_gv);
+}
+
+bool Utils::Actor::getGraphVariable(float& r_gv, RE::Actor* a_actor, const RE::BSFixedString& a_variableName)
+{
+	if (!a_actor) {
+		return false;
+	}
+	return a_actor->GetGraphVariableFloat(a_variableName, r_gv);
+}
+
+bool Utils::Actor::getGraphVariable(int& r_gv, RE::Actor* a_actor, const RE::BSFixedString& a_variableName)
+{
+	if (!a_actor) {
+		return false;
+	}
+	return a_actor->GetGraphVariableInt(a_variableName, r_gv);
+}
+
+
 bool Utils::Actor::isBashing(RE::Actor* a_actor)
 {
 	if (a_actor->AsActorState()->GetAttackState() == RE::ATTACK_STATE_ENUM::kBash) {

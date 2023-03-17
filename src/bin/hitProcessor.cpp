@@ -13,16 +13,16 @@ void hitProcessor::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, RE::H
 	inlineUtils::offsetRealDamage(realDamage, a_aggressor, a_victim);
 	auto hitFlag = a_hitData.flags;
 	using HITFLAG = RE::HitData::Flag;
+	if (settings::bAttackStaminaToggle) {
+		if (debuffHandler::GetSingleton()->isInDebuff(a_victim)) {
+			reactionHandler::triggerStagger(a_aggressor, a_victim, reactionHandler::kLargest);
+		}
+	}
 	if (hitFlag.any(HITFLAG::kBlocked)) {
 		blockHandler::GetSingleton()->processPhysicalBlock(a_victim, a_aggressor, hitFlag, a_hitData);
 		if (settings::bBlockedHitRegenStamina && settings::bAttackStaminaToggle) {
 			if (!hitFlag.any(HITFLAG::kPowerAttack)) {
 				attackHandler::GetSingleton()->OnLightHit(a_aggressor);
-			}
-		}
-		if (settings::bAttackStaminaToggle) {
-			if (debuffHandler::GetSingleton()->isInDebuff(a_victim)) {
-				reactionHandler::triggerStagger(a_aggressor, a_victim, reactionHandler::kLargest);
 			}
 		}
 		return;

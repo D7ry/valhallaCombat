@@ -38,6 +38,13 @@ namespace RE
 		inline static float* g_deltaTime = (float*)RELOCATION_ID(523660, 410199).address();                                                                    // 2F6B948
 		inline static float* g_deltaTimeRealTime = (float*)RELOCATION_ID(523661, 410200).address();  // 2F6B94C
 
+		inline void ArrowProjectile_sub_1407546B0(RE::ArrowProjectile* a_projectile) //destroys the arrow
+		{
+			using func_t = decltype(ArrowProjectile_sub_1407546B0);
+			REL::Relocation<func_t> func{ RELOCATION_ID(43027, 00000) };
+			return func(a_projectile);
+		}
+
 		inline bool playPairedIdle(RE::AIProcess* proc, RE::Actor* attacker, RE::DEFAULT_OBJECT smth, RE::TESIdleForm* idle, bool a5, bool a6, RE::TESObjectREFR* target)
 		{
 			using func_t = decltype(&playPairedIdle);

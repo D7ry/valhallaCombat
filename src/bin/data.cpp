@@ -39,7 +39,6 @@ void data::loadSound(RE::TESDataHandler* a_data) {
 	loader.load(soundParryWeapon_gb, 0X47721);
 	loader.load(soundStunBreak, 0X56A22);
 	loader.load(soundTackleStart, 0x60c36);
-	loader.log();
 	logger::info("...done");
 }
 
@@ -47,7 +46,6 @@ void data::loadPerk(RE::TESDataHandler* a_data) {
 	logger::info("Loading perk...");
 	DtryUtils::formLoader loader("ValhallaCombat.esp");
 	loader.load(debuffPerk, 0x2DB2);
-	loader.log();
 	logger::info("...done");
 }
 
@@ -58,7 +56,6 @@ void data::loadBlockFX(RE::TESDataHandler* a_data) {
 	loader.load(BlockSpark, 0x60c30);
 	loader.load(BlockSparkFlare, 0x60c31);
 	loader.load(BlockSparkRing, 0x60c32);
-	loader.log();
 	logger::info("...done");
 }
 

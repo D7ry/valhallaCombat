@@ -226,6 +226,7 @@ bool blockHandler::tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 		if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {  //parry only happens when there's enough magicka
 			deflectProjectile(a_blocker, a_projectile, a_projectile_collidable);
 		} else {
+			//RE::Offset::ArrowProjectile_sub_1407546B0(a_projectile->As<RE::ArrowProjectile>());
 			destroyProjectile(a_projectile);
 		}
 		if (a_blocker->IsBlocking()) {
@@ -415,11 +416,24 @@ void blockHandler::processStaminaBlock(RE::Actor* a_blocker, RE::Actor* a_aggres
 	}
 }
 bool blockHandler::getIsPcTimedBlocking() {
-	return isPcTimedBlocking;
+	bool ret = isPcTimedBlocking;
+	return ret 
+		|| (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_timed_blocking) && ret);
 }
 
 bool blockHandler::getIsPcPerfectBlocking() {
-	return isTimedBlockElapsedTimeLessThan(settings::fPerfectBlockWindow);
+	bool ret = isTimedBlockElapsedTimeLessThan(settings::fPerfectBlockWindow);
+	return ret 
+		|| (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_perfect_blocking) && ret);
+}
+
+bool blockHandler::getIsPcForcedTimedBlocking()
+{
+	auto pc = RE::PlayerCharacter::GetSingleton();
+	bool ret = false;
+	return 
+		(Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_perfect_blocking) && ret) 
+		|| (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_timed_blocking) && ret);
 }
 
 
@@ -427,7 +441,12 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	if (!a_blocker->IsPlayerRef()) {
 		return false;
 	}
-	if (!isPcTimedBlocking) {
+
+	if (getIsPcForcedTimedBlocking()) {
+		goto begin;
+	}
+	
+	if (!getIsPcTimedBlocking()) {
 		return false;
 	}
 	
@@ -442,6 +461,8 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	if (ValorCompatibility::get_perilous_state(a_attacker) > ValorCompatibility::PERILOUS_TYPE::yellow) {
 		return false;
 	}
+
+begin:
 
 	bool isPerfectblock = this->getIsPcPerfectBlocking();
 
@@ -474,7 +495,8 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 
 
 	if (isPerfectblock) {//stagger opponent immediately on perfect block.
-		reactionHandler::triggerRecoil(a_attacker, reactionHandler::reactionType::kLarge);
+		//reactionHandler::triggerRecoil(a_attacker, reactionHandler::reactionType::kLarge);
+		reactionHandler::triggerStagger(a_blocker, a_attacker, reactionHandler::reactionType::kMedium);
 		debuffHandler::GetSingleton()->stopDebuff(a_blocker);
 		Utils::Actor::refillActorValue(a_blocker, RE::ActorValue::kStamina); //perfect blocking completely restores actor value.
 	}

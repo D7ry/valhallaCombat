@@ -28,6 +28,18 @@ public:
 	static inline RE::Explosion* BlockSparkRing;
 
 #pragma endregion
+
+#pragma region blockPerks
+	static inline RE::BGSPerk* Perk_EnablePhysicalParry;
+	static inline RE::BGSPerk* Perk_EnablePhysicalPerfectParry;
+	
+	static inline RE::BGSPerk* Perk_EnableArrowParry;
+	static inline RE::BGSPerk* Perk_EnableSpellParry;
+	
+	static inline RE::BGSPerk* Perk_EnableArrowPerfectParry;
+	static inline RE::BGSPerk* Perk_EnableSpellPerfectParry;
+	
+#pragma endregion
 #pragma region Perk
 	static inline RE::BGSPerk* debuffPerk;
 #pragma endregion
