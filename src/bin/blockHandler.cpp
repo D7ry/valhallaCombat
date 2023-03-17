@@ -180,7 +180,7 @@ bool blockHandler::isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj)
 
 bool blockHandler::tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable)
 {
-	if (getIsPcTimedBlocking()) {
+	if (getIsPcTimedBlocking() || getIsPcForcedPerfectBlocking() || getIsPcForcedTimedBlocking()) {
 		OnPcSuccessfulTimedBlock();
 		if (a_blocker->IsPlayerRef()) {
 			auto pc = RE::PlayerCharacter::GetSingleton();
@@ -205,7 +205,7 @@ bool blockHandler::tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile
 
 bool blockHandler::tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) 
 {
-	if (getIsPcTimedBlocking()) {
+	if (getIsPcTimedBlocking() || getIsPcForcedPerfectBlocking() || getIsPcForcedTimedBlocking()) {
 		OnPcSuccessfulTimedBlock();
 		if (a_blocker->IsPlayerRef()) {
 			auto pc = RE::PlayerCharacter::GetSingleton();
@@ -416,24 +416,26 @@ void blockHandler::processStaminaBlock(RE::Actor* a_blocker, RE::Actor* a_aggres
 	}
 }
 bool blockHandler::getIsPcTimedBlocking() {
-	bool ret = isPcTimedBlocking;
-	return ret 
-		|| (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_timed_blocking) && ret);
+	return isPcTimedBlocking;
 }
 
 bool blockHandler::getIsPcPerfectBlocking() {
 	bool ret = isTimedBlockElapsedTimeLessThan(settings::fPerfectBlockWindow);
-	return ret 
-		|| (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_perfect_blocking) && ret);
+	return ret;
 }
 
 bool blockHandler::getIsPcForcedTimedBlocking()
 {
 	auto pc = RE::PlayerCharacter::GetSingleton();
 	bool ret = false;
-	return 
-		(Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_perfect_blocking) && ret) 
-		|| (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_timed_blocking) && ret);
+	return (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_timed_blocking) && ret);
+}
+
+bool blockHandler::getIsPcForcedPerfectBlocking()
+{
+	auto pc = RE::PlayerCharacter::GetSingleton();
+	bool ret = false;
+	return (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_perfect_blocking) && ret);
 }
 
 
@@ -442,7 +444,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 		return false;
 	}
 
-	if (getIsPcForcedTimedBlocking()) {
+	if (getIsPcForcedTimedBlocking() || getIsPcForcedPerfectBlocking()) {
 		goto begin;
 	}
 	
@@ -463,8 +465,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	}
 
 begin:
-
-	bool isPerfectblock = this->getIsPcPerfectBlocking();
+	bool isPerfectblock = this->getIsPcPerfectBlocking() || getIsPcForcedPerfectBlocking();
 
 	if (a_blocker->IsPlayerRef()) {
 		OnPcSuccessfulTimedBlock();

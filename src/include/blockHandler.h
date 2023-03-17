@@ -26,6 +26,7 @@ public:
 	bool getIsPcTimedBlocking();
 	bool getIsPcPerfectBlocking();
 	bool getIsPcForcedTimedBlocking();
+	bool getIsPcForcedPerfectBlocking();
 
 	void onTackleKeyDown();
 	void onBlockKeyDown();
