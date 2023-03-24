@@ -178,18 +178,20 @@ bool blockHandler::isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj)
 	return (angle <= data::fCombatHitConeAngle && angle >= -data::fCombatHitConeAngle);
 }
 
-bool blockHandler::tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable)
+bool blockHandler::tryParryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, float a_cost, bool a_forced = false)
 {
-	if (getIsPcTimedBlocking() || getIsPcForcedPerfectBlocking() || getIsPcForcedTimedBlocking()) {
+	if (a_forced || (a_blocker->IsPlayerRef() && getIsPcTimedBlocking())) {
 		OnPcSuccessfulTimedBlock();
+
 		if (a_blocker->IsPlayerRef()) {
 			auto pc = RE::PlayerCharacter::GetSingleton();
 			if (pc) {
 				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fTimedBlockProjectileExp);
 			}
 		}
-		float cost = a_projectile->GetProjectileRuntimeData().spell->CalculateMagickaCost(a_blocker);
-		if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {  //parry only happnens when there's enough magicka.
+
+		
+		if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, a_cost)) {  //parry only happnens when there's enough magicka.
 			deflectProjectile(a_blocker, a_projectile, a_projectile_collidable);
 		} else {
 			destroyProjectile(a_projectile);
@@ -203,46 +205,10 @@ bool blockHandler::tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile
 	return false;
 }
 
-bool blockHandler::tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) 
-{
-	if (getIsPcTimedBlocking() || getIsPcForcedPerfectBlocking() || getIsPcForcedTimedBlocking()) {
-		OnPcSuccessfulTimedBlock();
-		if (a_blocker->IsPlayerRef()) {
-			auto pc = RE::PlayerCharacter::GetSingleton();
-			if (pc) {
-				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fTimedBlockProjectileExp);
-			}
-		}
-		auto launcher = a_projectile->GetProjectileRuntimeData().weaponSource;
-		auto ammo = a_projectile->GetProjectileRuntimeData().ammoSource;
-		float cost = 0;
-		if (launcher) {
-			cost += launcher->GetAttackDamage();
-		}
-		if (ammo) {
-			cost += ammo->data.damage;
-		}
-		inlineUtils::offsetRealDamageForPc(cost);
-		if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {  //parry only happens when there's enough magicka
-			deflectProjectile(a_blocker, a_projectile, a_projectile_collidable);
-		} else {
-			//RE::Offset::ArrowProjectile_sub_1407546B0(a_projectile->As<RE::ArrowProjectile>());
-			destroyProjectile(a_projectile);
-		}
-		if (a_blocker->IsBlocking()) {
-			a_blocker->NotifyAnimationGraph("BlockHitStart");
-		}
-		playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
-		return true;
-	}
-	return false;
-}
 
-
-bool blockHandler::tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile) 
+bool blockHandler::tryBlockProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, float a_cost) 
 {
-	auto cost = a_projectile->GetProjectileRuntimeData().spell->CalculateMagickaCost(a_blocker);
-	if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
+	if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, a_cost)) {
 		if (a_blocker->IsPlayerRef()) {
 			auto pc = RE::PlayerCharacter::GetSingleton();
 			if (pc) {
@@ -254,36 +220,6 @@ bool blockHandler::tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile
 			a_blocker->NotifyAnimationGraph("BlockHitStart");
 		}
 		playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
-		return true;
-	}
-	return false;
-}
-
-bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile) 
-{
-	auto launcher = a_projectile->GetProjectileRuntimeData().weaponSource;
-	auto ammo = a_projectile->GetProjectileRuntimeData().ammoSource;
-	float cost = 0;
-	if (launcher) {
-		cost += launcher->GetAttackDamage();
-	}
-	if (ammo) {
-		cost += ammo->data.damage;
-	}
-	
-	inlineUtils::offsetRealDamageForPc(cost);
-	if (Utils::Actor::tryDamageAv(a_blocker, RE::ActorValue::kMagicka, cost)) {
-		if (a_blocker->IsPlayerRef()) {
-			auto pc = RE::PlayerCharacter::GetSingleton();
-			if (pc) {
-				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fBlockProjectileExp);
-			}
-		}
-		if (a_blocker->IsBlocking()) {
-			a_blocker->NotifyAnimationGraph("BlockHitStart");
-		}
-		playBlockEffects(a_blocker, nullptr, blockHandler::blockType::timed);
-		destroyProjectile(a_projectile);
 		return true;
 	}
 	return false;
@@ -292,29 +228,46 @@ bool blockHandler::tryBlockProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile
 
 bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable) 
 {
-	if (a_blocker->IsPlayerRef()) {
-		if (isInBlockAngle(a_blocker, a_projectile) && a_blocker->IsBlocking()) {
-			
-			//try timed block
-			if (settings::bTimedBlockProjectileToggle) {
-				if (a_projectile->GetProjectileRuntimeData().spell && tryParryProjectile_Spell(a_blocker, a_projectile, a_projectile_collidable)) {
-					return true;
-				} else if (tryParryProjectile_Arrow(a_blocker, a_projectile, a_projectile_collidable)) {
-					return true;
-				}
-			}  
-			
-			//try projectile parry
-			if (settings::bBlockProjectileToggle) {
-				if (a_projectile->GetProjectileRuntimeData().spell) {
-					return tryBlockProjectile_Spell(a_blocker, a_projectile);
-				} else if (!Utils::Actor::isEquippedShield(a_blocker)) {  //physical projectile blocking only applies to none-shield.
-					return tryBlockProjectile_Arrow(a_blocker, a_projectile);
-				}
+	bool forced = getIsForcedTimedBlocking(a_blocker) || getIsForcedPerfectBlocking(a_blocker);
+
+	if (!a_blocker->IsPlayerRef() && !forced) {
+		return false;
+	}
+	if ((isInBlockAngle(a_blocker, a_projectile) && a_blocker->IsBlocking())
+		|| forced
+		) {
+		
+		// evaluate cost
+		float cost;
+		if (forced) { // forced projectile block, no cost
+			cost = 0;
+		} else if (a_projectile->GetProjectileRuntimeData().spell) {  // parry spell
+			cost = a_projectile->GetProjectileRuntimeData().spell->CalculateMagickaCost(a_blocker);
+		} else { // parry arrow
+			auto launcher = a_projectile->GetProjectileRuntimeData().weaponSource;
+			auto ammo = a_projectile->GetProjectileRuntimeData().ammoSource;
+			float cost = 0;
+			if (launcher) {
+				cost += launcher->GetAttackDamage();
+			}
+			if (ammo) {
+				cost += ammo->data.damage;
 			}
 		}
 		
+		//try timed block
+		if (settings::bTimedBlockProjectileToggle) {
+			if (tryParryProjectile(a_blocker, a_projectile, a_projectile_collidable, cost, forced)) {
+				return true;
+			}
+		}  
+			
+		//try regular block(that depletes magicka)
+		if (settings::bBlockProjectileToggle) {
+			return tryBlockProjectile(a_blocker, a_projectile, cost);
+		}
 	}
+		
 	return false;
 }
 
@@ -424,28 +377,25 @@ bool blockHandler::getIsPcPerfectBlocking() {
 	return ret;
 }
 
-bool blockHandler::getIsPcForcedTimedBlocking()
+bool blockHandler::getIsForcedTimedBlocking(RE::Actor* a_actor)
 {
-	auto pc = RE::PlayerCharacter::GetSingleton();
 	bool ret = false;
-	return (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_timed_blocking) && ret);
+	return (Utils::Actor::getGraphVariable(ret, a_actor, gv_bool_force_timed_blocking) && ret);
 }
 
-bool blockHandler::getIsPcForcedPerfectBlocking()
+bool blockHandler::getIsForcedPerfectBlocking(RE::Actor* a_actor)
 {
-	auto pc = RE::PlayerCharacter::GetSingleton();
 	bool ret = false;
-	return (Utils::Actor::getGraphVariable(ret, RE::PlayerCharacter::GetSingleton(), gv_bool_force_perfect_blocking) && ret);
+	return (Utils::Actor::getGraphVariable(ret, a_actor, gv_bool_force_perfect_blocking) && ret);
 }
 
 
 bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker) {
+	if (getIsForcedTimedBlocking(a_blocker) || getIsForcedPerfectBlocking(a_blocker)) {
+		goto begin;
+	}
 	if (!a_blocker->IsPlayerRef()) {
 		return false;
-	}
-
-	if (getIsPcForcedTimedBlocking() || getIsPcForcedPerfectBlocking()) {
-		goto begin;
 	}
 	
 	if (!getIsPcTimedBlocking()) {
@@ -465,7 +415,7 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	}
 
 begin:
-	bool isPerfectblock = this->getIsPcPerfectBlocking() || getIsPcForcedPerfectBlocking();
+	bool isPerfectblock = (a_blocker->IsPlayerRef() && this->getIsPcPerfectBlocking()) || getIsForcedPerfectBlocking(a_blocker);
 
 	if (a_blocker->IsPlayerRef()) {
 		OnPcSuccessfulTimedBlock();

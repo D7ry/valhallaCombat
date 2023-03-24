@@ -25,8 +25,8 @@ public:
 	
 	bool getIsPcTimedBlocking();
 	bool getIsPcPerfectBlocking();
-	bool getIsPcForcedTimedBlocking();
-	bool getIsPcForcedPerfectBlocking();
+	bool getIsForcedTimedBlocking(RE::Actor* a_actor);
+	bool getIsForcedPerfectBlocking(RE::Actor* a_actor);
 
 	void onTackleKeyDown();
 	void onBlockKeyDown();
@@ -161,22 +161,8 @@ private:
 	/// <param name="a_projectile">the incoming projectile</param>
 	/// <param name="a_projectile_collidable">havok collidable of the projectile</param>
 	/// <returns>Whether the parry is successful, regardless of whether deflection is successful.</returns>
-	bool tryParryProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
+	bool tryParryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, bool a_forced);
 	
-	/// <summary>
-	/// Attempt to parry(timed-block) an incoming arrow projectile for the blocker. Conditionally deflect the projectile if the blocker has enough magicka.
-	/// Parry is successful if:
-	/// 1. the blocker is timed blocking.
-	/// 2. the projectile is in the blocker's block angle.
-	/// Projectile deflection is successful if:
-	/// 1. the blocker has enough magicka.
-	/// On successful projectile deflection, blocker loses magicka required to deflect.
-	/// </summary>
-	/// <param name="a_blocker">the actor blocking the projectile</param>
-	/// <param name="a_projectile">the incoming projectile</param>
-	/// <param name="a_projectile_collidable">havok collidable of the projectile</param>
-	/// <returns>Whether the parry is successfu,  regardless of whether deflection is successful.</returns>
-	bool tryParryProjectile_Arrow(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable);
 	
 	/// <summary>
 	/// Deflect an incoming projectile back.
