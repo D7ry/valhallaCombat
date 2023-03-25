@@ -101,7 +101,7 @@ public:
 	/// <param name="a_blocker"></param>
 	/// <param name="a_attacker"></param>
 	/// <returns>Whether a timed block is successfully performed.</returns>
-	bool processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker);
+	bool processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker, bool a_forced, bool a_forcedPerfect);
 
 	
 	/// <summary>
@@ -146,7 +146,7 @@ private:
 	/// <param name="a_blocker">actor blocking the projectile</param>
 	/// <param name="a_projectile">incoming projectile</param>
 	/// <returns>Whether the block is successful.</returns>
-	bool tryBlockProjectile_Spell(RE::Actor* a_blocker, RE::Projectile* a_projectile);
+	bool tryBlockProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, float a_cost);
 	
 	/// <summary>
 	/// Attempt to parry(timed-block) an incoming spell projectile for the blocker. Conditionally deflect the projectile if the blocker has enough magicka.
@@ -161,7 +161,7 @@ private:
 	/// <param name="a_projectile">the incoming projectile</param>
 	/// <param name="a_projectile_collidable">havok collidable of the projectile</param>
 	/// <returns>Whether the parry is successful, regardless of whether deflection is successful.</returns>
-	bool tryParryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, bool a_forced);
+	bool tryParryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, float a_cost, bool a_forced);
 	
 	
 	/// <summary>

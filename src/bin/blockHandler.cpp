@@ -181,9 +181,9 @@ bool blockHandler::isInBlockAngle(RE::Actor* blocker, RE::TESObjectREFR* a_obj)
 bool blockHandler::tryParryProjectile(RE::Actor* a_blocker, RE::Projectile* a_projectile, RE::hkpCollidable* a_projectile_collidable, float a_cost, bool a_forced = false)
 {
 	if (a_forced || (a_blocker->IsPlayerRef() && getIsPcTimedBlocking())) {
-		OnPcSuccessfulTimedBlock();
 
 		if (a_blocker->IsPlayerRef()) {
+			OnPcSuccessfulTimedBlock();
 			auto pc = RE::PlayerCharacter::GetSingleton();
 			if (pc) {
 				pc->AddSkillExperience(RE::ActorValue::kBlock, settings::fTimedBlockProjectileExp);
@@ -236,7 +236,6 @@ bool blockHandler::processProjectileBlock(RE::Actor* a_blocker, RE::Projectile* 
 	if ((isInBlockAngle(a_blocker, a_projectile) && a_blocker->IsBlocking())
 		|| forced
 		) {
-		
 		// evaluate cost
 		float cost;
 		if (forced) { // forced projectile block, no cost
@@ -390,32 +389,20 @@ bool blockHandler::getIsForcedPerfectBlocking(RE::Actor* a_actor)
 }
 
 
-bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker) {
-	if (getIsForcedTimedBlocking(a_blocker) || getIsForcedPerfectBlocking(a_blocker)) {
-		goto begin;
-	}
-	if (!a_blocker->IsPlayerRef()) {
-		return false;
-	}
-	
-	if (!getIsPcTimedBlocking()) {
-		return false;
-	}
-	
-	if (!Utils::Actor::canBlock(a_blocker)) {
-		return false;
-	}
+bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_attacker, bool a_forced, bool a_forcedPerfect) {
+	if (!isInBlockAngle(a_blocker, a_attacker)) return false;
 
-	if (!isInBlockAngle(a_blocker, a_attacker)) {
-		return false;
+	if (!a_forced && !a_forcedPerfect) { // perform checks if it's not forced
+		if (!a_blocker->IsPlayerRef()) return false;
+		if (!getIsPcTimedBlocking()) return false;
+		if (!Utils::Actor::canBlock(a_blocker)) return false;
 	}
 
 	if (ValorCompatibility::get_perilous_state(a_attacker) > ValorCompatibility::PERILOUS_TYPE::yellow) {
 		return false;
 	}
 
-begin:
-	bool isPerfectblock = (a_blocker->IsPlayerRef() && this->getIsPcPerfectBlocking()) || getIsForcedPerfectBlocking(a_blocker);
+	bool isPerfectblock = a_forcedPerfect || (a_blocker->IsPlayerRef() && this->getIsPcPerfectBlocking());
 
 	if (a_blocker->IsPlayerRef()) {
 		OnPcSuccessfulTimedBlock();
@@ -442,8 +429,6 @@ begin:
 	} else {
 		playBlockEffects(a_blocker, a_attacker, blockType::timed);
 	}
-
-
 
 	if (isPerfectblock) {//stagger opponent immediately on perfect block.
 		//reactionHandler::triggerRecoil(a_attacker, reactionHandler::reactionType::kLarge);
@@ -503,16 +488,22 @@ PRECISION_API::PreHitCallbackReturn blockHandler::precisionPrehitCallbackFunc(co
 	if (target->GetFormType() != RE::FormType::ActorCharacter) {
 		return ret;
 	}
+
 	RE::Actor* targetActor = target->As<RE::Actor>();
-	if (targetActor->AsActorState()->GetAttackState() == RE::ATTACK_STATE_ENUM::kNone) {
-		if (settings::bTimedBlockToggle && blockHandler::GetSingleton()->processMeleeTimedBlock(targetActor, attacker)) {
-			ret.bIgnoreHit = true;
-		}
-	} else {
-		if (settings::bTackleToggle && blockHandler::GetSingleton()->processMeleeTackle(targetActor, attacker)) {
-			ret.bIgnoreHit = true;
-		}
+
+	if (settings::bTimedBlockToggle 
+		&& blockHandler::GetSingleton()
+		->processMeleeTimedBlock(targetActor, attacker, 
+			blockHandler::GetSingleton()->getIsForcedTimedBlocking(targetActor), 
+			blockHandler::GetSingleton()->getIsForcedPerfectBlocking(targetActor))) {
+		ret.bIgnoreHit = true;
 	}
+	if (settings::bTackleToggle 
+		&& targetActor->AsActorState()->GetAttackState() != RE::ATTACK_STATE_ENUM::kNone) {
+		if (blockHandler::GetSingleton()->processMeleeTackle(targetActor, attacker)) {
+			ret.bIgnoreHit = true;
+		}
+	} 
 
 	return ret;
 }

@@ -144,7 +144,7 @@ used to block stamina regen in certain situations.*/
 
 	void Hook_OnMeleeCollision::processHit(RE::Actor* a_aggressor, RE::Actor* a_victim, std::int64_t a_int1, bool a_bool, void* a_unkptr)
 	{
-		if (settings::bTimedBlockToggle && blockHandler::GetSingleton()->processMeleeTimedBlock(a_victim, a_aggressor)) {
+		if (settings::bTimedBlockToggle && blockHandler::GetSingleton()->processMeleeTimedBlock(a_victim, a_aggressor, blockHandler::GetSingleton()->getIsForcedTimedBlocking(a_victim), blockHandler::GetSingleton()->getIsForcedPerfectBlocking(a_victim))) {
 			return;
 		}
 		if (settings::bTackleToggle && blockHandler::GetSingleton()->processMeleeTackle(a_victim, a_aggressor)) {
