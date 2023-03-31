@@ -38,6 +38,8 @@ private:
 	static inline std::atomic<bool> async_pcStaminaMeterFlash_b;
 
 	RE::BGSPerk* debuffPerk;
+	RE::BSFixedString gv_bExhausted = "val_bExhausted";
+
 
 };
 

@@ -59,10 +59,9 @@ void debuffHandler::initStaminaDebuff(RE::Actor* a_actor) {
 
 	if (a_actor->IsPlayerRef()) {
 		Utils::Actor::safeApplyPerk(data::debuffPerk, a_actor);
-	} else {
-		/*ValhallaUtils::Papyrus::AddPackageOverride(a_actor, data::PKG_CirclingBehavior, 100, 1);
-		a_actor->EvaluatePackage(true, false);*/
 	}
+
+	a_actor->SetGraphVariableBool(gv_bExhausted, true);
 	if (settings::bUIAlert) {
 		initDebuffUI(a_actor);
 	}
@@ -105,10 +104,9 @@ void debuffHandler::stopDebuff(RE::Actor* a_actor) {
 
 	if (a_actor->IsPlayerRef()) {
 		Utils::Actor::safeRemovePerk(data::debuffPerk, a_actor);
-	} else {
-		//ValhallaUtils::Papyrus::RemovePackageOverride(a_actor, data::PKG_CirclingBehavior);
-		//a_actor->EvaluatePackage(true, false);
 	}
+
+	a_actor->SetGraphVariableBool(gv_bExhausted, false);
 }
 
 	

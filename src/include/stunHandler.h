@@ -182,6 +182,8 @@ private:
 	void async_launchHealthBarFlashThread();
 
 	std::atomic<bool> async_HealthBarFlashThreadActive;
+	
+	RE::BSFixedString gv_bStunned = "val_bStunned";
 
 public:
 
