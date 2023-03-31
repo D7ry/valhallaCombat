@@ -46,6 +46,7 @@ void onDataLoaded()
 	settings::readSettings();
 	events::registerAllEventHandlers();
 	data::loadData();
+	blockHandler::GetSingleton()->init();
 	blockHandler::EldenCounterCompatibility::attemptInit(); //todo: fix this jank
 }
 

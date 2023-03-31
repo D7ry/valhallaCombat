@@ -84,7 +84,7 @@ public:
 	static inline float fBlockCommitmentTime = 0.3f;
 	
 	static inline float fTimedBlockWindow = 0.3f;
-	static inline float fPerfectBlockWindow = 0.15f;
+	static inline uint32_t uPerfectBlockAccum = 3;
 	static inline float fTimedBlockCooldownTime = 0.5f;
 	static inline float fTimedBlockStaminaCostMult = 0.5f;
 

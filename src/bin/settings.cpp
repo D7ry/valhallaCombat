@@ -134,7 +134,7 @@ void settings::readSettings() {
 	MCM_Settings.FETCH(uTimedBlockSparkType);
 	MCM_Settings.FETCH(bTimedBlockSlowTime);
 	MCM_Settings.FETCH(fTimedBlockWindow);
-	MCM_Settings.FETCH(fPerfectBlockWindow);
+	MCM_Settings.FETCH(uPerfectBlockAccum);
 	MCM_Settings.FETCH(fTimedBlockSlowTime_Timed);
 	MCM_Settings.FETCH(fTimedBlockSlowTime_Perfect);
 	MCM_Settings.FETCH(fTimedBlockCooldownTime);

@@ -12,6 +12,8 @@ public:
 		return  std::addressof(singleton);
 	}
 
+	void init();
+
 	void update();
 
 
@@ -25,6 +27,7 @@ public:
 	
 	bool getIsPcTimedBlocking();
 	bool getIsPcPerfectBlocking();
+	void resetPcPerfectBlockCountdown();
 	bool getIsForcedTimedBlocking(RE::Actor* a_actor);
 	bool getIsForcedPerfectBlocking(RE::Actor* a_actor);
 
@@ -56,6 +59,11 @@ private:
 
 	bool isPcTackling = false;
 	bool isPcTackleCooldown = false;
+	
+	bool isPcHot = false;
+	float pcHotTimer = 3.f;
+	uint32_t pcPerfectBlockCountdown = 0;
+
 	float pcTackleTimer = 0;
 	float pcTackleCooldownTimer = 0;
 	

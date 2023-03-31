@@ -13,13 +13,13 @@
 
 
 using HITFLAG = RE::HitData::Flag;
+void blockHandler::init()
+{
+	this->pcPerfectBlockCountdown = settings::uPerfectBlockAccum;
+}
 /*Called every frame.
 Decrement the timer for actors either perfect blocking or cooling down.*/
 void blockHandler::update() {
-	if (!isPcTimedBlocking && !isPcBlockingCoolDown && !isPcTackling && !isPcTackleCooldown && !isBlockButtonPressed) {
-		ValhallaCombat::GetSingleton()->deactivateUpdate(ValhallaCombat::HANDLER::blockHandler);
-	}
-	
 
 	if (isPcTimedBlocking) {
 		pcTimedBlockTimer -= *RE::Offset::g_deltaTime;
@@ -36,8 +36,17 @@ void blockHandler::update() {
 				pcTimedBlockCooldownTimer = settings::fTimedBlockCooldownTime;
 			}
 		}
-		
 	}
+	if (isPcHot) {
+		if (pcHotTimer > 0) {
+			pcHotTimer -= *RE::Offset::g_deltaTime;
+		} else {
+			isPcHot = false;
+			pcHotTimer = 3.f;
+			pcPerfectBlockCountdown = settings::uPerfectBlockAccum;
+		}
+	}
+
 
 	if (isPcTackling) {
 		pcTackleTimer -= *RE::Offset::g_deltaTime;
@@ -372,8 +381,13 @@ bool blockHandler::getIsPcTimedBlocking() {
 }
 
 bool blockHandler::getIsPcPerfectBlocking() {
-	bool ret = isTimedBlockElapsedTimeLessThan(settings::fPerfectBlockWindow);
-	return ret;
+	//bool ret = isTimedBlockElapsedTimeLessThan(settings::uPerfectBlockAccum);
+	//return ret;
+	return isPcHot && pcPerfectBlockCountdown == 0;
+}
+
+void blockHandler::resetPcPerfectBlockCountdown() {
+	pcPerfectBlockCountdown = settings::uPerfectBlockAccum;
 }
 
 bool blockHandler::getIsForcedTimedBlocking(RE::Actor* a_actor)
@@ -405,6 +419,14 @@ bool blockHandler::processMeleeTimedBlock(RE::Actor* a_blocker, RE::Actor* a_att
 	bool isPerfectblock = a_forcedPerfect || (a_blocker->IsPlayerRef() && this->getIsPcPerfectBlocking());
 
 	if (a_blocker->IsPlayerRef()) {
+		if (isPerfectblock) {
+			resetPcPerfectBlockCountdown();
+		}
+		else {
+			pcPerfectBlockCountdown -= 1;
+			isPcHot = true;
+			pcHotTimer = 3.f;
+		}
 		OnPcSuccessfulTimedBlock();
 		auto pc = RE::PlayerCharacter::GetSingleton();
 		if (pc) {
