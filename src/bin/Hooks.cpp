@@ -225,4 +225,22 @@ used to block stamina regen in certain situations.*/
 		}
 		_ProcessButton(a_this, a_event, a_data);
 	}
+
+	std::int32_t& Hook_GetWantBlock::GetWantBlock(void* unk_ptr, const RE::BSFixedString& a_channelName, std::uint8_t unk_int, RE::Actor* a_actor, std::int32_t& a_result)
+	{
+		// // O: insert return statement here
+		_GetWantBlock(unk_ptr, a_channelName, unk_int, a_actor, a_result);
+
+		if (!a_actor->IsPlayerRef()) {
+			if (debuffHandler::GetSingleton()->isInDebuff(a_actor)) {
+				a_result = 1;
+				if (a_actor->IsBlocking()) {
+					a_actor->NotifyAnimationGraph("blockStop");
+				}
+			}
+		}
+	
+		return a_result;
+	}
+
 }

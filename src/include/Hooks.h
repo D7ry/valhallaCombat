@@ -217,6 +217,26 @@ namespace Hooks
 		static inline REL::Relocation<decltype(processHit)> _ProcessHit;
 	};
 
+	class Hook_GetWantBlock
+	{
+	public:
+		static void install()
+		{
+			REL::Relocation<uintptr_t> hook{ RELOCATION_ID(37376, 00000) };
+			auto& trampoline = SKSE::GetTrampoline();
+
+			_GetWantBlock = trampoline.write_call<5>(hook.address() + RELOCATION_OFFSET(0x23, 0x00), GetWantBlock);
+
+			logger::info("hook:OnGetWantBlock");
+		}
+
+	private:
+		static std::int32_t& GetWantBlock(void* unk_ptr, const RE::BSFixedString& a_channelName, std::uint8_t unk_int, RE::Actor* a_actor, std::int32_t& a_result);
+
+		static inline REL::Relocation<decltype(GetWantBlock)> _GetWantBlock;
+
+	};
+
 	class Hook_OnAttackAction
 	{
 	public:
@@ -247,6 +267,7 @@ namespace Hooks
 		Hook_OnProjectileCollision::install();
 		Hook_OnMeleeCollision::install();
 		Hook_OnAttackAction::install();
+		Hook_GetWantBlock::install();
 		Hook_AttackBlockHandler_OnProcessButton::install();
 		logger::info("...done");
 	}
