@@ -191,6 +191,7 @@ used to block stamina regen in certain situations.*/
 				if (a_event) {
 					delete (a_event);
 				}
+				player->NotifyAnimationGraph("blockStop"); // just in case
 			}
 		)
 	}
@@ -210,11 +211,12 @@ used to block stamina regen in certain situations.*/
 					blockHandler->onBlockKeyUp();
 				}
 				if (settings::bBlockCommitmentToggle) {/* Block commitment; Immediately releasing the block key after pressing it will not cause the actor to immediately unblock.*/
+					float delay_time = settings::fBlockCommitmentTime - a_event->HeldDuration();
+					//blockCommitment::GetSingleton()->queueUnblock(delay_time);
 					auto pc = RE::PlayerCharacter::GetSingleton();
 					if (pc && pc->IsBlocking() && a_event->HeldDuration() < settings::fBlockCommitmentTime) { //do not process this request until later
 						RE::ButtonEvent* releaseEvent = RE::ButtonEvent::Create(a_event->GetDevice(), "forceRelease", a_event->GetIDCode(), a_event->Value(), a_event->HeldDuration());  // event to unblock, will be fired later.
 						if (releaseEvent) {
-							float delay_time = settings::fBlockCommitmentTime - a_event->HeldDuration();
 							std::jthread t(unblock_delayed_threadfunc, a_this, releaseEvent, a_data, delay_time);
 							t.detach();
 							return; //discard the event

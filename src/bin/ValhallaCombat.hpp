@@ -6,6 +6,7 @@
 #include "include/lib/TrueHUDAPI.h"
 #include "include/lib/PrecisionAPI.h"
 #include "include/settings.h"
+#include "include/blockCommitment.h"
 /*Combat tweaks to make Skyrim's melee combat feel like AC:Valhalla.*/
 class ValhallaCombat
 {
@@ -70,6 +71,7 @@ public:
 		if (update_StunHandler) {
 			stunHandler::GetSingleton()->update();
 		}
+		blockCommitment::GetSingleton()->update();
 		//if (update_balanceHandler) {
 			//balanceHandler::GetSingleton()->update();
 		//}
@@ -92,7 +94,7 @@ public:
 			ersh_TrueHUD->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), stunHandler::getCurrentStun_static, stunHandler::getMaxStun_static, true, false);
 			settings::facts::TrueHudAPI_HasSpecialBarControl = true;
 			logger::info("...Success");
-			settings::updateGlobals();
+			settings::updateGameSettings();
 			break;
 		case TRUEHUD_API::APIResult::AlreadyTaken:
 			logger::info("...Failure: TrueHUD API already taken by another plugin");
@@ -109,7 +111,7 @@ public:
 		auto res = ersh_TrueHUD->ReleaseSpecialResourceBarControl(SKSE::GetPluginHandle());
 		if (res == TRUEHUD_API::APIResult::OK) {
 			settings::facts::TrueHudAPI_HasSpecialBarControl = false;
-			settings::updateGlobals();
+			settings::updateGameSettings();
 			logger::info("...Success");
 		}
 		else {

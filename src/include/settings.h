@@ -6,6 +6,41 @@
 /*All the settings of Valhalla combat*/
 class settings
 {
+	using EventResult = RE::BSEventNotifyControl;
+
+	public:
+	// using event handler similar to this in the mod plugin.
+	class UpdateHandler : public RE::BSTEventSink<SKSE::ModCallbackEvent>
+	{
+	public:
+		virtual EventResult ProcessEvent(const SKSE::ModCallbackEvent* a_event, RE::BSTEventSource<SKSE::ModCallbackEvent>* a_eventSource)
+		{
+			if (!a_event) {
+				return EventResult::kContinue;
+			}
+			if (a_event->eventName == "dmenu_updateSettings" && a_event->strArg == "ValhallaCombat") {
+				settings::readSettings();
+			}
+
+			return EventResult::kContinue;
+		}
+
+		static bool Register()
+		{
+			static UpdateHandler singleton;
+
+			auto eventSource = SKSE::GetModCallbackEventSource();
+
+			if (!eventSource) {
+				ERROR("EventSource not found!");
+				return false;
+			}
+			eventSource->AddEventSink(&singleton);
+			INFO("Register {}", typeid(singleton).name());
+			return true;
+		}
+	};
+
 public:
 	class facts
 	{
@@ -16,13 +51,7 @@ public:
 		static inline bool EldenParry_ObtainedAPI;
 	};
 
-	
-#pragma region GlobalSettings
-	static inline RE::TESGlobal* glob_TrueHudAPI;
-	static inline RE::TESGlobal* glob_TrueHudAPI_SpecialMeter;
-	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_NPC;
-	static inline RE::TESGlobal* glob_Nemesis_EldenCounter_Damage;
-	static inline RE::TESGlobal* glob_EldenCounter_EspPluginLoaded;
+
 
 #pragma endregion
 
@@ -154,8 +183,7 @@ public:
 	//TODO: add new settings
 
 	static void readSettings();
-	static void updateGlobals();
-	static void init();
+	static void updateGameSettings();
 private:
 	static void ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, bool& a_setting);
 	static void ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting);

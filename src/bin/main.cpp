@@ -1,6 +1,5 @@
 #include "SimpleIni.h"
 #include "include/Hooks.h"
-#include "include/Papyrus.h"
 #include "include/data.h"
 #include "include/debuffHandler.h"
 #include "include/events.h"
@@ -42,7 +41,6 @@ void onDataLoaded()
 {
 	Hooks::install();  //hook install has been postponed for compatibility with other plugins.
 
-	settings::init();
 	settings::readSettings();
 	events::registerAllEventHandlers();
 	data::loadData();
@@ -60,7 +58,7 @@ void onPostLoad() {
 void onPostLoadGame() {
 	debuffHandler::GetSingleton()->stopDebuff(RE::PlayerCharacter::GetSingleton());
 	stunHandler::GetSingleton()->reset();
-	settings::updateGlobals();
+	settings::updateGameSettings();
 }
 
 
@@ -82,7 +80,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 
 void onSKSEInit()
 {
-	Papyrus::Register();
+	settings::UpdateHandler::Register();
 }
 
 namespace
