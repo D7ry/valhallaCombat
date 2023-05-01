@@ -98,6 +98,9 @@ void settings::readSettings() {
 	MCM_Settings.FETCH(fBckShdStaminaMult_NPC_Block_NPC);
 	MCM_Settings.FETCH(fBckShdStaminaMult_NPC_Block_PC);
 	MCM_Settings.FETCH(fBckShdStaminaMult_PC_Block_NPC);
+	MCM_Settings.FETCH(fBckWpnStaminaMult_NPC_Block_NPC);
+	MCM_Settings.FETCH(fBckWpnStaminaMult_NPC_Block_PC);
+	MCM_Settings.FETCH(fBckWpnStaminaMult_PC_Block_NPC);
 	MCM_Settings.FETCH(bStaminaDebuffToggle);
 	
 	
